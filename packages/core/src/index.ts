@@ -1,3 +1,4 @@
+export * from "./dynamics";
 export * from "./fitness";
 export * from "./ga";
 export * from "./geometry";
