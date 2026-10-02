@@ -1,0 +1,6 @@
+{
+	"formatter": { "indentStyle": "tab" },
+	"javascript": { "formatter": { "quoteStyle": "double" } },
+	"linter": { "enabled": true, "rules": { "preset": "none" } },
+	"files": { "includes": ["**", "!**/node_modules", "!**/dist"] }
+}
