@@ -4,7 +4,7 @@ import {
 	genomeToParams,
 	type JansenParams,
 	paramsToGenome,
-} from "@strandbeest/core";
+} from "strandbeest-core";
 import type { WorkerRequest } from "./ga.worker";
 
 let {

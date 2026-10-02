@@ -1,14 +1,48 @@
 {
-	"name": "@strandbeest/core",
-	"version": "0.0.0",
+	"name": "strandbeest-core",
+	"version": "0.1.0",
+	"description": "Jansen linkage (Strandbeest leg) kinematics, gait metrics and seeded genetic-algorithm optimization. Pure TypeScript, runs in browser and Node.",
+	"keywords": [
+		"strandbeest",
+		"jansen",
+		"linkage",
+		"kinematics",
+		"genetic-algorithm",
+		"theo-jansen"
+	],
+	"license": "MIT",
 	"type": "module",
-	"main": "src/index.ts",
-	"types": "src/index.ts",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/meiluosi/strandbeest-evolution.git",
+		"directory": "packages/core"
+	},
+	"homepage": "https://github.com/meiluosi/strandbeest-evolution#readme",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
+		"build": "tsup src/index.ts --format esm --clean && tsc -p tsconfig.build.json",
+		"prepublishOnly": "pnpm test && pnpm build",
 		"test": "vitest run",
 		"type-check": "tsc --noEmit"
 	},
 	"devDependencies": {
+		"tsup": "^8.5.1",
 		"vitest": "^5.0.3"
 	}
 }

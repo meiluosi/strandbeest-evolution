@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitnessFlatStroke, paramsToGenome } from "./fitness";
+import { fitnessFlatStroke, INFEASIBLE, paramsToGenome } from "./fitness";
 import { runGA } from "./ga";
 import { JANSEN_LENGTHS } from "./jansen";
 import { createRng } from "./rng";
@@ -36,6 +36,6 @@ describe("fitness sanity", () => {
 	it("rejects legs whose foot rises above the hip", () => {
 		const g = paramsToGenome(JANSEN_LENGTHS);
 		g[7] = 1; // collapse link h: foot can no longer reach the ground sensibly
-		expect(fitnessFlatStroke(g)).toBe(Number.NEGATIVE_INFINITY);
+		expect(fitnessFlatStroke(g)).toBeLessThanOrEqual(INFEASIBLE);
 	});
 });

@@ -5,7 +5,7 @@ import {
 	type JansenParams,
 	jansenSpec,
 	trace,
-} from "@strandbeest/core";
+} from "strandbeest-core";
 
 let { params = $bindable() }: { params: JansenParams } = $props();
 

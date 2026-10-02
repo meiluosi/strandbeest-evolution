@@ -4,4 +4,5 @@ export * from "./geometry";
 export * from "./jansen";
 export * from "./linkage";
 export * from "./metrics";
+export * from "./multileg";
 export * from "./rng";

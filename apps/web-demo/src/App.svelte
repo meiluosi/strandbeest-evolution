@@ -1,5 +1,5 @@
 <script lang="ts">
-import { JANSEN_LENGTHS, type JansenParams } from "@strandbeest/core";
+import { JANSEN_LENGTHS, type JansenParams } from "strandbeest-core";
 import Evolver from "./Evolver.svelte";
 import LinkageViewer from "./LinkageViewer.svelte";
 

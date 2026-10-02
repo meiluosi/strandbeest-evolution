@@ -13,6 +13,12 @@ export interface GAOptions {
 	tournament?: number;
 	/** genes are clamped to [lo*seed, hi*seed] around the starting genome */
 	bounds?: [number, number];
+	/**
+	 * "perturb": start from the given genome plus noise (default).
+	 * "uniform": ignore the genome's values and sample uniformly inside the bounds (it only sets their centre),
+	 * rejecting invalid individuals. Use this to ask whether evolution can *find* a design, not just polish one.
+	 */
+	init?: "perturb" | "uniform";
 }
 
 export interface GAState {
@@ -51,11 +57,19 @@ export function* evolve(
 			g.map((v) => (rng() < mutRate ? v * (1 + mutScale * gaussian(rng)) : v)),
 		);
 
-	let pop = Array.from({ length: popSize }, (_, k) =>
-		k === 0
-			? start.slice()
-			: mutate(start.map((v) => v * (1 + 0.1 * gaussian(rng)))),
-	);
+	const sampleUniform = () =>
+		start.map(
+			(_, i) =>
+				(lo[i] as number) + rng() * ((hi[i] as number) - (lo[i] as number)),
+		);
+	let pop =
+		opts.init === "uniform"
+			? Array.from({ length: popSize }, sampleUniform)
+			: Array.from({ length: popSize }, (_, k) =>
+					k === 0
+						? start.slice()
+						: mutate(start.map((v) => v * (1 + 0.1 * gaussian(rng)))),
+				);
 	const history: GAState[] = [];
 	let best = start;
 	let bestFitness = Number.NEGATIVE_INFINITY;

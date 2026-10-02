@@ -1,4 +1,4 @@
-import { evolve, fitnessFlatStroke, fitnessHighStep } from "@strandbeest/core";
+import { evolve, fitnessFlatStroke, fitnessHighStep } from "strandbeest-core";
 
 export interface WorkerRequest {
 	start: number[];

@@ -18,6 +18,6 @@
 		"vite": "^8.3.2"
 	},
 	"dependencies": {
-		"@strandbeest/core": "workspace:^"
+		"strandbeest-core": "workspace:^"
 	}
 }

@@ -13,7 +13,8 @@
 		"lint": "biome check --write .",
 		"format": "biome format --write .",
 		"check": "biome check . && pnpm type-check && pnpm test",
-		"experiment": "tsx scripts/experiment.ts"
+		"experiment": "tsx scripts/experiment.ts",
+		"reproduce": "tsx scripts/reproduce-jansen.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",
