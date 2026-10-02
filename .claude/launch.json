@@ -1,0 +1,17 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "web-demo",
+			"runtimeExecutable": "pnpm",
+			"runtimeArgs": [
+				"--filter",
+				"@strandbeest/web-demo",
+				"dev",
+				"--port",
+				"5173"
+			],
+			"port": 5173
+		}
+	]
+}

@@ -1,0 +1,23 @@
+{
+	"name": "@strandbeest/web-demo",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"type-check": "svelte-check --tsconfig ./tsconfig.json",
+		"test": "echo 'no tests in web-demo'"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"svelte": "^5.57.1",
+		"svelte-check": "^4.7.6",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.2"
+	},
+	"dependencies": {
+		"@strandbeest/core": "workspace:^"
+	}
+}
