@@ -12,10 +12,12 @@
 		"type-check": "pnpm -r type-check",
 		"lint": "biome check --write .",
 		"format": "biome format --write .",
-		"check": "biome check . && pnpm type-check && pnpm test"
+		"check": "biome check . && pnpm type-check && pnpm test",
+		"experiment": "tsx scripts/experiment.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",
+		"tsx": "^4.23.15",
 		"typescript": "^7.0.2"
 	}
 }

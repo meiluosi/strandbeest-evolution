@@ -1,1 +1,7 @@
+export * from "./fitness";
+export * from "./ga";
 export * from "./geometry";
+export * from "./jansen";
+export * from "./linkage";
+export * from "./metrics";
+export * from "./rng";
