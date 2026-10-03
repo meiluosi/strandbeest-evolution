@@ -1,4 +1,4 @@
-// Can evolution find Jansen's leg from scratch?  Usage: pnpm reproduce [seeds] [generations] [population]
+// Can evolution find Jansen's leg from scratch?  Usage: pnpm reproduce [seeds] [generations] [population] [default|tuned]
 //   A) match:  inverse problem — fit the foot-loop shape of Jansen's leg, starting from random lengths.
 //   B) flat:   objective-driven — maximise our flat-stroke fitness from random lengths, then compare to Jansen.
 // "blind" search box: every length uniform in [5, 80], no knowledge of Jansen's numbers except their order of magnitude.
@@ -20,6 +20,10 @@ import {
 const seeds = Number(process.argv[2] ?? 20);
 const generations = Number(process.argv[3] ?? 500);
 const population = Number(process.argv[4] ?? 150);
+// "tuned": high mutation rate/scale + more elites, chosen from a small sweep to avoid premature convergence.
+const mode = process.argv[5] ?? "default";
+const gaTuning =
+	mode === "tuned" ? { mutationRate: 0.5, mutationScale: 0.15, elites: 3 } : {};
 
 const jansen = paramsToGenome(JANSEN_LENGTHS);
 const jansenFoot = trace(jansenSpec(), 180).foot;
@@ -45,6 +49,7 @@ for (let seed = 1; seed <= seeds; seed++) {
 		population,
 		init: "uniform" as const,
 		bounds: blindBounds,
+		...gaTuning,
 	};
 	const a = runGA(blindCentre, matchFitness, opts);
 	const b = runGA(blindCentre, fitnessFlatStroke, opts);
@@ -77,6 +82,8 @@ const summary = {
 		seeds,
 		generations,
 		population,
+		mode,
+		gaTuning,
 		searchBox: "uniform [5,80] per length",
 	},
 	jansen: { flatFitness: jansenFit, metrics: gaitMetrics(jansenFoot) },
@@ -95,6 +102,6 @@ const summary = {
 console.log(JSON.stringify(summary, null, 2));
 mkdirSync("experiments", { recursive: true });
 writeFileSync(
-	"experiments/reproduce-jansen.json",
+	`experiments/reproduce-jansen-${mode}-ga.json`,
 	`${JSON.stringify({ summary, rows, names: JANSEN_PARAM_NAMES }, null, 2)}\n`,
 );

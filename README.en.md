@@ -1,0 +1,33 @@
+# strandbeest-evolution
+
+Research project on the leg linkage of Theo Jansen's Strandbeest: kinematics, evolutionary optimization, quasi-static wind-driven dynamics, an interactive demo, and companion articles. ([中文 README](README.md))
+
+![Foot path of the Jansen linkage](docs/assets/jansen-leg.gif)
+![Multi-leg walking (schematic)](docs/assets/walker.gif)
+
+## What's inside
+
+| Path | Contents |
+|---|---|
+| `packages/core` | Pure TypeScript library (npm: `strandbeest-core`): linkage solver, gait metrics, seeded GA, multi-leg, quasi-static dynamics and sail model |
+| `apps/web-demo` | Interactive demo: drag the 13 lengths and watch the foot path; run the GA in the browser; wind estimate panel |
+| `scripts/` | Experiment scripts (evolution, re-discovering Jansen, dynamics comparison) and GIF rendering |
+| `docs/` | Roadmap, architecture, research notes (sources), experiment log |
+
+## Run
+
+```bash
+pnpm install
+pnpm check
+pnpm --filter @strandbeest/web-demo dev
+pnpm experiment flat 1 80
+pnpm dynamics
+```
+
+## Honest caveats
+
+- Sources for Jansen's 13 lengths and the linkage topology are in [research notes](docs/RESEARCH-NOTES.md); the evolution timeline has not yet been checked against strandbeest.com.
+- The dynamics is **quasi-static** (no inertia, no slip, no soft ground); sail, gearing and resistance are illustrative assumptions. Use it to compare designs, not to predict real walkers.
+- Our GA is a reconstruction of the *idea* of evolving leg lengths, not Jansen's actual method.
+
+Issues and PRs welcome. MIT licensed.
