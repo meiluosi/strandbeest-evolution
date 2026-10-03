@@ -28,12 +28,23 @@ Reading: the search reliably finds legs whose foot path looks like Jansen's, but
 | median shape distance to Jansen's loop | 0.087 |
 | seeds within 0.05 of Jansen's loop | 0 / 20 |
 
-Reading: with default settings, blind search usually does **not** reach Jansen's score under our objective, and none of the runs lands on his loop shape. Two things are mixed together here: the optimiser gets stuck in local optima (a small sweep showed higher mutation helps; see run 1b), and our objective is a design choice that need not have Jansen's design as its optimum. Starting *from* Jansen's lengths, the same objective reaches 0.71 (`experiments/flat-seed1.json`), so Jansen's leg is not this objective's optimum.
+Reading: with default settings, blind search usually does **not** reach Jansen's score under our objective, and none of the runs lands on his loop shape. Two things are mixed together here: the optimiser may be getting stuck (raising mutation did not fix it, see 1b), and our objective is a design choice that need not have Jansen's design as its optimum; we have not separated them. Starting *from* Jansen's lengths, the same objective reaches 0.71 (`experiments/flat-seed1.json`), so Jansen's leg is not this objective's optimum.
 
 **What this does and doesn't show.** It shows that a D-shaped, flat-stroke foot path is findable by blind evolutionary search in this parameterisation (the topology is fixed to Jansen's). It does not show that Jansen's numbers are recoverable, nor that our objective reproduces his; his actual objective and method are not documented in the sources we found.
 
-### 1b. Tuned GA settings
-`pnpm reproduce 20 500 150 tuned` (mutation rate 0.5, scale 0.15, 3 elites, chosen from a 6-seed sweep). Results to be added: `experiments/reproduce-jansen-tuned-ga.json`.
+### 1b. Tuned GA settings (negative result)
+`pnpm reproduce 20 500 150 tuned`: same 20 seeds with mutation rate 0.5, scale 0.15, 3 elites (picked from a 6-seed sweep where it looked better). Raw: `experiments/reproduce-jansen-tuned-ga.json`.
+
+| | default | tuned |
+|---|---|---|
+| A. median shape distance | 0.0155 | 0.0195 |
+| A. seeds with distance < 0.02 | 16 / 20 | 11 / 20 |
+| A. seeds recovering lengths | 0 / 20 | 0 / 20 |
+| B. median best fitness (Jansen 0.481) | 0.370 | 0.337 |
+| B. seeds beating Jansen | 2 / 20 | 0 / 20 |
+| B. seeds within 0.05 of Jansen's loop | 0 / 20 | 0 / 20 |
+
+Reading: tuning did **not** help. The earlier impression came from a 6-seed trial and was noise. So "premature convergence from too little mutation" is not established as the cause of B; the structure of the search space and our objective are both still candidates, and we have not separated them.
 
 ## 2. Objectives on top of Jansen's start (seed 1, 80 generations)
 

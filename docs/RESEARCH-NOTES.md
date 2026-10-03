@@ -3,30 +3,31 @@
 Every claim needs a source. Mark `[unverified]` until checked.
 
 ## Theo Jansen's evolution periods
-Source status: strandbeest.com is rendered dynamically and could not be fetched here, so the primary source is **not yet checked**. The list below comes from a summary of the Wikipedia article "Strandbeest" (https://en.wikipedia.org/wiki/Strandbeest), cross-read against press coverage. Verify against strandbeest.com before quoting years in print.
+Primary source: the period pages on strandbeest.com/evolution/<period>, read in a browser on 2026-10-04 (the site renders client-side, so plain HTTP fetches return nothing). The home page says the strandbeests "have evolved since their inception in 1990 and have been divided into 12 periods". Years below are those printed on each period page.
 
-| Period | Years | Change as summarised |
+| Period | Years | Verified content (paraphrased) |
 |---|---|---|
-| Pregluton | 1986–1989 | early concepts and drawings |
-| Gluton | 1990–1991 | built mainly with adhesive tape |
-| Chorda | 1991–1993 | cable ties (zip ties) |
-| Calidum | 1993–1994 | heat-formed PVC tubing; joints became brittle |
-| Tepideem | 1994–1997 | creatures designed to live as groups |
-| Lignatum | 1997–2001 | wood used for a while |
-| Vaporum | 2001–2006 | pneumatic pressure for propulsion independent of the wind |
-| Cerebrum | 2006–2008 | primitive sensing of the environment |
-| Suicideem | 2009–2011 | pressure-driven pistons overloaded the joints |
-| Aspersorium | 2012–2013 | tail-wagging mechanisms |
-| Aurum | 2013–2015 | low-wind operation |
-| Bruchum | 2016–2019 | caterpillar-like motion |
-| Volantum | 2020–2021 | flying strandbeests |
+| Gluton | 1990–1991 | tubes joined with adhesive tape; Vulgaris could not stand or walk |
+| Chorda | 1991–1993 | nylon cable ties; Currens Vulgaris first to stand and walk; leg ratios ("sacred numbers") calculated with a genetic algorithm on his Atari computer; leg made of triangles |
+| Calidum | 1993–1994 | heat gun; identical parts from moulds; joints brittle after a year ("osteoporosis") when the gun was used too hot |
+| Tepideem | 1994–1997 | herd debuts (shelter from wind); Ancora with roller anchor, turns downwind |
+| Lignatum | 1997–2001 | wood-pallet sandwich construction; Rhinoceros Transport (Sept 2004: 3.2 t, 4.7 m tall) walked too fast and joints gave way |
+| Vaporum | 2001–2006 | self-propulsion: plastic-bottle "stomach" filled by wind-driven pumps; sliding-tube pneumatic "muscles" (Excelsus muscles: 2 kg, ~100× its weight in force) |
+| Cerebrum | 2006–2008 | water feeler (hose), soft-sand feeler (muscle pressure), analogue pedometer "witching rod"; reflex: turn round |
+| Suicideem | 2009–2011 | Umerus shoulder-pump drive broke its own backbone on sand (walked 26 s on the beach); Siamesis (72 legs) same; converted back to the Percipiere system |
+| Aspersorium | 2012–2013 | wagging tail (Adulari) |
+| Aurum | 2013–2015 | weak wind: big sails; minimum starting wind about 15 km/h |
+| Bruchum | 2016–2019 | jointless caterpillars, 64 pneumatic muscles on one |
+| Volantum | 2020–2021 | Ader flies up to 6 m to avoid sand burial, anchored to a post; Multi Tripodes (2020, 36 legs) too heavy to fly |
 
-Press coverage (Designboom, Colossal, 2022) agrees on 1990 as the start, "twelve periods of evolution", and Volantum as the latest: https://www.designboom.com/art/theo-jansen-strandbeests-fly-04-21-2022/ , https://www.thisiscolossal.com/2022/04/theo-jansen-flying-strandbeest/ .
+Still unverified or not on his pages:
+- **Pregluton (1986–1989)**: appears in Wikipedia's list as an initial period, but the page on his site was empty when read; the site's home page describes Vermiculus Antramentum (1989) as the first life-form, a straight rod on a computer screen. His own count of periods is 12 (Gluton … Volantum).
+- Animaris Vulgaris having 28 legs: press coverage only (Designboom / Colossal); the Gluton page gives no leg count.
+- "Inspired by Dawkins": Wikipedia wording only.
+- Dates of Animaris Ordis (2006) and Percipiere Rectus (2005): press coverage; the Cerebrum page shows a 2005 Percipiere Rectus photo but the page text was truncated when read.
+- His actual fitness function and algorithm for the leg lengths are **not** documented on the pages read. Our GA (docs/EXPERIMENTS.md) reconstructs the idea, not his method.
 
-- The same coverage gives Animaris Vulgaris (first beach animal, reportedly 28 legs, did not manage to stand) and Animaris Currens Vulgaris (1991, nylon zip ties); and Animaris Percipiere Rectus (2005), Ordis (2006), Umerus (2009).
-- [unverified] That the first Currens Vulgaris is dated 1990 in some sources and 1991 in others; resolve from strandbeest.com.
-- [unverified] Any claim about exactly how the walkers sense water or anchor in storms: the sensing is described as primitive; mechanisms are not documented here.
-- The leg geometry is described as found by evolutionary computation, inspired by Dawkins (Wikipedia). Jansen's actual fitness function and algorithm are **not** documented in the sources above; our own GA (docs/EXPERIMENTS.md) is a reconstruction of the idea, not of his method.
+Earlier secondary sources used before the primary check: https://en.wikipedia.org/wiki/Strandbeest , https://www.designboom.com/art/theo-jansen-strandbeests-fly-04-21-2022/ , https://www.thisiscolossal.com/2022/04/theo-jansen-flying-strandbeest/ .
 
 ## Jansen linkage lengths ("holy numbers")
 - Lengths a=38.0 b=41.5 c=39.3 d=40.1 e=55.8 f=39.4 g=36.7 h=65.7 i=49.0 j=50.0 k=61.9 l=7.8 m=15.0 — confirmed against https://en.wikipedia.org/wiki/Jansen%27s_linkage (m is the crank; the page does not give the joint topology).

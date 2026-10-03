@@ -42,5 +42,5 @@
 - [x] Series drafted (zh): evolution history / leg geometry / re-evolving it (blog drafts, `draft: true`)
 - [x] English versions drafted
 - [x] Bilingual README, demo GIFs
-- [ ] Verify the evolution timeline against strandbeest.com (primary source)
+- [x] Verify the evolution timeline against strandbeest.com (done except Pregluton, whose page was empty)
 - [ ] Publish: enable GitHub Pages (workflow `pages.yml` is manual), npm publish, flip `draft` to false

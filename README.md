@@ -28,7 +28,7 @@ pnpm dynamics                                # 动力学对比
 
 ## 诚实声明
 
-- Jansen 的 13 个长度与连杆拓扑来源见 [研究笔记](docs/RESEARCH-NOTES.md)；演化史部分尚未对照 strandbeest.com 核实一手资料。
+- Jansen 的 13 个长度与连杆拓扑来源见 [研究笔记](docs/RESEARCH-NOTES.md)；演化时期已对照 strandbeest.com 各时期页面核实（Pregluton 除外）。
 - 动力学是**准静态**模型（无惯性、无滑移、无松软地面），帆、传动比、阻力为示意假设，只适合比较设计，不是实测预测。
 - 我们的遗传算法是对"演化出腿长"这一思路的重构，并不是 Jansen 实际使用的方法。
 

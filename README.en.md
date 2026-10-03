@@ -26,7 +26,7 @@ pnpm dynamics
 
 ## Honest caveats
 
-- Sources for Jansen's 13 lengths and the linkage topology are in [research notes](docs/RESEARCH-NOTES.md); the evolution timeline has not yet been checked against strandbeest.com.
+- Sources for Jansen's 13 lengths and the linkage topology are in [research notes](docs/RESEARCH-NOTES.md); the evolution timeline was checked against strandbeest.com's period pages (except Pregluton).
 - The dynamics is **quasi-static** (no inertia, no slip, no soft ground); sail, gearing and resistance are illustrative assumptions. Use it to compare designs, not to predict real walkers.
 - Our GA is a reconstruction of the *idea* of evolving leg lengths, not Jansen's actual method.
 
