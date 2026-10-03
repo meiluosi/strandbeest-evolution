@@ -69,3 +69,23 @@ Reading: tuning did **not** help. The earlier impression came from a 6-seed tria
 | evolved (high step) | 10° | 2.66 | 49.3 | 0.12 / 0.28 / 0.45 |
 
 Reading: the kinematic objectives do not translate into big dynamic differences here; a shorter-stride leg needs less torque but also goes slower per crank turn. The quasi-static torque is set mostly by slope and drag times stride, so a design objective that actually targets torque (not implemented yet) is a more honest route to "better" legs.
+
+## 4. Evolving legs for wind speed (torque-aware objective)
+
+`pnpm wind-objective 6 0 5` and `pnpm wind-objective 6 10 5`: GA started from Jansen's lengths (bounds ±50 %), fitness = steady body speed in a 6 m/s wind from the quasi-static model (`fitnessWindSpeed`), 12 legs, 50 kg, 5 % rolling resistance, illustrative sail; population 60, 60 generations, seeds 1–5. Raw: `experiments/wind-objective-w6-s{0,10}.json`. Legs must still be sensible walkers (flat stroke, real swing phase, ≥ 90 % stable support) and able to start in that wind.
+
+Speeds in m/s. "At Jansen's size" rescales each evolved leg so its mean hip-to-foot distance equals Jansen's, to separate *bigger* from *better shaped*.
+
+| | seed 1 | seed 2 | seed 3 | seed 4 | seed 5 |
+|---|---|---|---|---|---|
+| flat: evolved speed (Jansen 0.228) | 0.228 | 0.312 | 0.277 | 0.282 | 0.284 |
+| flat: size vs Jansen | 1.00× | 1.18× | 1.13× | 1.12× | 1.12× |
+| flat: at Jansen's size | 0.228 | 0.266 | 0.246 | 0.254 | 0.253 |
+| 10°: evolved speed (Jansen 0.200) | 0.200 | 0.266 | 0.239 | 0.215 | 0.242 |
+| 10°: at Jansen's size | 0.200 | 0.230 | 0.214 | 0.217 | 0.217 |
+
+Reading, within the model's assumptions:
+- Most of the raw gain is **size**: the GA makes the leg larger (longer stride per crank turn). At Jansen's size the gain is about +8 % to +17 % on flat ground and +7 % to +15 % on the slope.
+- Seed 1 found nothing better than Jansen's own lengths.
+- Peak torque rises with the larger legs (e.g. 14.7 → 16.9–20.2 N·m on flat ground), which is the price of the longer stride.
+- None of this has been checked against a real walker or a time-domain simulation; the sail, gearing and resistance are assumptions. It shows that a torque-aware objective changes what evolution finds, not that these legs would beat Jansen's in the field.
