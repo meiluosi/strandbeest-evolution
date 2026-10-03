@@ -9,14 +9,16 @@
 - [x] Jansen linkage with the standard 13 lengths; verify foot path is D-shaped (flat stroke) via test
 - [x] Assemblability check across full crank rotation; detect branch flips
 - [x] Foot-trajectory metrics: stride length, lift height, flatness of ground stroke, duty cycle
-- [ ] Multi-leg phase offsets (Strandbeest uses many legs on shared crankshaft)
+- [x] Multi-leg phase offsets (Strandbeest uses many legs on shared crankshaft)
 
 ## M2 — Evolution (core)
 - [x] Seeded RNG, genome = link lengths, GA (selection, crossover, mutation)
 - [x] Fitness v1: reproduce Jansen's "holy numbers" style objective (flat stroke, high lift)
 - [x] Experiment runner + reproducible result files (JSON)
 - [x] Fitness v2: step height (`fitnessHighStep`)
-- [ ] More variants: efficiency, speed; systematic comparison against the original over many seeds
+- [x] Variants: speed and efficiency proxies (`fitnessSpeed`, `fitnessEfficiencyProxy`), match-a-path (`fitnessMatchPath`)
+- [ ] Systematic comparison of objectives against the original over many seeds (see docs/EXPERIMENTS.md for the first study)
+- [ ] A torque-based objective using the M4 model
 
 ## Notes
 - Fitness thresholds (min lift 15% of width, duty credited up to 0.6) are our design choices to block degenerate GA solutions (sliding foot, foot swinging through the body); they are not Jansen's.
@@ -28,11 +30,17 @@
 - [ ] Embed as Svelte component in the blog
 
 ## M4 — Dynamics
-- [ ] Ground contact, friction, body mass; walk on flat / slope / sand-like friction
-- [ ] Wind-driven torque model (sail → crank)
+- [x] Quasi-static walking model: torque from energy conservation (slope, drag, body lift), stability and slip-spread checks, tested for energy balance
+- [x] Wind-driven torque model (geared drag sail → crank), start wind and steady speed
+- [x] Wind panel in the web demo
+- [ ] Ground contact with friction limits and slip (currently only a slip-spread indicator)
+- [ ] Soft/sand-like ground
+- [ ] Inertia (flywheel effect, start-up transients) — needs a time-domain simulation
 - [ ] Optional: pneumatic storage model (bottle + piston pump)
 
-## M5 — Writing & outreach (in the blog repo)
-- [ ] Series: evolution history / how the legs work / re-evolving it
-- [ ] English translation, bilingual README, demo GIFs
-- [ ] Research notes verified with primary sources (Jansen's site, talks, papers)
+## M5 — Writing & outreach (blog repo)
+- [x] Series drafted (zh): evolution history / leg geometry / re-evolving it (blog drafts, `draft: true`)
+- [x] English versions drafted
+- [x] Bilingual README, demo GIFs
+- [ ] Verify the evolution timeline against strandbeest.com (primary source)
+- [ ] Publish: enable GitHub Pages (workflow `pages.yml` is manual), npm publish, flip `draft` to false
