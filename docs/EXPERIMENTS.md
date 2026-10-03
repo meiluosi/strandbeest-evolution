@@ -89,3 +89,20 @@ Reading, within the model's assumptions:
 - Seed 1 found nothing better than Jansen's own lengths.
 - Peak torque rises with the larger legs (e.g. 14.7 → 16.9–20.2 N·m on flat ground), which is the price of the longer stride.
 - None of this has been checked against a real walker or a time-domain simulation; the sail, gearing and resistance are assumptions. It shows that a torque-aware objective changes what evolution finds, not that these legs would beat Jansen's in the field.
+
+## 5. What inertia changes (time-domain model)
+
+`pnpm time-domain`. One-degree-of-freedom model (`simulateWalk`): crank angle is the only coordinate, kinetic energy `T = ½ J_eff(ψ) ω²` with `J_eff = J_rotor + m[(dX/dψ)² + (dH/dψ)²]`, torque balance per radian of crank rotation, no slip, massless legs, **no impact loss** when the set of feet in contact changes. Same assumed walker/sail/5 % resistance as section 3. Raw: `experiments/time-domain.json`.
+
+| quantity | quasi-static | time-domain |
+|---|---|---|
+| start wind from rest (m/s) | 0.727 | 0.733, identical for rotor inertia 0.05 – 300 kg·m² |
+| mean body speed at 6 m/s (m/s) | 0.228 | 0.228 |
+| speed ripple within a revolution at 6 m/s (m/s) | – | 0.214–0.236 (J = 0.05); 0.217–0.233 (J = 300) |
+| revolutions coasted after the wind drops to 0 | – | 0.02 (J = 0.05, 2); 0.14 (J = 60); 0.64 (J = 300) |
+
+Reading:
+- The quasi-static estimates of start wind and mean speed are confirmed by the time-domain model (within ~1 %), so that simplification is not hiding a big effect.
+- A flywheel does **not** lower the wind needed to start. A drag sail's torque falls to zero as it approaches wind speed, so the crank can never be spinning fast enough to store useful energy before the torque peak arrives. We first expected a flywheel to carry the crank over the peak; the test for that failed, and the numbers above are why.
+- Inertia mostly smooths the speed ripple slightly (about ±5 % → ±3.5 %) and lets the walker coast through a lull, but even a very heavy rotor (300 kg·m²) coasts only about two thirds of a revolution.
+- Caveats: gearing, sail and inertia values are assumptions; no impact loss and no slip are modelled; legs are massless. Results are for comparing the model's own predictions, not a validation against a real walker.

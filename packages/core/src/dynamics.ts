@@ -46,6 +46,8 @@ interface Sample {
 	torque: number;
 	/** body forward distance per radian of crank rotation, metres */
 	dXdPsi: number;
+	/** body height change per radian of crank rotation, metres */
+	dHdPsi: number;
 	/** number of legs in ground contact */
 	contacts: number;
 	/** hip is between the rearmost and foremost contact feet (no tipping) */
@@ -113,7 +115,14 @@ export function quasiStaticSample(
 		groundSpeed.length > 1
 			? Math.max(...groundSpeed) - Math.min(...groundSpeed)
 			: 0;
-	return { torque, dXdPsi: dX, contacts: idx.length, stable, slipSpread };
+	return {
+		torque,
+		dXdPsi: dX,
+		dHdPsi: dH,
+		contacts: idx.length,
+		stable,
+		slipSpread,
+	};
 }
 
 export interface CycleSummary {

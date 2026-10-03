@@ -16,7 +16,8 @@
 		"experiment": "tsx scripts/experiment.ts",
 		"reproduce": "tsx scripts/reproduce-jansen.ts",
 		"dynamics": "tsx scripts/dynamics-demo.ts",
-		"wind-objective": "tsx scripts/wind-objective.ts"
+		"wind-objective": "tsx scripts/wind-objective.ts",
+		"time-domain": "tsx scripts/time-domain.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",

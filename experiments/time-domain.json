@@ -1,0 +1,89 @@
+{
+  "assumptions": {
+    "walker": {
+      "legs": 12,
+      "mass": 50,
+      "unit": 0.02,
+      "direction": -1
+    },
+    "sail": {
+      "area": 4,
+      "radius": 0.5,
+      "dragCoeff": 1.2,
+      "gear": 20,
+      "damping": 0.5,
+      "friction": 0.5
+    },
+    "terrain": {
+      "slope": 0,
+      "drag": 24.525000000000002
+    }
+  },
+  "quasiStaticStartWind": 0.7267631077410589,
+  "startWind": [
+    {
+      "inertia": 0.05,
+      "minStartWind": 0.7330804058350622
+    },
+    {
+      "inertia": 2,
+      "minStartWind": 0.7330803329125046
+    },
+    {
+      "inertia": 60,
+      "minStartWind": 0.73307639779523
+    },
+    {
+      "inertia": 300,
+      "minStartWind": 0.7330735511146487
+    }
+  ],
+  "ripple": [
+    {
+      "inertia": 0.05,
+      "meanSpeed": 0.2280787212539076,
+      "min": 0.21435509448896967,
+      "max": 0.23647460879745635
+    },
+    {
+      "inertia": 2,
+      "meanSpeed": 0.22807091837328686,
+      "min": 0.21435404473917688,
+      "max": 0.23630992772723877
+    },
+    {
+      "inertia": 60,
+      "meanSpeed": 0.22800849633151374,
+      "min": 0.21624800192204524,
+      "max": 0.23380303459192645
+    },
+    {
+      "inertia": 300,
+      "meanSpeed": 0.2279794906283152,
+      "min": 0.21739097655972237,
+      "max": 0.2331454363283465
+    }
+  ],
+  "coast": [
+    {
+      "inertia": 0.05,
+      "revolutionsAfterLull": 0.015277777777777946,
+      "stalled": true
+    },
+    {
+      "inertia": 2,
+      "revolutionsAfterLull": 0.019444444444444375,
+      "stalled": true
+    },
+    {
+      "inertia": 60,
+      "revolutionsAfterLull": 0.1416666666666666,
+      "stalled": true
+    },
+    {
+      "inertia": 300,
+      "revolutionsAfterLull": 0.6374999999999997,
+      "stalled": true
+    }
+  ]
+}

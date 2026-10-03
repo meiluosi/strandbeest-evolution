@@ -8,3 +8,4 @@ export * from "./linkage";
 export * from "./metrics";
 export * from "./multileg";
 export * from "./rng";
+export * from "./timedomain";

@@ -18,7 +18,6 @@
 - [x] Fitness v2: step height (`fitnessHighStep`)
 - [x] Variants: speed and efficiency proxies (`fitnessSpeed`, `fitnessEfficiencyProxy`), match-a-path (`fitnessMatchPath`)
 - [ ] Systematic comparison of objectives against the original over many seeds (see docs/EXPERIMENTS.md for the first study)
-- [ ] A torque-based objective using the M4 model
 
 ## Notes
 - Fitness thresholds (min lift 15% of width, duty credited up to 0.6) are our design choices to block degenerate GA solutions (sliding foot, foot swinging through the body); they are not Jansen's.
@@ -35,7 +34,8 @@
 - [x] Wind panel in the web demo
 - [ ] Ground contact with friction limits and slip (currently only a slip-spread indicator)
 - [ ] Soft/sand-like ground
-- [ ] Inertia (flywheel effect, start-up transients) — needs a time-domain simulation
+- [x] Inertia (reduced-order 1-DOF time-domain model: start-up, ripple, coasting; no impact loss, no slip) — see docs/EXPERIMENTS.md §5
+- [x] Torque-aware objective (`fitnessWindSpeed`) — see docs/EXPERIMENTS.md §4
 - [ ] Optional: pneumatic storage model (bottle + piston pump)
 
 ## M5 — Writing & outreach (blog repo)
