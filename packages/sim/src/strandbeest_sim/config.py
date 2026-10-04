@@ -55,9 +55,14 @@ class Drive(_Strict):
 
 
 class Solver(_Strict):
-    timestep: float = Field(0.0005, gt=0, description="s; light bars need <= 0.5 ms for stable stiff joints")
+    timestep: float = Field(0.00025, gt=0, description="s; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8)")
     iterations: int = Field(100, ge=1)
-    contact_solref: float = Field(0.02, gt=0, description="foot/terrain contact time constant, s (smaller = stiffer contact)")
+    contact_solref: float = Field(0.02, gt=0, description="foot/terrain contact time constant, s; used only when contact_stiffness is unset. Depends on effective mass, so it is a numerical knob, not a physical one")
+    contact_stiffness: Union[float, None] = Field(1e5, gt=0, description="foot pad stiffness, N/m (physical; a calibration target). Set to null to use contact_solref instead")
+    contact_damping_ratio: float = Field(1.0, gt=0, description="damping ratio used to derive contact damping from the stiffness")
+    cone: Literal["pyramidal", "elliptic"] = "pyramidal"
+    impratio: float = Field(1.0, ge=1, description="friction-vs-normal constraint impedance ratio")
+    noslip_iterations: int = Field(0, ge=0)
     solref_time: float = Field(0.002, gt=0, description="constraint stiffness time constant (smaller = stiffer; keep >= 2*timestep)")
     solimp: str = Field("0.99 0.999 0.0001", description="constraint impedance (MuJoCo solimp); near 1 = rigid joints")
 

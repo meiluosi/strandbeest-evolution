@@ -21,3 +21,4 @@ packages = ["src/strandbeest_sim"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: numerical-convergence cases that run the simulator several times (minutes)"]

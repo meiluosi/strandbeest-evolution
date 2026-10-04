@@ -25,4 +25,5 @@ def gait(res) -> dict:
         "mean_speed": float(speed),
         "mean_torque": float(np.mean(res.torque[i0:])),
         "peak_torque": float(np.max(res.torque[i0:])),
+        "torque_ptp": float(np.ptp(res.torque[i0:])),
     }

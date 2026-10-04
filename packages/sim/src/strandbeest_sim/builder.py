@@ -152,14 +152,21 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
             eq.append(f'<joint joint1="crank{i}" joint2="crank0" polycoef="0 1 0 0 0"/>')
 
     sv = sc.solver
+    if sv.contact_stiffness is not None:
+        # direct (negative) solref = stiffness N/m and damping N·s/m; damping from a damping ratio against ~1/5 of the mass
+        m_eff = (torso_mass + n * per_leg_mass) / 5.0
+        damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness * m_eff)
+        geom_solref = f"{-sv.contact_stiffness} {-damping}"
+    else:
+        geom_solref = f"{sv.contact_solref} 1"
     pitch_joint = '<joint name="tp" type="hinge" axis="0 1 0"/>' if w.pitch == "free" else ""
     half_y = max(w.lateral_spacing * n / 2, 0.05)
     xml = f"""<mujoco model="{sc.name}">
   <compiler angle="radian"/>
-  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" gravity="0 0 -9.81"/>
+  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -9.81"/>
   <default>
     <equality solref="{sv.solref_time} 1" solimp="{sv.solimp}"/>
-    <geom solref="{sv.contact_solref} 1"/>
+    <geom solref="{geom_solref}"/>
   </default>
   <worldbody>
     <geom name="ground" type="plane" size="200 20 0.1" friction="{sc.terrain.friction} 0.005 0.0001" contype="1" conaffinity="1" rgba="0.85 0.82 0.75 1"/>

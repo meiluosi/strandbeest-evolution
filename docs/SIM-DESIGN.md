@@ -45,3 +45,6 @@ LinkageSpec (JSON, from core) ──► builder ──► MJCF (planar or 3D)
 
 ## Status after S1
 Works: builder, motor drive, flat/slope terrain, metrics, CLI, 5 tests. First cross-check (docs/EXPERIMENTS.md §6): stride agrees with the reduced-order model; **crank torque does not, and the simulator's own torque depends strongly on contact stiffness.** Next work before S2 is to make torque trustworthy: a contact-model study (stiffness, friction cone, foot geometry), slip diagnostics, and convergence with timestep. Known numerical limits: light bars (< ~0.1 kg/m) and high friction (≥ 3) are unstable.
+
+## Status after P1
+Numerical vs physical settings are now separated (docs/EXPERIMENTS.md §8). Robust: stride; mean torque against timestep/iterations/loop stiffness; peak torque needs dt <= 0.25 ms. Not robust: torque *level* against friction regularisation (cone, impedance ratio, no-slip) and soft loop constraints, because flat-ground torque is slip dissipation. Physical parameters that must come from measurement: pad stiffness, friction coefficient, leg mass effect (unexplained), joint friction/clearance. Open: stiff loop constraints blow up for the small printed walker.

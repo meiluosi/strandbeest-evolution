@@ -16,7 +16,8 @@
 |---|---|---|
 | P0 foundations | core, demo, sim S1, docs | mostly done |
 | MVP walking skeleton | schemas, fab export, thin API, front end, calibration on synthetic data, one-command pipeline | **done (thin)**, see below |
-| P1 trustworthy sim | contact study, timestep convergence | **next** |
+| P1 trustworthy sim | contact study, timestep convergence | **done**: findings in EXPERIMENTS §8; torque level remains model-dependent |
+| P2 front end + P3 fab depth | (next) | **next** |
 | P2 static viewer + design save/load | run viewer and designer without a backend | |
 | P3 fab MVP | printable single leg, you print it | |
 | P4 local backend | FastAPI + jobs + storage | |
@@ -64,7 +65,8 @@
 
 ## M4b — MuJoCo simulator (packages/sim, design in docs/SIM-DESIGN.md)
 - [x] S1: planar builder, motor drive, flat/slope, metrics, CLI, cross-check script
-- [ ] Make torque trustworthy (contact-model study, slip diagnostics, timestep convergence)
+- [x] Contact-model study and timestep convergence (EXPERIMENTS §8); torque level stays dependent on friction regularisation, report as a range until measured
+- [ ] Explain why leg mass raises mean torque; fix the small walker's stiff-loop instability; torque range reporting in the API/UI
 - [ ] S2 sail + wind; S3 leg mass/joint friction sweeps; S4 sand (RFT); S5 wind on tubes/body; S6 flexibility, 3D (see SIM-DESIGN.md)
 - [ ] Measured data from a small physical model
 

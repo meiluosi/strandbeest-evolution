@@ -1,0 +1,603 @@
+{
+  "base": {
+    "walker": {
+      "legs": 12,
+      "pitch": "locked",
+      "mass": 50,
+      "tube_mass_per_m": 0.12
+    },
+    "drive": {
+      "omega": 0.6,
+      "ramp": 2
+    },
+    "run": {
+      "revolutions": 2.5,
+      "settle": 1.0,
+      "record_every": 8
+    },
+    "solver": {
+      "contact_stiffness": 100000.0
+    }
+  },
+  "groups": {
+    "A1 timestep": [
+      {
+        "change": {
+          "solver": {
+            "timestep": 0.001
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.000267279864807346,
+          "stride_per_rev": 2.808021694903227,
+          "mean_speed": 0.2681518810372887,
+          "mean_torque": 13.46260113626033,
+          "peak_torque": 24.394392402246012,
+          "torque_ptp": 19.891912548649998,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "timestep": 0.0005
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "timestep": 0.00025
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 9.08253584759322e-05,
+          "stride_per_rev": 2.8078089585057224,
+          "mean_speed": 0.2681316426649813,
+          "mean_torque": 13.465409223313948,
+          "peak_torque": 21.892975924500206,
+          "torque_ptp": 12.319554013367451,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "timestep": 0.000125
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 8.260582339425504e-05,
+          "stride_per_rev": 2.80777966382647,
+          "mean_speed": 0.2681288669391078,
+          "mean_torque": 13.464482857881498,
+          "peak_torque": 21.089074212723062,
+          "torque_ptp": 11.528237814229215,
+          "stalled": false
+        }
+      }
+    ],
+    "A2 iterations": [
+      {
+        "change": {
+          "solver": {
+            "iterations": 30
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "iterations": 100
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "iterations": 300
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      }
+    ],
+    "A3 cone": [
+      {
+        "change": {
+          "solver": {
+            "cone": "pyramidal"
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "cone": "elliptic"
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00025587268127780227,
+          "stride_per_rev": 2.812206406303163,
+          "mean_speed": 0.26856091800546716,
+          "mean_torque": 25.30895779557057,
+          "peak_torque": 38.70445241021662,
+          "torque_ptp": 27.30811944904417,
+          "stalled": false
+        }
+      }
+    ],
+    "A4 impratio": [
+      {
+        "change": {
+          "solver": {
+            "impratio": 1
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "impratio": 10
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.000729950456802797,
+          "stride_per_rev": 2.834319391727683,
+          "mean_speed": 0.27067548547906234,
+          "mean_torque": 21.53306254192494,
+          "peak_torque": 53.05032459378708,
+          "torque_ptp": 73.63305187661172,
+          "stalled": false
+        }
+      }
+    ],
+    "A5 noslip": [
+      {
+        "change": {
+          "solver": {
+            "noslip_iterations": 0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "noslip_iterations": 10
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00042631798675918375,
+          "stride_per_rev": 2.7772425768823896,
+          "mean_speed": 0.265207079274222,
+          "mean_torque": 15.27676664400235,
+          "peak_torque": 39.306572885827336,
+          "torque_ptp": 40.383033447105845,
+          "stalled": false
+        }
+      }
+    ],
+    "A6 loop stiffness": [
+      {
+        "change": {
+          "solver": {
+            "solref_time": 0.004
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00030328786331867974,
+          "stride_per_rev": 2.8192436149050146,
+          "mean_speed": 0.26922364312363656,
+          "mean_torque": 13.310566865226885,
+          "peak_torque": 21.98663429334556,
+          "torque_ptp": 14.59286583973153,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "solref_time": 0.002
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "solref_time": 0.001
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 6.473224629566232e-05,
+          "stride_per_rev": 2.7991887504493698,
+          "mean_speed": 0.26730834224335004,
+          "mean_torque": 13.386278830917966,
+          "peak_torque": 22.74443326909386,
+          "torque_ptp": 13.018798389937729,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "solimp": "0.9 0.95 0.001"
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.002076454237614822,
+          "stride_per_rev": 2.8706011877969333,
+          "mean_speed": 0.27412249008737405,
+          "mean_torque": 6.447169464063522,
+          "peak_torque": 15.737637807775172,
+          "torque_ptp": 17.745102305852924,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "solimp": "0.99 0.999 0.0001"
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      }
+    ],
+    "B1 foot stiffness N/m": [
+      {
+        "change": {
+          "solver": {
+            "contact_stiffness": 10000.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 9.508394297874645e-05,
+          "stride_per_rev": 2.8209158083406067,
+          "mean_speed": 0.2693726095674754,
+          "mean_torque": 8.986909137761936,
+          "peak_torque": 12.287327267076762,
+          "torque_ptp": 9.50589025811496,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "contact_stiffness": 30000.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00010728247619384845,
+          "stride_per_rev": 2.835883937443273,
+          "mean_speed": 0.27081605528332375,
+          "mean_torque": 10.80149147257298,
+          "peak_torque": 18.000371397582057,
+          "torque_ptp": 12.506612067612878,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "contact_stiffness": 100000.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "contact_stiffness": 300000.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.0001617387801897685,
+          "stride_per_rev": 2.8019348953343655,
+          "mean_speed": 0.2675712790226563,
+          "mean_torque": 13.95356148937068,
+          "peak_torque": 25.853242368983047,
+          "torque_ptp": 17.22175093860278,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "solver": {
+            "contact_stiffness": 1000000.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.0004338005606048245,
+          "stride_per_rev": 2.8031045701295376,
+          "mean_speed": 0.2676861033810919,
+          "mean_torque": 13.060329272091803,
+          "peak_torque": 29.317153073840018,
+          "torque_ptp": 28.056694140766922,
+          "stalled": false
+        }
+      }
+    ],
+    "B2 friction": [
+      {
+        "change": {
+          "walker": {
+            "foot_friction": 0.5
+          },
+          "terrain": {
+            "friction": 0.5
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.0009753608163149963,
+          "stride_per_rev": 2.7817108500773005,
+          "mean_speed": 0.2656475790599985,
+          "mean_torque": 3.4871788941417456,
+          "peak_torque": 31.946723661676515,
+          "torque_ptp": 48.74933888753003,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "foot_friction": 0.8
+          },
+          "terrain": {
+            "friction": 0.8
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.000303596225153302,
+          "stride_per_rev": 2.786586151452546,
+          "mean_speed": 0.2660945459787826,
+          "mean_torque": 8.696799210519874,
+          "peak_torque": 25.878513970303175,
+          "torque_ptp": 25.55440354766324,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "foot_friction": 1.2
+          },
+          "terrain": {
+            "friction": 1.2
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00012323784862111609,
+          "stride_per_rev": 2.800287034061039,
+          "mean_speed": 0.26741102291809965,
+          "mean_torque": 11.815979137602932,
+          "peak_torque": 23.190100573228847,
+          "torque_ptp": 14.762394701567246,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "foot_friction": 2.0
+          },
+          "terrain": {
+            "friction": 2.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011255820376687709,
+          "stride_per_rev": 2.833007218657931,
+          "mean_speed": 0.27054317528717464,
+          "mean_torque": 12.536855773155066,
+          "peak_torque": 21.484429425981943,
+          "torque_ptp": 15.151729121571407,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "foot_friction": 3.0
+          },
+          "terrain": {
+            "friction": 3.0
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00010104699784463378,
+          "stride_per_rev": 2.800917567063975,
+          "mean_speed": 0.2674483543336403,
+          "mean_torque": 10.77963973614306,
+          "peak_torque": 15.64946226853499,
+          "torque_ptp": 11.573185091052437,
+          "stalled": false
+        }
+      }
+    ],
+    "B3 foot radius m": [
+      {
+        "change": {
+          "walker": {
+            "foot_radius": 0.005
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00012089127368453134,
+          "stride_per_rev": 2.801189642448301,
+          "mean_speed": 0.26749964938925846,
+          "mean_torque": 13.128341558907533,
+          "peak_torque": 22.443777861859417,
+          "torque_ptp": 13.86489499964955,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "foot_radius": 0.01
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "foot_radius": 0.02
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00012483958814124563,
+          "stride_per_rev": 2.8209513689118713,
+          "mean_speed": 0.26938645315334847,
+          "mean_torque": 14.21051603398808,
+          "peak_torque": 23.89271917763108,
+          "torque_ptp": 13.915223176401923,
+          "stalled": false
+        }
+      }
+    ],
+    "B4 tube mass kg/m": [
+      {
+        "change": {
+          "walker": {
+            "tube_mass_per_m": 0.05
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00019224493681413435,
+          "stride_per_rev": 2.8322351178531613,
+          "mean_speed": 0.2704657560459163,
+          "mean_torque": 8.002696675965232,
+          "peak_torque": 16.58069760912622,
+          "torque_ptp": 13.701650881484966,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "tube_mass_per_m": 0.12
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 0.00011730637908691222,
+          "stride_per_rev": 2.8078576699956868,
+          "mean_speed": 0.26813631990386133,
+          "mean_torque": 13.467169907652163,
+          "peak_torque": 23.0089476051362,
+          "torque_ptp": 14.210093424626393,
+          "stalled": false
+        }
+      },
+      {
+        "change": {
+          "walker": {
+            "tube_mass_per_m": 0.2
+          }
+        },
+        "metrics": {
+          "max_loop_violation": 8.82801072767947e-05,
+          "stride_per_rev": 2.7975678991766255,
+          "mean_speed": 0.26715185269869307,
+          "mean_torque": 15.509862517899068,
+          "peak_torque": 25.217629947364912,
+          "torque_ptp": 13.157329003464838,
+          "stalled": false
+        }
+      }
+    ]
+  }
+}

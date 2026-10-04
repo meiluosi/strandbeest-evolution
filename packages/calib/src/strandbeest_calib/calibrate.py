@@ -27,7 +27,7 @@ class Param:
 
 
 FRICTION = Param("friction", 0.3, 3.0, 1.0, lambda v: {"walker": {"foot_friction": v}, "terrain": {"friction": v}})
-CONTACT_SOLREF = Param("contact_solref", 0.004, 0.08, 0.02, lambda v: {"solver": {"contact_solref": v}})
+CONTACT_STIFFNESS = Param("contact_stiffness", 300.0, 1e6, 3000.0, lambda v: {"solver": {"contact_stiffness": v}})
 
 
 def _merge(dst: dict, src: dict) -> dict:

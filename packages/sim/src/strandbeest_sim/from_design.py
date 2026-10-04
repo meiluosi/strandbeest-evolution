@@ -42,7 +42,13 @@ def scenario_from_design(design: Design, overrides: dict[str, Any] | None = None
             "ramp": 1.0,
         },
         # a softer constraint impedance: at this scale the stiffest setting (0.99 0.999) blew the loops apart
-        "solver": {"timestep": 0.0002, "solref_time": 0.001, "solimp": "0.9 0.95 0.001"},
+        "solver": {
+            "timestep": 0.0002,
+            "solref_time": 0.001,
+            "solimp": "0.9 0.95 0.001",
+            # assumption: pad stiffness such that three feet carrying the weight sink 1 mm; a calibration target
+            "contact_stiffness": max(total * 9.81 / (3 * 0.001), 500.0),
+        },
         "run": {"settle": 0.5, "revolutions": 1.5, "record_every": 10},
     }
     for key, val in (overrides or {}).items():

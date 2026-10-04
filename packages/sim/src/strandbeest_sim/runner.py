@@ -64,6 +64,7 @@ def run(sc: Scenario) -> Result:
     torso = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "torso")
 
     t_, psi_, x_, z_, tau_ = [], [], [], [], []
+    max_viol = 0.0
     settle_steps = int(round(sc.run.settle / dt))
     for _ in range(settle_steps):
         drive.control(sim, 0.0, driving=False)
@@ -83,12 +84,17 @@ def run(sc: Scenario) -> Result:
             x_.append(float(d.xpos[torso][0]))
             z_.append(float(d.xpos[torso][2]))
             tau_.append(drive.torque(sim))
+            if d.nefc:
+                eqm = d.efc_type == mujoco.mjtConstraint.mjCNSTR_EQUALITY
+                if eqm.any():
+                    max_viol = max(max_viol, float(np.abs(d.efc_pos[eqm]).max()))
         k += 1
         if t > sc.run.max_time:
             stalled = True
             break
 
     res = Result(sc, np.array(t_), np.array(psi_), np.array(x_), np.array(z_), np.array(tau_), stalled=stalled)
+    res.metrics["max_loop_violation"] = max_viol
     for name in metrics.names():
         res.metrics.update(metrics.get(name)(res))
     return res
