@@ -1,0 +1,19 @@
+{
+	"schema_version": 1,
+	"id": "example-run",
+	"design_name": "jansen-small-6leg",
+	"scenario": {
+		"name": "flat-motor"
+	},
+	"metrics": {
+		"stride_per_rev": 0.053,
+		"mean_torque": 0.05
+	},
+	"stalled": false,
+	"arrays_file": "example-run.npz",
+	"provenance": {
+		"code_version": "dev",
+		"engine": "mujoco",
+		"engine_version": "3.14.0"
+	}
+}

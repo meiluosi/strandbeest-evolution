@@ -1,0 +1,14 @@
+{
+	"schema_version": 1,
+	"name": "example-profile",
+	"parameters": {
+		"foot_friction": 0.9,
+		"contact_solref": 0.02
+	},
+	"provenance": {
+		"measurement_ids": ["example-motor-no-wind"],
+		"synthetic": true,
+		"method": "example",
+		"residual": 0.0
+	}
+}

@@ -1,0 +1,42 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/run.schema.json",
+	"title": "Run",
+	"description": "Metadata and metrics of one simulation run. Time series live next to it in an arrays file.",
+	"type": "object",
+	"required": [
+		"schema_version",
+		"id",
+		"design_name",
+		"scenario",
+		"metrics",
+		"provenance"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"schema_version": { "const": 1 },
+		"id": { "type": "string", "minLength": 1 },
+		"design_name": { "type": "string" },
+		"scenario": {
+			"type": "object",
+			"description": "the fully resolved scenario that was run"
+		},
+		"metrics": {
+			"type": "object",
+			"additionalProperties": { "type": ["number", "boolean", "null"] }
+		},
+		"stalled": { "type": "boolean" },
+		"arrays_file": { "type": "string" },
+		"provenance": {
+			"type": "object",
+			"required": ["code_version"],
+			"additionalProperties": false,
+			"properties": {
+				"code_version": { "type": "string" },
+				"engine": { "type": "string" },
+				"engine_version": { "type": "string" },
+				"created": { "type": "string" }
+			}
+		}
+	}
+}
