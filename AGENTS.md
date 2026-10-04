@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Strandbeest (Jansen linkage) evolution project: kinematics → dynamics → evolutionary optimization → interactive demos and writing. Primary audience is Chinese-speaking; code and docs are bilingual where it matters. See `docs/ROADMAP.md` for what to work on and `docs/ARCHITECTURE.md` for the design.
+Strandbeest (Jansen linkage) evolution project: kinematics → dynamics → evolutionary optimization → interactive demos and writing. Primary audience is Chinese-speaking; code and docs are bilingual where it matters. See `docs/PLATFORM.md` for the overall vision, data contracts and phase plan, `docs/ROADMAP.md` for what to work on, and `docs/ARCHITECTURE.md` for what exists today.
 
 ## Layout
 
@@ -30,3 +30,9 @@ Use `pnpm` (Node >= 22).
 - Work from `docs/ROADMAP.md`: pick the first unchecked item of the current milestone, update the checkbox when done.
 - Small PR-sized steps; run `pnpm check` and report its output honestly.
 - Do not add dependencies without a reason noted in the commit message.
+
+## Cross-cutting rules (platform)
+
+- The Design, Scenario and Run documents are the interfaces between components (`docs/PLATFORM.md` §3). Do not add a parameter to one component without putting it in the schema.
+- Every physical parameter that is a guess is a named config field with an `assumption` default; never hard-code one in logic.
+- Report negative and limiting results in `docs/EXPERIMENTS.md`, with numbers.

@@ -1,5 +1,18 @@
 # Roadmap
 
+> Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
+
+| phase | goal | status |
+|---|---|---|
+| P0 foundations | core, demo, sim S1, docs | mostly done |
+| P1 trustworthy sim + contracts | contact study, convergence, `schemas/` | **next** |
+| P2 static viewer + design save/load | run viewer and designer without a backend | |
+| P3 fab MVP | printable single leg, you print it | |
+| P4 local backend | FastAPI + jobs + storage | |
+| P5 test rig + first data | measurements | |
+| P6 calibration + extended sim | calib, S2–S4, multi-fidelity evolution | |
+| P7 public release | hosted/WASM, docs site, design library | |
+
 ## M0 — Scaffold
 - [x] pnpm workspace, TypeScript, Biome, Vitest
 - [x] `core/geometry`: circle intersection

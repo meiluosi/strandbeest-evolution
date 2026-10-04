@@ -7,6 +7,8 @@
 ![Jansen 连杆的脚轨迹 / foot path of the Jansen linkage](docs/assets/jansen-leg.gif)
 ![多条腿相位错开行走（示意）/ multi-leg walking (schematic)](docs/assets/walker.gif)
 
+平台设计与阶段计划见 [docs/PLATFORM.md](docs/PLATFORM.md)。
+
 ## 里面有什么
 
 | 目录 | 内容 |

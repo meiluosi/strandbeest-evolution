@@ -5,6 +5,8 @@ Research project on the leg linkage of Theo Jansen's Strandbeest: kinematics, ev
 ![Foot path of the Jansen linkage](docs/assets/jansen-leg.gif)
 ![Multi-leg walking (schematic)](docs/assets/walker.gif)
 
+Platform design and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md) (Chinese).
+
 ## What's inside
 
 | Path | Contents |
