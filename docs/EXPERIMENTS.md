@@ -178,3 +178,5 @@ Reading:
 
 ### Consequences for earlier results
 Sections 3 to 5 (start wind, peak torque from the reduced-order model) remain unvalidated. This study also shows that even the better model has a torque *level* that depends on friction modelling choices by up to a factor 2; the honest way to state a torque is as a range across those choices until measured.
+
+Update after P1: the calibration target is now the physical pad stiffness (`contact_stiffness`, N/m) instead of the mass-dependent contact time constant. Re-run on synthetic data (truth 8000 N/m, 2 % noise, start 3000 N/m, at most 25 runs): recovered within the test's 35 % tolerance, in about 66 s. The slow convergence tests of section 8 also pass.
