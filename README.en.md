@@ -10,6 +10,7 @@ Research project on the leg linkage of Theo Jansen's Strandbeest: kinematics, ev
 | Path | Contents |
 |---|---|
 | `packages/core` | Pure TypeScript library (npm: `strandbeest-core`): linkage solver, gait metrics, seeded GA, multi-leg, quasi-static dynamics and sail model |
+| `packages/sim` | Python / MuJoCo dynamics simulator, scenario-file driven (see [design](docs/SIM-DESIGN.md)); early, torque results not yet converged |
 | `apps/web-demo` | Interactive demo: drag the 13 lengths and watch the foot path; run the GA in the browser; wind estimate panel |
 | `scripts/` | Experiment scripts (evolution, re-discovering Jansen, dynamics comparison) and GIF rendering |
 | `docs/` | Roadmap, architecture, research notes (sources), experiment log |

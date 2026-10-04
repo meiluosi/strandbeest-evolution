@@ -106,3 +106,22 @@ Reading:
 - A flywheel does **not** lower the wind needed to start. A drag sail's torque falls to zero as it approaches wind speed, so the crank can never be spinning fast enough to store useful energy before the torque peak arrives. We first expected a flywheel to carry the crank over the peak; the test for that failed, and the numbers above are why.
 - Inertia mostly smooths the speed ripple slightly (about ±5 % → ±3.5 %) and lets the walker coast through a lull, but even a very heavy rotor (300 kg·m²) coasts only about two thirds of a revolution.
 - Caveats: gearing, sail and inertia values are assumptions; no impact loss and no slip are modelled; legs are massless. Results are for comparing the model's own predictions, not a validation against a real walker.
+
+## 6. MuJoCo simulator vs the reduced-order model (slow flat walk, first cross-check)
+
+`packages/sim`, `python scripts/crosscheck.py '<overrides>' <tag>`. Planar model, 12 legs on one crankshaft, torso pitch locked, 50 kg total, tube 0.12 kg/m (assumption), crank driven at 0.6 rad/s (slow, so inertia should matter little) for 3 revolutions on flat ground, no drag. The reduced-order reference gets a leg-gravity term because MuJoCo's legs have mass. Reference stride: 2.665 m per revolution.
+
+| contact setting | stride (m/rev) | mean crank torque (N·m) | torque peak-to-peak (N·m) | curve correlation with reference |
+|---|---|---|---|---|
+| default (contact time const 0.02 s, μ 1.5) | 2.73 | 3.2 | 4.8 | 0.30 |
+| μ 0.6 | 2.83 | 2.5 | 4.7 | −0.01 |
+| stiffer contact (0.005 s) | 2.83 | 4.0 | 5.4 | 0.08 |
+| softer contact (0.05 s) | 2.33 | 9.1 | 9.9 | 0.52 |
+| μ 3.0 | numerical blow-up (stride 8 m, torque 10⁵ N·m) | – | – | – |
+| reference (reduced-order, + leg gravity) | 2.665 | 0.55 | 8.1 | – |
+
+What this shows, and what it does not:
+- **Stride agrees** to within about 3–6 % for default/stiffer contact (−13 % for very soft contact). Stride is kinematic, so this is the part the reduced-order model could be expected to get right.
+- **The reduced-order torque curve is not reproduced.** Correlation is between −0.01 and 0.52 and the mean torque is 2.5–9 N·m above the reference. With many feet in contact at once, how the load is shared is statically indeterminate and set by contact compliance and foot slip, which the reduced-order model ignores. The extra mean torque is energy lost to that (about 15–55 J per revolution, i.e. roughly 6–20 N of equivalent drag at 50 kg).
+- **The simulator's torque is not converged either:** it changes by a factor of ~3 across contact stiffness. Until that is understood (contact model, slip, foot geometry) neither number should be trusted for start wind or peak torque. The earlier start-wind and peak-torque results in sections 3–5 came from the reduced-order model and are therefore **not validated**.
+- **Numerical limits found along the way:** bars lighter than roughly 0.1 kg/m blow up the loop constraints even at 0.5 ms; friction 3.0 blew up; the original all-free-bodies formulation was unstable and was replaced by hinge tree plus loop closures.

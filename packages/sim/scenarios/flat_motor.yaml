@@ -1,0 +1,12 @@
+# Slow motor-driven walk on flat ground: the quasi-static limit used for cross-checking against packages/core.
+schema_version: 1
+name: flat-motor
+walker:
+  legs: 12
+  mass: 50
+  tube_mass_per_m: 0.12   # assumption
+drive:
+  kind: motor
+  omega: 0.3
+run:
+  revolutions: 3

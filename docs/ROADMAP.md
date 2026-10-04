@@ -38,6 +38,12 @@
 - [x] Torque-aware objective (`fitnessWindSpeed`) — see docs/EXPERIMENTS.md §4
 - [ ] Optional: pneumatic storage model (bottle + piston pump)
 
+## M4b — MuJoCo simulator (packages/sim, design in docs/SIM-DESIGN.md)
+- [x] S1: planar builder, motor drive, flat/slope, metrics, CLI, cross-check script
+- [ ] Make torque trustworthy (contact-model study, slip diagnostics, timestep convergence)
+- [ ] S2 sail + wind; S3 leg mass/joint friction sweeps; S4 sand (RFT); S5 wind on tubes/body; S6 flexibility, 3D (see SIM-DESIGN.md)
+- [ ] Measured data from a small physical model
+
 ## M5 — Writing & outreach (blog repo)
 - [x] Series drafted (zh): evolution history / leg geometry / re-evolving it (blog drafts, `draft: true`)
 - [x] English versions drafted
