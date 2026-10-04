@@ -19,7 +19,12 @@
 			"!**/node_modules",
 			"!**/dist",
 			"!experiments",
-			"!packages/sim"
+			"!packages/sim",
+			"!.venv",
+			"!apps/api",
+			"!packages/common",
+			"!packages/fab",
+			"!packages/calib"
 		]
 	}
 }
