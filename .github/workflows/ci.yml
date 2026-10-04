@@ -1,7 +1,7 @@
 name: CI
 on: [push, pull_request]
 jobs:
-  check:
+  js:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -11,3 +11,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm --filter @strandbeest/web-demo build
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: ./scripts/setup-python.sh
+      - run: ./scripts/test-python.sh

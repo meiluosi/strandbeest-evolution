@@ -31,8 +31,11 @@ DATA = Path(__file__).parent / "data"
 
 def resolve_spec(sc: Scenario) -> LinkageSpec:
     src = sc.linkage.spec
-    path = DATA / "jansen.json" if src == "jansen" else Path(src)
-    d = json.loads(path.read_text())
+    if isinstance(src, dict):
+        d = json.loads(json.dumps(src))
+    else:
+        path = DATA / "jansen.json" if src == "jansen" else Path(src)
+        d = json.loads(path.read_text())
     d["params"].update(sc.linkage.params)
     return load_spec(d)
 
@@ -80,7 +83,7 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
 
     crank_mass = mass_of(spec.crank)
     per_leg_mass = crank_mass + sum(mass_of(spec.val(r)) for j in spec.joints for r in j.radii)
-    torso_mass = w.mass - n * per_leg_mass
+    torso_mass = w.body_mass if w.body_mass is not None else w.mass - n * per_leg_mass
     if torso_mass <= 0:
         raise ValueError(f"legs weigh {n * per_leg_mass:.1f} kg, more than the total mass {w.mass} kg")
 
@@ -109,7 +112,7 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
             pos = ((ps[0] - parent_origin[0]) * u, y_off, (ps[1] - parent_origin[1]) * u)
             rel = ((pe[0] - ps[0]) * u, (pe[1] - ps[1]) * u)
             geoms = (
-                f'<geom type="capsule" fromto="0 0 0 {_f(rel[0])} 0 {_f(rel[1])}" size="0.008" mass="{_f(b.mass)}" '
+                f'<geom type="capsule" fromto="0 0 0 {_f(rel[0])} 0 {_f(rel[1])}" size="{_f(w.bar_radius)}" mass="{_f(b.mass)}" '
                 f'contype="0" conaffinity="0" rgba="0.75 0.7 0.2 1"/>'
             )
             if b.end == spec.foot:
@@ -133,7 +136,7 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
         torso_children.append(
             f'<body name="crank{i}" pos="{_f(px * u)} {_f(y)} {_f(py * u)}">'
             f'<joint name="crank{i}" type="hinge" axis="0 1 0" ref="{_f(-phases[i])}"/>'
-            f'<geom type="capsule" fromto="0 0 0 {_f(crank_vec[0])} 0 {_f(crank_vec[1])}" size="0.008" '
+            f'<geom type="capsule" fromto="0 0 0 {_f(crank_vec[0])} 0 {_f(crank_vec[1])}" size="{_f(w.bar_radius)}" '
             f'mass="{_f(crank_mass)}" contype="0" conaffinity="0" rgba="0.2 0.2 0.25 1"/>{crank_kids}</body>'
         )
 

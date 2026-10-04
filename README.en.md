@@ -19,6 +19,15 @@ Platform design and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md) (Chinese).
 
 ## Run
 
+Full chain (Python side):
+
+```bash
+./scripts/setup-python.sh && source .venv/bin/activate
+strandbeest-pipeline run schemas/examples/design-jansen-small-6leg.json out/   # evaluate → print pack → simulate
+strandbeest-api                                                                 # backend for the web demo below
+```
+
+
 ```bash
 pnpm install
 pnpm check

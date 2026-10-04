@@ -3,7 +3,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020";
 import { describe, expect, it } from "vitest";
-import { jansenSpec } from "./jansen";
+import { defaultDesign } from "./design";
+import { JANSEN_LENGTHS } from "./jansen";
 
 // The schemas live at the repo root and are shared with the Python packages.
 const dir = join(import.meta.dirname, "../../../schemas");
@@ -28,23 +29,9 @@ describe("shared JSON schemas", () => {
 		});
 	}
 
-	it("a Design built from core's jansenSpec() validates", () => {
-		const design = {
-			schema_version: 1,
-			name: "from-core",
-			linkage: jansenSpec(),
-			walker: { legs: 4, unit_m: 0.002, direction: -1, body_mass_kg: 0.3 },
-			drive: { kind: "motor", motor_omega_rad_s: 2 },
-			manufacturing: {
-				process: "fdm",
-				material: "PLA",
-				bar_width_mm: 10,
-				bar_thickness_mm: 3,
-				pin_diameter_mm: 3,
-				clearance_mm: 0.3,
-			},
-		};
+	it("a Design built by defaultDesign() validates", () => {
 		const v = validators.design;
+		const design = defaultDesign(JANSEN_LENGTHS);
 		expect(v?.(design), JSON.stringify(v?.errors)).toBe(true);
 	});
 

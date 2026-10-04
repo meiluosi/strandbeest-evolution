@@ -16,15 +16,16 @@ class _Strict(BaseModel):
 
 
 class Linkage(_Strict):
-    # "jansen" or a path to a LinkageSpec JSON exported by packages/core
-    spec: str = "jansen"
+    # "jansen", a path to a LinkageSpec JSON exported by packages/core, or an inline LinkageSpec object
+    spec: Union[str, dict[str, Any]] = "jansen"
     # overrides of named lengths, e.g. {"m": 16.0}
     params: dict[str, float] = Field(default_factory=dict)
 
 
 class Walker(_Strict):
     legs: int = Field(12, ge=1)
-    mass: float = Field(50.0, gt=0, description="total mass, kg (torso gets what the bars do not)")
+    mass: float = Field(50.0, gt=0, description="total mass, kg (torso gets what the bars do not); ignored if body_mass is set")
+    body_mass: Union[float, None] = Field(None, gt=0, description="torso mass in kg; legs are added on top")
     unit: float = Field(0.02, gt=0, description="metres per length unit of the linkage (assumption)")
     direction: Literal[-1, 1] = -1  # crank turning sense that walks the leg forward; -1 for the Jansen leg
     tube_mass_per_m: float = Field(0.12, ge=0, description="kg per metre of tube (assumption)")
@@ -32,6 +33,7 @@ class Walker(_Strict):
     lateral_spacing: float = Field(0.1, ge=0, description="metres between neighbouring legs (visual only)")
     body_length: float = Field(1.0, gt=0, description="torso length, m: sets pitch inertia only (assumption)")
     pitch: Literal["free", "locked"] = Field("free", description="torso pitch freedom; 'locked' removes tipping")
+    bar_radius: float = Field(0.008, gt=0, description="visual/collision-free capsule radius of bars, m")
     foot_radius: float = Field(0.01, gt=0)
     foot_friction: float = Field(1.5, gt=0)
 

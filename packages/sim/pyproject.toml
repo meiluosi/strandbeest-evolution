@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Configurable MuJoCo dynamics simulator for Strandbeest-style linkage walkers"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["mujoco>=3.1", "numpy>=1.26", "pydantic>=2.6", "pyyaml>=6"]
+dependencies = ["strandbeest-common", "mujoco>=3.1", "numpy>=1.26", "pydantic>=2.6", "pyyaml>=6"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

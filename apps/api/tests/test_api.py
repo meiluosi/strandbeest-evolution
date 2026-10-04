@@ -1,0 +1,61 @@
+import json
+import time
+
+import pytest
+from fastapi.testclient import TestClient
+
+from strandbeest_api import create_app
+from strandbeest_common.schemas import schema_dir
+
+DESIGN = json.loads((schema_dir() / "examples" / "design-jansen-small-6leg.json").read_text())
+
+
+@pytest.fixture
+def client(tmp_path):
+    return TestClient(create_app(tmp_path))
+
+
+def test_validate_reports_errors_and_accepts_good_designs(client):
+    assert client.post("/designs/validate", json=DESIGN).json()["ok"] is True
+    bad = {**DESIGN, "extra": 1}
+    r = client.post("/designs/validate", json=bad).json()
+    assert r["ok"] is False and any("extra" in e for e in r["errors"])
+
+
+def test_save_and_list_designs(client):
+    assert client.post("/designs", json=DESIGN).status_code == 200
+    assert DESIGN["name"] in client.get("/designs").json()
+    assert client.get(f"/designs/{DESIGN['name']}").json()["name"] == DESIGN["name"]
+    assert client.post("/designs", json={**DESIGN, "extra": 1}).status_code == 422
+
+
+def test_evaluate_returns_a_d_shaped_gait(client):
+    g = client.post("/evaluate", json=DESIGN).json()["gait"]
+    assert g["assembled"] and 0.3 < g["duty"] < 0.6
+
+
+def test_export_returns_checks_and_a_downloadable_zip(client):
+    r = client.post("/exports", json=DESIGN).json()
+    assert r["parts"] == 12 and not [c for c in r["checks"] if c["status"] == "fail"]
+    z = client.get(r["download"])
+    assert z.status_code == 200 and z.headers["content-type"] == "application/zip" and z.content[:2] == b"PK"
+
+
+def test_run_job_completes_and_series_are_served(client):
+    jid = client.post("/runs", json={"design": DESIGN, "overrides": {"run": {"revolutions": 0.4, "settle": 0.2}}}).json()["job_id"]
+    for _ in range(300):
+        j = client.get(f"/jobs/{jid}").json()
+        if j["status"] in ("done", "failed"):
+            break
+        time.sleep(0.5)
+    assert j["status"] == "done", j
+    rid = j["result"]["id"]
+    assert client.get(f"/runs/{rid}").json()["design_name"] == DESIGN["name"]
+    s = client.get(f"/runs/{rid}/series").json()
+    assert set(s) >= {"t", "psi", "torque"} and len(s["t"]) > 3
+
+
+def test_unknown_things_are_404(client):
+    assert client.get("/jobs/nope").status_code == 404
+    assert client.get("/runs/nope").status_code == 404
+    assert client.get("/designs/nope").status_code == 404

@@ -21,6 +21,15 @@
 
 ## 运行
 
+全链路（Python 部分）：
+
+```bash
+./scripts/setup-python.sh && source .venv/bin/activate
+strandbeest-pipeline run schemas/examples/design-jansen-small-6leg.json out/   # 评估 → 打印包 → 仿真
+strandbeest-api                                                                 # 后端，配合下面的网页演示
+```
+
+
 ```bash
 pnpm install
 pnpm check                                   # 格式检查 + 类型检查 + 测试

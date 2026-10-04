@@ -1,0 +1,24 @@
+[project]
+name = "strandbeest-api"
+version = "0.1.0"
+description = "Thin orchestration API and one-command pipeline for the Strandbeest platform"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["strandbeest-common", "strandbeest-sim", "strandbeest-fab", "fastapi>=0.110", "uvicorn>=0.27", "numpy>=1.26"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+strandbeest-pipeline = "strandbeest_api.pipeline:main"
+strandbeest-api = "strandbeest_api.app:serve"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/strandbeest_api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

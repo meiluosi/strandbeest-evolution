@@ -1,3 +1,4 @@
+export * from "./design";
 export * from "./dynamics";
 export * from "./dynamics-fitness";
 export * from "./fitness";

@@ -1,11 +1,22 @@
 # Roadmap
 
+## MVP walking skeleton (done, thin)
+- [x] `schemas/`: Design, Measurement, Profile, Run (JSON Schema, examples, TS + Python contract tests)
+- [x] `packages/common`: Design model, linkage solver, gait metrics (Python port checked against core)
+- [x] `packages/fab`: bars/crank/frame, layer assignment (collision-free over the crank cycle), printability checks, STL + BOM + assembly notes + zip
+- [x] `packages/sim`: Design → scenario (printed-bar mass from material), small-walker settings
+- [x] `packages/calib`: Measurement import, compare, fit, Profile; recovery tested on synthetic data
+- [x] `apps/api`: validate / evaluate / export / run jobs / series; `strandbeest-pipeline` one-command CLI
+- [x] `apps/web-demo`: Fabricate panel (evaluate, printability + download, simulate) wired to the API
+- [ ] Known thin spots: no persistence beyond files; no auth; no measurement upload UI; fab has frame plates and bars only (no crankshaft/axle design); sim torque not yet trustworthy (P1)
+
 > Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
 
 | phase | goal | status |
 |---|---|---|
 | P0 foundations | core, demo, sim S1, docs | mostly done |
-| P1 trustworthy sim + contracts | contact study, convergence, `schemas/` | **next** |
+| MVP walking skeleton | schemas, fab export, thin API, front end, calibration on synthetic data, one-command pipeline | **done (thin)**, see below |
+| P1 trustworthy sim | contact study, timestep convergence | **next** |
 | P2 static viewer + design save/load | run viewer and designer without a backend | |
 | P3 fab MVP | printable single leg, you print it | |
 | P4 local backend | FastAPI + jobs + storage | |
