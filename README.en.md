@@ -9,6 +9,8 @@ Platform design and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md) (Chinese).
 
 What this project could grow into (Chinese): [docs/VISION.md](docs/VISION.md).
 
+Engine-style architecture blueprint and decision records (Chinese): [docs/ENGINE.md](docs/ENGINE.md), [docs/adr/](docs/adr/).
+
 ## What's inside
 
 | Path | Contents |

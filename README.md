@@ -11,6 +11,8 @@
 
 想象这个项目最终能长成什么，见 [docs/VISION.md](docs/VISION.md)。
 
+架构蓝图（要做成"引擎"，哪些决定要先定）：[docs/ENGINE.md](docs/ENGINE.md)，决定记录在 [docs/adr/](docs/adr/)。
+
 ## 里面有什么
 
 | 目录 | 内容 |
