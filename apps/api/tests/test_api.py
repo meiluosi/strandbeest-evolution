@@ -239,3 +239,20 @@ def test_rig_convert_reports_bad_input_as_422_and_serves_a_template(client):
     assert bad.status_code == 422 and "missing required columns" in bad.text
     assert client.post("/rig/convert", json={"id": "x"}).status_code == 422
     assert client.get("/rig/calibration-template").json()["calibrated"] is False
+
+
+def test_replay_serves_frames_scene_and_a_nominal_stride(client):
+    jid = client.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 0.6, "settle": 0.2}}}).json()["job_id"]
+    j = wait(client, jid)
+    assert j["status"] == "done" and j["result"]["frames_file"] == "frames.npz"
+    r = client.get(f"/runs/{j['result']['id']}/replay").json()
+    n, b = len(r["t"]), len(r["scene"]["bodies"])
+    assert n > 5 and len(r["pos"]) == n and len(r["pos"][0]) == b and len(r["quat"][0][0]) == 4
+    assert len(r["contact"][0]) == 6 and r["scene"]["geoms"] and r["info"]["drive"] == "motor"
+    assert r["nominal_stride_m"] == pytest.approx(0.27, rel=0.1)  # 6 legs, 2 mm units: about 133 units per revolution
+
+
+def test_replay_of_an_unrecorded_run_is_a_clear_404(client):
+    jid = client.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 0.4, "settle": 0.2, "frame_rate": 0}}}).json()["job_id"]
+    j = wait(client, jid)
+    assert client.get(f"/runs/{j['result']['id']}/replay").status_code == 404

@@ -11,7 +11,7 @@ from typing import Any
 from strandbeest_common import Design
 
 from .jobs import Cancelled, JobContext
-from .pipeline import MAX_LOOP_VIOLATION, simulate
+from .pipeline import loop_tolerance, simulate
 
 MAX_POINTS = 60
 
@@ -62,13 +62,14 @@ def run_sweep(ctx: JobContext, payload: dict[str, Any], runs_dir: Path, parallel
             return
         doc = json.loads(json.dumps(base_doc))
         ov = json.loads(json.dumps(base_overrides))
+        ov.setdefault("run", {}).setdefault("frame_rate", 0)  # sweep points are not replayed unless asked
         for path, value in points[i].items():
             _set_path(doc if path.startswith("design.") else ov, path.split(".", 1)[1], value)
         try:
             run = simulate(Design(doc), runs_dir, ov)
             ctx.store.index_run(run)
             m = run["metrics"]
-            ok = not run["stalled"] and m.get("max_loop_violation", 1.0) < MAX_LOOP_VIOLATION
+            ok = not run["stalled"] and m.get("max_loop_violation", 1.0) < loop_tolerance(Design(doc))
             rows[i] = {"point": points[i], "run_id": run["id"], "metrics": m, "valid": ok}
         except Exception as e:  # keep the sweep going; record the failure for this point
             rows[i] = {"point": points[i], "run_id": None, "metrics": {}, "valid": False, "error": f"{type(e).__name__}: {e}"}

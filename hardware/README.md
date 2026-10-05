@@ -1,6 +1,6 @@
 # Test rig: measuring a real walker
 
-Everything here exists to answer one question: **how well does the simulator describe a printed walker, and which parameters make it do so?** The simulator has a few physical parameters it cannot know (foot pad stiffness, friction, joint friction and clearance, the effect of leg mass; see `docs/EXPERIMENTS.md` §8). The rig measures the walker so those can be fitted instead of guessed.
+Everything here exists to answer one question: **how well does the simulator describe a printed walker, and which parameters make it do so?** The simulator has a few physical parameters it cannot know (contact stiffness, friction, joint friction and clearance, the effect of leg mass; see `docs/EXPERIMENTS.md` §9). The rig measures the walker so those can be fitted instead of guessed.
 
 **Status:** the software chain (raw log → Measurement → comparison → calibration) is tested on a *virtual* rig that replays simulator runs. The firmware's logic (`hardware/firmware/lib/rigcore`) is unit-tested on the host. **Nothing here has touched real hardware yet:** the Arduino glue (`src/main.cpp`), the wiring tables and the part suggestions are untested, and the first real build will find things to fix. Treat this as a careful first draft.
 
@@ -65,7 +65,7 @@ Each experiment says which simulator parameter it constrains. Repeat each condit
 
 **E0 – Leg by hand (before any motor).** Assemble one leg flat on a table and turn the crank by hand while filming. Compare the foot path with the design's (`/evaluate`). This checks print accuracy and the clearance setting, and costs nothing. *Constrains: clearance, joint play (not yet modelled).*
 
-**E1 – Slow motor-driven walk (the core experiment).** Walker on a smooth flat surface, no wind, crank at a constant 1–2 rad/s for at least 5 revolutions; log, film. Convert with `strandbeest-rig convert … --kind motor_no_wind --omega 2`. Compare torque curve and stride with a simulation of the same design. *Constrains: foot pad stiffness, friction, slip dissipation.*
+**E1 – Slow motor-driven walk (the core experiment).** Walker on a smooth flat surface, no wind, crank at a constant 1–2 rad/s for at least 5 revolutions; log, film. Convert with `strandbeest-rig convert … --kind motor_no_wind --omega 2`. Compare torque curve and stride with a simulation of the same design. *Constrains: the simulator's contact stiffness (a mass-normalised parameter in 1/s², not a pad stiffness in N/m: the fitted value is a simulator setting, not a property you can look up), friction, slip dissipation.*
 
 **E2 – Surface and speed variants.** Repeat E1 on two other surfaces (e.g. glass, paper, rubber mat) and at two other crank speeds. *Constrains: friction (surface), speed dependence (inertia, joint friction).*
 

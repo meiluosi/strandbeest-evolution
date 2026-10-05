@@ -25,6 +25,7 @@ from pathlib import Path
 
 from .config import Scenario
 from .linkage import LinkageSpec, Point, load_spec, solve_pose
+from .registry import terrain_xml
 
 DATA = Path(__file__).parent / "data"
 
@@ -107,6 +108,8 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
                 by_name[b.name] = b
             owner_of[j.id] = f"bar{i}_{j.id}0"
 
+        foot_done: list[bool] = []
+
         def emit(b: _Bar, parent_origin: Point, y_off: float) -> str:
             ps, pe = pose[b.start], pose[b.end]
             pos = ((ps[0] - parent_origin[0]) * u, y_off, (ps[1] - parent_origin[1]) * u)
@@ -115,10 +118,11 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
                 f'<geom type="capsule" fromto="0 0 0 {_f(rel[0])} 0 {_f(rel[1])}" size="{_f(w.bar_radius)}" mass="{_f(b.mass)}" '
                 f'contype="0" conaffinity="0" rgba="0.75 0.7 0.2 1"/>'
             )
-            if b.end == spec.foot:
+            if b.end == spec.foot and not foot_done:
+                foot_done.append(True)  # both bars ending at the foot share one sphere: two coincident spheres would collide with each other
                 geoms += (
                     f'<geom name="foot_{b.name}" type="sphere" pos="{_f(rel[0])} 0 {_f(rel[1])}" size="{_f(w.foot_radius)}" '
-                    f'mass="1e-6" friction="{_f(w.foot_friction)} 0.005 0.0001" contype="1" conaffinity="1" rgba="0.9 0.45 0.25 1"/>'
+                    f'mass="1e-6" friction="{_f(w.foot_friction)} 0.005 0.0001" contype="2" conaffinity="1" rgba="0.9 0.45 0.25 1"/>'
                 )
             kids = ""
             if owner_of.get(b.end) == b.name:
@@ -152,8 +156,9 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
             eq.append(f'<joint joint1="crank{i}" joint2="crank0" polycoef="0 1 0 0 0"/>')
 
     sv = sc.solver
+    force_attr = f' forcelimited="true" forcerange="{-sc.drive.max_torque} {sc.drive.max_torque}"' if sc.drive.max_torque else ""
     if sv.contact_stiffness is not None:
-        # direct (negative) solref = stiffness N/m and damping N·s/m; damping from a damping ratio against ~1/5 of the mass
+        # direct (negative) solref = stiffness (1/s^2, mass-normalised) and damping (1/s); damping from a damping ratio
         m_eff = (torso_mass + n * per_leg_mass) / 5.0
         damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness * m_eff)
         geom_solref = f"{-sv.contact_stiffness} {-damping}"
@@ -163,13 +168,14 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
     half_y = max(w.lateral_spacing * n / 2, 0.05)
     xml = f"""<mujoco model="{sc.name}">
   <compiler angle="radian"/>
-  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -9.81"/>
+  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{sc.environment.gravity}"/>
   <default>
     <equality solref="{sv.solref_time} 1" solimp="{sv.solimp}"/>
     <geom solref="{geom_solref}"/>
   </default>
   <worldbody>
-    <geom name="ground" type="plane" size="200 20 0.1" friction="{sc.terrain.friction} 0.005 0.0001" contype="1" conaffinity="1" rgba="0.85 0.82 0.75 1"/>
+    {terrain_xml.get(sc.terrain.kind)(sc)}
+    <geom name="ground" type="plane" size="200 20 0.1" friction="{sc.terrain.friction} 0.005 0.0001" contype="1" conaffinity="2" rgba="0.85 0.82 0.75 1"/>
     <body name="torso" pos="0 0 {_f(hip_h)}">
       <joint name="tx" type="slide" axis="1 0 0"/>
       <joint name="tz" type="slide" axis="0 0 1"/>
@@ -182,7 +188,7 @@ def build(sc: Scenario, spec: LinkageSpec) -> Built:
     {"".join(eq)}
   </equality>
   <actuator>
-    <position name="drive" joint="crank0" kp="{sc.drive.kp}" kv="{sc.drive.kv}" ctrlrange="-1e6 1e6"/>
+    <position name="drive" joint="crank0" kp="{sc.drive.kp}" kv="{sc.drive.kv}" ctrlrange="-1e6 1e6"{force_attr}/>
   </actuator>
 </mujoco>"""
     return Built(

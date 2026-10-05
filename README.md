@@ -9,6 +9,8 @@
 
 平台设计与阶段计划见 [docs/PLATFORM.md](docs/PLATFORM.md)。
 
+想象这个项目最终能长成什么，见 [docs/VISION.md](docs/VISION.md)。
+
 ## 里面有什么
 
 | 目录 | 内容 |

@@ -12,10 +12,11 @@
 - [x] Front end: four tabs (design, fabrication, simulation, lab), design save/load/import/export, run history with overlay, part outlines, measurement import (CSV/JSON), measured-vs-simulated comparison, calibration from the UI; torque reported as a range
 - [x] P4: SQLite job queue (persistent, progress, cancel, restart recovery), run index, parameter sweeps (grid up to 60 points, linked paths), STL endpoint, 3D assembly/part preview (three.js), UI refresh with design system, `docker compose` (see docs/DEPLOY.md)
 - [x] P5 tooling: `hardware/` (rig design, calibration procedures, experiments E0–E4, lab notebook), ESP32 firmware (logic host-tested; Arduino glue NOT compiled or run on hardware), `packages/rig` (raw CSV → Measurement with quality report, ArUco video tracking, torque calibration, serial logger, virtual rig), `/rig/convert` API and Lab-tab import
+- [x] Scenes and replay: terrains, environment (planets), winds, sail drive, motor torque limit, recorded frames, 3D replay player with synced charts and a progress-efficiency check; corrections to the simulator recorded in EXPERIMENTS §9
 - [ ] First real measurements (needs a printed walker and the rig)
 - [ ] Known thin spots: no auth; geometry for the motor/coupler is an unverified assumption until printed; torque is a range (EXPERIMENTS §8)
 
-> Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
+> Longer-term product shapes (including the far-out ones): [VISION.md](VISION.md). Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
 
 | phase | goal | status |
 |---|---|---|

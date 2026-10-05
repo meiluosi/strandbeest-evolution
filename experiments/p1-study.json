@@ -28,12 +28,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.000267279864807346,
-          "stride_per_rev": 2.808021694903227,
-          "mean_speed": 0.2681518810372887,
-          "mean_torque": 13.46260113626033,
-          "peak_torque": 24.394392402246012,
-          "torque_ptp": 19.891912548649998,
+          "max_loop_violation": 0.0001479628003979716,
+          "max_penetration": 0.00163719632877978,
+          "stride_per_rev": 2.8293844884381163,
+          "mean_speed": 0.27019546364584135,
+          "mean_torque": 8.882601839371773,
+          "peak_torque": 16.884147694683634,
+          "torque_ptp": 13.08332040469395,
           "stalled": false
         }
       },
@@ -44,12 +45,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 0.00010861537537865118,
+          "max_penetration": 0.0016369527050281631,
+          "stride_per_rev": 2.8293283771288027,
+          "mean_speed": 0.2701889351577787,
+          "mean_torque": 8.886701438683339,
+          "peak_torque": 16.014561667507223,
+          "torque_ptp": 10.891903207520954,
           "stalled": false
         }
       },
@@ -60,12 +62,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 9.08253584759322e-05,
-          "stride_per_rev": 2.8078089585057224,
-          "mean_speed": 0.2681316426649813,
-          "mean_torque": 13.465409223313948,
-          "peak_torque": 21.892975924500206,
-          "torque_ptp": 12.319554013367451,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -76,12 +79,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 8.260582339425504e-05,
-          "stride_per_rev": 2.80777966382647,
-          "mean_speed": 0.2681288669391078,
-          "mean_torque": 13.464482857881498,
-          "peak_torque": 21.089074212723062,
-          "torque_ptp": 11.528237814229215,
+          "max_loop_violation": 7.651817022846785e-05,
+          "max_penetration": 0.0016367611140550766,
+          "stride_per_rev": 2.829269228026413,
+          "mean_speed": 0.27018332649279647,
+          "mean_torque": 8.887633833198809,
+          "peak_torque": 16.454367798389285,
+          "torque_ptp": 10.442818079493009,
           "stalled": false
         }
       }
@@ -94,12 +98,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -110,12 +115,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -126,12 +132,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       }
@@ -144,12 +151,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -160,12 +168,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00025587268127780227,
-          "stride_per_rev": 2.812206406303163,
-          "mean_speed": 0.26856091800546716,
-          "mean_torque": 25.30895779557057,
-          "peak_torque": 38.70445241021662,
-          "torque_ptp": 27.30811944904417,
+          "max_loop_violation": 0.00017763122846226054,
+          "max_penetration": 0.0007128494534245269,
+          "stride_per_rev": 2.8051398602939606,
+          "mean_speed": 0.26788172399662596,
+          "mean_torque": 17.880970137912783,
+          "peak_torque": 36.395472089294344,
+          "torque_ptp": 26.740404378142557,
           "stalled": false
         }
       }
@@ -178,12 +187,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -194,12 +204,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.000729950456802797,
-          "stride_per_rev": 2.834319391727683,
-          "mean_speed": 0.27067548547906234,
-          "mean_torque": 21.53306254192494,
-          "peak_torque": 53.05032459378708,
-          "torque_ptp": 73.63305187661172,
+          "max_loop_violation": 0.00014619766150625324,
+          "max_penetration": 0.000367888255720308,
+          "stride_per_rev": 2.7877751363602825,
+          "mean_speed": 0.2662247785081536,
+          "mean_torque": 21.734385109820174,
+          "peak_torque": 38.1797803375448,
+          "torque_ptp": 28.036849598545814,
           "stalled": false
         }
       }
@@ -212,12 +223,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -228,12 +240,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00042631798675918375,
-          "stride_per_rev": 2.7772425768823896,
-          "mean_speed": 0.265207079274222,
-          "mean_torque": 15.27676664400235,
-          "peak_torque": 39.306572885827336,
-          "torque_ptp": 40.383033447105845,
+          "max_loop_violation": 0.0004095908854468977,
+          "max_penetration": 0.0016138493834143477,
+          "stride_per_rev": 2.8727726749515954,
+          "mean_speed": 0.27433076913846277,
+          "mean_torque": 13.746137959642915,
+          "peak_torque": 31.271214978274656,
+          "torque_ptp": 39.32135764850682,
           "stalled": false
         }
       }
@@ -246,12 +259,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00030328786331867974,
-          "stride_per_rev": 2.8192436149050146,
-          "mean_speed": 0.26922364312363656,
-          "mean_torque": 13.310566865226885,
-          "peak_torque": 21.98663429334556,
-          "torque_ptp": 14.59286583973153,
+          "max_loop_violation": 0.0001794501218386202,
+          "max_penetration": 0.001627702770188524,
+          "stride_per_rev": 2.8307239933244857,
+          "mean_speed": 0.27032222036402903,
+          "mean_torque": 8.8657243159411,
+          "peak_torque": 15.960347920983622,
+          "torque_ptp": 10.536441037678742,
           "stalled": false
         }
       },
@@ -262,12 +276,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -278,12 +293,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 6.473224629566232e-05,
-          "stride_per_rev": 2.7991887504493698,
-          "mean_speed": 0.26730834224335004,
-          "mean_torque": 13.386278830917966,
-          "peak_torque": 22.74443326909386,
-          "torque_ptp": 13.018798389937729,
+          "max_loop_violation": 5.063379042802296e-05,
+          "max_penetration": 0.001645654047399905,
+          "stride_per_rev": 2.828312404755174,
+          "mean_speed": 0.2700919707991025,
+          "mean_torque": 8.888585404842079,
+          "peak_torque": 16.010989519061695,
+          "torque_ptp": 9.962293436859909,
           "stalled": false
         }
       },
@@ -294,12 +310,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.002076454237614822,
-          "stride_per_rev": 2.8706011877969333,
-          "mean_speed": 0.27412249008737405,
-          "mean_torque": 6.447169464063522,
-          "peak_torque": 15.737637807775172,
-          "torque_ptp": 17.745102305852924,
+          "max_loop_violation": 0.0014476311250302132,
+          "max_penetration": 0.0015286577487878452,
+          "stride_per_rev": 2.8433579369390323,
+          "mean_speed": 0.2715281570557142,
+          "mean_torque": 8.743306796546358,
+          "peak_torque": 18.11544686745765,
+          "torque_ptp": 15.406840361487411,
           "stalled": false
         }
       },
@@ -310,12 +327,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       }
@@ -328,12 +346,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 9.508394297874645e-05,
-          "stride_per_rev": 2.8209158083406067,
-          "mean_speed": 0.2693726095674754,
-          "mean_torque": 8.986909137761936,
-          "peak_torque": 12.287327267076762,
-          "torque_ptp": 9.50589025811496,
+          "max_loop_violation": 5.791341532912497e-05,
+          "max_penetration": 0.008977658054540863,
+          "stride_per_rev": 2.7837517838244494,
+          "mean_speed": 0.2658306682397634,
+          "mean_torque": 6.09125363389078,
+          "peak_torque": 10.41484453924204,
+          "torque_ptp": 6.227632771784556,
           "stalled": false
         }
       },
@@ -344,12 +363,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00010728247619384845,
-          "stride_per_rev": 2.835883937443273,
-          "mean_speed": 0.27081605528332375,
-          "mean_torque": 10.80149147257298,
-          "peak_torque": 18.000371397582057,
-          "torque_ptp": 12.506612067612878,
+          "max_loop_violation": 6.768751694652408e-05,
+          "max_penetration": 0.004002471806034072,
+          "stride_per_rev": 2.824463648181467,
+          "mean_speed": 0.26971929957129165,
+          "mean_torque": 6.8242796960029075,
+          "peak_torque": 10.950862226600293,
+          "torque_ptp": 8.0650965457462,
           "stalled": false
         }
       },
@@ -360,12 +380,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -376,12 +397,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.0001617387801897685,
-          "stride_per_rev": 2.8019348953343655,
-          "mean_speed": 0.2675712790226563,
-          "mean_torque": 13.95356148937068,
-          "peak_torque": 25.853242368983047,
-          "torque_ptp": 17.22175093860278,
+          "max_loop_violation": 0.0001059104394944832,
+          "max_penetration": 0.000794487199936347,
+          "stride_per_rev": 2.8008507446350275,
+          "mean_speed": 0.26746709603816027,
+          "mean_torque": 10.173584788959927,
+          "peak_torque": 22.354460932569054,
+          "torque_ptp": 15.41300283450255,
           "stalled": false
         }
       },
@@ -392,12 +414,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.0004338005606048245,
-          "stride_per_rev": 2.8031045701295376,
-          "mean_speed": 0.2676861033810919,
-          "mean_torque": 13.060329272091803,
-          "peak_torque": 29.317153073840018,
-          "torque_ptp": 28.056694140766922,
+          "max_loop_violation": 0.00015948448288582995,
+          "max_penetration": 0.0004178359423232438,
+          "stride_per_rev": 2.790950872865974,
+          "mean_speed": 0.2665234580372233,
+          "mean_torque": 11.476614740004388,
+          "peak_torque": 31.305259981032577,
+          "torque_ptp": 23.922638039024605,
           "stalled": false
         }
       }
@@ -413,12 +436,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.0009753608163149963,
-          "stride_per_rev": 2.7817108500773005,
-          "mean_speed": 0.2656475790599985,
-          "mean_torque": 3.4871788941417456,
-          "peak_torque": 31.946723661676515,
-          "torque_ptp": 48.74933888753003,
+          "max_loop_violation": 0.00010467065929731234,
+          "max_penetration": 0.0002674109869848975,
+          "stride_per_rev": 2.7297954263087165,
+          "mean_speed": 0.26067107357974034,
+          "mean_torque": 4.275309256743271,
+          "peak_torque": 19.981556850732886,
+          "torque_ptp": 24.262630293447728,
           "stalled": false
         }
       },
@@ -432,12 +456,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.000303596225153302,
-          "stride_per_rev": 2.786586151452546,
-          "mean_speed": 0.2660945459787826,
-          "mean_torque": 8.696799210519874,
-          "peak_torque": 25.878513970303175,
-          "torque_ptp": 25.55440354766324,
+          "max_loop_violation": 0.00011478524775832,
+          "max_penetration": 0.0004974056520525762,
+          "stride_per_rev": 2.7882359890333115,
+          "mean_speed": 0.2662598754836238,
+          "mean_torque": 7.439391094821953,
+          "peak_torque": 24.123832553137618,
+          "torque_ptp": 19.24415565761592,
           "stalled": false
         }
       },
@@ -451,12 +476,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00012323784862111609,
-          "stride_per_rev": 2.800287034061039,
-          "mean_speed": 0.26741102291809965,
-          "mean_torque": 11.815979137602932,
-          "peak_torque": 23.190100573228847,
-          "torque_ptp": 14.762394701567246,
+          "max_loop_violation": 9.090843651105018e-05,
+          "max_penetration": 0.0009688504089100294,
+          "stride_per_rev": 2.8055835581298396,
+          "mean_speed": 0.26791783052572726,
+          "mean_torque": 9.148681938952395,
+          "peak_torque": 18.647117488260847,
+          "torque_ptp": 11.761786508315708,
           "stalled": false
         }
       },
@@ -470,12 +496,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011255820376687709,
-          "stride_per_rev": 2.833007218657931,
-          "mean_speed": 0.27054317528717464,
-          "mean_torque": 12.536855773155066,
-          "peak_torque": 21.484429425981943,
-          "torque_ptp": 15.151729121571407,
+          "max_loop_violation": 7.36104707894647e-05,
+          "max_penetration": 0.003389731186726577,
+          "stride_per_rev": 2.825415936700054,
+          "mean_speed": 0.2698116708710569,
+          "mean_torque": 7.692312585970006,
+          "peak_torque": 13.003208813199308,
+          "torque_ptp": 9.498037498648046,
           "stalled": false
         }
       },
@@ -489,12 +516,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00010104699784463378,
-          "stride_per_rev": 2.800917567063975,
-          "mean_speed": 0.2674483543336403,
-          "mean_torque": 10.77963973614306,
-          "peak_torque": 15.64946226853499,
-          "torque_ptp": 11.573185091052437,
+          "max_loop_violation": 6.0808573737691773e-05,
+          "max_penetration": 0.010596138240992472,
+          "stride_per_rev": 2.766395672556617,
+          "mean_speed": 0.2641762812923363,
+          "mean_torque": 7.068639418760111,
+          "peak_torque": 12.756211431369593,
+          "torque_ptp": 8.702763565568603,
           "stalled": false
         }
       }
@@ -507,12 +535,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00012089127368453134,
-          "stride_per_rev": 2.801189642448301,
-          "mean_speed": 0.26749964938925846,
-          "mean_torque": 13.128341558907533,
-          "peak_torque": 22.443777861859417,
-          "torque_ptp": 13.86489499964955,
+          "max_loop_violation": 8.344970871521085e-05,
+          "max_penetration": 0.0016369434515629512,
+          "stride_per_rev": 2.822185674585494,
+          "mean_speed": 0.26950660514086666,
+          "mean_torque": 8.59411349610196,
+          "peak_torque": 15.96219010175264,
+          "torque_ptp": 10.271708582877181,
           "stalled": false
         }
       },
@@ -523,12 +552,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -539,12 +569,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00012483958814124563,
-          "stride_per_rev": 2.8209513689118713,
-          "mean_speed": 0.26938645315334847,
-          "mean_torque": 14.21051603398808,
-          "peak_torque": 23.89271917763108,
-          "torque_ptp": 13.915223176401923,
+          "max_loop_violation": 8.590209905356971e-05,
+          "max_penetration": 0.0016365934983251056,
+          "stride_per_rev": 2.8434934656786828,
+          "mean_speed": 0.271542265507012,
+          "mean_torque": 9.487905976627157,
+          "peak_torque": 17.21825634851848,
+          "torque_ptp": 10.991120604805474,
           "stalled": false
         }
       }
@@ -557,12 +588,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00019224493681413435,
-          "stride_per_rev": 2.8322351178531613,
-          "mean_speed": 0.2704657560459163,
-          "mean_torque": 8.002696675965232,
-          "peak_torque": 16.58069760912622,
-          "torque_ptp": 13.701650881484966,
+          "max_loop_violation": 0.00010741942392611392,
+          "max_penetration": 0.003044770045362846,
+          "stride_per_rev": 2.8265591472740645,
+          "mean_speed": 0.26991936269034533,
+          "mean_torque": 4.833282150541098,
+          "peak_torque": 10.270664496332756,
+          "torque_ptp": 8.215503405903291,
           "stalled": false
         }
       },
@@ -573,12 +605,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 0.00011730637908691222,
-          "stride_per_rev": 2.8078576699956868,
-          "mean_speed": 0.26813631990386133,
-          "mean_torque": 13.467169907652163,
-          "peak_torque": 23.0089476051362,
-          "torque_ptp": 14.210093424626393,
+          "max_loop_violation": 8.427036509406349e-05,
+          "max_penetration": 0.0016368286595687034,
+          "stride_per_rev": 2.829286940891407,
+          "mean_speed": 0.27018502529885025,
+          "mean_torque": 8.887245085991331,
+          "peak_torque": 16.374669792458008,
+          "torque_ptp": 10.509852044393483,
           "stalled": false
         }
       },
@@ -589,12 +622,13 @@
           }
         },
         "metrics": {
-          "max_loop_violation": 8.82801072767947e-05,
-          "stride_per_rev": 2.7975678991766255,
-          "mean_speed": 0.26715185269869307,
-          "mean_torque": 15.509862517899068,
-          "peak_torque": 25.217629947364912,
-          "torque_ptp": 13.157329003464838,
+          "max_loop_violation": 7.614975091740916e-05,
+          "max_penetration": 0.001121813494904025,
+          "stride_per_rev": 2.8105998643942756,
+          "mean_speed": 0.2683989953414729,
+          "mean_torque": 12.413074701270373,
+          "peak_torque": 21.222009642107878,
+          "torque_ptp": 12.52625934874959,
           "stalled": false
         }
       }

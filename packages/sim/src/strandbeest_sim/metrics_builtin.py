@@ -13,7 +13,8 @@ def gait(res) -> dict:
     psi, x, t = res.psi, res.x, res.t
     # skip the first revolution (ramp + transient) when there is more than one
     start = 2 * math.pi if psi[-1] > 2 * math.pi * 1.5 else 0.0
-    i0 = int(np.searchsorted(psi, start))
+    reached = np.flatnonzero(psi >= start)  # psi need not be monotonic if the crank is pushed back
+    i0 = int(reached[0]) if len(reached) else 0
     dpsi = psi[-1] - psi[i0]
     if dpsi <= 0:
         return {"stride": float("nan"), "mean_speed": float("nan")}

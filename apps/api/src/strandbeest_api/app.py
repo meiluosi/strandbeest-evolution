@@ -177,6 +177,37 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         step = max(1, len(a["t"]) // max_points)
         return {k: a[k][::step].tolist() for k in a.files}
 
+    @app.get("/runs/{rid}/replay")
+    def run_replay(rid: str, max_frames: int = 240):
+        """Everything a viewer needs to replay a run: scene geometry, per-frame body poses, foot contacts and the time series."""
+        folder = root / "runs" / Path(rid).name
+        if not (folder / "frames.npz").exists():
+            raise HTTPException(404, "this run has no recorded frames (sweep points and ensemble variants are not recorded)")
+        fr = np.load(folder / "frames.npz")
+        ar = np.load(folder / "arrays.npz")
+        run_doc = json.loads((folder / "run.json").read_text())
+        step = max(1, len(fr["t"]) // max_frames)
+        sstep = max(1, len(ar["t"]) // 500)
+        sc = run_doc["scenario"]
+        # distance one crank revolution would carry the body if no foot slipped or was blocked: stance travel / duty factor
+        from strandbeest_common import gait_metrics, load_spec
+
+        g = gait_metrics(load_spec(sc["linkage"]["spec"])) if isinstance(sc["linkage"]["spec"], dict) else None
+        nominal = (g.stroke_length / g.duty * sc["walker"]["unit"]) if g and g.duty > 0 else None
+        return {
+            "scene": json.loads((folder / "scene.json").read_text()),
+            "t": np.round(fr["t"][::step], 4).tolist(),
+            "pos": np.round(fr["pos"][::step], 4).tolist(),
+            "quat": np.round(fr["quat"][::step], 4).tolist(),
+            "contact": fr["contact"][::step].astype(int).tolist(),
+            "series": {k: np.round(ar[k][::sstep], 5).tolist() for k in ("t", "psi", "x", "torque")},
+            "metrics": run_doc["metrics"],
+            "stalled": run_doc.get("stalled", False),
+            "nominal_stride_m": nominal,
+            "revolutions": float(ar["psi"][-1] / (2 * np.pi)),
+            "info": {"terrain": sc["terrain"], "drive": sc["drive"]["kind"], "wind": sc["wind"], "environment": sc["environment"]},
+        }
+
     # -- exports -------------------------------------------------------------
     @app.post("/exports")
     def make_export(doc: dict = Body(...)):

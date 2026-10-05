@@ -11,7 +11,7 @@ pytestmark = pytest.mark.slow
 
 def test_recovers_contact_stiffness_from_synthetic_data():
     d = Design.load(schema_dir() / "examples" / "design-jansen-small-6leg.json")
-    truth = {"contact_stiffness": 8000.0}
+    truth = {"contact_stiffness": 2e5}
     meas = make_synthetic_measurement(d, truth, [CONTACT_STIFFNESS], noise=0.02, seed=1)
     profile = calibrate(d, meas, [CONTACT_STIFFNESS], max_evals=25)
     got = profile["parameters"]["contact_stiffness"]

@@ -67,7 +67,13 @@
 	},
 	"drive": {
 		"kind": "motor",
-		"motor_omega_rad_s": 2.0
+		"motor_omega_rad_s": 2.0,
+		"sail": {
+			"area_m2": 0.03,
+			"radius_m": 0.08,
+			"drag_coeff": 1.2,
+			"gear": 10
+		}
 	},
 	"manufacturing": {
 		"process": "fdm",

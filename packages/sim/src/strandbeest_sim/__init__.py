@@ -10,3 +10,4 @@ __all__ = ["Scenario", "load_scenario", "Result", "run", "scenario_from_design"]
 from . import drives as _drives  # noqa: E402,F401
 from . import metrics_builtin as _metrics  # noqa: E402,F401
 from . import terrains as _terrains  # noqa: E402,F401
+from . import winds as _winds  # noqa: E402,F401

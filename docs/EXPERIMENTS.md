@@ -109,6 +109,8 @@ Reading:
 
 ## 6. MuJoCo simulator vs the reduced-order model (slow flat walk, first cross-check)
 
+> **Superseded by section 9.** The numbers in this section and in section 8 were produced with a simulator bug (each foot had two coincident collision spheres that collided with each other) and, for section 8, with a mislabelled contact-stiffness unit. They are kept for the record; use section 9.
+
 `packages/sim`, `python scripts/crosscheck.py '<overrides>' <tag>`. Planar model, 12 legs on one crankshaft, torso pitch locked, 50 kg total, tube 0.12 kg/m (assumption), crank driven at 0.6 rad/s (slow, so inertia should matter little) for 3 revolutions on flat ground, no drag. The reduced-order reference gets a leg-gravity term because MuJoCo's legs have mass. Reference stride: 2.665 m per revolution.
 
 | contact setting | stride (m/rev) | mean crank torque (N·m) | torque peak-to-peak (N·m) | curve correlation with reference |
@@ -133,6 +135,8 @@ What this shows, and what it does not:
 What this shows: the import → compare → fit → Profile path works and a single contact parameter is identifiable *when the data come from the same model*. What it does not show: that the same holds for real data (model error will be larger than noise), for several parameters at once (friction and contact stiffness were not fitted together), or that the fitted values mean anything physical. Section 6 suggests torque depends strongly on contact settings, which helps identifiability but also means a poor contact model will absorb error into the fitted values.
 
 ## 8. P1: which simulator outputs can be trusted? (numerical vs physical settings)
+
+> **Superseded by section 9** (same study re-run after the foot-collision fix; conclusions changed in several places). The contact-stiffness values below are in mass-normalised units (1/s²), not N/m as written.
 
 `packages/sim/scripts/p1_study.py`, raw: `experiments/p1-study.json`. Baseline: 12 legs, flat ground, 50 kg, tube 0.12 kg/m, crank 0.6 rad/s, 2.5 revolutions, **foot pad stiffness 1e5 N/m** (now expressed directly in N/m rather than as a mass-dependent time constant), μ 1.5, timestep 0.5 ms, metrics after the first revolution. One setting is changed at a time. Reference stride from the reduced-order model: 2.665 m/rev.
 
@@ -180,3 +184,66 @@ Reading:
 Sections 3 to 5 (start wind, peak torque from the reduced-order model) remain unvalidated. This study also shows that even the better model has a torque *level* that depends on friction modelling choices by up to a factor 2; the honest way to state a torque is as a range across those choices until measured.
 
 Update after P1: the calibration target is now the physical pad stiffness (`contact_stiffness`, N/m) instead of the mass-dependent contact time constant. Re-run on synthetic data (truth 8000 N/m, 2 % noise, start 3000 N/m, at most 25 runs): recovered within the test's 35 % tolerance, in about 66 s. The slow convergence tests of section 8 also pass.
+
+
+## 9. Corrections, and the corrected results (2026-10-06)
+
+### What was wrong
+1. **Overlapping foot spheres.** Both bars that end at the foot carried a collision sphere, so every foot had two coincident spheres that collided with each other (contact distance about −2 × radius), and feet of the same walker were allowed to collide. This put spurious contacts and forces into every MuJoCo run of sections 6 to 8, the calibration tests and the small-walker numbers. Found while building the replay viewer (the recorded "feet in contact" flags were true at every frame). **Fixed:** one sphere per leg; feet collide only with terrain.
+2. **Wrong unit for contact stiffness.** The parameter I called "foot stiffness in N/m" is MuJoCo's reference-acceleration stiffness, in **1/s²**, normalised by effective mass. A test (a sphere of 0.05, 0.5 and 5 kg on the same setting) sinks the same 0.637 mm at k = 1000 and 0.108 mm at k = 10 000 whatever its mass. A light foot carrying a heavy body therefore sinks far more than "k N/m" suggests: our small walker at the old default sank 8 to 21 mm. The physical pad stiffness is roughly k times the effective mass at the foot, so the fitted value is **not directly comparable with a pad stiffness measured in N/m**. Fixed in the config description, UI labels and calibration range (now 1e4 to 1e7, start 1e5); the small-walker default went from 1570 to 3e5.
+
+### Corrected cross-check with the reduced-order model (section 6 redone)
+12 legs, flat, crank 0.6 rad/s, 3 revolutions, no drag. Reference stride 2.665 m/rev, mean torque 0.55 N·m, peak-to-peak 8.1 N·m.
+
+| setting | stride (m/rev) | mean torque (N·m) | torque peak-to-peak (N·m) | curve correlation |
+|---|---|---|---|---|
+| default (k 1e5, μ 1.5) | 2.83 | 8.8 | 7.7 | **0.59** |
+| k 1e4 | 2.79 | 6.1 | 4.4 | −0.47 |
+| k 1e6 | 2.79 | 11.5 | 7.5 | 0.59 |
+| μ 0.6 | 2.77 | 6.2 | 8.3 | 0.10 |
+
+With stiff contact the simulator now reproduces the reduced-order torque *shape* (correlation 0.59) and *amplitude* (peak-to-peak 7.5–7.7 vs 8.1), which it did not before (0.30 and 4.8). Stride is about 5–6 % above. **The mean torque is still about 8 N·m higher** than the reduced-order value: energy lost to foot slip, which the reduced-order model cannot see. Soft contact or low friction still destroys the agreement.
+
+### Corrected P1 study (section 8 redone; raw: `experiments/p1-study.json`, old: `experiments/p1-study-before-foot-fix.json`)
+Same baseline as section 8. What changed:
+
+| quantity | before (buggy) | after |
+|---|---|---|
+| baseline mean torque | 13.5 N·m | **8.9 N·m** |
+| timestep 1 / 0.5 / 0.25 / 0.125 ms, torque peak-to-peak | 19.9 / 14.2 / 12.3 / 11.5 | 13.1 / 10.9 / 10.5 / 10.4 (0.5 ms is already within 4 %) |
+| cone elliptic vs pyramidal, mean torque | 25.3 vs 13.5 (×1.9) | 17.9 vs 8.9 (×2.0) |
+| friction impedance ratio 10 vs 1 | 21.5 vs 13.5 (×1.6) | 21.7 vs 8.9 (**×2.4**) |
+| no-slip iterations 10 vs 0 | 15.3 vs 13.5 (×1.1) | 13.7 vs 8.9 (×1.5) |
+| soft vs stiff loop constraints, mean torque | 6.4 vs 13.5 | 8.7 vs 8.9 (no longer an effect; loop violation 1.4 mm) |
+| contact stiffness 1e4 / 3e4 / 1e5 / 3e5 / 1e6 (1/s²), mean torque | 9.0 / 10.8 / 13.5 / 14.0 / 13.1 (plateau) | 6.1 / 6.8 / 8.9 / 10.2 / 11.5 (**keeps rising**), peak-to-peak 6.2 → 23.9 |
+| friction 0.5 / 0.8 / 1.2 / 2.0 / 3.0, mean torque | 3.5 / 8.7 / 11.8 / 12.5 / 10.8 | 4.3 / 7.4 / 9.1 / 7.7 / 7.1 (non-monotonic) |
+| tube mass 0.05 / 0.12 / 0.2 kg/m, mean torque | 8.0 / 13.5 / 15.5 | 4.8 / 8.9 / 12.4 (still rises with leg mass, still unexplained) |
+
+Stride stays within 3 % everywhere. What survives: the torque *level* depends strongly on how stick–slip friction is treated numerically (up to ×2.4 now), stride is robust, and leg mass raises mean torque for a reason we do not understand. What does not survive: the "plateau above k = 1e5", the need for a 0.25 ms step, and the claim that soft loop constraints halve the torque.
+
+### Small printed walker (6 legs, 1 unit = 2 mm), flat ground, corrected simulator
+Kinematic stride from the reduced-order model: 0.2665 m/rev.
+
+| contact stiffness k (1/s²) | stride (m/rev) | mean torque (mN·m) | peak (mN·m) | deepest foot sinkage (mm) | feet down (mean) |
+|---|---|---|---|---|---|
+| 3e4 | 0.265 | 1.13 | 9.1 | 2.6 | 2.8 |
+| 1e5 | 0.276 | 1.22 | 8.1 | 0.9 | 2.3 |
+| 3e5 | 0.278 | 1.31 | 14.7 | 0.6 | 2.1 |
+| 1e6 | 0.279 | 1.32 | 16.9 | 0.3 | 2.0 |
+
+Stride converges (4 to 5 % above kinematic) and about two of six feet are down at any time, as 43 % duty implies. Peak torque grows with k (impact-like loads). The earlier finding that "small-walker stride depends strongly on pad stiffness" was an artefact of the bug plus very soft contact. The stiff-loop instability at this scale (section 8) was not re-investigated.
+
+### Scenes, and a sail drive (new)
+The simulator now has terrains (flat, slope, step, random bumps, a crude soft ground), an environment (gravity, air density), winds (constant, gusts, lull) and a **sail drive**: a drag sail turning the crank through a gear, no motor. The motor has a torque limit (0.3 N·m for the small walker, an assumption), otherwise a blocked foot forces the linkage open and the run blows up.
+
+`packages/sim/scripts/sail_start.py`, raw `experiments/sail-start.json`. Small walker, sail 0.03 m², radius 0.08 m, gear 10, Cd 1.2, air 1.2 kg/m³ (all assumptions), one crank revolution, give-up after 10 s without moving:
+
+| wind (m/s) | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1.0 | 1.2 |
+|---|---|---|---|---|---|---|---|---|
+| completes one revolution | no (8 mm in 40 s) | yes, 37 s | 21 s | 15 s | 12 s | 10 s | 8.7 s | 6.7 s |
+
+The walker starts at about **0.45 m/s**. The start wind predicted from the motor-driven peak torque (14.8 mN·m at 2 rad/s, plus friction) is **0.99 m/s**, about twice as high: the motor-driven peak contains dynamic loads, so it overestimates the load a sail must beat at standstill. The same caution applies to the start-wind logic of the reduced-order model in sections 3 to 5 (which also uses the peak torque). All of this is model against model; nothing here is measured.
+
+With 3 m/s wind and the same sail, two crank revolutions take about 4.2 s on Earth, 3.4 s with Venus-like air (65 kg/m³: the sail is limited by its own top speed), and 29 s with Mars-like air (0.02 kg/m³). Planet values are approximate (NASA fact sheets, Wikipedia: Venus 8.87 m/s² and ~65 kg/m³, Mars ~3.7 m/s² and ~0.02 kg/m³, Titan ~5.4 kg/m³); Titan's gravity is from memory and unchecked.
+
+A 12 mm step blocks the small walker (it advances 12 % of the ideal distance); the player flags this as "almost no progress".

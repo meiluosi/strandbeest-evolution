@@ -156,6 +156,18 @@
 						"gear": {
 							"type": "number",
 							"exclusiveMinimum": 0
+						},
+						"inertia_kg_m2": {
+							"type": "number",
+							"minimum": 0
+						},
+						"damping_nm_s": {
+							"type": "number",
+							"minimum": 0
+						},
+						"friction_nm": {
+							"type": "number",
+							"minimum": 0
 						}
 					}
 				}

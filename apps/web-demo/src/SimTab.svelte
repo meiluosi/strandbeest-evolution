@@ -1,5 +1,6 @@
 <script lang="ts">
 import { call, type Job, runJob } from "./api";
+import ScenePlayer from "./ScenePlayer.svelte";
 import { currentDesign, store } from "./store.svelte";
 
 type Metrics = Record<string, number | null>;
@@ -216,6 +217,7 @@ const sweepPlot = $derived.by(() => {
 </script>
 
 <div class="stack">
+	<ScenePlayer />
 	<div class="card">
 		<h2>仿真（MuJoCo）</h2>
 		<p class="muted">当前设计：<b>{store.name}</b>。每次运行把完整配置、代码版本和结果存在后端，可复现。</p>

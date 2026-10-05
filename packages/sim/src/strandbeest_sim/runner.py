@@ -12,6 +12,7 @@ import numpy as np
 from .builder import Built, build, resolve_spec
 from .config import Scenario
 from .registry import drives, metrics, terrains
+from .scene import describe_scene
 
 
 @dataclass
@@ -24,6 +25,8 @@ class Result:
     torque: np.ndarray  # crank torque supplied by the drive, N·m (positive = driving the walker forward)
     metrics: dict[str, Any] = field(default_factory=dict)
     stalled: bool = False
+    scene: dict | None = None  # geometry for replay (see scene.py)
+    frames: dict | None = None  # recorded body poses: t, pos (F,B,3), quat (F,B,4), contact (F,feet)
 
 
 @dataclass
@@ -65,6 +68,10 @@ def run(sc: Scenario) -> Result:
 
     t_, psi_, x_, z_, tau_ = [], [], [], [], []
     max_viol = 0.0
+    max_pen = 0.0
+    foot_ids = [g for g in range(m.ngeom) if (mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_GEOM, g) or "").startswith("foot_")]
+    frame_every = max(1, round(1.0 / (sc.run.frame_rate * dt))) if sc.run.frame_rate > 0 else 0
+    f_t, f_pos, f_quat, f_contact = [], [], [], []
     settle_steps = int(round(sc.run.settle / dt))
     for _ in range(settle_steps):
         drive.control(sim, 0.0, driving=False)
@@ -84,17 +91,36 @@ def run(sc: Scenario) -> Result:
             x_.append(float(d.xpos[torso][0]))
             z_.append(float(d.xpos[torso][2]))
             tau_.append(drive.torque(sim))
+            for ci in range(d.ncon):
+                max_pen = max(max_pen, -float(d.contact[ci].dist))
             if d.nefc:
                 eqm = d.efc_type == mujoco.mjtConstraint.mjCNSTR_EQUALITY
                 if eqm.any():
                     max_viol = max(max_viol, float(np.abs(d.efc_pos[eqm]).max()))
+        if frame_every and k % frame_every == 0:
+            f_t.append(t)
+            f_pos.append(d.xpos[1:].copy())
+            f_quat.append(d.xquat[1:].copy())
+            touching = set()
+            for ci in range(d.ncon):
+                c = d.contact[ci]
+                touching.add(int(c.geom1))
+                touching.add(int(c.geom2))
+            f_contact.append([g in touching for g in foot_ids])
         k += 1
         if t > sc.run.max_time:
             stalled = True
             break
+        if sc.run.give_up_after and t > sc.run.give_up_after and sim.psi() - psi_start < 0.1:
+            stalled = True  # the crank has not moved: the drive cannot start this walker
+            break
 
     res = Result(sc, np.array(t_), np.array(psi_), np.array(x_), np.array(z_), np.array(tau_), stalled=stalled)
+    if f_t:
+        res.scene = describe_scene(m, sc.terrain.slope_deg if sc.terrain.kind == "slope" else 0.0)
+        res.frames = {"t": np.array(f_t), "pos": np.array(f_pos, np.float32), "quat": np.array(f_quat, np.float32), "contact": np.array(f_contact, bool)}
     res.metrics["max_loop_violation"] = max_viol
+    res.metrics["max_penetration"] = max_pen  # deepest foot sinkage into the terrain, m
     for name in metrics.names():
         res.metrics.update(metrics.get(name)(res))
     return res

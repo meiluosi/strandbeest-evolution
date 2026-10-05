@@ -45,6 +45,9 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
     sc = scenario_from_design(design, overrides)
     res = sim_run(sc)
     np.savez(out / "arrays.npz", t=res.t, psi=res.psi, x=res.x, z=res.z, torque=res.torque)
+    if res.frames is not None:
+        np.savez_compressed(out / "frames.npz", **res.frames)
+        (out / "scene.json").write_text(json.dumps(res.scene))
     doc = {
         "schema_version": 1,
         "id": rid,
@@ -53,6 +56,7 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "metrics": {k: (None if v != v else v) for k, v in res.metrics.items()},
         "stalled": res.stalled,
         "arrays_file": "arrays.npz",
+        **({"frames_file": "frames.npz", "scene_file": "scene.json"} if res.frames is not None else {}),
         "provenance": {"code_version": code_version(), "engine": "mujoco", "engine_version": mujoco.__version__,
                        "created": datetime.now(timezone.utc).isoformat()},
     }
@@ -70,7 +74,16 @@ ENSEMBLE: list[tuple[str, dict[str, Any]]] = [
     ("no-slip iterations 10", {"solver": {"noslip_iterations": 10}}),
 ]
 RANGE_METRICS = ("stride_per_rev", "mean_speed", "mean_torque", "peak_torque", "torque_ptp")
-MAX_LOOP_VIOLATION = 1e-3  # m; a run whose loops opened more than this is discarded
+LOOP_TOLERANCE_FRACTION = 0.01  # a run is discarded if its loops opened more than this fraction of the leg size
+
+
+def loop_tolerance(design: Design) -> float:
+    """Metres of loop-constraint opening beyond which a run is not trusted: 1 % of the mean hip-to-foot distance."""
+    from strandbeest_common.gait import foot_path
+
+    path = foot_path(design.spec) or [(0.0, 1.0)]
+    size = sum((x * x + y * y) ** 0.5 for x, y in path) / len(path) * design.walker["unit_m"]
+    return LOOP_TOLERANCE_FRACTION * size
 
 
 def _merge(dst: dict, src: dict) -> dict:
@@ -84,12 +97,13 @@ def _merge(dst: dict, src: dict) -> dict:
 
 def _variant(design: Design, overrides: dict[str, Any] | None, extra: dict[str, Any]) -> dict[str, Any]:
     ov = _merge(json.loads(json.dumps(overrides or {})), extra)
+    ov.setdefault("run", {})["frame_rate"] = 0  # variants are not replayed
     res = sim_run(scenario_from_design(design, ov))
     m = {k: (None if isinstance(v, float) and v != v else v) for k, v in res.metrics.items()}
     ok = (
         not res.stalled
         and all(isinstance(m.get(k), (int, float)) for k in RANGE_METRICS)
-        and m.get("max_loop_violation", 1.0) < MAX_LOOP_VIOLATION
+        and m.get("max_loop_violation", 1.0) < loop_tolerance(design)
     )
     reason = "" if ok else ("stalled" if res.stalled else "loops opened or non-finite metrics")
     return {"metrics": m, "valid": ok, "reason": reason}
@@ -103,7 +117,7 @@ def simulate_ensemble(design: Design, out_dir: Path, overrides: dict[str, Any] |
     others = ENSEMBLE[1:]
     with ThreadPoolExecutor(max_workers=len(others)) as ex:  # MuJoCo releases the GIL while stepping
         results = list(ex.map(lambda nv: _variant(design, overrides, nv[1]), others))
-    variants = [{"name": ENSEMBLE[0][0], "overrides": {}, "valid": base["metrics"].get("max_loop_violation", 1.0) < MAX_LOOP_VIOLATION and not base["stalled"],
+    variants = [{"name": ENSEMBLE[0][0], "overrides": {}, "valid": base["metrics"].get("max_loop_violation", 1.0) < loop_tolerance(design) and not base["stalled"],
                  "metrics": base["metrics"]}]
     for (name, ov), r in zip(others, results):
         row = {"name": name, "overrides": ov, "valid": r["valid"], "metrics": r["metrics"]}

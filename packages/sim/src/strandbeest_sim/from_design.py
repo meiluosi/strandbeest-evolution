@@ -40,17 +40,29 @@ def scenario_from_design(design: Design, overrides: dict[str, Any] | None = None
             "kp": 200.0 * total * 9.81 * unit * 10,
             "kv": 20.0 * total * 9.81 * unit * 10,
             "ramp": 1.0,
+            "max_torque": 0.3,  # N·m, assumption: stall torque of a small geared motor; the motor stalls instead of forcing the legs open
         },
         # a softer constraint impedance: at this scale the stiffest setting (0.99 0.999) blew the loops apart
         "solver": {
             "timestep": 0.0002,
             "solref_time": 0.001,
             "solimp": "0.9 0.95 0.001",
-            # assumption: pad stiffness such that three feet carrying the weight sink 1 mm; a calibration target
-            "contact_stiffness": max(total * 9.81 / (3 * 0.001), 500.0),
+            # Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m. A light walker on light legs needs a large
+            # value: at 3e5 the feet sink about 0.6 mm (docs/EXPERIMENTS.md section 9). A calibration target.
+            "contact_stiffness": 3e5,
         },
         "run": {"settle": 0.5, "revolutions": 1.5, "record_every": 10},
     }
+    sail = d.get("sail") or {}
+    if sail:
+        sc["drive"].update(
+            {k: sail[v] for k, v in (("sail_area", "area_m2"), ("sail_radius", "radius_m"), ("sail_drag_coeff", "drag_coeff"), ("sail_gear", "gear"),
+                                      ("rotor_inertia", "inertia_kg_m2"), ("crank_damping", "damping_nm_s"), ("crank_friction", "friction_nm")) if v in sail}
+        )
+    if d.get("kind") == "sail":
+        sc["drive"]["kind"] = "sail"
+        sc["run"]["give_up_after"] = 8.0
+        sc["run"]["max_time"] = 40.0
     for key, val in (overrides or {}).items():
         if isinstance(val, dict):
             sc.setdefault(key, {}).update(val)

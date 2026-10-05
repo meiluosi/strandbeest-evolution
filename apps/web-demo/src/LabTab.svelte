@@ -246,7 +246,7 @@ const chart = $derived.by(() => {
 <div class="stack">
 	<div class="card">
 		<h2>实验室：实测与仿真对照</h2>
-		<p class="muted">把线下测的数据导入，和一次仿真叠在一起看，再让校准去拟合足垫刚度或摩擦。没有实测数据时，可以先用合成数据试链路（勾选“合成数据”）。</p>
+		<p class="muted">把线下测的数据导入，和一次仿真叠在一起看，再让校准去拟合接触刚度或摩擦。没有实测数据时，可以先用合成数据试链路（勾选“合成数据”）。</p>
 		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>刷新测量与运行列表</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
 		{#if error}<p class="notice error">出错：{error}</p>{/if}
 		{#if info}<p class="notice info">{info}</p>{/if}
@@ -346,7 +346,7 @@ const chart = $derived.by(() => {
 	<div class="card">
 		<h3>3. 校准</h3>
 		<div class="row center">
-			<label class="inline"><input type="checkbox" bind:checked={calParams.contact_stiffness} /> 足垫刚度</label>
+			<label class="inline"><input type="checkbox" bind:checked={calParams.contact_stiffness} /> 接触刚度（s⁻²）</label>
 			<label class="inline"><input type="checkbox" bind:checked={calParams.friction} /> 摩擦系数</label>
 			<button class="btn primary" disabled={!!busy || !mId} onclick={calibrate}>用这份测量校准（当前设计）</button>
 		</div>

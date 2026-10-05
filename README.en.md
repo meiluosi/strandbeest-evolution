@@ -7,6 +7,8 @@ Research project on the leg linkage of Theo Jansen's Strandbeest: kinematics, ev
 
 Platform design and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md) (Chinese).
 
+What this project could grow into (Chinese): [docs/VISION.md](docs/VISION.md).
+
 ## What's inside
 
 | Path | Contents |

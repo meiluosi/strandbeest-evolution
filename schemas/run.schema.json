@@ -108,6 +108,14 @@
 					"type": "string"
 				}
 			}
+		},
+		"frames_file": {
+			"type": "string",
+			"description": "recorded body poses for replay (npz)"
+		},
+		"scene_file": {
+			"type": "string",
+			"description": "scene geometry for replay (json)"
 		}
 	}
 }

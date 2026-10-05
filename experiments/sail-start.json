@@ -1,0 +1,63 @@
+{
+  "motor_peak_torque_nm": 0.014806970312662315,
+  "crank_friction_nm": 0.002,
+  "predicted_start_wind_m_s": 0.9862178242140972,
+  "rows": [
+    {
+      "wind": 0.4,
+      "completed_one_revolution": false,
+      "time_s": 40.00019999993346,
+      "distance_m": 0.007740711848042069,
+      "valid": true
+    },
+    {
+      "wind": 0.5,
+      "completed_one_revolution": true,
+      "time_s": 37.190199999940006,
+      "distance_m": 0.27865120411782224,
+      "valid": true
+    },
+    {
+      "wind": 0.6,
+      "completed_one_revolution": true,
+      "time_s": 20.96419999997782,
+      "distance_m": 0.2785966826794995,
+      "valid": true
+    },
+    {
+      "wind": 0.7,
+      "completed_one_revolution": true,
+      "time_s": 15.264199999991103,
+      "distance_m": 0.27856451649553243,
+      "valid": true
+    },
+    {
+      "wind": 0.8,
+      "completed_one_revolution": true,
+      "time_s": 12.174199999998304,
+      "distance_m": 0.27850543950869977,
+      "valid": true
+    },
+    {
+      "wind": 0.9,
+      "completed_one_revolution": true,
+      "time_s": 10.170200000002975,
+      "distance_m": 0.27846717275996513,
+      "valid": true
+    },
+    {
+      "wind": 1.0,
+      "completed_one_revolution": true,
+      "time_s": 8.730200000006331,
+      "distance_m": 0.27832026270767485,
+      "valid": true
+    },
+    {
+      "wind": 1.2,
+      "completed_one_revolution": true,
+      "time_s": 6.712200000005316,
+      "distance_m": 0.2781205228186232,
+      "valid": true
+    }
+  ]
+}
