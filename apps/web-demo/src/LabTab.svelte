@@ -1,5 +1,6 @@
 <script lang="ts">
 import { call, runJob } from "./api";
+import { t } from "./i18n/index.svelte";
 import { currentDesign, store } from "./store.svelte";
 
 type Meas = {
@@ -90,7 +91,7 @@ const pickCal = async (e: Event) => {
 	if (r) cal = { ...cal, ...JSON.parse(r.text) };
 };
 const convertRaw = () =>
-	guard("转换中", async () => {
+	guard(t("lab.busy.converting"), async () => {
 		const doc = await call("/rig/convert", {
 			raw_csv: rawText,
 			raw_name: rawName,
@@ -106,12 +107,12 @@ const convertRaw = () =>
 		converted = { doc, q: doc.quality };
 	});
 const saveConverted = () =>
-	guard("保存", async () => {
+	guard(t("common.save"), async () => {
 		if (!converted) return;
 		await call("/measurements", converted.doc);
 		measurements = await call("/measurements");
 		mId = converted.doc.id;
-		info = `已保存测量 ${converted.doc.id}（来自测试台）`;
+		info = t("lab.savedFromRig", { id: converted.doc.id });
 	});
 const timeSeries = $derived.by(() => {
 	if (!converted) return null;
@@ -145,7 +146,7 @@ async function guard(label: string, fn: () => Promise<void>) {
 }
 
 const refresh = () =>
-	guard("读取", async () => {
+	guard(t("lab.busy.reading"), async () => {
 		measurements = await call("/measurements");
 		runs = await call("/runs");
 	});
@@ -159,7 +160,8 @@ function parseCsv(text: string): Record<string, number[]> {
 	for (const line of lines.slice(1)) {
 		line.split(",").forEach((v, i) => {
 			const n = Number(v);
-			if (!Number.isFinite(n)) throw new Error(`CSV 里有非数字值：${v}`);
+			if (!Number.isFinite(n))
+				throw new Error(t("lab.csv.nonNumeric", { v: v }));
 			(out[head[i] as string] as number[]).push(n);
 		});
 	}
@@ -169,7 +171,7 @@ function parseCsv(text: string): Record<string, number[]> {
 async function pick(e: Event) {
 	const f = (e.target as HTMLInputElement).files?.[0];
 	if (!f) return;
-	await guard("解析", async () => {
+	await guard(t("lab.busy.parsing"), async () => {
 		const text = await f.text();
 		fileName = f.name;
 		if (f.name.endsWith(".json")) {
@@ -177,17 +179,17 @@ async function pick(e: Event) {
 			channels = doc.channels ?? doc;
 			newId = doc.id ?? newId;
 		} else channels = parseCsv(text);
-		if (!channels?.t)
-			throw new Error(
-				"需要 t（秒）列；psi（弧度）、torque（N·m）、x（米）可选，但对照需要 psi 和 torque",
-			);
-		info = `读入 ${Object.keys(channels).join(", ")}，${channels.t.length} 行`;
+		if (!channels?.t) throw new Error(t("lab.csv.needColumns"));
+		info = t("lab.csv.read", {
+			join: Object.keys(channels).join(", "),
+			n: channels.t.length,
+		});
 	});
 }
 
 const save = () =>
-	guard("保存", async () => {
-		if (!channels) throw new Error("先选一个 CSV 或 JSON 文件");
+	guard(t("common.save"), async () => {
+		if (!channels) throw new Error(t("lab.pickFile"));
 		await call("/measurements", {
 			schema_version: 1,
 			id: newId,
@@ -202,16 +204,16 @@ const save = () =>
 		});
 		measurements = await call("/measurements");
 		mId = newId;
-		info = `已保存测量 ${newId}`;
+		info = t("lab.saved", { newId: newId });
 	});
 
 const compare = () =>
-	guard("对照中", async () => {
+	guard(t("lab.busy.comparing"), async () => {
 		cmp = await call("/compare", { measurement: mId, run_id: runId });
 	});
 
 const calibrate = () =>
-	guard("校准中（数分钟，每次评估跑一次仿真）", async () => {
+	guard(t("lab.busy.calibrating"), async () => {
 		const names = Object.entries(calParams)
 			.filter(([, on]) => on)
 			.map(([n]) => n);
@@ -245,125 +247,126 @@ const chart = $derived.by(() => {
 
 <div class="stack">
 	<div class="card">
-		<h2>实验室：实测与仿真对照</h2>
-		<p class="muted">把线下测的数据导入，和一次仿真叠在一起看，再让校准去拟合接触刚度或摩擦。没有实测数据时，可以先用合成数据试链路（勾选“合成数据”）。</p>
-		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>刷新测量与运行列表</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
-		{#if error}<p class="notice error">出错：{error}</p>{/if}
+		<h2>{t("lab.title")}</h2>
+		<p class="muted">{t("lab.intro")}</p>
+		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>{t("lab.refresh")}</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
+		{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
 		{#if info}<p class="notice info">{info}</p>{/if}
 	</div>
 
 	<div class="card">
-		<h3>0. 从测试台导入原始数据</h3>
-		<p class="muted">测试台固件打印的 CSV（<code>t_ms,enc,current_mA,…</code>）加上标定常数，转成测量。不确定怎么标定，见 <code>hardware/README.md</code>。</p>
+		<h3>{t("lab.raw.title")}</h3>
+		<p class="muted">{t("lab.raw.intro.before")}<code>t_ms,enc,current_mA,…</code>{t("lab.raw.intro.middle")} <code>hardware/README.md</code>{t("common.period")}</p>
 		<div class="row">
-			<label class="btn inline" style="cursor:pointer">原始 CSV <input type="file" accept=".csv,.txt" onchange={pickRaw} hidden /></label>
-			<label class="btn inline" style="cursor:pointer">视频追踪 CSV（可选） <input type="file" accept=".csv" onchange={pickTrack} hidden /></label>
-			<label class="btn inline" style="cursor:pointer">导入标定 JSON <input type="file" accept=".json" onchange={pickCal} hidden /></label>
-			<small>{rawName ? `原始：${rawName}` : "还没选原始文件"}{trackText ? " · 已选视频追踪" : ""}</small>
+			<label class="btn inline" style="cursor:pointer">{t("lab.raw.csv")} <input type="file" accept=".csv,.txt" onchange={pickRaw} hidden /></label>
+			<label class="btn inline" style="cursor:pointer">{t("lab.raw.trackCsv")} <input type="file" accept=".csv" onchange={pickTrack} hidden /></label>
+			<label class="btn inline" style="cursor:pointer">{t("lab.raw.importCal")} <input type="file" accept=".json" onchange={pickCal} hidden /></label>
+			<small>{rawName ? t("lab.raw.picked", { rawName: rawName }) : t("lab.raw.none")}{trackText ? t("lab.raw.trackPicked") : ""}</small>
 		</div>
 		<div class="row">
-			<label>每电机转计数 <input type="number" step="1" bind:value={cal.counts_per_motor_rev} /></label>
-			<label>减速比 <input type="number" step="1" bind:value={cal.gear_ratio} /></label>
-			<label>方向
+			<label>{t("lab.cal.countsPerRev")} <input type="number" step="1" bind:value={cal.counts_per_motor_rev} /></label>
+			<label>{t("lab.cal.gearRatio")} <input type="number" step="1" bind:value={cal.gear_ratio} /></label>
+			<label>{t("lab.cal.direction")}
 				<select bind:value={cal.direction}><option value={1}>+1</option><option value={-1}>-1</option></select>
 			</label>
-			<label>扭矩常数 (N·m/A) <input type="number" step="0.01" bind:value={cal.kt_nm_per_a} /></label>
-			<label>空载电流 (mA) <input type="number" step="1" bind:value={cal.idle_current_ma} /></label>
-			<label>表面 <input type="text" bind:value={surface} size="10" placeholder="glass" /></label>
-			<label class="inline"><input type="checkbox" bind:checked={cal.calibrated} /> 这些常数我已核对过</label>
+			<label>{t("lab.cal.torqueConstant")} <input type="number" step="0.01" bind:value={cal.kt_nm_per_a} /></label>
+			<label>{t("lab.cal.noLoadCurrent")} <input type="number" step="1" bind:value={cal.idle_current_ma} /></label>
+			<label>{t("lab.cal.surface")} <input type="text" bind:value={surface} size="10" placeholder="glass" /></label>
+			<label class="inline"><input type="checkbox" bind:checked={cal.calibrated} /> {t("lab.cal.verified")}</label>
 		</div>
 		<div class="row center">
-			<small>下面“导入测量”里的编号、类型、转速、风速也用于这次转换。</small>
-			<button class="btn primary" disabled={!!busy || !rawText} onclick={convertRaw}>转换并检查质量</button>
-			<button class="btn" disabled={!!busy || !converted} onclick={saveConverted}>保存为测量</button>
+			<small>{t("lab.cal.sharedNote")}</small>
+			<button class="btn primary" disabled={!!busy || !rawText} onclick={convertRaw}>{t("lab.raw.convert")}</button>
+			<button class="btn" disabled={!!busy || !converted} onclick={saveConverted}>{t("lab.raw.saveAs")}</button>
 		</div>
 		{#if converted}
 			<div class="cards">
-				<div class="stat"><b>{converted.q.sample_rate_hz} Hz</b><span>采样率</span></div>
-				<div class="stat"><b>{converted.q.revolutions}</b><span>曲柄转数</span></div>
-				<div class="stat"><b>{converted.q.speed_mean_rad_s} rad/s</b><span>平均转速（波动 {(converted.q.speed_cv * 100).toFixed(1)}%）</span></div>
-				<div class="stat"><b>{converted.q.dropouts}</b><span>丢包</span></div>
-				{#if converted.q.time_offset_s !== null}<div class="stat"><b>{converted.q.time_offset_s} s</b><span>视频对齐偏移</span></div>{/if}
+				<div class="stat"><b>{converted.q.sample_rate_hz} Hz</b><span>{t("lab.q.sampleRate")}</span></div>
+				<div class="stat"><b>{converted.q.revolutions}</b><span>{t("lab.q.revolutions")}</span></div>
+				<div class="stat"><b>{converted.q.speed_mean_rad_s} rad/s</b><span>{t("lab.q.meanSpeed", { speed_cv: (converted.q.speed_cv * 100).toFixed(1) })}</span></div>
+				<div class="stat"><b>{converted.q.dropouts}</b><span>{t("lab.q.dropped")}</span></div>
+				{#if converted.q.time_offset_s !== null}<div class="stat"><b>{converted.q.time_offset_s} s</b><span>{t("lab.q.videoOffset")}</span></div>{/if}
 			</div>
 			{#if converted.q.warnings.length}
-				<div class="notice"><b>读一遍再相信这份数据：</b><ul style="margin:4px 0 0 18px; padding:0">{#each converted.q.warnings as w}<li>{w}</li>{/each}</ul></div>
+				<div class="notice"><b>{t("lab.q.readFirst")}</b><ul style="margin:4px 0 0 18px; padding:0">{#each converted.q.warnings as w}<li>{w}</li>{/each}</ul></div>
 			{:else}
-				<p class="notice info">质量检查没有发现问题。</p>
+				<p class="notice info">{t("lab.q.clean")}</p>
 			{/if}
 			{#if timeSeries}
-				<p class="muted">曲柄扭矩随时间（纵轴 {timeSeries.lo.toFixed(4)} – {timeSeries.hi.toFixed(4)} N·m）</p>
+				<p class="muted">{t("lab.q.torqueChart", { lo: timeSeries.lo.toFixed(4), hi: timeSeries.hi.toFixed(4) })}</p>
 				<svg viewBox="0 0 300 100" class="chart"><polyline points={timeSeries.pts} fill="none" stroke="var(--blue)" stroke-width="1.2" /></svg>
 			{/if}
 		{/if}
 	</div>
 
 	<div class="card">
-		<h3>1. 导入测量</h3>
+		<h3>{t("lab.import.title")}</h3>
 		<div class="row">
-			<label class="btn inline" style="cursor:pointer">选择 CSV / JSON <input type="file" accept=".csv,.json" onchange={pick} hidden /></label>
-			<label>编号 <input type="text" bind:value={newId} size="12" /></label>
-			<label>类型
-				<select bind:value={kind}><option value="motor_no_wind">电机驱动无风</option><option value="fan">风扇</option></select>
+			<label class="btn inline" style="cursor:pointer">{t("lab.import.choose")} <input type="file" accept=".csv,.json" onchange={pick} hidden /></label>
+			<label>{t("lab.import.id")} <input type="text" bind:value={newId} size="12" /></label>
+			<label>{t("lab.import.kind")}
+				<select bind:value={kind}><option value="motor_no_wind">{t("lab.import.kind.motor")}</option><option value="fan">{t("lab.import.kind.fan")}</option></select>
 			</label>
-			<label>曲柄转速 (rad/s) <input type="number" step="0.1" bind:value={omega} /></label>
-			{#if kind === "fan"}<label>风速 (m/s) <input type="number" step="0.5" min="0" bind:value={wind} /></label>{/if}
-			<label class="inline"><input type="checkbox" bind:checked={synthetic} /> 合成数据</label>
-			<button class="btn primary" disabled={!!busy || !channels} onclick={save}>保存测量</button>
+			<label>{t("lab.import.crankSpeed")} <input type="number" step="0.1" bind:value={omega} /></label>
+			{#if kind === "fan"}<label>{t("lab.import.windSpeed")} <input type="number" step="0.5" min="0" bind:value={wind} /></label>{/if}
+			<label class="inline"><input type="checkbox" bind:checked={synthetic} /> {t("lab.import.synthetic")}</label>
+			<button class="btn primary" disabled={!!busy || !channels} onclick={save}>{t("lab.import.save")}</button>
 		</div>
-		<small>CSV 第一行是列名：<code>t,psi,torque,x</code>（t 秒、psi 曲柄转角 rad、torque 曲柄扭矩 N·m、x 机体前进位置 m）。{fileName ? `已选 ${fileName}` : ""}</small>
+		<small>{t("lab.import.csvHint")}<code>t,psi,torque,x</code>{t("lab.import.csvColumns", { fileName: fileName ? t("lab.import.picked", { fileName: fileName }) : "" })}</small>
 	</div>
 
 	<div class="card">
-		<h3>2. 对照</h3>
+		<h3>{t("lab.compare.title")}</h3>
 		<div class="row center">
-			<label>测量
+			<label>{t("lab.compare.measurement")}
 				<select bind:value={mId}>
-					<option value="">选择…</option>
-					{#each measurements as m}<option value={m.id}>{m.id}{m.synthetic ? "（合成）" : ""}</option>{/each}
+					<option value="">{t("common.choose")}</option>
+					{#each measurements as m}<option value={m.id}>{m.id}{m.synthetic ? t("lab.compare.syntheticTag") : ""}</option>{/each}
 				</select>
 			</label>
-			<label>仿真运行
+			<label>{t("lab.compare.simRun")}
 				<select bind:value={runId}>
-					<option value="">选择…</option>
+					<option value="">{t("common.choose")}</option>
 					{#each runs as r}<option value={r.id}>{r.id} · {r.design_name}</option>{/each}
 				</select>
 			</label>
-			<button class="btn primary" disabled={!!busy || !mId || !runId} onclick={compare}>对照</button>
+			<button class="btn primary" disabled={!!busy || !mId || !runId} onclick={compare}>{t("lab.compare.run")}</button>
 		</div>
 		{#if cmp && chart}
 			<div class="cards">
-				<div class="stat"><b>{cmp.distance === null ? "–" : cmp.distance.toFixed(3)}</b><span>失配度（0 = 一致）</span></div>
+				<div class="stat"><b>{cmp.distance === null ? "–" : cmp.distance.toFixed(3)}</b><span>{t("lab.compare.mismatch")}</span></div>
 				{#if cmp.stride_measured !== null && cmp.stride_simulated !== null}
-					<div class="stat"><b>{cmp.stride_measured.toFixed(3)} / {cmp.stride_simulated.toFixed(3)}</b><span>步幅 实测 / 仿真 (m)</span></div>
+					<div class="stat"><b>{cmp.stride_measured.toFixed(3)} / {cmp.stride_simulated.toFixed(3)}</b><span>{t("lab.compare.stride")}</span></div>
 				{/if}
 			</div>
-			<p class="muted">扭矩随曲柄转角（0–360°，纵轴 {chart.lo.toFixed(4)} – {chart.hi.toFixed(4)} N·m）：<span style="color:var(--blue)"> ■ 实测</span> <span style="color:var(--accent)"> ■ 仿真</span></p>
+			<p class="muted">{t("lab.compare.chartTitle", { lo: chart.lo.toFixed(4), hi: chart.hi.toFixed(4) })}<span style="color:var(--blue)"> {t("lab.compare.legendMeasured")}</span> <span style="color:var(--accent)"> {t("lab.compare.legendSimulated")}</span></p>
 			<svg viewBox="0 0 300 100" class="chart"><polyline points={chart.m} fill="none" stroke="var(--blue)" stroke-width="1.5" /><polyline points={chart.s} fill="none" stroke="var(--accent)" stroke-width="1.5" /></svg>
-			<small>失配度 = 扭矩均方根差 ÷ 实测平均幅值，再加步幅相对误差。</small>
+			<small>{t("lab.compare.mismatchDef")}</small>
 		{/if}
 	</div>
 
 	<div class="card">
-		<h3>3. 校准</h3>
+		<h3>{t("lab.calib.title")}</h3>
 		<div class="row center">
-			<label class="inline"><input type="checkbox" bind:checked={calParams.contact_stiffness} /> 接触刚度（s⁻²）</label>
-			<label class="inline"><input type="checkbox" bind:checked={calParams.friction} /> 摩擦系数</label>
-			<button class="btn primary" disabled={!!busy || !mId} onclick={calibrate}>用这份测量校准（当前设计）</button>
+			<label class="inline"><input type="checkbox" bind:checked={calParams.contact_stiffness} /> {t("param.contactStiffness")}</label>
+			<label class="inline"><input type="checkbox" bind:checked={calParams.friction} /> {t("param.friction")}</label>
+			<button class="btn primary" disabled={!!busy || !mId} onclick={calibrate}>{t("lab.calib.run")}</button>
 		</div>
 		{#if profile}
 			<table class="tbl">
-				<thead><tr><th colspan="2">校准结果 {profile.name}</th></tr></thead>
+				<thead><tr><th colspan="2">{t("lab.calib.result", { name: profile.name })}</th></tr></thead>
 				<tbody>
 					{#each Object.entries(profile.parameters) as [k, v]}<tr><td>{k}</td><td>{v.toPrecision(4)}</td></tr>{/each}
-					<tr><td>残差</td><td>{profile.provenance.residual.toFixed(3)}</td></tr>
-					<tr><td>方法</td><td>{profile.provenance.method}</td></tr>
+					<tr><td>{t("lab.calib.residual")}</td><td>{profile.provenance.residual.toFixed(3)}</td></tr>
+					<tr><td>{t("lab.calib.method")}</td><td>{profile.provenance.method}</td></tr>
 				</tbody>
 			</table>
-			{#if profile.provenance.synthetic}<p class="notice">这份结果来自合成数据，只说明链路能跑通，没有物理含义。</p>{/if}
+			{#if profile.provenance.synthetic}<p class="notice">{t("lab.calib.syntheticWarning")}</p>{/if}
 		{/if}
-		<p class="notice info">校准目前只在合成数据上验证过；真实数据的模型误差会比噪声大，拟合出的值未必有物理意义。</p>
+		<p class="notice info">{t("lab.calib.caveat")}</p>
 	</div>
 </div>
+
 
 <style>
 	.chart { width: 100%; max-width: 560px; height: 130px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }

@@ -1,5 +1,6 @@
 <script lang="ts">
 import { call } from "./api";
+import { t } from "./i18n/index.svelte";
 import { currentDesign, store } from "./store.svelte";
 import Viewer3D from "./Viewer3D.svelte";
 
@@ -50,11 +51,11 @@ async function guard(label: string, fn: () => Promise<void>) {
 }
 
 const evaluate = () =>
-	guard("评估中", async () => {
+	guard(t("fab.busy.evaluating"), async () => {
 		gait = (await call("/evaluate", currentDesign())).gait;
 	});
 const exportPack = () =>
-	guard("导出中", async () => {
+	guard(t("fab.busy.exporting"), async () => {
 		designAtExport = currentDesign();
 		const r = await call("/exports", designAtExport);
 		pack = r;
@@ -88,31 +89,31 @@ const counts = $derived({
 
 <div class="stack">
 	<div class="card">
-		<h2>制造</h2>
-		<p class="muted">当前设计：<b>{store.name}</b>，{store.legs} 条腿，1 单位 = {store.unitMm} mm（在“设计”页修改）。</p>
+		<h2>{t("nav.fab")}</h2>
+		<p class="muted">{t("design.current")}<b>{store.name}</b>{t("fab.designSummary", { legs: store.legs, unitMm: store.unitMm })}</p>
 		<div class="row center">
-			<label>配合间隙 (mm) <input type="number" min="0" max="1" step="0.05" bind:value={store.clearance} /></label>
-			<button class="btn" disabled={!!busy} onclick={evaluate}>评估步态</button>
-			<button class="btn primary" disabled={!!busy} onclick={exportPack}>检查并导出打印包</button>
+			<label>{t("fab.clearance")} <input type="number" min="0" max="1" step="0.05" bind:value={store.clearance} /></label>
+			<button class="btn" disabled={!!busy} onclick={evaluate}>{t("fab.evalGait")}</button>
+			<button class="btn primary" disabled={!!busy} onclick={exportPack}>{t("fab.checkExport")}</button>
 			{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
 		</div>
-		{#if error}<p class="notice error">出错：{error}（后端启动了吗？<code>strandbeest-api</code>）</p>{/if}
+		{#if error}<p class="notice error">{t("fab.error.before", { error: error })}<code>strandbeest-api</code>{t("common.closeParen")}</p>{/if}
 		{#if gait}
 			<div class="row">
-				<div class="chip"><b>{(gait.duty * 100).toFixed(0)}%</b><span>着地占比</span></div>
-				<div class="chip"><b>{gait.lift.toFixed(1)}</b><span>抬腿</span></div>
-				<div class="chip"><b>{gait.stroke_length.toFixed(1)}</b><span>平底长度</span></div>
+				<div class="chip"><b>{(gait.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
+				<div class="chip"><b>{gait.lift.toFixed(1)}</b><span>{t("fab.lift")}</span></div>
+				<div class="chip"><b>{gait.stroke_length.toFixed(1)}</b><span>{t("metric.flatLength")}</span></div>
 			</div>
 		{/if}
 	</div>
 
 	{#if pack && manifest}
 		<div class="card">
-			<h2>可打印性检查
-				{#if counts.fail}<span class="badge fail">{counts.fail} 项不通过</span>{:else if counts.warn}<span class="badge warn">{counts.warn} 项需注意</span>{:else}<span class="badge pass">全部通过</span>{/if}
+			<h2>{t("fab.checks.title")}
+				{#if counts.fail}<span class="badge fail">{t("fab.checks.fail", { fail: counts.fail })}</span>{:else if counts.warn}<span class="badge warn">{t("fab.checks.warn", { warn: counts.warn })}</span>{:else}<span class="badge pass">{t("fab.checks.allPass")}</span>{/if}
 			</h2>
 			<table class="tbl">
-				<thead><tr><th>检查</th><th>结果</th><th>值</th><th>要求</th></tr></thead>
+				<thead><tr><th>{t("fab.checks.col.check")}</th><th>{t("fab.checks.col.result")}</th><th>{t("fab.checks.col.value")}</th><th>{t("fab.checks.col.requirement")}</th></tr></thead>
 				<tbody>
 					{#each pack.checks as c}
 						<tr class={c.status === "pass" ? "" : c.status}>
@@ -122,14 +123,14 @@ const counts = $derived({
 				</tbody>
 			</table>
 			<div class="row center">
-				<a class="btn primary" href={store.api + pack.download} style="text-decoration:none">下载打印包（STL + 物料清单 + 装配说明）</a>
-				<small>{pack.parts} 种零件，每条腿 {pack.layers_per_leg} 层</small>
+				<a class="btn primary" href={store.api + pack.download} style="text-decoration:none">{t("fab.download")}</a>
+				<small>{t("fab.packSummary", { parts: pack.parts, layers_per_leg: pack.layers_per_leg })}</small>
 			</div>
-			<p class="notice">零件和装配方案是第一版，含若干假设（电机孔距、联轴器、压配偏置），请先打印一根杆加一个销做配合测试。</p>
+			<p class="notice">{t("fab.caveat")}</p>
 		</div>
 
 		<div class="card">
-			<h2>三维预览</h2>
+			<h2>{t("fab.preview3d")}</h2>
 			{#key pack.export_id}
 				<Viewer3D
 					api={store.api}
@@ -143,7 +144,7 @@ const counts = $derived({
 		</div>
 
 		<div class="card">
-			<h2>零件</h2>
+			<h2>{t("fab.parts")}</h2>
 			<div class="cards">
 				{#each parts.filter(([, p]) => p.outline) as [name, p]}
 					<figure>
@@ -155,6 +156,7 @@ const counts = $derived({
 		</div>
 	{/if}
 </div>
+
 
 <style>
 	figure { margin: 0; text-align: center; font-size: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }

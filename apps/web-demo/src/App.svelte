@@ -2,15 +2,17 @@
 import { call } from "./api";
 import DesignTab from "./DesignTab.svelte";
 import FabTab from "./FabTab.svelte";
+import { LOCALE_NAMES, LOCALES } from "./i18n/core";
+import { i18n, setLocale, t } from "./i18n/index.svelte";
 import LabTab from "./LabTab.svelte";
 import SimTab from "./SimTab.svelte";
 import { setApi, store } from "./store.svelte";
 
 const tabs = [
-	["design", "设计"],
-	["fab", "制造"],
-	["sim", "仿真"],
-	["lab", "实验室"],
+	["design", "nav.design"],
+	["fab", "nav.fab"],
+	["sim", "nav.sim"],
+	["lab", "nav.lab"],
 ] as const;
 let tab = $state<(typeof tabs)[number][0]>("design");
 let online = $state<"unknown" | "up" | "down">("unknown");
@@ -26,34 +28,41 @@ async function ping() {
 $effect(() => {
 	store.api;
 	ping();
-	const t = setInterval(ping, 8000);
-	return () => clearInterval(t);
+	const timer = setInterval(ping, 8000);
+	return () => clearInterval(timer);
 });
 </script>
 
 <header>
 	<div class="wrap top">
 		<div>
-			<h1>Strandbeest 设计与验证平台</h1>
-			<small>设计 → 仿真 → 3D 打印 → 测量 → 校准</small>
+			<h1>{t("app.title")}</h1>
+			<small>{t("app.pipeline")}</small>
 		</div>
+		<label class="lang">
+			<span class="sr">{t("app.language")}</span>
+			<select value={i18n.locale} onchange={(e) => setLocale((e.target as HTMLSelectElement).value as (typeof LOCALES)[number])}>
+				{#each LOCALES as l}<option value={l}>{LOCALE_NAMES[l]}</option>{/each}
+			</select>
+		</label>
 		<label class="api">
-			<span><i class="dot {online}"></i>{online === "up" ? "后端在线" : online === "down" ? "后端未连接" : "检查后端…"}</span>
+			<span><i class="dot {online}"></i>{online === "up" ? t("app.backend.online") : online === "down" ? t("app.backend.offline") : t("app.backend.checking")}</span>
 			<input type="text" size="22" value={store.api} onchange={(e) => setApi((e.target as HTMLInputElement).value)} />
 		</label>
 	</div>
 	<nav class="wrap">
 		{#each tabs as [id, label]}
-			<button class:active={tab === id} onclick={() => (tab = id)}>{label}</button>
+			<button class:active={tab === id} onclick={() => (tab = id)}>{t(label)}</button>
 		{/each}
 	</nav>
 </header>
 <main class="wrap">
 	{#if online === "down" && tab !== "design"}
-		<p class="notice error">连不上后端 {store.api}。在项目目录运行 <code>strandbeest-api</code>（或 <code>docker compose up</code>），设计页不需要后端。</p>
+		<p class="notice error">{t("app.backend.unreachable.before", { api: store.api })} <code>strandbeest-api</code>{t("app.backend.unreachable.or")} <code>docker compose up</code>{t("app.backend.unreachable.after")}</p>
 	{/if}
 	{#if tab === "design"}<DesignTab />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else}<LabTab />{/if}
 </main>
+
 
 <style>
 	.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }

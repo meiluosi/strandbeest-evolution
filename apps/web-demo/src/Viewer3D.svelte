@@ -1,6 +1,7 @@
 <script lang="ts">
 import { type JansenParams, jansenSpec, solvePose } from "strandbeest-core";
 import type * as THREE_NS from "three";
+import { t } from "./i18n/index.svelte";
 
 type Outline = { exterior: number[][]; interiors: number[][][] };
 type Bar = {
@@ -77,7 +78,7 @@ $effect(() => {
 	let raf = 0;
 	let cleanup = () => {};
 	(async () => {
-		status = "加载 3D 引擎…";
+		status = t("viewer3d.loadingEngine");
 		const THREE: typeof THREE_NS = await import("three");
 		const { OrbitControls } = await import(
 			"three/examples/jsm/controls/OrbitControls.js"
@@ -222,7 +223,7 @@ $effect(() => {
 
 		async function loadPart(name: string) {
 			partGroup.clear();
-			status = "加载零件…";
+			status = t("viewer3d.loadingParts");
 			try {
 				const r = await fetch(`${api}/exports/${exportId}/stl/${name}`);
 				const geo = new STLLoader().parse(await r.arrayBuffer());
@@ -238,13 +239,15 @@ $effect(() => {
 				controls.target.set(0, 0, 0);
 				status = "";
 			} catch (e) {
-				status = `零件加载失败：${e instanceof Error ? e.message : e}`;
+				status = t("viewer3d.partsFailed", {
+					e: e instanceof Error ? e.message : String(e),
+				});
 			}
 		}
 
 		api3 = { loadPart, rebuild };
 		rebuild();
-		let t = 0;
+		let clock = 0;
 		let last = performance.now();
 		function resize() {
 			const w = host.clientWidth;
@@ -267,12 +270,12 @@ $effect(() => {
 				lastLegs = live.legs;
 				rebuild();
 			}
-			if (live.playing) t += ((now - last) / 1000) * 1.2;
+			if (live.playing) clock += ((now - last) / 1000) * 1.2;
 			last = now;
 			assembly.visible = live.mode === "assembly";
 			partGroup.visible = live.mode === "part";
 			if (ground) ground.visible = live.mode === "assembly";
-			if (live.mode === "assembly") pose(t);
+			if (live.mode === "assembly") pose(clock);
 			controls.update();
 			renderer.render(scene, camera);
 		}
@@ -286,7 +289,9 @@ $effect(() => {
 			api3 = null;
 		};
 	})().catch((e) => {
-		status = `3D 预览不可用：${e instanceof Error ? e.message : e}`;
+		status = t("viewer3d.unavailable", {
+			e: e instanceof Error ? e.message : String(e),
+		});
 	});
 	return () => {
 		disposed = true;
@@ -297,22 +302,23 @@ $effect(() => {
 
 <div>
 	<div class="row center">
-		<button class="btn small" class:primary={mode === "assembly"} onclick={() => (mode = "assembly")}>装配预览（运动）</button>
-		<button class="btn small" class:primary={mode === "part"} onclick={() => (mode = "part")}>单个零件</button>
+		<button class="btn small" class:primary={mode === "assembly"} onclick={() => (mode = "assembly")}>{t("viewer3d.assembly")}</button>
+		<button class="btn small" class:primary={mode === "part"} onclick={() => (mode = "part")}>{t("viewer3d.singlePart")}</button>
 		{#if mode === "assembly"}
-			<button class="btn small" onclick={() => (playing = !playing)}>{playing ? "暂停" : "播放"}</button>
-			<button class="btn small" onclick={() => (legsShown = legsShown === "one" ? "all" : "one")}>{legsShown === "one" ? "显示全部腿" : "只显示一条腿"}</button>
-			<small>颜色 = 叠放层；拖动旋转，滚轮缩放</small>
+			<button class="btn small" onclick={() => (playing = !playing)}>{playing ? t("common.pause") : t("common.play")}</button>
+			<button class="btn small" onclick={() => (legsShown = legsShown === "one" ? "all" : "one")}>{legsShown === "one" ? t("viewer3d.allLegs") : t("viewer3d.oneLeg")}</button>
+			<small>{t("viewer3d.hint")}</small>
 		{:else}
 			<select bind:value={part}>
 				{#each stlParts as p}<option value={p}>{p}</option>{/each}
 			</select>
-			<small>读取导出的 STL（就是要打印的文件）</small>
+			<small>{t("viewer3d.stlNote")}</small>
 		{/if}
 		{#if status}<small><span class="spin"></span>{status}</small>{/if}
 	</div>
 	<div bind:this={host} class="host"></div>
 </div>
+
 
 <style>
 	.host { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); overflow: hidden; }

@@ -5,6 +5,7 @@ import {
 	jansenSpec,
 	trace,
 } from "strandbeest-core";
+import { t } from "./i18n/index.svelte";
 
 let {
 	params,
@@ -62,7 +63,7 @@ function draw() {
 	if (!path.assembled) {
 		ctx.fillStyle = muted;
 		ctx.font = "14px system-ui";
-		ctx.fillText("该参数下连杆无法闭合：把滑块拖回去试试", 16, 28);
+		ctx.fillText(t("viewer.cannotClose"), 16, 28);
 		return;
 	}
 	// fit every joint over the whole cycle into the canvas
@@ -172,13 +173,14 @@ $effect(() => {
 <div bind:this={box} class="viewer">
 	<canvas bind:this={canvas} style="width:{size.w}px;height:{size.h}px"></canvas>
 	<div class="row center">
-		<button class="btn small" onclick={() => (playing = !playing)}>{playing ? "暂停" : "播放"}</button>
-		<label class="inline">转速 <input type="range" min="0.2" max="4" step="0.1" bind:value={speed} style="width:120px" /></label>
+		<button class="btn small" onclick={() => (playing = !playing)}>{playing ? t("common.pause") : t("common.play")}</button>
+		<label class="inline">{t("viewer.speed")} <input type="range" min="0.2" max="4" step="0.1" bind:value={speed} style="width:120px" /></label>
 		<small>
-			<span style="color:var(--accent)">■ 曲柄/脚轨迹</span> <span style="color:var(--blue)">■ 上部三角</span> <span>■ 下肢</span> · G、P 是固定铰
+			<span style="color:var(--accent)">{t("viewer.legend.crank")}</span> <span style="color:var(--blue)">{t("viewer.legend.upper")}</span> <span>{t("viewer.legend.lower")}</span> {t("viewer.legend.fixed")}
 		</small>
 	</div>
 </div>
+
 
 <style>
 	.viewer { width: 100%; }

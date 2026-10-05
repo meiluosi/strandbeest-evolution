@@ -39,5 +39,5 @@ Use `pnpm` (Node >= 22).
 
 ## Taking a task card
 Tasks live in `docs/ACTIONS.md` (IDs like `E1-01`). Before starting: restate the acceptance criteria, and say so if the card does not match the code or its dependencies are unmet. A card is done only when its acceptance criteria have evidence and the Definition of Done in that file holds. Accepted architecture decisions are in `docs/adr/` (0001-0008: stable asset IDs, SI units and a frames convention, an edit-operation log as the source of truth, determinism/snapshots/provenance/cache, a world/entity model with a PhysicsBackend boundary, Arrow/Parquet + glTF data formats, JSON Schema `x-` annotations as the property system plus a versioned plugin API, text project folders and i18n). The engine is called Beest Engine.
-- Anything user-visible goes through i18n message keys once E1-01 lands; no new hard-coded UI strings.
+- Anything user-visible goes through i18n message keys (`t("area.name", {params})`, catalogs in `apps/web-demo/src/i18n/{zh,en}.json`, ICU syntax, both languages in the same change). `scripts/check_no_hardcoded_cjk.py` fails CI on hard-coded CJK literals; for module-level label tables store the key and call `t()` in the template so the language switch is reactive.
 - Never publish (npm, Pages, blog, print exports) without the user's confirmation.

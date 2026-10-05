@@ -6,6 +6,7 @@ import {
 	paramsToGenome,
 } from "strandbeest-core";
 import type { WorkerRequest } from "./ga.worker";
+import { t } from "./i18n/index.svelte";
 
 let {
 	params,
@@ -73,19 +74,19 @@ const chart = $derived.by(() => {
 
 <div class="evolver">
 	<div class="row">
-		<label>目标
+		<label>{t("evolve.objective")}
 			<select bind:value={objective}>
-				<option value="flat">平地行走（长而平的着地段）</option>
-				<option value="highstep">越障（高抬腿）</option>
+				<option value="flat">{t("evolve.objective.flat")}</option>
+				<option value="highstep">{t("evolve.objective.obstacle")}</option>
 			</select>
 		</label>
-		<label>种子 <input type="number" bind:value={seed} min="0" /></label>
-		<label>代数 <input type="number" bind:value={generations} min="1" max="500" /></label>
-		<label>种群 <input type="number" bind:value={population} min="10" max="300" /></label>
+		<label>{t("evolve.seed")} <input type="number" bind:value={seed} min="0" /></label>
+		<label>{t("evolve.generations")} <input type="number" bind:value={generations} min="1" max="500" /></label>
+		<label>{t("evolve.population")} <input type="number" bind:value={population} min="10" max="300" /></label>
 		{#if running}
-			<button onclick={stop}>停止</button>
+			<button onclick={stop}>{t("common.stop")}</button>
 		{:else}
-			<button onclick={start}>从当前参数开始演化</button>
+			<button onclick={start}>{t("evolve.start")}</button>
 		{/if}
 	</div>
 	<svg viewBox="0 0 300 100" class="chart">
@@ -93,10 +94,11 @@ const chart = $derived.by(() => {
 		<polyline points={chart.best} fill="none" stroke="#e5733f" stroke-width="2" />
 	</svg>
 	{#if last}
-		<p>第 {last.generation} / {generations} 代 · 最优适应度 {last.bestFitness.toFixed(3)}（橙）· 种群均值（灰）</p>
-		<button onclick={() => onapply(genomeToParams(last.best))}>把当前最优载入上方查看</button>
+		<p>{t("evolve.progress", { generation: last.generation, generations: generations, bestFitness: last.bestFitness.toFixed(3) })}</p>
+		<button onclick={() => onapply(genomeToParams(last.best))}>{t("evolve.loadBest")}</button>
 	{/if}
 </div>
+
 
 <style>
 	.evolver { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }

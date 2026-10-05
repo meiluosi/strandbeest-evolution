@@ -7,6 +7,7 @@ import {
 	jansenSpec,
 	windWalk,
 } from "strandbeest-core";
+import { t } from "./i18n/index.svelte";
 
 let { params }: { params: JansenParams } = $props();
 
@@ -29,29 +30,29 @@ const result = $derived(summary ? windWalk(DEFAULT_SAIL, summary, wind) : null);
 
 <div class="wind stack">
 	<div class="grid">
-		<label>风速 {wind} m/s <input type="range" min="0" max="15" step="0.5" bind:value={wind} /></label>
-		<label>质量 {mass} kg <input type="range" min="10" max="200" step="5" bind:value={mass} /></label>
-		<label>坡度 {slopeDeg}° <input type="range" min="0" max="25" step="1" bind:value={slopeDeg} /></label>
-		<label>腿数 {legs} <input type="range" min="2" max="24" step="2" bind:value={legs} /></label>
-		<label>阻力 {rolling}% 体重 <input type="range" min="0" max="20" step="1" bind:value={rolling} /></label>
+		<label>{t("wind.speed", { wind: wind })} <input type="range" min="0" max="15" step="0.5" bind:value={wind} /></label>
+		<label>{t("wind.mass", { mass: mass })} <input type="range" min="10" max="200" step="5" bind:value={mass} /></label>
+		<label>{t("wind.slope", { slopeDeg: slopeDeg })} <input type="range" min="0" max="25" step="1" bind:value={slopeDeg} /></label>
+		<label>{t("wind.legs", { legs: legs })} <input type="range" min="2" max="24" step="2" bind:value={legs} /></label>
+		<label>{t("wind.rolling", { rolling: rolling })} <input type="range" min="0" max="20" step="1" bind:value={rolling} /></label>
 	</div>
 	{#if summary && result}
 		<p>
-			每圈前进 {summary.stride.toFixed(2)} m · 曲柄峰值扭矩 {summary.peakTorque.toFixed(1)} N·m · 平均 {summary.meanTorque.toFixed(1)} N·m
-			· 稳定支撑 {(summary.stableFraction * 100).toFixed(0)}%
+			{t("wind.summary", { stride: summary.stride.toFixed(2), peakTorque: summary.peakTorque.toFixed(1), meanTorque: summary.meanTorque.toFixed(1), stableFraction: (summary.stableFraction * 100).toFixed(0) })}
 		</p>
 		<p class="big">
 			{#if result.runs}
-				预计速度 <b>{result.speed.toFixed(2)} m/s</b>（起步需风速 ≥ {result.minStartWind.toFixed(1)} m/s）
+				{t("wind.expectedSpeed")} <b>{result.speed.toFixed(2)} m/s</b>{t("wind.startNeeds", { minStartWind: result.minStartWind.toFixed(1) })}
 			{:else}
-				风太小，推不动（起步需风速 ≥ {result.minStartWind.toFixed(1)} m/s）
+				{t("wind.tooWeak", { minStartWind: result.minStartWind.toFixed(1) })}
 			{/if}
 		</p>
-		<small>准静态模型：不含惯性、滑移、松软地面；帆、传动比、阻力均为示意假设。用于比较不同连杆设计，不是实测预测。</small>
+		<small>{t("wind.caveat")}</small>
 	{:else}
-		<p>该参数下连杆无法闭合。</p>
+		<p>{t("wind.cannotClose")}</p>
 	{/if}
 </div>
+
 
 <style>
 	.wind { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }

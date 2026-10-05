@@ -1,3 +1,4 @@
+import { t } from "./i18n/index.svelte";
 import { store } from "./store.svelte";
 
 export async function call<T = any>(path: string, body?: unknown): Promise<T> {
@@ -37,8 +38,8 @@ export async function runJob<T = any>(
 	for (;;) {
 		const j: Job = await call(`/jobs/${job_id}`);
 		onTick?.(j);
-		if (j.status === "failed") throw new Error(j.error ?? "任务失败");
-		if (j.status === "cancelled") throw new Error("已取消");
+		if (j.status === "failed") throw new Error(j.error ?? t("api.jobFailed"));
+		if (j.status === "cancelled") throw new Error(t("api.jobCancelled"));
 		if (j.status === "done") return j.result as T;
 		await new Promise((r) => setTimeout(r, 1000));
 	}

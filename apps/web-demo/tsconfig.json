@@ -2,7 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"verbatimModuleSyntax": true,
-		"types": ["svelte", "vite/client"],
+		"types": ["svelte", "vite/client", "node"],
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"paths": {
 			"strandbeest-core": ["../../packages/core/src/index.ts"]
