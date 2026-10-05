@@ -24,7 +24,9 @@
 			"!apps/api",
 			"!packages/common",
 			"!packages/fab",
-			"!packages/calib"
+			"!packages/calib",
+			"!packages/rig",
+			"!hardware"
 		]
 	}
 }

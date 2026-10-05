@@ -1,0 +1,40 @@
+{
+	"schema_version": 1,
+	"id": "example-rig-e1",
+	"design_name": "jansen-small-6leg",
+	"synthetic": false,
+	"build_note": "example record, numbers made up",
+	"conditions": {
+		"kind": "motor_no_wind",
+		"omega_rad_s": 2.0,
+		"surface": "glass"
+	},
+	"channels": {
+		"t": [0, 0.01, 0.02],
+		"psi": [0, 0.02, 0.04],
+		"torque": [0.011, 0.012, 0.012],
+		"x": [0, 0.0006, 0.0012]
+	},
+	"provenance": {
+		"source": "rig",
+		"rig_version": "0.1",
+		"calibration": {
+			"counts_per_motor_rev": 48,
+			"gear_ratio": 100,
+			"kt_nm_per_a": 0.5,
+			"calibrated": true
+		},
+		"raw_file": "e1.csv",
+		"notes": ""
+	},
+	"quality": {
+		"sample_rate_hz": 100,
+		"duration_s": 0.02,
+		"revolutions": 0.0,
+		"speed_mean_rad_s": 2.0,
+		"speed_cv": 0.02,
+		"dropouts": 0,
+		"time_offset_s": 0.03,
+		"warnings": ["example"]
+	}
+}

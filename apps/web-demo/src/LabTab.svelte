@@ -41,6 +41,95 @@ let wind = $state(0);
 let synthetic = $state(false);
 let channels = $state<Record<string, number[]> | null>(null);
 let fileName = $state("");
+// ---- raw rig data ----
+type Quality = {
+	sample_rate_hz: number;
+	duration_s: number;
+	revolutions: number;
+	speed_mean_rad_s: number;
+	speed_cv: number;
+	dropouts: number;
+	time_offset_s: number | null;
+	warnings: string[];
+};
+let rawText = $state("");
+let rawName = $state("");
+let trackText = $state("");
+let cal = $state({
+	counts_per_motor_rev: 48,
+	gear_ratio: 100,
+	direction: 1,
+	torque_method: "current",
+	kt_nm_per_a: 0.5,
+	idle_current_ma: 0,
+	calibrated: false,
+});
+let surface = $state("");
+let converted = $state<{ doc: any; q: Quality } | null>(null);
+
+async function readText(
+	e: Event,
+): Promise<{ name: string; text: string } | null> {
+	const f = (e.target as HTMLInputElement).files?.[0];
+	return f ? { name: f.name, text: await f.text() } : null;
+}
+const pickRaw = async (e: Event) => {
+	const r = await readText(e);
+	if (r) {
+		rawText = r.text;
+		rawName = r.name;
+		converted = null;
+	}
+};
+const pickTrack = async (e: Event) => {
+	const r = await readText(e);
+	if (r) trackText = r.text;
+};
+const pickCal = async (e: Event) => {
+	const r = await readText(e);
+	if (r) cal = { ...cal, ...JSON.parse(r.text) };
+};
+const convertRaw = () =>
+	guard("转换中", async () => {
+		const doc = await call("/rig/convert", {
+			raw_csv: rawText,
+			raw_name: rawName,
+			calibration: cal,
+			id: newId,
+			design_name: store.name,
+			kind,
+			omega,
+			wind: kind === "fan" ? wind : undefined,
+			surface,
+			track_csv: trackText || undefined,
+		});
+		converted = { doc, q: doc.quality };
+	});
+const saveConverted = () =>
+	guard("保存", async () => {
+		if (!converted) return;
+		await call("/measurements", converted.doc);
+		measurements = await call("/measurements");
+		mId = converted.doc.id;
+		info = `已保存测量 ${converted.doc.id}（来自测试台）`;
+	});
+const timeSeries = $derived.by(() => {
+	if (!converted) return null;
+	const ch = converted.doc.channels;
+	const tq: number[] | undefined = ch.torque;
+	if (!tq) return null;
+	const lo = Math.min(...tq);
+	const hi = Math.max(...tq);
+	const t: number[] = ch.t;
+	const stride = Math.max(1, Math.floor(tq.length / 400));
+	const pts = tq
+		.filter((_, i) => i % stride === 0)
+		.map(
+			(y, i) =>
+				`${((t[i * stride] as number) / (t.at(-1) as number)) * 300},${95 - ((y - lo) / (hi - lo || 1)) * 85}`,
+		);
+	return { pts: pts.join(" "), lo, hi };
+});
 
 async function guard(label: string, fn: () => Promise<void>) {
 	busy = label;
@@ -161,6 +250,51 @@ const chart = $derived.by(() => {
 		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>刷新测量与运行列表</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
 		{#if error}<p class="notice error">出错：{error}</p>{/if}
 		{#if info}<p class="notice info">{info}</p>{/if}
+	</div>
+
+	<div class="card">
+		<h3>0. 从测试台导入原始数据</h3>
+		<p class="muted">测试台固件打印的 CSV（<code>t_ms,enc,current_mA,…</code>）加上标定常数，转成测量。不确定怎么标定，见 <code>hardware/README.md</code>。</p>
+		<div class="row">
+			<label class="btn inline" style="cursor:pointer">原始 CSV <input type="file" accept=".csv,.txt" onchange={pickRaw} hidden /></label>
+			<label class="btn inline" style="cursor:pointer">视频追踪 CSV（可选） <input type="file" accept=".csv" onchange={pickTrack} hidden /></label>
+			<label class="btn inline" style="cursor:pointer">导入标定 JSON <input type="file" accept=".json" onchange={pickCal} hidden /></label>
+			<small>{rawName ? `原始：${rawName}` : "还没选原始文件"}{trackText ? " · 已选视频追踪" : ""}</small>
+		</div>
+		<div class="row">
+			<label>每电机转计数 <input type="number" step="1" bind:value={cal.counts_per_motor_rev} /></label>
+			<label>减速比 <input type="number" step="1" bind:value={cal.gear_ratio} /></label>
+			<label>方向
+				<select bind:value={cal.direction}><option value={1}>+1</option><option value={-1}>-1</option></select>
+			</label>
+			<label>扭矩常数 (N·m/A) <input type="number" step="0.01" bind:value={cal.kt_nm_per_a} /></label>
+			<label>空载电流 (mA) <input type="number" step="1" bind:value={cal.idle_current_ma} /></label>
+			<label>表面 <input type="text" bind:value={surface} size="10" placeholder="glass" /></label>
+			<label class="inline"><input type="checkbox" bind:checked={cal.calibrated} /> 这些常数我已核对过</label>
+		</div>
+		<div class="row center">
+			<small>下面“导入测量”里的编号、类型、转速、风速也用于这次转换。</small>
+			<button class="btn primary" disabled={!!busy || !rawText} onclick={convertRaw}>转换并检查质量</button>
+			<button class="btn" disabled={!!busy || !converted} onclick={saveConverted}>保存为测量</button>
+		</div>
+		{#if converted}
+			<div class="cards">
+				<div class="stat"><b>{converted.q.sample_rate_hz} Hz</b><span>采样率</span></div>
+				<div class="stat"><b>{converted.q.revolutions}</b><span>曲柄转数</span></div>
+				<div class="stat"><b>{converted.q.speed_mean_rad_s} rad/s</b><span>平均转速（波动 {(converted.q.speed_cv * 100).toFixed(1)}%）</span></div>
+				<div class="stat"><b>{converted.q.dropouts}</b><span>丢包</span></div>
+				{#if converted.q.time_offset_s !== null}<div class="stat"><b>{converted.q.time_offset_s} s</b><span>视频对齐偏移</span></div>{/if}
+			</div>
+			{#if converted.q.warnings.length}
+				<div class="notice"><b>读一遍再相信这份数据：</b><ul style="margin:4px 0 0 18px; padding:0">{#each converted.q.warnings as w}<li>{w}</li>{/each}</ul></div>
+			{:else}
+				<p class="notice info">质量检查没有发现问题。</p>
+			{/if}
+			{#if timeSeries}
+				<p class="muted">曲柄扭矩随时间（纵轴 {timeSeries.lo.toFixed(4)} – {timeSeries.hi.toFixed(4)} N·m）</p>
+				<svg viewBox="0 0 300 100" class="chart"><polyline points={timeSeries.pts} fill="none" stroke="var(--blue)" stroke-width="1.2" /></svg>
+			{/if}
+		{/if}
 	</div>
 
 	<div class="card">

@@ -211,3 +211,31 @@ def test_sweep_axis_can_set_linked_paths():
         {"scenario.walker.foot_friction": 0.5, "scenario.terrain.friction": 0.5},
         {"scenario.walker.foot_friction": 1.0, "scenario.terrain.friction": 1.0},
     ]
+
+
+def _raw_csv(seconds=10.0, rate=100, omega=2.0, cpr=12, gear=100):
+    import math
+
+    lines = ["# fw=test", "t_ms,enc,current_mA,load_raw,wind_pulses,pwm"]
+    for i in range(int(seconds * rate)):
+        tt = i / rate
+        lines.append(f"{int(tt * 1000)},{round(omega * tt / (2 * math.pi) * gear * cpr)},{100 + 40 * math.sin(omega * tt):.1f},,,")
+    return "\n".join(lines) + "\n"
+
+
+def test_rig_convert_returns_a_valid_measurement_with_quality(client):
+    cal = {"counts_per_motor_rev": 12, "gear_ratio": 100, "kt_nm_per_a": 0.5, "idle_current_ma": 100, "calibrated": True}
+    r = client.post("/rig/convert", json={"raw_csv": _raw_csv(), "calibration": cal, "id": "r1", "design_name": "jansen-small-6leg", "omega": 2.0, "raw_name": "r1.csv"})
+    assert r.status_code == 200, r.text
+    doc = r.json()
+    assert doc["provenance"]["source"] == "rig" and doc["quality"]["warnings"] == []
+    assert doc["quality"]["speed_mean_rad_s"] == pytest.approx(2.0, rel=0.02)
+    # the result can be saved and then compared like any other measurement
+    assert client.post("/measurements", json=doc).status_code == 200
+
+
+def test_rig_convert_reports_bad_input_as_422_and_serves_a_template(client):
+    bad = client.post("/rig/convert", json={"raw_csv": "a,b\n1,2\n", "id": "x", "design_name": "d"})
+    assert bad.status_code == 422 and "missing required columns" in bad.text
+    assert client.post("/rig/convert", json={"id": "x"}).status_code == 422
+    assert client.get("/rig/calibration-template").json()["calibrated"] is False

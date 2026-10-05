@@ -15,6 +15,7 @@
 |---|---|
 | `packages/core` | 纯 TypeScript 库（npm: `strandbeest-core`）：连杆求解、步态指标、带种子的遗传算法、多腿、准静态动力学与风帆模型 |
 | `packages/sim` | Python / MuJoCo 动力学仿真器（配置驱动，见 [设计](docs/SIM-DESIGN.md)）；早期，扭矩结果尚未收敛 |
+| `hardware/` + `packages/rig` | 测试台：设计与标定流程、ESP32 固件、原始数据转测量（含质量检查）、ArUco 视频追踪；**尚未在真实硬件上跑过**，见 [hardware/README.md](hardware/README.md) |
 | `apps/web-demo` | 交互演示：拖动 13 个长度看脚轨迹；浏览器里跑遗传算法；风力估算面板 |
 | `scripts/` | 实验脚本（演化、复现 Jansen、动力学对比）与 GIF 渲染 |
 | `docs/` | 路线图、架构、研究笔记（史料出处）、实验记录 |

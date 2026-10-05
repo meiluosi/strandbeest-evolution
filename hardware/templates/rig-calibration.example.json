@@ -1,0 +1,14 @@
+{
+  "counts_per_motor_rev": 48.0,
+  "gear_ratio": 100.0,
+  "direction": 1,
+  "torque_method": "current",
+  "kt_nm_per_a": 0.5,
+  "idle_current_ma": 0.0,
+  "arm_m": 0.05,
+  "counts_per_gram": 1.0,
+  "zero_counts": 0.0,
+  "wind_ms_per_hz": 0.0,
+  "calibrated": false,
+  "notes": ""
+}

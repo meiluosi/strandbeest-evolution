@@ -17,6 +17,7 @@ from strandbeest_calib.compare import curves, distance
 from strandbeest_common import Design
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
+from strandbeest_rig import Calibration, convert_raw
 
 from .jobs import JobContext, JobStore, Workers
 from .pipeline import evaluate, simulate, simulate_ensemble
@@ -229,6 +230,29 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.get("/measurements/{mid}")
     def get_measurement(mid: str):
         return measurement_doc(mid)
+
+    @app.get("/rig/calibration-template")
+    def calibration_template():
+        return Calibration().asdict()
+
+    @app.post("/rig/convert")
+    def rig_convert(body: dict = Body(...)):
+        """Raw rig CSV + calibration -> Measurement document with a quality report. Nothing is saved; POST the result to /measurements."""
+        import io
+
+        try:
+            track = None
+            if body.get("track_csv"):
+                a = np.genfromtxt(io.StringIO(body["track_csv"]), delimiter=",", names=True)
+                track = (np.asarray(a["t_s"], float), np.asarray(a["x_m"], float))
+            return convert_raw(
+                body["raw_csv"], Calibration.load(body.get("calibration") or {}), id=body["id"], design_name=body["design_name"],
+                kind=body.get("kind", "motor_no_wind"), omega_rad_s=body.get("omega"), wind_m_s=body.get("wind"),
+                surface=body.get("surface", ""), build_note=body.get("build_note", ""), raw_name=body.get("raw_name", ""),
+                track=track, track_offset_s=body.get("track_offset_s"),
+            )
+        except (ValueError, KeyError, TypeError) as e:
+            raise HTTPException(422, f"{type(e).__name__}: {e}") from e
 
     @app.post("/compare")
     def compare(body: dict = Body(...)):

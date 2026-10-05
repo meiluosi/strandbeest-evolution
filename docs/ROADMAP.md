@@ -11,6 +11,8 @@
 - [x] Fab depth: gripping crank arms + phase jig, spacers/washers computed per axle, standoffs, motor bracket and shaft coupler (N20-class motor assumed), more checks
 - [x] Front end: four tabs (design, fabrication, simulation, lab), design save/load/import/export, run history with overlay, part outlines, measurement import (CSV/JSON), measured-vs-simulated comparison, calibration from the UI; torque reported as a range
 - [x] P4: SQLite job queue (persistent, progress, cancel, restart recovery), run index, parameter sweeps (grid up to 60 points, linked paths), STL endpoint, 3D assembly/part preview (three.js), UI refresh with design system, `docker compose` (see docs/DEPLOY.md)
+- [x] P5 tooling: `hardware/` (rig design, calibration procedures, experiments E0–E4, lab notebook), ESP32 firmware (logic host-tested; Arduino glue NOT compiled or run on hardware), `packages/rig` (raw CSV → Measurement with quality report, ArUco video tracking, torque calibration, serial logger, virtual rig), `/rig/convert` API and Lab-tab import
+- [ ] First real measurements (needs a printed walker and the rig)
 - [ ] Known thin spots: no auth; geometry for the motor/coupler is an unverified assumption until printed; torque is a range (EXPERIMENTS §8)
 
 > Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
@@ -22,7 +24,7 @@
 | P1 trustworthy sim | contact study, timestep convergence | **done**: findings in EXPERIMENTS §8; torque level remains model-dependent |
 | P2 front end + P3 fab depth | tabs, history, lab, outlines; crank arms, jig, spacers, motor bracket, coupler | **done (first version)**; P3 print feedback pending |
 | P4 local backend deepening | persistent job queue, cancel, sweeps, docker compose | **done (first version)**, see docs/DEPLOY.md |
-| P5 test rig + first data | hardware/, measurement tooling | **next** (needs your hardware) |
+| P5 test rig + first data | hardware/, measurement tooling | **tooling done (first draft, untested on hardware)**; real data **pending your build** |
 | P2 static viewer + design save/load | run viewer and designer without a backend | |
 | P3 fab MVP | printable single leg, you print it | |
 | P4 local backend | FastAPI + jobs + storage | |

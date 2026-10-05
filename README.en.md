@@ -13,6 +13,7 @@ Platform design and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md) (Chinese).
 |---|---|
 | `packages/core` | Pure TypeScript library (npm: `strandbeest-core`): linkage solver, gait metrics, seeded GA, multi-leg, quasi-static dynamics and sail model |
 | `packages/sim` | Python / MuJoCo dynamics simulator, scenario-file driven (see [design](docs/SIM-DESIGN.md)); early, torque results not yet converged |
+| `hardware/` + `packages/rig` | Test rig: design and calibration procedures, ESP32 firmware, raw-data-to-Measurement conversion with quality checks, ArUco video tracking; **not yet run on real hardware**, see [hardware/README.md](hardware/README.md) |
 | `apps/web-demo` | Interactive demo: drag the 13 lengths and watch the foot path; run the GA in the browser; wind estimate panel |
 | `scripts/` | Experiment scripts (evolution, re-discovering Jansen, dynamics comparison) and GIF rendering |
 | `docs/` | Roadmap, architecture, research notes (sources), experiment log |
