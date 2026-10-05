@@ -11,6 +11,11 @@ import sys
 from pathlib import Path
 
 NUMERIC = {"number", "integer"}
+# Units a schema may declare (schemas/ANNOTATIONS.md). A typo in x-unit is a defect, so unknown values are reported.
+UNITS = {
+    "m", "mm", "kg", "s", "rad", "deg", "rad/s", "N", "N·m", "N·m/rad", "N·m·s/rad", "1/s²", "m/s", "m/s²",
+    "kg/m", "kg/m³", "m²", "kg·m²", "Hz", "1", "count", "unit_m",
+}
 
 
 def is_numeric(node: dict) -> bool:
@@ -22,6 +27,8 @@ def is_numeric(node: dict) -> bool:
 def walk(node, path: str, out: list[str]) -> None:
     if not isinstance(node, dict):
         return
+    if "x-unit" in node and node["x-unit"] not in UNITS:
+        out.append(f"{path}: unknown x-unit {node['x-unit']!r}")
     if is_numeric(node):
         if "x-unit" not in node:
             out.append(f"{path}: numeric field without x-unit")

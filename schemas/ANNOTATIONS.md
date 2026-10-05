@@ -15,6 +15,16 @@
 | `x-affects` | string[] | 建议 | 改它会使哪些派生数据失效：`sim`（仿真结果）、`fab`（制造导出）、`eval`（步态评估）、`view`（只影响显示） |
 | `x-i18n` | string | 可选 | 字段标签的消息键，默认 `field.<路径>` |
 
+**当前严格执行的 schema**：`design`、`scenario`（`--strict`，CI 里跑）。`measurement`、`run`、`profile` 仍是告警，随 E1-04 之后逐个补齐。已知单位集合在 `scripts/check_schema_annotations.py` 的 `UNITS`；用到新单位先加进去（拼错单位算缺陷）。新增复合单位：`N·m/rad`（伺服刚度）、`N·m·s/rad`（粘性阻尼）、`kg/m`、`kg·m²`、`m/s²`、`deg`、`Hz`。
+
+## 由 schema 生成模型（E1-03）
+`schemas/design.schema.json` 与 `schemas/scenario.schema.json` 是**真相来源**：
+```bash
+python scripts/gen_models.py          # 生成 packages/common/.../models/*.py（pydantic）与 packages/core/src/generated/*.ts
+python scripts/gen_models.py --check  # CI：生成物过期则失败
+```
+生成器只支持仓库用到的 JSON Schema 子集，遇到不认识的关键字直接报错（避免悄悄生成错误类型）。`x-doc.en` 变成 pydantic 的 `description` 和 TS 的注释；`x-unit`/默认值/`assumption` 也写进 TS 注释。可选字段在 JSON Schema 里「可以缺省但不能为 null」，生成的 pydantic 模型同样拒绝显式 null（`__non_nullable__`）。
+
 ## 规则
 1. **数值字段没有 `x-unit` 就是缺陷**。`const`/`enum` 的数值不算。
 2. `x-assumption: true` 的字段必须同时有 `x-source`。

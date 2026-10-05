@@ -1,33 +1,7 @@
-import { JANSEN_LENGTHS, type JansenParams, jansenSpec } from "./jansen";
-import type { LinkageSpec } from "./linkage";
+export type * from "./generated/design";
 
-/** The platform's Design document (schemas/design.schema.json). */
-export interface Design {
-	schema_version: 1;
-	name: string;
-	notes?: string;
-	linkage: LinkageSpec;
-	walker: {
-		legs: number;
-		unit_m: number;
-		direction: -1 | 1;
-		body_mass_kg: number;
-		lateral_spacing_m?: number;
-		body_length_m?: number;
-	};
-	drive: { kind: "motor" | "sail"; motor_omega_rad_s?: number };
-	manufacturing: {
-		process: "fdm";
-		material: "PLA" | "PETG";
-		bar_width_mm: number;
-		bar_thickness_mm: number;
-		pin_diameter_mm: number;
-		clearance_mm: number;
-		layer_height_mm?: number;
-		min_wall_mm?: number;
-		bed_mm?: [number, number];
-	};
-}
+import type { Design } from "./generated/design";
+import { JANSEN_LENGTHS, type JansenParams, jansenSpec } from "./jansen";
 
 /** A small FDM-printable walker (1 length unit = 2 mm) built from the given lengths. */
 export function defaultDesign(

@@ -4,6 +4,7 @@
 	"title": "Design",
 	"description": "A walker: linkage geometry, scale, drive and manufacturing parameters. The single source for kinematics, evolution, simulation and fabrication.",
 	"type": "object",
+	"additionalProperties": false,
 	"required": [
 		"schema_version",
 		"name",
@@ -12,169 +13,582 @@
 		"drive",
 		"manufacturing"
 	],
-	"additionalProperties": false,
 	"properties": {
 		"schema_version": {
 			"const": 1
 		},
 		"name": {
 			"type": "string",
-			"minLength": 1
+			"minLength": 1,
+			"x-doc": {
+				"zh": "设计名",
+				"en": "Design name"
+			}
 		},
 		"notes": {
-			"type": "string"
+			"type": "string",
+			"x-doc": {
+				"zh": "备注",
+				"en": "Notes"
+			}
 		},
 		"linkage": {
+			"$ref": "#/$defs/Linkage"
+		},
+		"walker": {
+			"$ref": "#/$defs/Walker"
+		},
+		"drive": {
+			"$ref": "#/$defs/Drive"
+		},
+		"manufacturing": {
+			"$ref": "#/$defs/Manufacturing"
+		}
+	},
+	"$defs": {
+		"Ref": {
+			"oneOf": [
+				{
+					"type": "number",
+					"x-unit": "unit_m"
+				},
+				{
+					"type": "string"
+				}
+			],
+			"x-doc": {
+				"zh": "一个数，或 linkage.params 里某个长度的名字",
+				"en": "A number, or the name of an entry in linkage.params"
+			}
+		},
+		"Crank": {
 			"type": "object",
-			"description": "A LinkageSpec as exported by packages/core: named lengths, crank, and joints defined as circle intersections.",
-			"required": ["params", "crank", "joints", "foot"],
+			"additionalProperties": false,
+			"properties": {
+				"x": {
+					"$ref": "#/$defs/Ref"
+				},
+				"y": {
+					"$ref": "#/$defs/Ref"
+				},
+				"length": {
+					"$ref": "#/$defs/Ref"
+				}
+			},
+			"required": ["x", "y", "length"],
+			"x-doc": {
+				"zh": "曲柄",
+				"en": "Crank"
+			},
+			"x-group": "group.linkage"
+		},
+		"Joint": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"type": "string",
+					"minLength": 1,
+					"x-doc": {
+						"zh": "关节编号",
+						"en": "Joint id"
+					}
+				},
+				"centers": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"minItems": 2,
+					"maxItems": 2,
+					"x-doc": {
+						"zh": "两个圆心所在点的编号",
+						"en": "Ids of the two points the circles are centred on"
+					}
+				},
+				"radii": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Ref"
+					},
+					"minItems": 2,
+					"maxItems": 2,
+					"x-doc": {
+						"zh": "两个圆的半径（连杆长度）",
+						"en": "Radii of the two circles (link lengths)"
+					}
+				},
+				"side": {
+					"enum": [1, -1],
+					"x-doc": {
+						"zh": "取两个交点中的哪一个（决定装配分支）",
+						"en": "Which of the two intersections; fixes the assembly branch"
+					}
+				}
+			},
+			"required": ["id", "centers", "radii", "side"],
+			"x-doc": {
+				"zh": "关节：两个圆的交点",
+				"en": "A joint solved as the intersection of two circles"
+			}
+		},
+		"Linkage": {
+			"type": "object",
 			"additionalProperties": false,
 			"properties": {
 				"params": {
 					"type": "object",
+					"minProperties": 1,
 					"additionalProperties": {
 						"type": "number",
-						"exclusiveMinimum": 0
+						"exclusiveMinimum": 0,
+						"x-unit": "unit_m"
 					},
-					"minProperties": 1
+					"x-unit": "unit_m",
+					"x-group": "group.linkage",
+					"x-affects": ["sim", "fab", "eval"],
+					"x-doc": {
+						"zh": "具名连杆长度",
+						"en": "Named link lengths"
+					}
 				},
 				"crank": {
-					"type": "object",
-					"required": ["x", "y", "length"],
-					"additionalProperties": false,
-					"properties": {
-						"x": {
-							"$ref": "#/$defs/ref"
-						},
-						"y": {
-							"$ref": "#/$defs/ref"
-						},
-						"length": {
-							"$ref": "#/$defs/ref"
-						}
-					}
+					"$ref": "#/$defs/Crank"
 				},
 				"joints": {
 					"type": "array",
 					"minItems": 1,
 					"items": {
-						"type": "object",
-						"required": ["id", "centers", "radii", "side"],
-						"additionalProperties": false,
-						"properties": {
-							"id": {
-								"type": "string",
-								"minLength": 1
-							},
-							"centers": {
-								"type": "array",
-								"items": {
-									"type": "string"
-								},
-								"minItems": 2,
-								"maxItems": 2
-							},
-							"radii": {
-								"type": "array",
-								"items": {
-									"$ref": "#/$defs/ref"
-								},
-								"minItems": 2,
-								"maxItems": 2
-							},
-							"side": {
-								"enum": [1, -1]
-							}
-						}
+						"$ref": "#/$defs/Joint"
+					},
+					"x-doc": {
+						"zh": "按求解顺序排列的关节",
+						"en": "Joints in solving order"
 					}
 				},
 				"foot": {
-					"type": "string"
+					"type": "string",
+					"x-doc": {
+						"zh": "脚所在关节的编号",
+						"en": "Id of the joint that is the foot"
+					}
 				}
-			}
+			},
+			"required": ["params", "crank", "joints", "foot"],
+			"x-doc": {
+				"zh": "连杆几何（LinkageSpec）",
+				"en": "A LinkageSpec: named lengths, crank, and joints defined as circle intersections"
+			},
+			"x-group": "group.linkage"
 		},
-		"walker": {
+		"Walker": {
 			"type": "object",
-			"required": ["legs", "unit_m", "direction", "body_mass_kg"],
 			"additionalProperties": false,
 			"properties": {
 				"legs": {
 					"type": "integer",
-					"minimum": 1
+					"minimum": 1,
+					"x-unit": "count",
+					"x-range": [1, 16],
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "腿数",
+						"en": "Number of legs"
+					},
+					"x-affects": ["sim", "fab"]
 				},
 				"unit_m": {
 					"type": "number",
 					"exclusiveMinimum": 0,
-					"description": "metres per length unit of the linkage"
+					"x-unit": "m",
+					"x-range": [0.001, 0.05],
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "连杆每个长度单位对应的米数",
+						"en": "Metres per length unit of the linkage"
+					},
+					"x-affects": ["sim", "fab", "eval"]
 				},
 				"direction": {
 					"enum": [-1, 1],
-					"description": "crank turning sense that walks the leg forward"
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "使腿向前走的曲柄转向",
+						"en": "Crank turning sense that walks the leg forward"
+					},
+					"x-affects": ["sim"]
 				},
 				"body_mass_kg": {
 					"type": "number",
 					"exclusiveMinimum": 0,
-					"description": "frame, motor and payload; excludes the legs"
+					"x-unit": "kg",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "机架、电机与载荷，不含腿",
+						"en": "Frame, motor and payload; excludes the legs"
+					},
+					"x-assumption": true,
+					"x-source": "Weigh the real frame and motor",
+					"x-affects": ["sim"]
 				},
 				"lateral_spacing_m": {
 					"type": "number",
-					"minimum": 0
+					"minimum": 0,
+					"x-unit": "m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "相邻腿之间的距离",
+						"en": "Distance between neighbouring legs"
+					},
+					"x-affects": ["view", "fab"]
 				},
 				"body_length_m": {
 					"type": "number",
-					"exclusiveMinimum": 0
+					"exclusiveMinimum": 0,
+					"x-unit": "m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "机身长度（只决定俯仰转动惯量）",
+						"en": "Torso length (sets pitch inertia only)"
+					},
+					"x-assumption": true,
+					"x-source": "Guess; matters only for pitch dynamics",
+					"x-affects": ["sim"]
 				}
-			}
+			},
+			"required": ["legs", "unit_m", "direction", "body_mass_kg"],
+			"x-doc": {
+				"zh": "步行者",
+				"en": "Walker"
+			},
+			"x-group": "group.walker"
 		},
-		"drive": {
+		"Sail": {
 			"type": "object",
-			"required": ["kind"],
+			"additionalProperties": false,
+			"properties": {
+				"area_m2": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "m²",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "风帆面积",
+						"en": "Sail area"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"radius_m": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "m",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "帆在其轴上的力臂",
+						"en": "Lever arm of the sail"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"drag_coeff": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "1",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "阻力系数",
+						"en": "Drag coefficient"
+					},
+					"x-assumption": true,
+					"x-source": "Flat-plate order of magnitude",
+					"x-affects": ["sim"]
+				},
+				"gear": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "1",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "曲柄每转一圈帆转几圈",
+						"en": "Sail turns per crank turn"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"inertia_kg_m2": {
+					"type": "number",
+					"minimum": 0,
+					"x-unit": "kg·m²",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "曲柄上的转动惯量",
+						"en": "Rotational inertia at the crank"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"damping_nm_s": {
+					"type": "number",
+					"minimum": 0,
+					"x-unit": "N·m·s/rad",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "粘性损耗",
+						"en": "Viscous loss"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"friction_nm": {
+					"type": "number",
+					"minimum": 0,
+					"x-unit": "N·m",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "库仑摩擦",
+						"en": "Coulomb friction"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "风帆",
+				"en": "Sail drive parameters"
+			},
+			"x-group": "group.sail"
+		},
+		"Drive": {
+			"type": "object",
 			"additionalProperties": false,
 			"properties": {
 				"kind": {
-					"enum": ["motor", "sail"]
+					"enum": ["motor", "sail"],
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "驱动类型",
+						"en": "Drive kind"
+					},
+					"x-affects": ["sim"]
 				},
 				"motor_omega_rad_s": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "rad/s",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "电机转速",
+						"en": "Motor speed"
+					},
+					"x-affects": ["sim"]
 				},
 				"sail": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"area_m2": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						},
-						"radius_m": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						},
-						"drag_coeff": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						},
-						"gear": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						},
-						"inertia_kg_m2": {
-							"type": "number",
-							"minimum": 0
-						},
-						"damping_nm_s": {
-							"type": "number",
-							"minimum": 0
-						},
-						"friction_nm": {
-							"type": "number",
-							"minimum": 0
-						}
-					}
+					"$ref": "#/$defs/Sail"
 				}
-			}
+			},
+			"required": ["kind"],
+			"x-doc": {
+				"zh": "驱动",
+				"en": "Drive"
+			},
+			"x-group": "group.drive"
 		},
-		"manufacturing": {
+		"Motor": {
 			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"shaft_diameter_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.motor",
+					"x-doc": {
+						"zh": "输出轴直径",
+						"en": "Output shaft diameter"
+					},
+					"x-assumption": true,
+					"x-source": "N20 motors: 3 mm D-shaft",
+					"x-affects": ["fab"]
+				},
+				"mount_hole_spacing_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.motor",
+					"x-doc": {
+						"zh": "安装孔间距",
+						"en": "Mounting hole spacing"
+					},
+					"x-assumption": true,
+					"x-source": "Check against your motor's datasheet",
+					"x-affects": ["fab"]
+				},
+				"mount_hole_diameter_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.motor",
+					"x-doc": {
+						"zh": "安装孔直径",
+						"en": "Mounting hole diameter"
+					},
+					"x-assumption": true,
+					"x-source": "Check against your motor's datasheet",
+					"x-affects": ["fab"]
+				}
+			},
+			"x-doc": {
+				"zh": "安装在机架板后面的小型减速电机；孔距为 N20 类电机的假设",
+				"en": "Small gear motor mounted behind a frame plate; a hole pattern assumption for N20-class motors"
+			},
+			"x-group": "group.motor"
+		},
+		"Manufacturing": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"process": {
+					"enum": ["fdm"],
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "制造工艺",
+						"en": "Manufacturing process"
+					},
+					"x-affects": ["fab"]
+				},
+				"material": {
+					"enum": ["PLA", "PETG"],
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "材料",
+						"en": "Material"
+					},
+					"x-affects": ["sim", "fab"]
+				},
+				"bar_width_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-range": [4, 20],
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "杆宽",
+						"en": "Bar width"
+					},
+					"x-affects": ["sim", "fab"]
+				},
+				"bar_thickness_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-range": [1.2, 6],
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "杆厚",
+						"en": "Bar thickness"
+					},
+					"x-affects": ["sim", "fab"]
+				},
+				"pin_diameter_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "销或螺栓的公称直径",
+						"en": "Nominal pin or bolt diameter"
+					},
+					"x-affects": ["fab"]
+				},
+				"clearance_mm": {
+					"type": "number",
+					"minimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "加在孔径上的配合间隙",
+						"en": "Added to the hole diameter"
+					},
+					"x-assumption": true,
+					"x-source": "FDM holes print small; tune after a fit test",
+					"x-calibratable": true,
+					"x-affects": ["fab"]
+				},
+				"layer_height_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "层高",
+						"en": "Layer height"
+					},
+					"x-affects": ["fab"]
+				},
+				"min_wall_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "最小壁厚",
+						"en": "Minimum wall thickness"
+					},
+					"x-affects": ["fab"]
+				},
+				"bed_mm": {
+					"type": "array",
+					"items": {
+						"type": "number",
+						"exclusiveMinimum": 0,
+						"x-unit": "mm"
+					},
+					"minItems": 2,
+					"maxItems": 2,
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-affects": ["fab"],
+					"x-doc": {
+						"zh": "打印平台尺寸 [x, y]",
+						"en": "Print bed size [x, y]"
+					}
+				},
+				"press_fit_offset_mm": {
+					"type": "number",
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "加在需要抱紧的轴孔直径上的量（负 = 更紧）；FDM 的孔会偏小，打印试件后再调",
+						"en": "Added to a shaft diameter for holes that must grip (negative = tighter); FDM holes print small, tune after a test print"
+					},
+					"x-assumption": true,
+					"x-source": "Typical FDM shrinkage; tune after a test print",
+					"x-calibratable": true,
+					"x-affects": ["fab"]
+				},
+				"leg_gap_mm": {
+					"type": "number",
+					"minimum": 0,
+					"x-unit": "mm",
+					"x-group": "group.fab",
+					"x-doc": {
+						"zh": "沿轴方向相邻腿之间的间隙",
+						"en": "Clearance between neighbouring legs along the axles"
+					},
+					"x-affects": ["fab"]
+				},
+				"motor": {
+					"$ref": "#/$defs/Motor"
+				}
+			},
 			"required": [
 				"process",
 				"material",
@@ -183,91 +597,11 @@
 				"pin_diameter_mm",
 				"clearance_mm"
 			],
-			"additionalProperties": false,
-			"properties": {
-				"process": {
-					"enum": ["fdm"]
-				},
-				"material": {
-					"enum": ["PLA", "PETG"]
-				},
-				"bar_width_mm": {
-					"type": "number",
-					"exclusiveMinimum": 0
-				},
-				"bar_thickness_mm": {
-					"type": "number",
-					"exclusiveMinimum": 0
-				},
-				"pin_diameter_mm": {
-					"type": "number",
-					"exclusiveMinimum": 0,
-					"description": "nominal pin or bolt diameter"
-				},
-				"clearance_mm": {
-					"type": "number",
-					"minimum": 0,
-					"description": "added to the hole diameter"
-				},
-				"layer_height_mm": {
-					"type": "number",
-					"exclusiveMinimum": 0
-				},
-				"min_wall_mm": {
-					"type": "number",
-					"exclusiveMinimum": 0
-				},
-				"bed_mm": {
-					"type": "array",
-					"items": {
-						"type": "number",
-						"exclusiveMinimum": 0
-					},
-					"minItems": 2,
-					"maxItems": 2
-				},
-				"press_fit_offset_mm": {
-					"type": "number",
-					"description": "added to a shaft diameter for holes that must grip (negative = tighter); FDM holes print small, tune after a test print"
-				},
-				"leg_gap_mm": {
-					"type": "number",
-					"minimum": 0,
-					"description": "clearance between neighbouring legs along the axles"
-				},
-				"motor": {
-					"type": "object",
-					"additionalProperties": false,
-					"description": "small gear motor mounted behind a frame plate; a hole pattern assumption for N20-class motors",
-					"properties": {
-						"shaft_diameter_mm": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						},
-						"mount_hole_spacing_mm": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						},
-						"mount_hole_diameter_mm": {
-							"type": "number",
-							"exclusiveMinimum": 0
-						}
-					}
-				}
-			}
-		}
-	},
-	"$defs": {
-		"ref": {
-			"description": "a number, or the name of an entry in linkage.params",
-			"oneOf": [
-				{
-					"type": "number"
-				},
-				{
-					"type": "string"
-				}
-			]
+			"x-doc": {
+				"zh": "制造参数",
+				"en": "Manufacturing parameters"
+			},
+			"x-group": "group.fab"
 		}
 	}
 }

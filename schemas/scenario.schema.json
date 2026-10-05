@@ -1,0 +1,822 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/scenario.schema.json",
+	"title": "Scenario",
+	"description": "One document that fully determines a simulation run. Defaults marked x-assumption are guesses, not measurements.",
+	"type": "object",
+	"additionalProperties": false,
+	"properties": {
+		"schema_version": {
+			"const": 1,
+			"default": 1
+		},
+		"name": {
+			"type": "string",
+			"default": "unnamed",
+			"x-doc": {
+				"zh": "场景名",
+				"en": "Scenario name"
+			}
+		},
+		"linkage": {
+			"$ref": "#/$defs/Linkage",
+			"default": {}
+		},
+		"walker": {
+			"$ref": "#/$defs/Walker",
+			"default": {}
+		},
+		"environment": {
+			"$ref": "#/$defs/Environment",
+			"default": {}
+		},
+		"wind": {
+			"$ref": "#/$defs/Wind",
+			"default": {}
+		},
+		"terrain": {
+			"$ref": "#/$defs/Terrain",
+			"default": {}
+		},
+		"drive": {
+			"$ref": "#/$defs/Drive",
+			"default": {}
+		},
+		"solver": {
+			"$ref": "#/$defs/Solver",
+			"default": {}
+		},
+		"run": {
+			"$ref": "#/$defs/Run",
+			"default": {}
+		}
+	},
+	"$defs": {
+		"Linkage": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"spec": {
+					"oneOf": [
+						{
+							"type": "string"
+						},
+						{
+							"type": "object"
+						}
+					],
+					"default": "jansen",
+					"x-group": "group.linkage",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "\"jansen\"、\"design\"、LinkageSpec JSON 的路径，或内联的 LinkageSpec 对象",
+						"en": "\"jansen\", \"design\", a path to a LinkageSpec JSON exported by packages/core, or an inline LinkageSpec object"
+					}
+				},
+				"params": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "number",
+						"x-unit": "unit_m"
+					},
+					"default": {},
+					"x-unit": "unit_m",
+					"x-group": "group.linkage",
+					"x-doc": {
+						"zh": "对具名长度的覆盖，例如 {\"m\": 16.0}",
+						"en": "Overrides of named lengths, e.g. {\"m\": 16.0}"
+					},
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "连杆",
+				"en": "Linkage"
+			},
+			"x-group": "group.linkage"
+		},
+		"Walker": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"legs": {
+					"type": "integer",
+					"minimum": 1,
+					"default": 12,
+					"x-unit": "count",
+					"x-range": [1, 16],
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "腿数",
+						"en": "Number of legs"
+					},
+					"x-affects": ["sim", "fab"]
+				},
+				"mass": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 50.0,
+					"x-unit": "kg",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "总质量（机身拿走杆件之外的部分）；设了 body_mass 时忽略",
+						"en": "Total mass (the torso gets what the bars do not); ignored if body_mass is set"
+					},
+					"x-assumption": true,
+					"x-source": "Placeholder for a full-size walker; set from the real build",
+					"x-affects": ["sim"]
+				},
+				"body_mass": {
+					"type": ["number", "null"],
+					"exclusiveMinimum": 0,
+					"default": null,
+					"x-unit": "kg",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "机身质量，腿另算",
+						"en": "Torso mass; legs are added on top"
+					},
+					"x-affects": ["sim"]
+				},
+				"unit": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.02,
+					"x-unit": "m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "连杆每个长度单位对应的米数",
+						"en": "Metres per length unit of the linkage"
+					},
+					"x-assumption": true,
+					"x-source": "Scale choice; 1 unit = 2 cm for a large walker",
+					"x-affects": ["sim", "fab", "eval"]
+				},
+				"direction": {
+					"enum": [-1, 1],
+					"default": -1,
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "使腿向前走的曲柄转向；Jansen 腿为 -1",
+						"en": "Crank turning sense that walks the leg forward; -1 for the Jansen leg"
+					},
+					"x-affects": ["sim"]
+				},
+				"tube_mass_per_m": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.12,
+					"x-unit": "kg/m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "每米管材的质量",
+						"en": "Mass per metre of tube"
+					},
+					"x-assumption": true,
+					"x-source": "Typical thin-wall tube; weigh the real bars",
+					"x-affects": ["sim"]
+				},
+				"min_bar_mass": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.001,
+					"x-unit": "kg",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "单根杆质量的下限",
+						"en": "Floor on a bar's mass"
+					},
+					"x-affects": ["sim"]
+				},
+				"lateral_spacing": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.1,
+					"x-unit": "m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "相邻腿之间的距离（仅视觉）",
+						"en": "Distance between neighbouring legs (visual only)"
+					},
+					"x-affects": ["view"]
+				},
+				"body_length": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 1.0,
+					"x-unit": "m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "机身长度：只决定俯仰转动惯量",
+						"en": "Torso length; sets pitch inertia only"
+					},
+					"x-assumption": true,
+					"x-source": "Guess; matters only for pitch dynamics",
+					"x-affects": ["sim"]
+				},
+				"pitch": {
+					"enum": ["free", "locked"],
+					"default": "free",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "机身俯仰自由度；locked 去掉倾覆",
+						"en": "Torso pitch freedom; 'locked' removes tipping"
+					},
+					"x-affects": ["sim"]
+				},
+				"bar_radius": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.008,
+					"x-unit": "m",
+					"x-group": "group.walker",
+					"x-doc": {
+						"zh": "杆胶囊体的半径（仅视觉，不参与碰撞）",
+						"en": "Visual capsule radius of bars, no collisions"
+					},
+					"x-affects": ["view"]
+				},
+				"foot_radius": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.01,
+					"x-unit": "m",
+					"x-group": "group.contact",
+					"x-doc": {
+						"zh": "脚球半径",
+						"en": "Foot sphere radius"
+					},
+					"x-affects": ["sim"]
+				},
+				"foot_friction": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 1.5,
+					"x-unit": "1",
+					"x-range": [0.2, 3.0],
+					"x-group": "group.contact",
+					"x-doc": {
+						"zh": "脚与地面的摩擦系数",
+						"en": "Foot friction coefficient"
+					},
+					"x-assumption": true,
+					"x-source": "Rubber-ish pad guess; a calibration target",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "步行者",
+				"en": "Walker"
+			},
+			"x-group": "group.walker"
+		},
+		"Environment": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"gravity": {
+					"type": "number",
+					"minimum": 0,
+					"default": 9.81,
+					"x-unit": "m/s²",
+					"x-group": "group.environment",
+					"x-doc": {
+						"zh": "重力加速度",
+						"en": "Gravitational acceleration"
+					},
+					"x-affects": ["sim"]
+				},
+				"air_density": {
+					"type": "number",
+					"minimum": 0,
+					"default": 1.2,
+					"x-unit": "kg/m³",
+					"x-group": "group.environment",
+					"x-doc": {
+						"zh": "空气密度；决定帆的扭矩",
+						"en": "Air density; scales the sail torque"
+					},
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "环境",
+				"en": "Environment"
+			},
+			"x-group": "group.environment"
+		},
+		"Wind": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"kind": {
+					"type": "string",
+					"default": "constant",
+					"x-group": "group.wind",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "风的类型：constant、gusts……",
+						"en": "Wind kind: constant, gusts, ..."
+					}
+				},
+				"speed": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0,
+					"x-unit": "m/s",
+					"x-group": "group.wind",
+					"x-doc": {
+						"zh": "平均风速（风推动帆，不直接推机身）",
+						"en": "Mean wind speed (the wind pushes the sail drive, not the body)"
+					},
+					"x-affects": ["sim"]
+				},
+				"params": {
+					"type": "object",
+					"default": {},
+					"x-group": "group.wind",
+					"x-doc": {
+						"zh": "随类型而定的参数，如阵风 {amplitude, period}",
+						"en": "Kind-specific parameters, e.g. gusts {amplitude, period}"
+					},
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "风",
+				"en": "Wind"
+			},
+			"x-group": "group.wind"
+		},
+		"Terrain": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"kind": {
+					"type": "string",
+					"default": "flat",
+					"x-group": "group.terrain",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "地形类型：flat、slope、step、bumps……",
+						"en": "Terrain kind: flat, slope, step, bumps, ..."
+					}
+				},
+				"friction": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 1.5,
+					"x-unit": "1",
+					"x-range": [0.2, 3.0],
+					"x-group": "group.terrain",
+					"x-doc": {
+						"zh": "地面摩擦系数",
+						"en": "Ground friction coefficient"
+					},
+					"x-assumption": true,
+					"x-source": "Smooth-floor guess; a calibration target",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"slope_deg": {
+					"type": "number",
+					"default": 0.0,
+					"x-unit": "deg",
+					"x-group": "group.terrain",
+					"x-doc": {
+						"zh": "坡度（用倾斜重力实现）",
+						"en": "Slope angle (implemented by tilting gravity)"
+					},
+					"x-affects": ["sim"]
+				},
+				"params": {
+					"type": "object",
+					"default": {},
+					"x-group": "group.terrain",
+					"x-doc": {
+						"zh": "随类型而定的参数",
+						"en": "Kind-specific parameters"
+					},
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "地形",
+				"en": "Terrain"
+			},
+			"x-group": "group.terrain"
+		},
+		"Drive": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"kind": {
+					"type": "string",
+					"default": "motor",
+					"x-group": "group.drive",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "驱动类型：motor（位置伺服）或 sail（风帆）",
+						"en": "Drive kind: motor (position servo) or sail"
+					}
+				},
+				"omega": {
+					"type": "number",
+					"default": 0.3,
+					"x-unit": "rad/s",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "沿行走方向的曲柄转速（电机驱动）",
+						"en": "Crank speed in the walking direction (motor drive)"
+					},
+					"x-affects": ["sim"]
+				},
+				"kp": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 5000.0,
+					"x-unit": "N·m/rad",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "位置伺服刚度",
+						"en": "Position-servo stiffness"
+					},
+					"x-assumption": true,
+					"x-source": "Numerical knob: stiff enough to track the commanded angle",
+					"x-affects": ["sim"]
+				},
+				"max_torque": {
+					"type": ["number", "null"],
+					"exclusiveMinimum": 0,
+					"default": null,
+					"x-unit": "N·m",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "电机扭矩上限；null 表示不限（只适合理想的强制运动）。不设限时，脚被挡住会把连杆撑开",
+						"en": "Motor torque limit; null = unlimited, only sensible for ideal prescribed motion. Without a limit a blocked foot forces the linkage open"
+					},
+					"x-assumption": true,
+					"x-source": "Stall torque of N20-class gear motors is of this order; measure yours",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"kv": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 500.0,
+					"x-unit": "N·m·s/rad",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "伺服阻尼",
+						"en": "Servo damping"
+					},
+					"x-assumption": true,
+					"x-source": "Numerical knob",
+					"x-affects": ["sim"]
+				},
+				"ramp": {
+					"type": "number",
+					"minimum": 0,
+					"default": 2.0,
+					"x-unit": "s",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "加速到 omega 的时间",
+						"en": "Time to ramp up to omega"
+					},
+					"x-affects": ["sim"]
+				},
+				"sail_area": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.03,
+					"x-unit": "m²",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "风帆面积",
+						"en": "Sail area"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"sail_radius": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.08,
+					"x-unit": "m",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "帆在其轴上的力臂",
+						"en": "Lever arm of the sail on its shaft"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"sail_drag_coeff": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 1.2,
+					"x-unit": "1",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "风帆阻力系数",
+						"en": "Sail drag coefficient"
+					},
+					"x-assumption": true,
+					"x-source": "Flat-plate order of magnitude",
+					"x-affects": ["sim"]
+				},
+				"sail_gear": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 10.0,
+					"x-unit": "1",
+					"x-group": "group.sail",
+					"x-doc": {
+						"zh": "曲柄每转一圈帆转几圈",
+						"en": "Sail turns per crank turn"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"rotor_inertia": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0001,
+					"x-unit": "kg·m²",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "曲柄上的转动惯量",
+						"en": "Rotational inertia at the crank"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-affects": ["sim"]
+				},
+				"crank_damping": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.001,
+					"x-unit": "N·m·s/rad",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "曲柄处的粘性损耗",
+						"en": "Viscous loss at the crank"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"crank_friction": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.002,
+					"x-unit": "N·m",
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "曲柄处的库仑摩擦",
+						"en": "Coulomb friction at the crank"
+					},
+					"x-assumption": true,
+					"x-source": "Our guess, not measured",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"params": {
+					"type": "object",
+					"default": {},
+					"x-group": "group.drive",
+					"x-doc": {
+						"zh": "随类型而定的参数",
+						"en": "Kind-specific parameters"
+					},
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "驱动",
+				"en": "Drive"
+			},
+			"x-group": "group.drive"
+		},
+		"Solver": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"timestep": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.00025,
+					"x-unit": "s",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "时间步长；峰值扭矩需要 ≤ 0.25 ms 才收敛（docs/EXPERIMENTS.md §8）",
+						"en": "Time step; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8)"
+					},
+					"x-affects": ["sim"]
+				},
+				"iterations": {
+					"type": "integer",
+					"minimum": 1,
+					"default": 100,
+					"x-unit": "count",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "求解器迭代次数",
+						"en": "Solver iterations"
+					},
+					"x-affects": ["sim"]
+				},
+				"contact_solref": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.02,
+					"x-unit": "s",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "脚-地面接触时间常数，仅在未设 contact_stiffness 时使用；取决于有效质量，是数值旋钮而非物理量",
+						"en": "Foot/terrain contact time constant, used only when contact_stiffness is unset; depends on effective mass, so a numerical knob"
+					},
+					"x-affects": ["sim"]
+				},
+				"contact_stiffness": {
+					"type": ["number", "null"],
+					"exclusiveMinimum": 0,
+					"default": 100000.0,
+					"x-unit": "1/s²",
+					"x-range": [10000.0, 10000000.0],
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref",
+						"en": "Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref"
+					},
+					"x-assumption": true,
+					"x-source": "Order-of-magnitude guess for printed pads; calibrate against measured sinking",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"contact_damping_ratio": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 1.0,
+					"x-unit": "1",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "由刚度推导接触阻尼用的阻尼比",
+						"en": "Damping ratio used to derive contact damping from the stiffness"
+					},
+					"x-affects": ["sim"]
+				},
+				"cone": {
+					"enum": ["pyramidal", "elliptic"],
+					"default": "pyramidal",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "摩擦锥类型",
+						"en": "Friction cone type"
+					},
+					"x-affects": ["sim"]
+				},
+				"impratio": {
+					"type": "number",
+					"minimum": 1,
+					"default": 1.0,
+					"x-unit": "1",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "摩擦与法向约束阻抗之比",
+						"en": "Friction-vs-normal constraint impedance ratio"
+					},
+					"x-affects": ["sim"]
+				},
+				"noslip_iterations": {
+					"type": "integer",
+					"minimum": 0,
+					"default": 0,
+					"x-unit": "count",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "noslip 后处理迭代次数",
+						"en": "Number of noslip post-processing iterations"
+					},
+					"x-affects": ["sim"]
+				},
+				"solref_time": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 0.002,
+					"x-unit": "s",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "约束刚度时间常数（越小越硬；不小于 2×timestep）",
+						"en": "Constraint stiffness time constant (smaller = stiffer; keep >= 2*timestep)"
+					},
+					"x-affects": ["sim"]
+				},
+				"solimp": {
+					"type": "string",
+					"default": "0.99 0.999 0.0001",
+					"x-group": "group.solver",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "约束阻抗（MuJoCo solimp）；接近 1 = 刚性关节",
+						"en": "Constraint impedance (MuJoCo solimp); near 1 = rigid joints"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "求解器",
+				"en": "Solver"
+			},
+			"x-group": "group.solver"
+		},
+		"Run": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"settle": {
+					"type": "number",
+					"minimum": 0,
+					"default": 1.0,
+					"x-unit": "s",
+					"x-group": "group.run",
+					"x-doc": {
+						"zh": "驱动之前曲柄固定不动的秒数",
+						"en": "Seconds with the crank held before driving"
+					},
+					"x-affects": ["sim"]
+				},
+				"revolutions": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 3.0,
+					"x-unit": "1",
+					"x-group": "group.run",
+					"x-doc": {
+						"zh": "曲柄转数",
+						"en": "Crank revolutions"
+					},
+					"x-affects": ["sim"]
+				},
+				"max_time": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"default": 600.0,
+					"x-unit": "s",
+					"x-group": "group.run",
+					"x-doc": {
+						"zh": "最长仿真时间",
+						"en": "Maximum simulated time"
+					},
+					"x-affects": ["sim"]
+				},
+				"record_every": {
+					"type": "integer",
+					"minimum": 1,
+					"default": 10,
+					"x-unit": "count",
+					"x-group": "group.run",
+					"x-doc": {
+						"zh": "每隔几步记一次时序数据",
+						"en": "Record time-series data every N steps"
+					},
+					"x-affects": ["sim"]
+				},
+				"frame_rate": {
+					"type": "number",
+					"minimum": 0,
+					"default": 30.0,
+					"x-unit": "Hz",
+					"x-group": "group.run",
+					"x-doc": {
+						"zh": "回放帧率；0 = 不录制",
+						"en": "Replay frame rate; 0 = do not record"
+					},
+					"x-affects": ["view"]
+				},
+				"give_up_after": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0,
+					"x-unit": "s",
+					"x-group": "group.run",
+					"x-doc": {
+						"zh": "若这段时间内曲柄转动不足 0.1 rad 则判为卡住（0 = 不判）；用于可能起不来的风帆",
+						"en": "Stop as stalled if the crank has moved less than 0.1 rad by then (0 = never); for sail drives that may not start"
+					},
+					"x-affects": ["sim"]
+				}
+			},
+			"x-doc": {
+				"zh": "运行",
+				"en": "Run"
+			},
+			"x-group": "group.run"
+		}
+	}
+}

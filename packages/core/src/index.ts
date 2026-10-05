@@ -4,6 +4,7 @@ export * from "./dynamics-fitness";
 export * from "./fitness";
 export * from "./frames";
 export * from "./ga";
+export type * from "./generated/scenario";
 export * from "./geometry";
 export * from "./jansen";
 export * from "./linkage";
