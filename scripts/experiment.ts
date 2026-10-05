@@ -6,6 +6,7 @@ import {
 	gaitMetrics,
 	genomeToParams,
 	JANSEN_LENGTHS,
+	JANSEN_SPACE,
 	jansenSpec,
 	paramsToGenome,
 	runGA,
@@ -16,7 +17,9 @@ const objective = process.argv[2] ?? "flat";
 const seed = Number(process.argv[3] ?? 1);
 const generations = Number(process.argv[4] ?? 80);
 const fitness =
-	objective === "highstep" ? fitnessHighStep() : fitnessFlatStroke;
+	objective === "highstep"
+		? fitnessHighStep(JANSEN_SPACE)
+		: fitnessFlatStroke(JANSEN_SPACE);
 
 const start = paramsToGenome(JANSEN_LENGTHS);
 const result = runGA(start, fitness, { seed, population: 80, generations });

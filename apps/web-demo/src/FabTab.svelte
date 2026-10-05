@@ -136,7 +136,7 @@ const counts = $derived({
 					api={store.api}
 					exportId={pack.export_id}
 					{manifest}
-					params={store.params}
+					spec={store.linkage}
 					unitMm={designAtExport?.walker.unit_m ? designAtExport.walker.unit_m * 1000 : store.unitMm}
 					thickness={designAtExport?.manufacturing.bar_thickness_mm ?? 3}
 				/>

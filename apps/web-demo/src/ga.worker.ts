@@ -1,7 +1,14 @@
-import { evolve, fitnessFlatStroke, fitnessHighStep } from "strandbeest-core";
+import {
+	evolve,
+	fitnessFlatStroke,
+	fitnessHighStep,
+	genomeSpace,
+	type LinkageSpec,
+} from "strandbeest-core";
 
 export interface WorkerRequest {
-	start: number[];
+	/** the linkage to start from; the search varies its named lengths and keeps the topology */
+	spec: LinkageSpec;
 	objective: "flat" | "highstep";
 	seed: number;
 	generations: number;
@@ -16,10 +23,17 @@ self.onmessage = (e: MessageEvent<WorkerRequest | "stop">) => {
 		return;
 	}
 	stopped = false;
-	const { start, objective, seed, generations, population } = e.data;
+	const { spec, objective, seed, generations, population } = e.data;
+	const space = genomeSpace(spec);
 	const fitness =
-		objective === "highstep" ? fitnessHighStep() : fitnessFlatStroke;
-	const it = evolve(start, fitness, { seed, generations, population });
+		objective === "highstep"
+			? fitnessHighStep(space)
+			: fitnessFlatStroke(space);
+	const it = evolve(space.toGenome(), fitness, {
+		seed,
+		generations,
+		population,
+	});
 	// Run synchronously in the worker; check the stop flag between generations via a macrotask hop.
 	const step = () => {
 		if (stopped) return self.postMessage({ type: "stopped" });

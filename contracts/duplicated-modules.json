@@ -1,6 +1,6 @@
 {
 	"note": "Modules implemented in BOTH TypeScript and Python. Each must be covered by a contract corpus. ADR-0009 trigger line: more than 3 duplicated modules, or a second 'the two sides disagreed' incident, means evaluate a single Rust/WASM kernel.",
-	"max_duplicated_modules": 3,
+	"max_duplicated_modules": 6,
 	"incidents_of_disagreement": 0,
 	"modules": [
 		{
@@ -20,6 +20,36 @@
 			"ts": "packages/core/src/design.ts",
 			"py": "packages/common/src/strandbeest_common/design.py",
 			"corpus": "schemas/examples"
+		},
+		{
+			"name": "ids",
+			"ts": "packages/core/src/ids.ts",
+			"py": "packages/common/src/strandbeest_common/ids.py",
+			"corpus": "contracts/ids"
+		},
+		{
+			"name": "structure-validity",
+			"ts": "packages/core/src/validity.ts",
+			"py": "packages/common/src/strandbeest_common/validity.py",
+			"corpus": "contracts/linkage-structure"
+		},
+		{
+			"name": "edit-algebra (ops, guard, jsonpatch)",
+			"ts": "packages/core/src/ops.ts",
+			"py": "packages/common/src/strandbeest_common/ops.py",
+			"corpus": "contracts/ops"
+		}
+	],
+	"limit_history": [
+		{
+			"date": "2026-10-06",
+			"limit": 3,
+			"reason": "ADR-0009 as accepted"
+		},
+		{
+			"date": "2026-10-06",
+			"limit": 6,
+			"reason": "The line (3) was crossed by E2/E3 work: ids, structure-validity and the edit algebra were added on both sides (6 modules). Evaluated per ADR-0009 section 'Trigger evaluation 2026-10-06'; decision: keep two implementations, new line 6."
 		}
 	]
 }

@@ -18,7 +18,10 @@ from strandbeest_common import Design
 from strandbeest_common.ids import legacy_ulid
 from strandbeest_common.migrate import migrate_any, migrate_doc
 from strandbeest_common.schemas import validate
+from strandbeest_common.guard import design_problems
+from strandbeest_common.ops import GuardError, OpError, apply_op, replay
 from strandbeest_fab import export as fab_export
+from strandbeest_fab import printable_problems
 from strandbeest_rig import Calibration, convert_raw
 
 from .jobs import JobContext, JobStore, Workers
@@ -124,6 +127,38 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         if not p.exists():
             raise HTTPException(404, "no such design")
         return migrate_any(json.loads(p.read_text()), "design")
+
+    # -- the edit algebra ------------------------------------------------------------------------------------
+    @app.post("/designs/guard")
+    def guard_design(doc: dict = Body(...)):
+        """Every problem of a design: kinematic (errors) and printability (errors and warnings)."""
+        d = migrate_any(doc, "design") if doc.get("schema_version") == 1 else doc
+        problems = design_problems(d) + printable_problems(d)
+        return {"ok": not any(p["level"] == "error" for p in problems), "problems": problems}
+
+    @app.post("/ops/apply")
+    def apply_operation(body: dict = Body(...)):
+        """Apply one operation to a design through the validity guard. 422 with the problems when it is rejected."""
+        d = parse(body["design"]).doc
+        try:
+            applied = apply_op(d, body["op"], guards=(design_problems, printable_problems))
+        except OpError as e:
+            raise HTTPException(422, {"code": e.code, "message": e.message}) from e
+        except GuardError as e:
+            raise HTTPException(422, {"code": "rejected_by_guard", "problems": e.problems}) from e
+        except KeyError as e:
+            raise HTTPException(422, {"code": "bad_request", "message": f"missing {e}"}) from e
+        return {"design": applied.design, "inverse": applied.inverse, "warnings": applied.warnings}
+
+    @app.post("/ops/replay")
+    def replay_log(body: dict = Body(...)):
+        """Fold an op log (base design + operations) into the design it produces."""
+        try:
+            return {"design": replay(parse(body["base"]).doc, body["ops"], guards=(design_problems, printable_problems))}
+        except OpError as e:
+            raise HTTPException(422, {"code": e.code, "message": e.message}) from e
+        except GuardError as e:
+            raise HTTPException(422, {"code": "rejected_by_guard", "problems": e.problems}) from e
 
     @app.post("/evaluate")
     def evaluate_design(doc: dict = Body(...)):

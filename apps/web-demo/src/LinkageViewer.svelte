@@ -1,17 +1,18 @@
 <script lang="ts">
 import {
+	crankPivot,
 	gaitMetrics,
-	type JansenParams,
-	jansenSpec,
+	type LinkageSpec,
+	linkSegments,
 	trace,
 } from "strandbeest-core";
 import { t } from "./i18n/index.svelte";
 
 let {
-	params,
+	spec,
 	metrics = $bindable(null),
 }: {
-	params: JansenParams;
+	spec: LinkageSpec;
 	metrics?: { strokeLength: number; lift: number; duty: number } | null;
 } = $props();
 
@@ -22,25 +23,12 @@ let playing = $state(true);
 let speed = $state(1);
 let size = $state({ w: 600, h: 380 });
 
-const spec = $derived(jansenSpec(params));
+const pivot = $derived(crankPivot(spec));
+const links = $derived(linkSegments(spec));
 const path = $derived(trace(spec, 180));
 $effect(() => {
 	metrics = path.assembled ? gaitMetrics(path.foot) : null;
 });
-
-const links: [string, string, string][] = [
-	["P", "C", "crank"],
-	["G", "K", "upper"],
-	["K", "C", "upper"],
-	["G", "L", "upper"],
-	["K", "L", "upper"],
-	["G", "M", "lower"],
-	["C", "M", "lower"],
-	["L", "N", "lower"],
-	["M", "N", "lower"],
-	["M", "F", "lower"],
-	["N", "F", "lower"],
-];
 
 function cssVar(name: string): string {
 	return getComputedStyle(canvas).getPropertyValue(name).trim();
@@ -58,7 +46,6 @@ function draw() {
 	const ink = cssVar("--ink");
 	const muted = cssVar("--muted");
 	const accent = cssVar("--accent");
-	const blue = cssVar("--blue");
 
 	if (!path.assembled) {
 		ctx.fillStyle = muted;
@@ -67,10 +54,7 @@ function draw() {
 		return;
 	}
 	// fit every joint over the whole cycle into the canvas
-	const pts = [
-		{ x: params.a, y: params.l },
-		...path.poses.flatMap((p) => Object.values(p)),
-	];
+	const pts = [pivot, ...path.poses.flatMap((p) => Object.values(p))];
 	const xs = pts.map((p) => p.x);
 	const ys = pts.map((p) => p.y);
 	const x0 = Math.min(...xs);
@@ -112,16 +96,16 @@ function draw() {
 	const pose = path.poses[idx] ?? path.poses[0];
 	const P: Record<string, { x: number; y: number }> = {
 		...pose,
-		P: { x: params.a, y: params.l },
+		P: pivot,
 	};
-	const color = { crank: accent, upper: blue, lower: ink } as const;
+	const color = { crank: accent, link: ink } as const;
 	ctx.lineWidth = 3;
 	ctx.lineCap = "round";
-	for (const [a, b, kind] of links) {
+	for (const { a, b, kind } of links) {
 		const pa = P[a];
 		const pb = P[b];
 		if (!pa || !pb) continue;
-		ctx.strokeStyle = color[kind as keyof typeof color];
+		ctx.strokeStyle = color[kind];
 		ctx.beginPath();
 		ctx.moveTo(X(pa), Y(pa));
 		ctx.lineTo(X(pb), Y(pb));
@@ -130,9 +114,9 @@ function draw() {
 	ctx.font = "600 11px system-ui";
 	for (const [id, p] of Object.entries(P)) {
 		const fixed = id === "G" || id === "P";
-		ctx.fillStyle = id === "F" ? accent : fixed ? muted : ink;
+		ctx.fillStyle = id === spec.foot ? accent : fixed ? muted : ink;
 		ctx.beginPath();
-		ctx.arc(X(p), Y(p), id === "F" ? 6 : 4.5, 0, 2 * Math.PI);
+		ctx.arc(X(p), Y(p), id === spec.foot ? 6 : 4.5, 0, 2 * Math.PI);
 		ctx.fill();
 		ctx.fillStyle = muted;
 		ctx.fillText(id, X(p) + 8, Y(p) - 7);
@@ -176,7 +160,7 @@ $effect(() => {
 		<button class="btn small" onclick={() => (playing = !playing)}>{playing ? t("common.pause") : t("common.play")}</button>
 		<label class="inline">{t("viewer.speed")} <input type="range" min="0.2" max="4" step="0.1" bind:value={speed} style="width:120px" /></label>
 		<small>
-			<span style="color:var(--accent)">{t("viewer.legend.crank")}</span> <span style="color:var(--blue)">{t("viewer.legend.upper")}</span> <span>{t("viewer.legend.lower")}</span> {t("viewer.legend.fixed")}
+			<span style="color:var(--accent)">{t("viewer.legend.crank")}</span> <span>{t("viewer.legend.links")}</span> {t("viewer.legend.fixed")}
 		</small>
 	</div>
 </div>

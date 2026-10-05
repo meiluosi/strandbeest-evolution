@@ -1,8 +1,8 @@
 import {
 	type Design,
 	defaultDesign,
-	JANSEN_LENGTHS,
-	type JansenParams,
+	jansenSpec,
+	type LinkageSpec,
 	newUlid,
 } from "strandbeest-core";
 
@@ -20,7 +20,8 @@ function loadApi(): string {
 /** State shared by every tab: the design being edited and where the backend is. */
 export const store = $state({
 	api: loadApi(),
-	params: { ...JANSEN_LENGTHS } as JansenParams,
+	/** the linkage being edited: any chain of dyads, Jansen's leg is only the starting point */
+	linkage: jansenSpec() as LinkageSpec,
 	/** stable identity of the design being edited; the name is only a label */
 	designId: newUlid(),
 	name: "jansen-small-6leg",
@@ -30,7 +31,11 @@ export const store = $state({
 });
 
 export function currentDesign(): Design {
-	const d = defaultDesign(store.params, store.name, store.designId);
+	const d = defaultDesign(
+		$state.snapshot(store.linkage) as LinkageSpec,
+		store.name,
+		store.designId,
+	);
 	d.walker.legs = store.legs;
 	d.walker.unit_m = store.unitMm / 1000;
 	d.manufacturing.clearance_mm = store.clearance;

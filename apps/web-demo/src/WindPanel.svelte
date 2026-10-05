@@ -3,13 +3,12 @@ import {
 	cycleSummary,
 	DEFAULT_SAIL,
 	DEFAULT_WALKER,
-	type JansenParams,
-	jansenSpec,
+	type LinkageSpec,
 	windWalk,
 } from "strandbeest-core";
 import { t } from "./i18n/index.svelte";
 
-let { params }: { params: JansenParams } = $props();
+let { spec }: { spec: LinkageSpec } = $props();
 
 let wind = $state(6);
 let mass = $state(50);
@@ -19,7 +18,7 @@ let rolling = $state(5);
 
 const summary = $derived(
 	cycleSummary(
-		jansenSpec(params),
+		spec,
 		{ ...DEFAULT_WALKER, mass, legs },
 		{ slope: (slopeDeg * Math.PI) / 180, drag: (rolling / 100) * mass * 9.81 },
 		120,

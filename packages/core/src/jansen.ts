@@ -53,3 +53,16 @@ export function jansenSpec(params: JansenParams = JANSEN_LENGTHS): LinkageSpec {
 		foot: "F",
 	};
 }
+
+/** Jansen's 13 lengths as a genome (order of JANSEN_PARAM_NAMES) and back; for the reproduction experiments. */
+export function genomeToParams(genome: number[]): JansenParams {
+	const p = {} as JansenParams;
+	JANSEN_PARAM_NAMES.forEach((name, i) => {
+		p[name] = genome[i] as number;
+	});
+	return p;
+}
+
+export function paramsToGenome(p: JansenParams): number[] {
+	return JANSEN_PARAM_NAMES.map((n) => p[n]);
+}

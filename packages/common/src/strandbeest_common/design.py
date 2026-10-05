@@ -9,6 +9,7 @@ from typing import Any, Union
 from .linkage import LinkageSpec, load_spec
 from .migrate import migrate_doc
 from .schemas import validate
+from .validity import structure_errors
 
 # Material properties used to turn manufacturing parameters into simulation inputs. Typical datasheet-order values
 # for FDM parts; real printed parts differ (infill, layer adhesion), so these are assumptions.
@@ -21,6 +22,9 @@ class Design:
         if isinstance(doc, dict) and doc.get("schema_version") == 1:
             doc = migrate_doc("design", doc)  # old files stay readable; the id is derived from the name (see migrate.py)
         validate("design", doc)
+        problems = structure_errors(doc["linkage"])
+        if problems:
+            raise ValueError("invalid design linkage:\n" + "\n".join(f"  {p['message']}" for p in problems))
         self.doc = doc
 
     @classmethod

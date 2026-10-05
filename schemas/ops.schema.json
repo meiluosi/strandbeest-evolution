@@ -1,0 +1,685 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/ops.schema.json",
+	"title": "OpLog",
+	"description": "The edit log of a design: the base design and the operations applied to it. The log is the source of truth; the current design is its fold.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["schema_version", "design_id", "base", "ops"],
+	"properties": {
+		"schema_version": {
+			"const": 1
+		},
+		"design_id": {
+			"$ref": "#/$defs/Ulid"
+		},
+		"base": {
+			"type": "object",
+			"x-doc": {
+				"zh": "初始设计（符合 design schema）",
+				"en": "The initial design (conforms to the design schema)"
+			}
+		},
+		"ops": {
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/Operation"
+			},
+			"x-doc": {
+				"zh": "按顺序应用的操作",
+				"en": "Operations in the order they were applied"
+			}
+		}
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+			"x-doc": {
+				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
+				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
+			}
+		},
+		"Ref": {
+			"oneOf": [
+				{
+					"type": "number",
+					"x-unit": "unit_m"
+				},
+				{
+					"type": "string"
+				}
+			],
+			"x-doc": {
+				"zh": "一个数，或 linkage.params 里某个长度的名字",
+				"en": "A number, or the name of an entry in linkage.params"
+			}
+		},
+		"Actor": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"kind": {
+					"enum": ["human", "algorithm", "agent"],
+					"x-doc": {
+						"zh": "人、算法（遗传算法、优化器）或智能体",
+						"en": "A person, an algorithm (genetic algorithm, optimiser) or an agent"
+					}
+				},
+				"id": {
+					"type": "string",
+					"x-doc": {
+						"zh": "执行者的标识（用户名、算法名、agent 名）",
+						"en": "Identifier of the actor (user name, algorithm name, agent name)"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "谁做的修改",
+				"en": "Who made the change"
+			},
+			"required": ["kind", "id"]
+		},
+		"SetParamArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"name": {
+					"type": "string",
+					"x-doc": {
+						"zh": "linkage.params 里的名字",
+						"en": "Name of an entry in linkage.params"
+					},
+					"minLength": 1
+				},
+				"value": {
+					"type": "number",
+					"x-unit": "unit_m",
+					"x-doc": {
+						"zh": "新长度",
+						"en": "New length"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "设置一个具名长度",
+				"en": "Set one named length"
+			},
+			"required": ["name", "value"]
+		},
+		"AddDyadArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"type": "string",
+					"x-doc": {
+						"zh": "新关节的编号（不能与已有的、G、C、P 重名）",
+						"en": "Id of the new joint (not an existing one, nor G, C, P)"
+					},
+					"minLength": 1
+				},
+				"centers": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"minItems": 2,
+					"maxItems": 2,
+					"x-doc": {
+						"zh": "两个圆心所在点的编号（已解出的点）",
+						"en": "Ids of the two points the circles are centred on (already solved points)"
+					}
+				},
+				"radii": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Ref"
+					},
+					"minItems": 2,
+					"maxItems": 2,
+					"x-doc": {
+						"zh": "两个圆的半径（连杆长度）",
+						"en": "Radii of the two circles (bar lengths)"
+					}
+				},
+				"side": {
+					"enum": [1, -1],
+					"x-doc": {
+						"zh": "取两个交点中的哪一个",
+						"en": "Which of the two intersections"
+					}
+				},
+				"params": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "number",
+						"x-unit": "unit_m"
+					},
+					"x-unit": "unit_m",
+					"x-doc": {
+						"zh": "随之新增的具名长度",
+						"en": "New named lengths created together with the joint"
+					}
+				},
+				"foot": {
+					"type": "boolean",
+					"x-doc": {
+						"zh": "为真则新关节成为脚",
+						"en": "If true the new joint becomes the foot"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "在两个圆的交点处加一个关节",
+				"en": "Add a joint at the intersection of two circles"
+			},
+			"required": ["id", "centers", "radii", "side"]
+		},
+		"RemoveJointArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"type": "string",
+					"x-doc": {
+						"zh": "要删除的关节",
+						"en": "Joint to remove"
+					},
+					"minLength": 1
+				},
+				"foot": {
+					"type": "string",
+					"x-doc": {
+						"zh": "删除的是脚时，新的脚是哪个关节",
+						"en": "The new foot, required when the removed joint is the foot"
+					}
+				},
+				"drop_params": {
+					"type": "boolean",
+					"default": true,
+					"x-doc": {
+						"zh": "同时删除只被它使用的具名长度",
+						"en": "Also delete named lengths only this joint used"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "删除一个没有别的关节建在其上的关节",
+				"en": "Remove a joint nothing else is built on"
+			},
+			"required": ["id"]
+		},
+		"ArrayLegsArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"legs": {
+					"type": "integer",
+					"minimum": 1,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "腿数",
+						"en": "Number of legs"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "设置腿数",
+				"en": "Set the number of legs"
+			},
+			"required": ["legs"]
+		},
+		"ScaleArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"factor": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "1",
+					"x-doc": {
+						"zh": "缩放系数",
+						"en": "Scale factor"
+					}
+				},
+				"keep_physical": {
+					"type": "boolean",
+					"default": false,
+					"x-doc": {
+						"zh": "为真则同时改变长度单位，使实物尺寸不变",
+						"en": "If true the length unit changes too, so the physical size stays the same"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "把所有长度乘以一个系数",
+				"en": "Multiply every length by a factor"
+			},
+			"required": ["factor"]
+		},
+		"MirrorArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {},
+			"x-doc": {
+				"zh": "把腿左右镜像并反转曲柄方向",
+				"en": "Reflect the leg left to right and reverse the crank direction"
+			}
+		},
+		"SetMaterialArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"material": {
+					"enum": ["PLA", "PETG"],
+					"x-doc": {
+						"zh": "材料",
+						"en": "Material"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "选择打印材料",
+				"en": "Choose the printing material"
+			},
+			"required": ["material"]
+		},
+		"PatchStep": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"op": {
+					"enum": ["add", "replace", "remove"],
+					"x-doc": {
+						"zh": "补丁操作",
+						"en": "Patch operation"
+					}
+				},
+				"path": {
+					"type": "string",
+					"x-doc": {
+						"zh": "JSON 指针",
+						"en": "JSON pointer"
+					}
+				},
+				"value": {
+					"x-doc": {
+						"zh": "新值（add、replace 时）",
+						"en": "New value (for add and replace)"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "一步 JSON 补丁",
+				"en": "One JSON patch step"
+			},
+			"required": ["op", "path"]
+		},
+		"PatchArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"patch": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/PatchStep"
+					},
+					"x-doc": {
+						"zh": "补丁步骤",
+						"en": "Patch steps"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "一串 JSON 补丁；撤销操作的内容",
+				"en": "A list of JSON patch steps; what an undo contains"
+			},
+			"required": ["patch"]
+		},
+		"SetParamOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "set_param"
+				},
+				"args": {
+					"$ref": "#/$defs/SetParamArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "设置长度",
+				"en": "Set a length"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"AddDyadOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "add_dyad"
+				},
+				"args": {
+					"$ref": "#/$defs/AddDyadArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "加二元组",
+				"en": "Add a dyad"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"RemoveJointOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "remove_joint"
+				},
+				"args": {
+					"$ref": "#/$defs/RemoveJointArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "删除关节",
+				"en": "Remove a joint"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"ArrayLegsOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "array_legs"
+				},
+				"args": {
+					"$ref": "#/$defs/ArrayLegsArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "设置腿数",
+				"en": "Set the leg count"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"ScaleOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "scale"
+				},
+				"args": {
+					"$ref": "#/$defs/ScaleArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "缩放",
+				"en": "Scale"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"MirrorOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "mirror"
+				},
+				"args": {
+					"$ref": "#/$defs/MirrorArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "镜像",
+				"en": "Mirror"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"SetMaterialOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "set_material"
+				},
+				"args": {
+					"$ref": "#/$defs/SetMaterialArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "设置材料",
+				"en": "Set the material"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"PatchOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "patch"
+				},
+				"args": {
+					"$ref": "#/$defs/PatchArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "补丁（撤销记录）",
+				"en": "Patch (the record of an undo)"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"Operation": {
+			"oneOf": [
+				{
+					"$ref": "#/$defs/SetParamOp"
+				},
+				{
+					"$ref": "#/$defs/AddDyadOp"
+				},
+				{
+					"$ref": "#/$defs/RemoveJointOp"
+				},
+				{
+					"$ref": "#/$defs/ArrayLegsOp"
+				},
+				{
+					"$ref": "#/$defs/ScaleOp"
+				},
+				{
+					"$ref": "#/$defs/MirrorOp"
+				},
+				{
+					"$ref": "#/$defs/SetMaterialOp"
+				},
+				{
+					"$ref": "#/$defs/PatchOp"
+				}
+			],
+			"x-doc": {
+				"zh": "任何一种设计操作",
+				"en": "Any design operation"
+			}
+		}
+	}
+}

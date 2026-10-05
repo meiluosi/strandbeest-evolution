@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMAS = ("design", "scenario")
+SCHEMAS = ("design", "scenario", "ops")
 KNOWN = {
     "$schema", "$id", "$defs", "$ref", "title", "description", "type", "properties", "required", "additionalProperties",
     "minProperties", "items", "minItems", "maxItems", "enum", "const", "oneOf", "anyOf", "default", "minimum",
@@ -106,6 +106,8 @@ class PyGen:
             if key in node:
                 return "Union[" + ", ".join(self.type_of(s, hint) for s in node[key]) + "]"
         t = node.get("type")
+        if t is None:
+            return "Any"  # an unconstrained value
         if isinstance(t, list):
             return "Union[" + ", ".join(self.base_type({**node, "type": x}, hint) for x in t) + "]"
         if t == "string":
@@ -190,22 +192,22 @@ class PyGen:
         return (isinstance(t, list) and "null" in t) or t == "null" or any(self.nullable(x) for k in ("oneOf", "anyOf") for x in node.get(k, []))
 
     def render(self) -> str:
-        # definitions first (so refs resolve), then the root; aliases for non-object defs
-        out_classes: list[str] = []
-        aliases: list[str] = []
-        order = list(self.defs.items())
-        for name, node in order:
+        # classes in schema order; aliases that name a class go after the classes, plain aliases before them
+        import re
+
+        class_names = {n for n, node in self.defs.items() if is_class(node)} | {self.schema["title"]}
+        early: list[str] = []
+        late: list[str] = []
+        classes: list[str] = []
+        for name, node in self.defs.items():
             if is_class(node):
-                out_classes.append(self.class_src(name, node))
+                classes.append(self.class_src(name, node))
             else:
-                aliases.append(f"{name} = {self.type_of(node, name)}")
-        root_cls = self.schema["title"]
-        out_classes.append(self.class_src(root_cls, self.schema))
-        # inline classes discovered while rendering go before their users; emit all remaining ones first
-        extra = [self.class_src(c, n) for c, n in self.classes]
-        body = "\n\n\n".join(aliases and ["\n".join(aliases)] or [])
-        parts = [p for p in (body, *extra, *out_classes) if p]
-        needs = "\n".join(
+                expr = f"{name} = {self.type_of(node, name)}"
+                (late if any(re.search(rf"\b{c}\b", expr.split("=", 1)[1]) for c in class_names) else early).append(expr)
+        classes.append(self.class_src(self.schema["title"], self.schema))
+        extra = [self.class_src(c, n) for c, n in self.classes]  # classes found inline while rendering
+        header = "\n".join(
             [
                 "from __future__ import annotations",
                 "",
@@ -214,8 +216,7 @@ class PyGen:
                 "from pydantic import BaseModel, ConfigDict, Field, model_validator",
             ]
         )
-        return (
-            f'"""{HEADER.format(name=self.name)}"""\n\n{needs}\n\n\n'
+        base = (
             "class _Strict(BaseModel):\n"
             "    model_config = ConfigDict(extra=\"forbid\")\n"
             "    __non_nullable__: ClassVar[tuple[str, ...]] = ()\n\n"
@@ -226,10 +227,10 @@ class PyGen:
             "            for key in cls.__non_nullable__:\n"
             "                if key in data and data[key] is None:\n"
             "                    raise ValueError(f\"{key}: null is not allowed; omit the field instead\")\n"
-            "        return data\n\n\n"
-            + "\n\n\n".join(parts)
-            + "\n"
+            "        return data"
         )
+        parts = [base, *(["\n".join(early)] if early else []), *extra, *classes, *(["\n".join(late)] if late else [])]
+        return f'"""{HEADER.format(name=self.name)}"""\n\n{header}\n\n\n' + "\n\n\n".join(parts) + "\n"
 
 
 # ------------------------------------------------------------------ TypeScript
@@ -272,6 +273,8 @@ class TsGen:
             if key in node:
                 return " | ".join(self.type_of(s, hint) for s in node[key])
         t = node.get("type")
+        if t is None:
+            return "unknown"  # an unconstrained value
         if isinstance(t, list):
             return " | ".join(self.type_of({**node, "type": x}, hint) for x in t)
         if t == "string":

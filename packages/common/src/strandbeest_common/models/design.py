@@ -55,7 +55,7 @@ class Joint(_Strict):
 class Linkage(_Strict):
     """A LinkageSpec: named lengths, crank, and joints defined as circle intersections"""
 
-    params: dict[str, Annotated[float, Field(gt=0)]] = Field(..., min_length=1, description='Named link lengths')
+    params: dict[str, float] = Field(..., min_length=1, description='Named link lengths')
     crank: Crank = Field(...)
     joints: list[Joint] = Field(..., min_length=1, description='Joints in solving order')
     foot: str = Field(..., description='Id of the joint that is the foot')

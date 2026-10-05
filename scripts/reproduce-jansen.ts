@@ -10,6 +10,7 @@ import {
 	genomeToParams,
 	JANSEN_LENGTHS,
 	JANSEN_PARAM_NAMES,
+	JANSEN_SPACE,
 	jansenSpec,
 	paramsToGenome,
 	pathDistance,
@@ -26,6 +27,7 @@ const gaTuning =
 	mode === "tuned" ? { mutationRate: 0.5, mutationScale: 0.15, elites: 3 } : {};
 
 const jansen = paramsToGenome(JANSEN_LENGTHS);
+const flatStroke = fitnessFlatStroke(JANSEN_SPACE);
 const jansenFoot = trace(jansenSpec(), 180).foot;
 const blindCentre = jansen.map(() => 40);
 const blindBounds: [number, number] = [5 / 40, 80 / 40];
@@ -39,7 +41,7 @@ function lengthError(g: number[]): number {
 
 const shape = (g: number[]) =>
 	pathDistance(trace(jansenSpec(genomeToParams(g)), 180).foot, jansenFoot);
-const matchFitness = fitnessMatchPath(jansenFoot);
+const matchFitness = fitnessMatchPath(JANSEN_SPACE, jansenFoot);
 
 const rows = [];
 for (let seed = 1; seed <= seeds; seed++) {
@@ -52,7 +54,7 @@ for (let seed = 1; seed <= seeds; seed++) {
 		...gaTuning,
 	};
 	const a = runGA(blindCentre, matchFitness, opts);
-	const b = runGA(blindCentre, fitnessFlatStroke, opts);
+	const b = runGA(blindCentre, flatStroke, opts);
 	const row = {
 		seed,
 		match: {
@@ -76,7 +78,7 @@ for (let seed = 1; seed <= seeds; seed++) {
 
 const med = (xs: number[]) =>
 	[...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] as number;
-const jansenFit = fitnessFlatStroke(jansen);
+const jansenFit = flatStroke(jansen);
 const summary = {
 	params: {
 		seeds,

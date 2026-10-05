@@ -201,7 +201,6 @@
 					"minProperties": 1,
 					"additionalProperties": {
 						"type": "number",
-						"exclusiveMinimum": 0,
 						"x-unit": "unit_m"
 					},
 					"x-unit": "unit_m",

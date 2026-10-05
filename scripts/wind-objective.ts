@@ -9,6 +9,7 @@ import {
 	genomeToParams,
 	JANSEN_LENGTHS,
 	JANSEN_PARAM_NAMES,
+	JANSEN_SPACE,
 	type JansenParams,
 	jansenSpec,
 	paramsToGenome,
@@ -25,7 +26,7 @@ const terrain = {
 	slope: (slopeDeg * Math.PI) / 180,
 	drag: 0.05 * DEFAULT_WALKER.mass * 9.81,
 };
-const fitness = fitnessWindSpeed({ wind, terrain });
+const fitness = fitnessWindSpeed(JANSEN_SPACE, { wind, terrain });
 
 const describe = (g: number[]) => {
 	const spec = jansenSpec(genomeToParams(g));

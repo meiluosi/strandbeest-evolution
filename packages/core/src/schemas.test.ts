@@ -32,7 +32,7 @@ describe("shared JSON schemas", () => {
 
 	it("a Design built by defaultDesign() validates", () => {
 		const v = validators.design;
-		const design = defaultDesign(JANSEN_LENGTHS);
+		const design = defaultDesign();
 		expect(v?.(design), JSON.stringify(v?.errors)).toBe(true);
 	});
 
@@ -56,7 +56,7 @@ describe("shared JSON schemas", () => {
 	});
 
 	it("the generated Design type is what defaultDesign returns", () => {
-		const d: Design = defaultDesign(JANSEN_LENGTHS);
+		const d: Design = defaultDesign();
 		expect(d.walker.legs).toBe(6);
 	});
 });

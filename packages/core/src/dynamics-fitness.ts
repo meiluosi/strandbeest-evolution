@@ -8,14 +8,8 @@ import {
 	type Walker,
 	windWalk,
 } from "./dynamics";
-import {
-	type Fitness,
-	genomeToParams,
-	INFEASIBLE,
-	infeasibility,
-	legMetrics,
-} from "./fitness";
-import { jansenSpec } from "./jansen";
+import { type Fitness, INFEASIBLE, infeasibility, legMetrics } from "./fitness";
+import type { GenomeSpace } from "./genome";
 
 export interface WindObjective {
 	wind: number;
@@ -36,23 +30,21 @@ export interface WindObjective {
  * (drag × stride), so there is an interior optimum for a given sail and wind.
  * All sail / mass / drag values are illustrative assumptions (see dynamics.ts).
  */
-export function fitnessWindSpeed(obj: WindObjective): Fitness {
+export function fitnessWindSpeed(
+	space: GenomeSpace,
+	obj: WindObjective,
+): Fitness {
 	const walker = obj.walker ?? DEFAULT_WALKER;
 	const terrain = obj.terrain ?? FLAT;
 	const sail = obj.sail ?? DEFAULT_SAIL;
 	const minStable = obj.minStable ?? 0.9;
 	return (genome) => {
-		const m = legMetrics(genome);
-		if (!m) return infeasibility(genome) as number;
+		const m = legMetrics(space, genome);
+		if (!m) return infeasibility(space, genome) as number;
 		// same walking constraints as the kinematic objectives, as graded penalties below INFEASIBLE-free range
 		if (m.lift / m.width < 0.15) return m.lift / m.width - 1;
 		if (m.duty < 0.35) return m.duty - 0.35 - 1;
-		const s = cycleSummary(
-			jansenSpec(genomeToParams(genome)),
-			walker,
-			terrain,
-			90,
-		);
+		const s = cycleSummary(space.toSpec(genome), walker, terrain, 90);
 		if (!s) return INFEASIBLE - 1;
 		if (s.stableFraction < minStable) return s.stableFraction - minStable - 1;
 		const r = windWalk(sail, s, obj.wind);

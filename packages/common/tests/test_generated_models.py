@@ -36,7 +36,7 @@ def test_generated_files_are_up_to_date():
 
 
 def test_annotations_complete_for_design_and_scenario():
-    for name in ("design", "scenario"):
+    for name in ("design", "scenario", "ops"):
         assert annotations.check(ROOT / "schemas" / f"{name}.schema.json") == []
 
 
@@ -128,7 +128,7 @@ def test_schema_change_changes_both_languages(tmp_path):
     """Add one field to the scenario schema in a scratch copy: the Python and TypeScript outputs both gain it."""
     sdir = tmp_path / "schemas"
     sdir.mkdir()
-    for name in ("design", "scenario"):
+    for name in ("design", "scenario", "ops"):
         s = schema(name)
         if name == "scenario":
             s["$defs"]["Walker"]["properties"]["tail_length"] = {
@@ -147,7 +147,7 @@ def test_schema_change_changes_both_languages(tmp_path):
 def test_generator_rejects_unsupported_keywords(tmp_path):
     sdir = tmp_path / "schemas"
     sdir.mkdir()
-    for name in ("design", "scenario"):
+    for name in ("design", "scenario", "ops"):
         s = schema(name)
         if name == "design":
             s["$defs"]["Walker"]["properties"]["legs"]["multipleOf"] = 2

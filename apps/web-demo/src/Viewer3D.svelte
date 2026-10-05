@@ -1,5 +1,5 @@
 <script lang="ts">
-import { type JansenParams, jansenSpec, solvePose } from "strandbeest-core";
+import { type LinkageSpec, solvePose } from "strandbeest-core";
 import type * as THREE_NS from "three";
 import { t } from "./i18n/index.svelte";
 
@@ -26,14 +26,14 @@ let {
 	api,
 	exportId,
 	manifest,
-	params,
+	spec,
 	unitMm,
 	thickness,
 }: {
 	api: string;
 	exportId: string;
 	manifest: Manifest;
-	params: JansenParams;
+	spec: LinkageSpec;
 	unitMm: number;
 	thickness: number;
 } = $props();
@@ -61,7 +61,7 @@ let api3: {
 
 $effect(() => {
 	manifest;
-	params;
+	spec;
 	api3?.rebuild();
 });
 $effect(() => {
@@ -182,7 +182,6 @@ $effect(() => {
 		}
 
 		function pose(t: number) {
-			const spec = jansenSpec(params);
 			const n = manifest.crank_phase_deg.length;
 			const pitch = manifest.layer_pitch_mm;
 			const legPitch = manifest.leg_pitch_mm;
@@ -203,14 +202,14 @@ $effect(() => {
 				const ang = Math.atan2((B.y - A.y) * unitMm, (B.x - A.x) * unitMm);
 				mesh.position.set(ax, ay, leg * legPitch + bar.layer * pitch);
 				mesh.rotation.set(0, 0, ang);
-				if (bar.b === "F") lowest = Math.min(lowest, B.y * unitMm);
+				if (bar.b === spec.foot) lowest = Math.min(lowest, B.y * unitMm);
 			}
 			for (let i = 0; i < feet.length; i++) {
 				const leg = bars[0] ? i : 0;
 				const phase = ((manifest.crank_phase_deg[leg] ?? 0) * Math.PI) / 180;
 				const p = solvePose(spec, -t + phase);
 				if (!p) continue;
-				const f = p.F as { x: number; y: number };
+				const f = p[spec.foot] as { x: number; y: number };
 				feet[i]?.position.set(
 					f.x * unitMm,
 					f.y * unitMm,

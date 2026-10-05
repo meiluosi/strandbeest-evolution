@@ -1,0 +1,1220 @@
+{
+	"_doc": "Operation cases: apply ops to a base design; expect the exact patch from base to result, or the rejection. Both runners must agree. Regenerate with generate_cases.py.",
+	"cases": [
+		{
+			"name": "set_param changes one length",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "m",
+						"value": 14.0
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 14.0
+					}
+				]
+			}
+		},
+		{
+			"name": "set_param on an unknown name",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "zz",
+						"value": 1.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "unknown_param",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_param with a non-number",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "m",
+						"value": "long"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_param that cannot assemble",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "h",
+						"value": 1.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["cannot_assemble"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_param near the crank limit: fast but continuous, accepted",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "m",
+						"value": 31.0
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 31.0
+					}
+				]
+			}
+		},
+		{
+			"name": "set_param into a window too narrow for the samples is a branch flip",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": {
+					"params": {
+						"a": 40.0,
+						"l": 3.0,
+						"m": 10.0,
+						"b": 45.0,
+						"j": 38.0
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						}
+					],
+					"foot": "K"
+				}
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "m",
+						"value": 33.12
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["branch_flip"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_param beyond the crank limit cannot assemble",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "m",
+						"value": 34.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["cannot_assemble"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad turns the four-bar into the six-bar",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 30.0,
+							"q": 25.0
+						},
+						"foot": true
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/foot",
+						"value": "X"
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							},
+							{
+								"id": "X",
+								"centers": ["C", "K"],
+								"radii": ["p", "q"],
+								"side": -1
+							}
+						]
+					},
+					{
+						"op": "add",
+						"path": "/linkage/params/p",
+						"value": 30.0
+					},
+					{
+						"op": "add",
+						"path": "/linkage/params/q",
+						"value": 25.0
+					}
+				]
+			}
+		},
+		{
+			"name": "add_dyad with an existing joint id",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "K",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 30.0,
+							"q": 25.0
+						},
+						"foot": true
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "joint_exists",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad with an existing param name",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 30.0,
+							"b": 1.0
+						},
+						"foot": true
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "param_exists",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad centred on an unknown point",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "Q"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 30.0,
+							"q": 25.0
+						},
+						"foot": true
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["unknown_point"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad with a bad side",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": 0,
+						"params": {
+							"p": 30.0,
+							"q": 25.0
+						},
+						"foot": true
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad that cannot assemble",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 1.0,
+							"q": 1.0
+						},
+						"foot": true
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["cannot_assemble"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad with inline lengths and not the foot",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": [30.0, 25.0],
+						"side": -1
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							},
+							{
+								"id": "X",
+								"centers": ["C", "K"],
+								"radii": [30.0, 25.0],
+								"side": -1
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"name": "remove_joint of the foot needs a new foot",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/sixbar-extra-dyad.json"
+			},
+			"ops": [
+				{
+					"type": "remove_joint",
+					"args": {
+						"id": "X"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "foot_needed",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "remove_joint of the foot with a new foot",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/sixbar-extra-dyad.json"
+			},
+			"ops": [
+				{
+					"type": "remove_joint",
+					"args": {
+						"id": "X",
+						"foot": "K"
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/foot",
+						"value": "K"
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							}
+						]
+					},
+					{
+						"op": "remove",
+						"path": "/linkage/params/p"
+					},
+					{
+						"op": "remove",
+						"path": "/linkage/params/q"
+					}
+				]
+			}
+		},
+		{
+			"name": "remove_joint of a joint others are built on",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/sixbar-extra-dyad.json"
+			},
+			"ops": [
+				{
+					"type": "remove_joint",
+					"args": {
+						"id": "K",
+						"foot": "X"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "joint_in_use",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "remove_joint keeping the unused params",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/sixbar-extra-dyad.json"
+			},
+			"ops": [
+				{
+					"type": "remove_joint",
+					"args": {
+						"id": "X",
+						"foot": "K",
+						"drop_params": false
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/foot",
+						"value": "K"
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"name": "remove_joint of an unknown joint",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/sixbar-extra-dyad.json"
+			},
+			"ops": [
+				{
+					"type": "remove_joint",
+					"args": {
+						"id": "Q"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "unknown_joint",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "add_dyad then remove_joint is the identity",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 30.0,
+							"q": 25.0
+						},
+						"foot": true
+					}
+				},
+				{
+					"type": "remove_joint",
+					"args": {
+						"id": "X",
+						"foot": "K"
+					}
+				}
+			],
+			"expect": {
+				"patch": []
+			}
+		},
+		{
+			"name": "array_legs sets the leg count",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "array_legs",
+					"args": {
+						"legs": 8
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/walker/legs",
+						"value": 8
+					}
+				]
+			}
+		},
+		{
+			"name": "array_legs below one",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "array_legs",
+					"args": {
+						"legs": 0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "array_legs with a non-integer",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "array_legs",
+					"args": {
+						"legs": 2.5
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "scale multiplies every length",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "scale",
+					"args": {
+						"factor": 1.5
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/params/a",
+						"value": 57.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/b",
+						"value": 62.25
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/c",
+						"value": 58.949999999999996
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/d",
+						"value": 60.150000000000006
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/e",
+						"value": 83.69999999999999
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/f",
+						"value": 59.099999999999994
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/g",
+						"value": 55.050000000000004
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/h",
+						"value": 98.55000000000001
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/i",
+						"value": 73.5
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/j",
+						"value": 75.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/k",
+						"value": 92.85
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/l",
+						"value": 11.7
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 22.5
+					}
+				]
+			}
+		},
+		{
+			"name": "scale keeping the physical size changes the unit",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "scale",
+					"args": {
+						"factor": 2.0,
+						"keep_physical": true
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/params/a",
+						"value": 76.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/b",
+						"value": 83.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/c",
+						"value": 78.6
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/d",
+						"value": 80.2
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/e",
+						"value": 111.6
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/f",
+						"value": 78.8
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/g",
+						"value": 73.4
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/h",
+						"value": 131.4
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/i",
+						"value": 98.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/j",
+						"value": 100.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/k",
+						"value": 123.8
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/l",
+						"value": 15.6
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 30.0
+					},
+					{
+						"op": "replace",
+						"path": "/walker/unit_m",
+						"value": 0.001
+					}
+				]
+			}
+		},
+		{
+			"name": "scale by a non-positive factor",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "scale",
+					"args": {
+						"factor": 0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "scale reaches inline lengths too",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": [30.0, 25.0],
+						"side": -1,
+						"foot": true
+					}
+				},
+				{
+					"type": "scale",
+					"args": {
+						"factor": 2.0
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/foot",
+						"value": "X"
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							},
+							{
+								"id": "X",
+								"centers": ["C", "K"],
+								"radii": [60.0, 50.0],
+								"side": -1
+							}
+						]
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/a",
+						"value": 80.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/b",
+						"value": 90.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/j",
+						"value": 76.0
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 20.0
+					}
+				]
+			}
+		},
+		{
+			"name": "mirror reflects the leg and reverses the crank",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "mirror",
+					"args": {}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/joints/0/side",
+						"value": -1
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints/1/side",
+						"value": -1
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints/2/side",
+						"value": 1
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints/3/side",
+						"value": 1
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints/4/side",
+						"value": -1
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/a",
+						"value": -38
+					},
+					{
+						"op": "replace",
+						"path": "/walker/direction",
+						"value": 1
+					}
+				]
+			}
+		},
+		{
+			"name": "mirror twice is the identity",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "mirror",
+					"args": {}
+				},
+				{
+					"type": "mirror",
+					"args": {}
+				}
+			],
+			"expect": {
+				"patch": []
+			}
+		},
+		{
+			"name": "mirror when the crank pivot param is shared",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": {
+					"params": {
+						"a": 40.0,
+						"l": 0.0,
+						"m": 10.0,
+						"b": 45.0,
+						"j": 38.0
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "a"],
+							"side": 1
+						}
+					],
+					"foot": "K"
+				}
+			},
+			"ops": [
+				{
+					"type": "mirror",
+					"args": {}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "shared_param",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_material",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_material",
+					"args": {
+						"material": "PETG"
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/manufacturing/material",
+						"value": "PETG"
+					}
+				]
+			}
+		},
+		{
+			"name": "set_material with an unknown material",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_material",
+					"args": {
+						"material": "wood"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "an unknown operation type",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "explode",
+					"args": {}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "unknown_type",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "a sequence that is valid step by step",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "set_param",
+					"args": {
+						"name": "m",
+						"value": 12.0
+					}
+				},
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1,
+						"params": {
+							"p": 30.0,
+							"q": 25.0
+						},
+						"foot": true
+					}
+				},
+				{
+					"type": "array_legs",
+					"args": {
+						"legs": 4
+					}
+				},
+				{
+					"type": "set_material",
+					"args": {
+						"material": "PETG"
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/foot",
+						"value": "X"
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							},
+							{
+								"id": "X",
+								"centers": ["C", "K"],
+								"radii": ["p", "q"],
+								"side": -1
+							}
+						]
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 12.0
+					},
+					{
+						"op": "add",
+						"path": "/linkage/params/p",
+						"value": 30.0
+					},
+					{
+						"op": "add",
+						"path": "/linkage/params/q",
+						"value": 25.0
+					},
+					{
+						"op": "replace",
+						"path": "/manufacturing/material",
+						"value": "PETG"
+					},
+					{
+						"op": "replace",
+						"path": "/walker/legs",
+						"value": 4
+					}
+				]
+			}
+		}
+	]
+}

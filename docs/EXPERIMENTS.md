@@ -253,3 +253,12 @@ The walker starts at about **0.45 m/s**. The start wind predicted from the motor
 With 3 m/s wind and the same sail, two crank revolutions take about 4.2 s on Earth, 3.4 s with Venus-like air (65 kg/m³: the sail is limited by its own top speed), and 29 s with Mars-like air (0.02 kg/m³). Planet values are approximate (NASA fact sheets, Wikipedia: Venus 8.87 m/s² and ~65 kg/m³, Mars ~3.7 m/s² and ~0.02 kg/m³, Titan ~5.4 kg/m³); Titan's gravity is from memory and unchecked.
 
 A 12 mm step blocks the small walker (it advances 12 % of the ideal distance); the player flags this as "almost no progress".
+
+
+## 12. Reproducibility audit of the committed GA results (E3-01, 2026-10-06)
+
+E3-01 moved the fitness functions and the genome from Jansen-only helpers to a `GenomeSpace` derived from any `LinkageSpec`. Before trusting that the move changed nothing, I re-ran fixed-seed experiments with the code from before the refactor and after it:
+
+- `pnpm experiment flat 1 80`: output of the old code and the new code is **identical** (every field of `original`, `evolved`, `history`), so the refactor did not change behaviour. A golden test (`ga.test.ts`, seed 1, 80 x 25, best fitness 0.6469557486851051) now guards this.
+- `pnpm reproduce 20 500 150 default` and `... tuned`: both reproduce the committed `experiments/reproduce-jansen-*-ga.json` exactly (same content). Their conclusions in section 2 stand.
+- **Negative finding:** the committed `experiments/flat-seed1.json` and `highstep-seed1.json` did **not** reproduce with the code at HEAD (for `flat`: evolved fitness 0.7129 committed vs 0.7446 now; the GA history differs from generation 0). They predate the commit that introduced graded infeasibility penalties (a8127b1) and were never regenerated. They are demo inputs (`scripts/dynamics-demo.ts` reads the evolved lengths), no number in this document or the README cites them, and I regenerated both with the current code. Nothing else was found stale. Model-internal; nothing here is measured.

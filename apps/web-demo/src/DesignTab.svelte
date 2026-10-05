@@ -1,15 +1,11 @@
 <script lang="ts">
-import {
-	JANSEN_LENGTHS,
-	JANSEN_PARAM_NAMES,
-	type JansenParams,
-	migrateDesign,
-} from "strandbeest-core";
+import { migrateDesign } from "strandbeest-core";
 import { call, download } from "./api";
 import Evolver from "./Evolver.svelte";
 import { t } from "./i18n/index.svelte";
 import LengthSliders from "./LengthSliders.svelte";
 import LinkageViewer from "./LinkageViewer.svelte";
+import { PRESETS } from "./presets";
 import { currentDesign, store } from "./store.svelte";
 import WindPanel from "./WindPanel.svelte";
 
@@ -43,18 +39,22 @@ const save = () =>
 	});
 
 function apply(doc: any) {
-	const p = doc?.linkage?.params;
-	if (!p || !JANSEN_PARAM_NAMES.every((n) => typeof p[n] === "number")) {
-		throw new Error(t("design.notJansen"));
+	if (!doc?.linkage?.params || !Array.isArray(doc.linkage.joints)) {
+		throw new Error(t("design.invalid", { join: "linkage" }));
 	}
-	store.params = Object.fromEntries(
-		JANSEN_PARAM_NAMES.map((n) => [n, p[n]]),
-	) as JansenParams;
+	store.linkage = structuredClone(doc.linkage);
 	store.name = doc.name;
 	store.designId = doc.id;
 	store.legs = doc.walker.legs;
 	store.unitMm = doc.walker.unit_m * 1000;
 	store.clearance = doc.manufacturing.clearance_mm;
+}
+
+function loadPreset(e: Event) {
+	const sel = e.target as HTMLSelectElement;
+	const p = PRESETS.find((x) => x.id === sel.value);
+	if (p) store.linkage = structuredClone(p.spec);
+	sel.value = "";
 }
 
 const load = () => guard(async () => apply(await call(`/designs/${pick}`)));
@@ -79,7 +79,7 @@ async function importJson(e: Event) {
 		<div class="card">
 			<h2>{t("design.footPath")}</h2>
 			<p class="muted">{t("design.footPath.hint")}</p>
-			<LinkageViewer params={store.params} bind:metrics />
+			<LinkageViewer spec={store.linkage} bind:metrics />
 			{#if metrics}
 				<div class="row">
 					<div class="chip"><b>{(metrics.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
@@ -94,9 +94,12 @@ async function importJson(e: Event) {
 		<div class="card">
 			<div class="row center" style="justify-content: space-between; margin-top: 0">
 				<h2 style="margin: 0">{t("design.lengths")}</h2>
-				<button class="btn small" onclick={() => (store.params = { ...JANSEN_LENGTHS })}>{t("design.resetJansen")}</button>
+				<select class="small" onchange={loadPreset} aria-label={t("design.preset")}>
+					<option value="">{t("design.preset")}</option>
+					{#each PRESETS as p}<option value={p.id}>{p.id}</option>{/each}
+				</select>
 			</div>
-			<LengthSliders bind:params={store.params} />
+			<LengthSliders bind:spec={store.linkage} />
 		</div>
 	</div>
 
@@ -122,10 +125,10 @@ async function importJson(e: Event) {
 
 	<details class="card">
 		<summary><b>{t("wind.title")}</b> <small>{t("wind.subtitle")}</small></summary>
-		<WindPanel params={store.params} />
+		<WindPanel spec={store.linkage} />
 	</details>
 	<details class="card">
 		<summary><b>{t("evolve.title")}</b> <small>{t("evolve.subtitle")}</small></summary>
-		<Evolver params={store.params} onapply={(p) => (store.params = p)} />
+		<Evolver spec={store.linkage} onapply={(s) => (store.linkage = s)} />
 	</details>
 </div>

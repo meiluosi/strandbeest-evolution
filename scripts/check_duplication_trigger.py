@@ -14,6 +14,9 @@ for m in doc["modules"]:
     for key in ("ts", "py", "corpus"):
         if not (root / m[key]).exists():
             problems.append(f"{m['name']}: {key} path missing: {m[key]}")
+hist = doc.get("limit_history", [])
+if not hist or hist[-1]["limit"] != doc["max_duplicated_modules"]:
+    problems.append("max_duplicated_modules changed without a matching entry (with a reason) at the end of limit_history")
 n = len(doc["modules"])
 print(f"{n} duplicated module(s) (limit {doc['max_duplicated_modules']}), {doc['incidents_of_disagreement']} recorded disagreement incident(s)")
 if n > doc["max_duplicated_modules"]:

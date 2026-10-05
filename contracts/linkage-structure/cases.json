@@ -1,0 +1,438 @@
+{
+	"_doc": "Expected static problems of linkage specs; both runners must report exactly these (code, path) pairs in this order.",
+	"cases": [
+		{
+			"name": "valid four-bar with the crank pivot at y=0 (zero is a legal coordinate)",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": []
+		},
+		{
+			"name": "unknown param in a radius",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["zz", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "unknown_param",
+					"path": "joints[0].radii[0]"
+				}
+			]
+		},
+		{
+			"name": "unknown param in the crank",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "nope",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "unknown_param",
+					"path": "crank.x"
+				}
+			]
+		},
+		{
+			"name": "unknown point as a circle centre",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["Q", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "unknown_point",
+					"path": "joints[0].centers[0]"
+				}
+			]
+		},
+		{
+			"name": "forward reference: X uses K before K is solved",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38,
+					"p": 30,
+					"q": 25
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": ["p", "q"],
+						"side": -1
+					},
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "X"
+			},
+			"errors": [
+				{
+					"code": "forward_reference",
+					"path": "joints[0].centers[1]"
+				}
+			]
+		},
+		{
+			"name": "duplicate joint id",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					},
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": -1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "duplicate_id",
+					"path": "joints[1].id"
+				}
+			]
+		},
+		{
+			"name": "reserved joint id",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "G",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "reserved_id",
+					"path": "joints[0].id"
+				},
+				{
+					"code": "unknown_foot",
+					"path": "foot"
+				}
+			]
+		},
+		{
+			"name": "unknown foot",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "Z"
+			},
+			"errors": [
+				{
+					"code": "unknown_foot",
+					"path": "foot"
+				}
+			]
+		},
+		{
+			"name": "foot cannot be the ground",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "G"
+			},
+			"errors": [
+				{
+					"code": "unknown_foot",
+					"path": "foot"
+				}
+			]
+		},
+		{
+			"name": "non-positive crank",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 0,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "non_positive_length",
+					"path": "crank.length"
+				}
+			]
+		},
+		{
+			"name": "negative bar via an inline number",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", -3],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "non_positive_length",
+					"path": "joints[0].radii[1]"
+				}
+			]
+		},
+		{
+			"name": "both circles on one centre",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "G"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "K"
+			},
+			"errors": [
+				{
+					"code": "degenerate_centers",
+					"path": "joints[0].centers"
+				}
+			]
+		},
+		{
+			"name": "several problems at once, reported in a fixed order",
+			"spec": {
+				"params": {
+					"a": 40,
+					"l": 0,
+					"m": 10,
+					"b": 45,
+					"j": 38
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "missing"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					}
+				],
+				"foot": "Z"
+			},
+			"errors": [
+				{
+					"code": "unknown_param",
+					"path": "crank.length"
+				},
+				{
+					"code": "unknown_foot",
+					"path": "foot"
+				}
+			]
+		}
+	]
+}

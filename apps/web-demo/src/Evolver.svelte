@@ -1,17 +1,12 @@
 <script lang="ts">
-import {
-	type GAState,
-	genomeToParams,
-	type JansenParams,
-	paramsToGenome,
-} from "strandbeest-core";
+import { type GAState, genomeSpace, type LinkageSpec } from "strandbeest-core";
 import type { WorkerRequest } from "./ga.worker";
 import { t } from "./i18n/index.svelte";
 
 let {
-	params,
+	spec,
 	onapply,
-}: { params: JansenParams; onapply: (p: JansenParams) => void } = $props();
+}: { spec: LinkageSpec; onapply: (s: LinkageSpec) => void } = $props();
 
 let objective = $state<"flat" | "highstep">("flat");
 let seed = $state(1);
@@ -35,7 +30,7 @@ function start() {
 	};
 	running = true;
 	const req: WorkerRequest = {
-		start: paramsToGenome(params),
+		spec: $state.snapshot(spec) as LinkageSpec,
 		objective,
 		seed,
 		generations,
@@ -95,7 +90,7 @@ const chart = $derived.by(() => {
 	</svg>
 	{#if last}
 		<p>{t("evolve.progress", { generation: last.generation, generations: generations, bestFitness: last.bestFitness.toFixed(3) })}</p>
-		<button onclick={() => onapply(genomeToParams(last.best))}>{t("evolve.loadBest")}</button>
+		<button onclick={() => onapply(genomeSpace(spec).toSpec(last.best))}>{t("evolve.loadBest")}</button>
 	{/if}
 </div>
 

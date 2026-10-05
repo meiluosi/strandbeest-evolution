@@ -2,11 +2,12 @@ export type * from "./generated/design";
 
 import type { Design } from "./generated/design";
 import { legacyUlid, newUlid } from "./ids";
-import { JANSEN_LENGTHS, type JansenParams, jansenSpec } from "./jansen";
+import { jansenSpec } from "./jansen";
+import type { LinkageSpec } from "./linkage";
 
-/** A small FDM-printable walker (1 length unit = 2 mm) built from the given lengths. */
+/** A small FDM-printable walker (1 length unit = 2 mm) built on the given linkage (Jansen's leg by default). */
 export function defaultDesign(
-	params: JansenParams = JANSEN_LENGTHS,
+	linkage: LinkageSpec = jansenSpec(),
 	name = "jansen-small-6leg",
 	id: string = newUlid(),
 ): Design {
@@ -16,7 +17,7 @@ export function defaultDesign(
 		name,
 		notes:
 			"Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
-		linkage: jansenSpec(params),
+		linkage,
 		walker: {
 			legs: 6,
 			unit_m: 0.002,

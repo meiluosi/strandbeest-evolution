@@ -308,3 +308,40 @@ def test_a_v1_run_folder_is_indexed_and_served_by_its_old_and_new_id(tmp_path):
         assert c.get(f"/runs/{new}").json()["aliases"] == [old]
     finally:
         app.state.workers.stop()
+
+
+# ---- E3-02: the edit algebra over HTTP ------------------------------------------------------------------------------
+def _op(type, args, actor=None):
+    from strandbeest_common.ops import make_op
+
+    return make_op(type, args, actor=actor or {"kind": "agent", "id": "test"}, reason="from a test")
+
+
+def test_apply_operation_returns_the_new_design_an_exact_inverse_and_warnings(client):
+    r = client.post("/ops/apply", json={"design": DESIGN, "op": _op("set_param", {"name": "m", "value": 14.0})})
+    assert r.status_code == 200, r.text
+    out = r.json()
+    assert out["design"]["linkage"]["params"]["m"] == 14.0 and out["inverse"]["type"] == "patch"
+    back = client.post("/ops/apply", json={"design": out["design"], "op": out["inverse"]}).json()["design"]
+    assert back == DESIGN
+
+
+def test_apply_operation_rejects_unassemblable_unprintable_and_malformed_operations(client):
+    bad = client.post("/ops/apply", json={"design": DESIGN, "op": _op("set_param", {"name": "h", "value": 1.0})})
+    assert bad.status_code == 422 and bad.json()["detail"]["problems"][0]["code"] == "cannot_assemble"
+    huge = client.post("/ops/apply", json={"design": DESIGN, "op": _op("scale", {"factor": 40.0})})  # bars far longer than the print bed
+    assert huge.status_code == 422
+    assert any(p["code"].startswith("not_printable") for p in huge.json()["detail"]["problems"])
+    unknown = client.post("/ops/apply", json={"design": DESIGN, "op": _op("explode", {})})
+    assert unknown.status_code == 422 and unknown.json()["detail"]["code"] == "unknown_type"
+    assert client.post("/ops/apply", json={"design": DESIGN}).status_code == 422
+
+
+def test_guard_endpoint_and_replay_endpoint(client):
+    g = client.post("/designs/guard", json=DESIGN).json()
+    assert g["ok"] is True
+    ops = [_op("array_legs", {"legs": 4}), _op("set_material", {"material": "PETG"})]
+    out = client.post("/ops/replay", json={"base": DESIGN, "ops": ops}).json()["design"]
+    assert out["walker"]["legs"] == 4 and out["manufacturing"]["material"] == "PETG"
+    broken = client.post("/ops/replay", json={"base": DESIGN, "ops": [_op("set_param", {"name": "h", "value": 1.0})]})
+    assert broken.status_code == 422
