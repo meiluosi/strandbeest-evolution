@@ -15,6 +15,8 @@ from fastapi.responses import FileResponse
 from strandbeest_calib import CONTACT_STIFFNESS, FRICTION, calibrate
 from strandbeest_calib.compare import curves, distance
 from strandbeest_common import Design
+from strandbeest_common.ids import legacy_ulid
+from strandbeest_common.migrate import migrate_any, migrate_doc
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
 from strandbeest_rig import Calibration, convert_raw
@@ -43,13 +45,28 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
 
+    def run_dir(rid: str) -> Path:
+        """Folder of a run, addressed by its id or by a former id (alias)."""
+        name = Path(rid).name
+        canonical = store.resolve_run(name)
+        # a v1 run still sits in a folder named by its old id until the data folder is migrated
+        for cand in (canonical, name, *(store.run_aliases(canonical) if canonical else [])):
+            if cand and (root / "runs" / cand).is_dir():
+                return root / "runs" / cand
+        return root / "runs" / name
+
     def measurement_doc(m: Any) -> dict:
-        if isinstance(m, str):
-            p = root / "measurements" / f"{Path(m).name}.json"
-            if not p.exists():
-                raise HTTPException(404, "no such measurement")
-            return json.loads(p.read_text())
-        return m
+        """A measurement by id (or former id / name) or as given inline; v1 documents are upgraded in memory."""
+        if not isinstance(m, str):
+            return migrate_any(m, "measurement") if isinstance(m, dict) and m.get("schema_version") == 1 else m
+        p = root / "measurements" / f"{Path(m).name}.json"
+        if not p.exists():
+            for q in sorted((root / "measurements").glob("*.json")):
+                d = migrate_any(json.loads(q.read_text()), "measurement")
+                if m == d["id"] or m == d.get("name") or m in d.get("aliases", []):
+                    return d
+            raise HTTPException(404, "no such measurement")
+        return migrate_any(json.loads(p.read_text()), "measurement")
 
     # -- job handlers (run inside worker threads) --------------------------
     def h_run(ctx: JobContext, payload: dict[str, Any]):
@@ -95,7 +112,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     def save_design(doc: dict = Body(...)):
         d = parse(doc)
         (root / "designs" / f"{d.name}.json").write_text(json.dumps(d.doc, indent=2))
-        return {"name": d.name}
+        return {"id": d.id, "name": d.name}
 
     @app.get("/designs")
     def list_designs():
@@ -106,7 +123,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         p = root / "designs" / f"{Path(name).name}.json"
         if not p.exists():
             raise HTTPException(404, "no such design")
-        return json.loads(p.read_text())
+        return migrate_any(json.loads(p.read_text()), "design")
 
     @app.post("/evaluate")
     def evaluate_design(doc: dict = Body(...)):
@@ -163,14 +180,14 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
 
     @app.get("/runs/{rid}")
     def get_run(rid: str):
-        p = root / "runs" / Path(rid).name / "run.json"
+        p = run_dir(rid) / "run.json"
         if not p.exists():
             raise HTTPException(404, "no such run")
-        return json.loads(p.read_text())
+        return migrate_any(json.loads(p.read_text()), "run")
 
     @app.get("/runs/{rid}/series")
     def run_series(rid: str, max_points: int = 600):
-        p = root / "runs" / Path(rid).name / "arrays.npz"
+        p = run_dir(rid) / "arrays.npz"
         if not p.exists():
             raise HTTPException(404, "no such run")
         a = np.load(p)
@@ -180,7 +197,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.get("/runs/{rid}/replay")
     def run_replay(rid: str, max_frames: int = 240):
         """Everything a viewer needs to replay a run: scene geometry, per-frame body poses, foot contacts and the time series."""
-        folder = root / "runs" / Path(rid).name
+        folder = run_dir(rid)
         if not (folder / "frames.npz").exists():
             raise HTTPException(404, "this run has no recorded frames (sweep points and ensemble variants are not recorded)")
         fr = np.load(folder / "frames.npz")
@@ -244,18 +261,21 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.post("/measurements")
     def save_measurement(doc: dict = Body(...)):
         try:
+            if doc.get("schema_version") == 1:
+                doc = migrate_doc("measurement", doc)
             validate("measurement", doc)
-        except ValueError as e:
+        except (ValueError, KeyError) as e:
             raise HTTPException(422, str(e)) from e
-        (root / "measurements" / f"{Path(doc['id']).name}.json").write_text(json.dumps(doc))
-        return {"id": doc["id"]}
+        (root / "measurements" / f"{doc['id']}.json").write_text(json.dumps(doc))
+        return {"id": doc["id"], "name": doc["name"]}
 
     @app.get("/measurements")
     def list_measurements():
         out = []
         for p in sorted((root / "measurements").glob("*.json")):
-            d = json.loads(p.read_text())
-            out.append({"id": d["id"], "design_name": d["design_name"], "synthetic": d["synthetic"], "conditions": d["conditions"]})
+            d = migrate_any(json.loads(p.read_text()), "measurement")
+            out.append({"id": d["id"], "name": d["name"], "design_id": d["design_id"], "design_name": d.get("design_name", ""),
+                        "synthetic": d["synthetic"], "conditions": d["conditions"]})
         return out
 
     @app.get("/measurements/{mid}")
@@ -277,7 +297,9 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
                 a = np.genfromtxt(io.StringIO(body["track_csv"]), delimiter=",", names=True)
                 track = (np.asarray(a["t_s"], float), np.asarray(a["x_m"], float))
             return convert_raw(
-                body["raw_csv"], Calibration.load(body.get("calibration") or {}), id=body["id"], design_name=body["design_name"],
+                body["raw_csv"], Calibration.load(body.get("calibration") or {}),
+                name=body.get("name") or body["id"],  # `id` was the label in v1
+                design_id=body.get("design_id") or legacy_ulid("design", body["design_name"]), design_name=body.get("design_name", ""),
                 kind=body.get("kind", "motor_no_wind"), omega_rad_s=body.get("omega"), wind_m_s=body.get("wind"),
                 surface=body.get("surface", ""), build_note=body.get("build_note", ""), raw_name=body.get("raw_name", ""),
                 track=track, track_offset_s=body.get("track_offset_s"),
@@ -299,7 +321,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         if "psi" not in ch or "torque" not in ch:
             raise HTTPException(422, "measurement needs psi and torque channels to compare")
         mc = curves(np.array(ch["t"]), np.array(ch["psi"]), np.array(ch["torque"]), np.array(ch["x"]) if "x" in ch else None, 0.5)
-        p = root / "runs" / Path(body["run_id"]).name / "arrays.npz"
+        p = run_dir(body["run_id"]) / "arrays.npz"
         if not p.exists():
             raise HTTPException(404, "no such run")
         a = np.load(p)
@@ -314,11 +336,10 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
 
 
 def _reindex(store: JobStore, root: Path) -> None:
-    """Rebuild the run index from run.json files (covers runs written before the index existed)."""
+    """Rebuild the run index from run.json files. The index is only a cache: files are the truth (ADR-0008)."""
+    store.clear_run_index()
     for p in (root / "runs").glob("*/run.json"):
-        d = json.loads(p.read_text())
-        if not store.has_run(d["id"]):
-            store.index_run(d)
+        store.index_run(migrate_any(json.loads(p.read_text()), "run"))
 
 
 def serve() -> None:

@@ -78,7 +78,7 @@ Each experiment says which simulator parameter it constrains. Repeat each condit
 ```bash
 strandbeest-rig log /dev/ttyUSB0 --out raw.csv --duration 40 --omega 2      # or use any serial logger
 strandbeest-rig track video.mp4 --marker-id 7 --marker-mm 20 --out track.csv
-strandbeest-rig convert raw.csv --calibration cal.json --id e1-glass-1 --design-name jansen-small-6leg \
+strandbeest-rig convert raw.csv --calibration cal.json --name e1-glass-1 --design-id 0000000000YNGRWX0MDFYPZHXT --design-name jansen-small-6leg \
     --omega 2 --surface glass --track track.csv --out e1-glass-1.json
 ```
 
@@ -91,7 +91,7 @@ Start the video and the log together (e.g. clap, or start the motor while the ca
 ```bash
 strandbeest-rig virtual schemas/examples/design-jansen-small-6leg.json --out /tmp/virtual.csv
 strandbeest-rig convert /tmp/virtual.csv --calibration cal.json --track /tmp/virtual.track.csv \
-    --id virt --design-name jansen-small-6leg --omega 2 --out /tmp/virtual.json
+    --name virt --design-id 0000000000YNGRWX0MDFYPZHXT --design-name jansen-small-6leg --omega 2 --out /tmp/virtual.json
 ```
 The virtual rig is generated from the simulator itself, so it can test the software chain but proves nothing about the simulator.
 

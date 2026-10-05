@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Union
 
 from .linkage import LinkageSpec, load_spec
+from .migrate import migrate_doc
 from .schemas import validate
 
 # Material properties used to turn manufacturing parameters into simulation inputs. Typical datasheet-order values
@@ -17,12 +18,18 @@ INFILL_FRACTION = 0.6  # assumption: typical sparse infill raises/lowers effecti
 
 class Design:
     def __init__(self, doc: dict[str, Any]) -> None:
+        if isinstance(doc, dict) and doc.get("schema_version") == 1:
+            doc = migrate_doc("design", doc)  # old files stay readable; the id is derived from the name (see migrate.py)
         validate("design", doc)
         self.doc = doc
 
     @classmethod
     def load(cls, source: Union[str, Path, dict]) -> "Design":
         return cls(source if isinstance(source, dict) else json.loads(Path(source).read_text()))
+
+    @property
+    def id(self) -> str:
+        return self.doc["id"]
 
     @property
     def name(self) -> str:

@@ -10,6 +10,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 from strandbeest_common import Design
+from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
 from strandbeest_sim import run, scenario_from_design
 
@@ -46,7 +47,7 @@ def simulate_curves(design: Design, overrides: dict[str, Any], skip_rev: float =
 
 
 def make_synthetic_measurement(
-    design: Design, truth: dict[str, float], params: list[Param], noise: float = 0.03, seed: int = 0, mid: str = "synthetic"
+    design: Design, truth: dict[str, float], params: list[Param], noise: float = 0.03, seed: int = 0, name: str = "synthetic"
 ) -> dict[str, Any]:
     """A Measurement made by the simulator with known parameter values plus noise. Marked synthetic."""
     ov: dict[str, Any] = {}
@@ -56,8 +57,10 @@ def make_synthetic_measurement(
     rng = np.random.default_rng(seed)
     tq = res.torque + rng.normal(0.0, noise * float(np.mean(np.abs(res.torque))), res.torque.shape)
     doc = {
-        "schema_version": 1,
-        "id": mid,
+        "schema_version": 2,
+        "id": new_ulid(),
+        "name": name,
+        "design_id": design.id,
         "design_name": design.name,
         "synthetic": True,
         "build_note": f"simulator with {truth}, noise {noise}",
@@ -94,7 +97,8 @@ def calibrate(
     sol = minimize(loss, log0, method="Nelder-Mead", options={"maxfev": max_evals, "xatol": 0.02, "fatol": 1e-3, "initial_simplex": _simplex(log0)})
     best_vals, best_d = min(history, key=lambda h: h[1])
     profile = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "id": new_ulid(),
         "name": f"{design.name}-calibrated",
         "parameters": {p.name: v for p, v in zip(params, best_vals)},
         "provenance": {

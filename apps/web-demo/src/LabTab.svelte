@@ -1,11 +1,14 @@
 <script lang="ts">
+import { newUlid } from "strandbeest-core";
 import { call, runJob } from "./api";
 import { t } from "./i18n/index.svelte";
 import { currentDesign, store } from "./store.svelte";
 
 type Meas = {
 	id: string;
-	design_name: string;
+	name: string;
+	design_id: string;
+	design_name?: string;
 	synthetic: boolean;
 	conditions: { kind: string };
 };
@@ -27,7 +30,7 @@ let busy = $state("");
 let error = $state("");
 let info = $state("");
 let measurements = $state<Meas[]>([]);
-let runs = $state<{ id: string; design_name: string }[]>([]);
+let runs = $state<{ id: string; design_id: string; design_name: string }[]>([]);
 let mId = $state("");
 let runId = $state("");
 let cmp = $state<Cmp | null>(null);
@@ -35,7 +38,7 @@ let profile = $state<Profile | null>(null);
 let calParams = $state({ contact_stiffness: true, friction: false });
 
 // import form
-let newId = $state("bench-1");
+let newName = $state("bench-1");
 let kind = $state("motor_no_wind");
 let omega = $state(2.0);
 let wind = $state(0);
@@ -96,7 +99,8 @@ const convertRaw = () =>
 			raw_csv: rawText,
 			raw_name: rawName,
 			calibration: cal,
-			id: newId,
+			name: newName,
+			design_id: store.designId,
 			design_name: store.name,
 			kind,
 			omega,
@@ -112,7 +116,7 @@ const saveConverted = () =>
 		await call("/measurements", converted.doc);
 		measurements = await call("/measurements");
 		mId = converted.doc.id;
-		info = t("lab.savedFromRig", { id: converted.doc.id });
+		info = t("lab.savedFromRig", { name: converted.doc.name });
 	});
 const timeSeries = $derived.by(() => {
 	if (!converted) return null;
@@ -177,7 +181,7 @@ async function pick(e: Event) {
 		if (f.name.endsWith(".json")) {
 			const doc = JSON.parse(text);
 			channels = doc.channels ?? doc;
-			newId = doc.id ?? newId;
+			newName = doc.name ?? doc.id ?? newName;
 		} else channels = parseCsv(text);
 		if (!channels?.t) throw new Error(t("lab.csv.needColumns"));
 		info = t("lab.csv.read", {
@@ -190,9 +194,11 @@ async function pick(e: Event) {
 const save = () =>
 	guard(t("common.save"), async () => {
 		if (!channels) throw new Error(t("lab.pickFile"));
-		await call("/measurements", {
-			schema_version: 1,
-			id: newId,
+		const saved = await call("/measurements", {
+			schema_version: 2,
+			id: newUlid(),
+			name: newName,
+			design_id: store.designId,
 			design_name: store.name,
 			synthetic,
 			conditions: {
@@ -203,8 +209,8 @@ const save = () =>
 			channels,
 		});
 		measurements = await call("/measurements");
-		mId = newId;
-		info = t("lab.saved", { newId: newId });
+		mId = saved.id;
+		info = t("lab.saved", { newName: newName });
 	});
 
 const compare = () =>
@@ -303,7 +309,7 @@ const chart = $derived.by(() => {
 		<h3>{t("lab.import.title")}</h3>
 		<div class="row">
 			<label class="btn inline" style="cursor:pointer">{t("lab.import.choose")} <input type="file" accept=".csv,.json" onchange={pick} hidden /></label>
-			<label>{t("lab.import.id")} <input type="text" bind:value={newId} size="12" /></label>
+			<label>{t("lab.import.name")} <input type="text" bind:value={newName} size="12" /></label>
 			<label>{t("lab.import.kind")}
 				<select bind:value={kind}><option value="motor_no_wind">{t("lab.import.kind.motor")}</option><option value="fan">{t("lab.import.kind.fan")}</option></select>
 			</label>
@@ -321,13 +327,13 @@ const chart = $derived.by(() => {
 			<label>{t("lab.compare.measurement")}
 				<select bind:value={mId}>
 					<option value="">{t("common.choose")}</option>
-					{#each measurements as m}<option value={m.id}>{m.id}{m.synthetic ? t("lab.compare.syntheticTag") : ""}</option>{/each}
+					{#each measurements as m}<option value={m.id}>{m.name}{m.synthetic ? t("lab.compare.syntheticTag") : ""}</option>{/each}
 				</select>
 			</label>
 			<label>{t("lab.compare.simRun")}
 				<select bind:value={runId}>
 					<option value="">{t("common.choose")}</option>
-					{#each runs as r}<option value={r.id}>{r.id} · {r.design_name}</option>{/each}
+					{#each runs as r}<option value={r.id}>{r.design_name || r.design_id} · {r.id.slice(0, 10)}…</option>{/each}
 				</select>
 			</label>
 			<button class="btn primary" disabled={!!busy || !mId || !runId} onclick={compare}>{t("lab.compare.run")}</button>

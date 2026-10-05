@@ -14,3 +14,10 @@
 **后果与迁移** 所有 schema 加 `id`；`design_name` 等改为 `design_id`（保留旧字段做一次性迁移，写迁移函数和往返测试）；API 路径改用 id，名字做查询。一次性迁移，之后稳定。**越晚迁移，要迁的数据越多。**
 
 **验证** 重命名设计后，所有引用它的运行和测量仍能解析；复制设计产生新 id 并在谱系里记父。
+
+**实施记录（E2-01、E2-02，2026-10-06）**
+- ID 用 ULID（`strandbeest_common.ids`、`packages/core/src/ids.ts`，两边由 `contracts/ids/ulid-vectors.json` 约束）；同一毫秒内单调递增；时钟回拨不会打乱顺序。
+- **旧文档的 ID 是确定性的**：`legacy_ulid(kind, 旧名字)` = 时间部分 0 + `SHA-256("kind:名字")` 前 80 位。原因：其他文档用名字指向它，读旧文件或迁移时必须在任何机器上得到同一个 ID，并且引用不查表就能解析。代价：这些 ID 排在所有新 ID 之前（创建时间仍在 `provenance`）；两个人各自的同名旧设计会得到同一个 ID——这正是旧方案的问题，迁移后再产生的设计都是随机 ULID。
+- schema v2：设计、运行、测量、校准结果都有 `id`；运行和测量用 `design_id` 指向设计；`design_name` 保留为**只用于显示的快照**（可选）；测量原来的自由文本 `id` 变成 `name`；`aliases` 记旧名字/旧 ID，指向它们的引用仍能解析。`AssetRef = {id, version?, hash?}` 已定义，`Design.parent` 先用上。
+- `strandbeest-migrate PATH...`（默认只演示，`--write` 才写，原文件备份到 `_backup_v1/`，重复执行无操作）；`Design(...)`、API 读取任何 v1 文档时在内存中自动升级。
+- 仍待做（E2-03）：API 路径和存储以 ID 为主（设计文件现在仍按名字存）、`rename`/`duplicate`、谱系。

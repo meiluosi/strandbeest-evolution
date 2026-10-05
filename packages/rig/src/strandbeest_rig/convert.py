@@ -15,6 +15,7 @@ from typing import Any
 
 import numpy as np
 
+from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
 
 from .calibration import G, Calibration
@@ -144,8 +145,9 @@ def convert_raw(
     text: str,
     cal: Calibration,
     *,
-    id: str,
-    design_name: str,
+    name: str,
+    design_id: str,
+    design_name: str = "",
     kind: str = "motor_no_wind",
     omega_rad_s: float | None = None,
     wind_m_s: float | None = None,
@@ -218,8 +220,10 @@ def convert_raw(
     if surface:
         cond["surface"] = surface
     doc = {
-        "schema_version": 1,
-        "id": id,
+        "schema_version": 2,
+        "id": new_ulid(),
+        "name": name,
+        "design_id": design_id,
         "design_name": design_name,
         "synthetic": False,
         "build_note": build_note,
@@ -234,7 +238,8 @@ def convert_raw(
         },
         "quality": q,
     }
-    if not doc["build_note"]:
-        del doc["build_note"]
+    for optional in ("build_note", "design_name"):
+        if not doc[optional]:
+            del doc[optional]
     validate("measurement", doc)
     return doc

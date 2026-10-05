@@ -7,7 +7,7 @@
 	"required": [
 		"schema_version",
 		"id",
-		"design_name",
+		"design_id",
 		"scenario",
 		"metrics",
 		"provenance"
@@ -15,14 +15,20 @@
 	"additionalProperties": false,
 	"properties": {
 		"schema_version": {
-			"const": 1
+			"const": 2
 		},
 		"id": {
-			"type": "string",
-			"minLength": 1
+			"$ref": "#/$defs/Ulid"
+		},
+		"design_id": {
+			"$ref": "#/$defs/Ulid"
 		},
 		"design_name": {
-			"type": "string"
+			"type": "string",
+			"x-doc": {
+				"zh": "运行时设计的名字（只是显示用的快照）",
+				"en": "The design's name at run time (a display snapshot only)"
+			}
 		},
 		"scenario": {
 			"type": "object",
@@ -116,6 +122,26 @@
 		"scene_file": {
 			"type": "string",
 			"description": "scene geometry for replay (json)"
+		},
+		"aliases": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"x-doc": {
+				"zh": "旧名字或旧 ID；指向它们的引用都解析到这个资产",
+				"en": "Former names or ids; a reference to any of them resolves to this asset"
+			}
+		}
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+			"x-doc": {
+				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
+				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
+			}
 		}
 	}
 }

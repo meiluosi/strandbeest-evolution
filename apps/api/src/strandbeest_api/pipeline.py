@@ -6,7 +6,6 @@ import argparse
 import json
 import os
 import subprocess
-import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -15,6 +14,7 @@ import mujoco
 import numpy as np
 
 from strandbeest_common import Design, gait_metrics
+from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
 from strandbeest_sim import run as sim_run
@@ -39,7 +39,7 @@ def evaluate(design: Design) -> dict[str, Any]:
 
 def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None, run_id: str | None = None) -> dict[str, Any]:
     """Run the simulator and write run.json (validated against the Run schema) plus arrays.npz."""
-    rid = run_id or uuid.uuid4().hex[:12]
+    rid = run_id or new_ulid()
     out = Path(out_dir) / rid
     out.mkdir(parents=True, exist_ok=True)
     sc = scenario_from_design(design, overrides)
@@ -49,8 +49,9 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         np.savez_compressed(out / "frames.npz", **res.frames)
         (out / "scene.json").write_text(json.dumps(res.scene))
     doc = {
-        "schema_version": 1,
+        "schema_version": 2,
         "id": rid,
+        "design_id": design.id,
         "design_name": design.name,
         "scenario": json.loads(sc.model_dump_json()),
         "metrics": {k: (None if v != v else v) for k, v in res.metrics.items()},

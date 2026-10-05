@@ -6,6 +6,7 @@ export * from "./frames";
 export * from "./ga";
 export type * from "./generated/scenario";
 export * from "./geometry";
+export * from "./ids";
 export * from "./jansen";
 export * from "./linkage";
 export * from "./metrics";

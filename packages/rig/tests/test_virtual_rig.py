@@ -16,7 +16,7 @@ CAL = Calibration(counts_per_motor_rev=12, gear_ratio=100, kt_nm_per_a=0.02, idl
 @pytest.fixture(scope="module")
 def chain():
     raw, track = virtual_raw_csv(DESIGN, CAL, omega=2.0, revolutions=2.5)
-    doc = convert_raw(raw, CAL, id="virt", design_name=DESIGN.name, omega_rad_s=2.0, raw_name="virt.csv", track=track)
+    doc = convert_raw(raw, CAL, name="virt", design_id=DESIGN.id, design_name=DESIGN.name, omega_rad_s=2.0, raw_name="virt.csv", track=track)
     return raw, track, doc
 
 

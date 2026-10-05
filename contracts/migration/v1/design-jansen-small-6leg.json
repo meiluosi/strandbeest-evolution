@@ -1,6 +1,5 @@
 {
-	"schema_version": 2,
-	"id": "0000000000YNGRWX0MDFYPZHXT",
+	"schema_version": 1,
 	"name": "jansen-small-6leg",
 	"notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
 	"linkage": {

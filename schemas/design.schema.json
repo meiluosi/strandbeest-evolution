@@ -7,6 +7,7 @@
 	"additionalProperties": false,
 	"required": [
 		"schema_version",
+		"id",
 		"name",
 		"linkage",
 		"walker",
@@ -15,14 +16,34 @@
 	],
 	"properties": {
 		"schema_version": {
-			"const": 1
+			"const": 2
+		},
+		"id": {
+			"$ref": "#/$defs/Ulid"
 		},
 		"name": {
 			"type": "string",
 			"minLength": 1,
 			"x-doc": {
-				"zh": "设计名",
-				"en": "Design name"
+				"zh": "设计名（只用于显示，可以改）",
+				"en": "Design name (display only; may change)"
+			}
+		},
+		"parent": {
+			"$ref": "#/$defs/AssetRef",
+			"x-doc": {
+				"zh": "复制自哪个设计（谱系）",
+				"en": "The design this one was copied from (genealogy)"
+			}
+		},
+		"aliases": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"x-doc": {
+				"zh": "旧名字或旧 ID；指向它们的引用都解析到这个资产",
+				"en": "Former names or ids; a reference to any of them resolves to this asset"
 			}
 		},
 		"notes": {
@@ -46,6 +67,45 @@
 		}
 	},
 	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+			"x-doc": {
+				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
+				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
+			}
+		},
+		"AssetRef": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id"],
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"version": {
+					"type": "integer",
+					"minimum": 1,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "被引用资产的版本号（可选）",
+						"en": "Version of the referenced asset (optional)"
+					}
+				},
+				"hash": {
+					"type": "string",
+					"pattern": "^sha256:[0-9a-f]{64}$",
+					"x-doc": {
+						"zh": "被引用内容的哈希（可选，用于不可变产物）",
+						"en": "Content hash of the referenced asset (optional, for immutable artifacts)"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "对另一个资产的引用",
+				"en": "Reference to another asset: id, optionally pinned to a version or content hash"
+			}
+		},
 		"Ref": {
 			"oneOf": [
 				{

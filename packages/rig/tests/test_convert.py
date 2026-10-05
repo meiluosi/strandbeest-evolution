@@ -6,6 +6,7 @@ import pytest
 
 from strandbeest_rig import Calibration, convert_raw, fit_torque_from_hanging_masses, parse_raw
 
+DESIGN_ID = "0000000000YNGRWX0MDFYPZHXT"
 CAL = Calibration(counts_per_motor_rev=12, gear_ratio=100, kt_nm_per_a=0.5, idle_current_ma=100, calibrated=True)
 
 
@@ -21,7 +22,7 @@ def raw(seconds=12.0, rate=100, omega=2.0, direction=1, torque_fn=lambda psi: 0.
 
 
 def convert(text, **kw):
-    return convert_raw(text, kw.pop("cal", CAL), id="t1", design_name="d", omega_rad_s=kw.pop("omega", 2.0), **kw)
+    return convert_raw(text, kw.pop("cal", CAL), name="t1", design_id=DESIGN_ID, design_name="d", omega_rad_s=kw.pop("omega", 2.0), **kw)
 
 
 def test_angle_and_torque_come_out_in_physical_units():
@@ -79,7 +80,7 @@ def test_load_cell_torque_path():
     lines = ["t_ms,enc,current_mA,load_raw"]
     for i in range(1200):
         lines.append(f"{i * 10},{i * 20},,{500 + 100 * 50.0}")  # 50 g on a 0.1 m arm
-    doc = convert_raw("\n".join(lines) + "\n", cal, id="lc", design_name="d")
+    doc = convert_raw("\n".join(lines) + "\n", cal, name="lc", design_id=DESIGN_ID, design_name="d")
     assert np.mean(doc["channels"]["torque"]) == pytest.approx(0.05 * 9.80665 * 0.1, rel=1e-3)
 
 

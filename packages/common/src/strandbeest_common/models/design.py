@@ -21,7 +21,18 @@ class _Strict(BaseModel):
         return data
 
 
+Ulid = Annotated[str, Field(pattern='^[0-7][0-9A-HJKMNP-TV-Z]{25}$')]
 Ref = Union[float, str]
+
+
+class AssetRef(_Strict):
+    """Reference to another asset: id, optionally pinned to a version or content hash"""
+
+    __non_nullable__: ClassVar[tuple[str, ...]] = ('version', 'hash', )
+
+    id: Ulid = Field(...)
+    version: Union[int, None] = Field(default=None, ge=1, description='Version of the referenced asset (optional)')
+    hash: Union[str, None] = Field(default=None, pattern='^sha256:[0-9a-f]{64}$', description='Content hash of the referenced asset (optional, for immutable artifacts)')
 
 
 class Crank(_Strict):
@@ -119,10 +130,13 @@ class Manufacturing(_Strict):
 class Design(_Strict):
     """A walker: linkage geometry, scale, drive and manufacturing parameters. The single source for kinematics, evolution, simulation and fabrication."""
 
-    __non_nullable__: ClassVar[tuple[str, ...]] = ('notes', )
+    __non_nullable__: ClassVar[tuple[str, ...]] = ('parent', 'aliases', 'notes', )
 
-    schema_version: Literal[1] = Field(...)
-    name: str = Field(..., min_length=1, description='Design name')
+    schema_version: Literal[2] = Field(...)
+    id: Ulid = Field(...)
+    name: str = Field(..., min_length=1, description='Design name (display only; may change)')
+    parent: Union[AssetRef, None] = Field(default=None, description='The design this one was copied from (genealogy)')
+    aliases: Union[list[str], None] = Field(default=None, description='Former names or ids; a reference to any of them resolves to this asset')
     notes: Union[str, None] = Field(default=None, description='Notes')
     linkage: Linkage = Field(...)
     walker: Walker = Field(...)

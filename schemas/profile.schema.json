@@ -4,15 +4,25 @@
 	"title": "Profile",
 	"description": "A calibrated parameter set with its provenance. Scenarios refer to it by name.",
 	"type": "object",
-	"required": ["schema_version", "name", "parameters", "provenance"],
+	"required": ["schema_version", "id", "name", "parameters", "provenance"],
 	"additionalProperties": false,
 	"properties": {
-		"schema_version": { "const": 1 },
-		"name": { "type": "string", "minLength": 1 },
+		"schema_version": {
+			"const": 2
+		},
+		"id": {
+			"$ref": "#/$defs/Ulid"
+		},
+		"name": {
+			"type": "string",
+			"minLength": 1
+		},
 		"parameters": {
 			"type": "object",
 			"minProperties": 1,
-			"additionalProperties": { "type": "number" }
+			"additionalProperties": {
+				"type": "number"
+			}
 		},
 		"provenance": {
 			"type": "object",
@@ -21,16 +31,44 @@
 			"properties": {
 				"measurement_ids": {
 					"type": "array",
-					"items": { "type": "string" },
+					"items": {
+						"$ref": "#/$defs/Ulid"
+					},
 					"minItems": 1
 				},
-				"synthetic": { "type": "boolean" },
-				"method": { "type": "string" },
+				"synthetic": {
+					"type": "boolean"
+				},
+				"method": {
+					"type": "string"
+				},
 				"residual": {
 					"type": "number",
 					"description": "fit error in the units of the compared quantity"
 				},
-				"code_version": { "type": "string" }
+				"code_version": {
+					"type": "string"
+				}
+			}
+		},
+		"aliases": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"x-doc": {
+				"zh": "旧名字或旧 ID；指向它们的引用都解析到这个资产",
+				"en": "Former names or ids; a reference to any of them resolves to this asset"
+			}
+		}
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+			"x-doc": {
+				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
+				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
 			}
 		}
 	}

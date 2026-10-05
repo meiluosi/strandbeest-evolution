@@ -37,9 +37,14 @@ class JobStore:
               cancel INTEGER DEFAULT 0, created TEXT NOT NULL, updated TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS jobs_status ON jobs(status, created);
             CREATE TABLE IF NOT EXISTS runs (
-              id TEXT PRIMARY KEY, design_name TEXT, created TEXT, stalled INTEGER, metrics TEXT, ranges TEXT);
+              id TEXT PRIMARY KEY, design_name TEXT, created TEXT, stalled INTEGER, metrics TEXT, ranges TEXT,
+              design_id TEXT, aliases TEXT);
             """
         )
+        cols = {r["name"] for r in self._db.execute("PRAGMA table_info(runs)")}
+        for col in ("design_id", "aliases"):  # indexes made before ids existed lack these; the index is rebuilt from files anyway
+            if col not in cols:
+                self._db.execute(f"ALTER TABLE runs ADD COLUMN {col} TEXT")
 
     # -- jobs -------------------------------------------------------------
     def create(self, kind: str, payload: dict[str, Any]) -> str:
@@ -127,15 +132,35 @@ class JobStore:
     def index_run(self, doc: dict[str, Any]) -> None:
         with self._lock:
             self._db.execute(
-                "INSERT OR REPLACE INTO runs VALUES (?,?,?,?,?,?)",
-                (doc["id"], doc["design_name"], doc["provenance"].get("created", ""), int(doc.get("stalled", False)),
-                 json.dumps(doc["metrics"]), json.dumps(doc.get("ensemble", {}).get("ranges")) if "ensemble" in doc else None),
+                "INSERT OR REPLACE INTO runs(id, design_name, created, stalled, metrics, ranges, design_id, aliases) VALUES (?,?,?,?,?,?,?,?)",
+                (doc["id"], doc.get("design_name", ""), doc["provenance"].get("created", ""), int(doc.get("stalled", False)),
+                 json.dumps(doc["metrics"]), json.dumps(doc.get("ensemble", {}).get("ranges")) if "ensemble" in doc else None,
+                 doc["design_id"], json.dumps(doc.get("aliases", []))),
             )
+
+    def clear_run_index(self) -> None:
+        with self._lock:
+            self._db.execute("DELETE FROM runs")
+
+    def run_aliases(self, rid: str) -> list[str]:
+        with self._lock:
+            r = self._db.execute("SELECT aliases FROM runs WHERE id=?", (rid,)).fetchone()
+        return json.loads(r["aliases"]) if r and r["aliases"] else []
+
+    def resolve_run(self, ref: str) -> str | None:
+        """Canonical run id for an id or a former id (alias), or None."""
+        with self._lock:
+            if self._db.execute("SELECT 1 FROM runs WHERE id=?", (ref,)).fetchone():
+                return ref
+            for r in self._db.execute("SELECT id, aliases FROM runs WHERE aliases IS NOT NULL AND aliases != '[]'"):
+                if ref in json.loads(r["aliases"]):
+                    return r["id"]
+        return None
 
     def list_runs(self, limit: int = 30) -> list[dict[str, Any]]:
         with self._lock:
             rows = self._db.execute("SELECT * FROM runs ORDER BY created DESC LIMIT ?", (limit,)).fetchall()
-        return [{"id": r["id"], "design_name": r["design_name"], "created": r["created"], "stalled": bool(r["stalled"]),
+        return [{"id": r["id"], "design_id": r["design_id"], "design_name": r["design_name"], "created": r["created"], "stalled": bool(r["stalled"]),
                  "metrics": json.loads(r["metrics"]), "ranges": json.loads(r["ranges"]) if r["ranges"] else None} for r in rows]
 
     def has_run(self, rid: str) -> bool:

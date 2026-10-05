@@ -3,6 +3,7 @@ import {
 	defaultDesign,
 	JANSEN_LENGTHS,
 	type JansenParams,
+	newUlid,
 } from "strandbeest-core";
 
 const DEFAULT_API: string =
@@ -20,6 +21,8 @@ function loadApi(): string {
 export const store = $state({
 	api: loadApi(),
 	params: { ...JANSEN_LENGTHS } as JansenParams,
+	/** stable identity of the design being edited; the name is only a label */
+	designId: newUlid(),
 	name: "jansen-small-6leg",
 	legs: 6,
 	unitMm: 2,
@@ -27,7 +30,7 @@ export const store = $state({
 });
 
 export function currentDesign(): Design {
-	const d = defaultDesign(store.params, store.name);
+	const d = defaultDesign(store.params, store.name, store.designId);
 	d.walker.legs = store.legs;
 	d.walker.unit_m = store.unitMm / 1000;
 	d.manufacturing.clearance_mm = store.clearance;

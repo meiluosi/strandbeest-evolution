@@ -24,8 +24,9 @@ def main(argv: list[str] | None = None) -> None:
     c.add_argument("raw")
     c.add_argument("--calibration", required=True)
     c.add_argument("--out", required=True)
-    c.add_argument("--id", required=True)
-    c.add_argument("--design-name", required=True)
+    c.add_argument("--name", required=True, help="display label of the measurement")
+    c.add_argument("--design-id", required=True, help="ULID of the design that was built")
+    c.add_argument("--design-name", default="", help="display snapshot of the design name")
     c.add_argument("--kind", choices=["motor_no_wind", "fan"], default="motor_no_wind")
     c.add_argument("--omega", type=float)
     c.add_argument("--wind", type=float)
@@ -65,7 +66,7 @@ def main(argv: list[str] | None = None) -> None:
     if a.cmd == "convert":
         cal = Calibration.load(a.calibration)
         track = _load_track(a.track) if a.track else None
-        doc = convert_raw(Path(a.raw).read_text(), cal, id=a.id, design_name=a.design_name, kind=a.kind, omega_rad_s=a.omega,
+        doc = convert_raw(Path(a.raw).read_text(), cal, name=a.name, design_id=a.design_id, design_name=a.design_name, kind=a.kind, omega_rad_s=a.omega,
                           wind_m_s=a.wind, surface=a.surface, raw_name=Path(a.raw).name, track=track, track_offset_s=a.track_offset)
         Path(a.out).write_text(json.dumps(doc))
         print(json.dumps(doc["quality"], indent=2))

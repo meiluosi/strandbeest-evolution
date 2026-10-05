@@ -1,8 +1,6 @@
 {
-	"schema_version": 2,
-	"id": "0000000000Q99ZNR6M9ZGYJAY3",
-	"name": "example-motor-no-wind",
-	"design_id": "0000000000YNGRWX0MDFYPZHXT",
+	"schema_version": 1,
+	"id": "example-motor-no-wind",
 	"design_name": "jansen-small-6leg",
 	"synthetic": true,
 	"build_note": "made-up numbers for schema validation only",
@@ -16,6 +14,5 @@
 		"psi": [0, 1.0, 2.0],
 		"torque": [0.04, 0.05, 0.045],
 		"x": [0, 0.02, 0.04]
-	},
-	"aliases": ["example-motor-no-wind"]
+	}
 }

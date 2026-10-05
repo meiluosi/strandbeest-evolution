@@ -89,8 +89,9 @@ def test_ensemble_run_reports_ranges_and_marks_invalid_variants(client):
     assert ens["ranges"]["stride_per_rev"] == [min(valid_stride), max(valid_stride)]
 
 
+MEAS_ID = "01K0000000000000000000000M"
 MEAS = {
-    "schema_version": 1, "id": "m1", "design_name": "jansen-small-6leg", "synthetic": False,
+    "schema_version": 2, "id": MEAS_ID, "name": "m1", "design_id": DESIGN["id"], "design_name": "jansen-small-6leg", "synthetic": False,
     "conditions": {"kind": "motor_no_wind", "omega_rad_s": 2.0},
     "channels": {"t": [i * 0.05 for i in range(400)], "psi": [i * 0.1 for i in range(400)], "torque": [0.02 + 0.01 * ((i % 63) / 63) for i in range(400)]},
 }
@@ -98,8 +99,9 @@ MEAS = {
 
 def test_measurements_can_be_saved_listed_and_validated(client):
     assert client.post("/measurements", json=MEAS).status_code == 200
-    assert client.get("/measurements").json()[0]["id"] == "m1"
-    assert client.get("/measurements/m1").json()["channels"]["t"][1] == 0.05
+    listed = client.get("/measurements").json()[0]
+    assert listed["id"] == MEAS_ID and listed["name"] == "m1" and listed["design_id"] == DESIGN["id"]
+    assert client.get(f"/measurements/{MEAS_ID}").json()["channels"]["t"][1] == 0.05
     assert client.post("/measurements", json={**MEAS, "extra": 1}).status_code == 422
 
 
@@ -225,19 +227,20 @@ def _raw_csv(seconds=10.0, rate=100, omega=2.0, cpr=12, gear=100):
 
 def test_rig_convert_returns_a_valid_measurement_with_quality(client):
     cal = {"counts_per_motor_rev": 12, "gear_ratio": 100, "kt_nm_per_a": 0.5, "idle_current_ma": 100, "calibrated": True}
-    r = client.post("/rig/convert", json={"raw_csv": _raw_csv(), "calibration": cal, "id": "r1", "design_name": "jansen-small-6leg", "omega": 2.0, "raw_name": "r1.csv"})
+    r = client.post("/rig/convert", json={"raw_csv": _raw_csv(), "calibration": cal, "name": "r1", "design_id": DESIGN["id"], "design_name": "jansen-small-6leg", "omega": 2.0, "raw_name": "r1.csv"})
     assert r.status_code == 200, r.text
     doc = r.json()
     assert doc["provenance"]["source"] == "rig" and doc["quality"]["warnings"] == []
+    assert doc["schema_version"] == 2 and doc["name"] == "r1" and doc["design_id"] == DESIGN["id"] and len(doc["id"]) == 26
     assert doc["quality"]["speed_mean_rad_s"] == pytest.approx(2.0, rel=0.02)
     # the result can be saved and then compared like any other measurement
     assert client.post("/measurements", json=doc).status_code == 200
 
 
 def test_rig_convert_reports_bad_input_as_422_and_serves_a_template(client):
-    bad = client.post("/rig/convert", json={"raw_csv": "a,b\n1,2\n", "id": "x", "design_name": "d"})
+    bad = client.post("/rig/convert", json={"raw_csv": "a,b\n1,2\n", "name": "x", "design_id": DESIGN["id"]})
     assert bad.status_code == 422 and "missing required columns" in bad.text
-    assert client.post("/rig/convert", json={"id": "x"}).status_code == 422
+    assert client.post("/rig/convert", json={"name": "x"}).status_code == 422
     assert client.get("/rig/calibration-template").json()["calibrated"] is False
 
 
@@ -256,3 +259,52 @@ def test_replay_of_an_unrecorded_run_is_a_clear_404(client):
     jid = client.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 0.4, "settle": 0.2, "frame_rate": 0}}}).json()["job_id"]
     j = wait(client, jid)
     assert client.get(f"/runs/{j['result']['id']}/replay").status_code == 404
+
+
+# ---- E2-02: documents written before ids existed stay usable --------------------------------------------------------
+from strandbeest_common.ids import is_ulid, legacy_ulid  # noqa: E402
+
+V1_DIR = schema_dir().parent / "contracts" / "migration" / "v1"
+
+
+def test_a_v1_measurement_is_accepted_stored_with_an_id_and_found_by_its_old_name(client):
+    v1 = json.loads((V1_DIR / "measurement-example.json").read_text())
+    saved = client.post("/measurements", json=v1).json()
+    assert saved["id"] == legacy_ulid("measurement", "example-motor-no-wind") and saved["name"] == "example-motor-no-wind"
+    by_id = client.get(f"/measurements/{saved['id']}").json()
+    by_old_name = client.get("/measurements/example-motor-no-wind").json()
+    assert by_id == by_old_name and by_id["schema_version"] == 2
+    assert client.get("/measurements").json()[0]["design_id"] == legacy_ulid("design", v1["design_name"])
+
+
+def test_a_v1_design_posted_to_the_api_is_stored_as_v2_with_a_stable_id(client):
+    v1 = json.loads((V1_DIR / "design-jansen-small-6leg.json").read_text())
+    assert client.post("/designs/validate", json=v1).json()["ok"] is True
+    saved = client.post("/designs", json=v1).json()
+    assert saved["id"] == legacy_ulid("design", "jansen-small-6leg")
+    assert client.get("/designs/jansen-small-6leg").json()["id"] == saved["id"]
+
+
+def test_new_runs_get_ulids_and_point_at_their_design_by_id(client):
+    jid = client.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 0.4, "settle": 0.2}}}).json()["job_id"]
+    doc = wait(client, jid)["result"]
+    assert is_ulid(doc["id"]) and doc["design_id"] == DESIGN["id"] and doc["schema_version"] == 2
+    listed = client.get("/runs").json()[0]
+    assert listed["id"] == doc["id"] and listed["design_id"] == DESIGN["id"]
+
+
+def test_a_v1_run_folder_is_indexed_and_served_by_its_old_and_new_id(tmp_path):
+    old = "25844b8f5918"
+    run = json.loads((V1_DIR / "run-example.json").read_text())
+    run["id"] = old
+    (tmp_path / "runs" / old).mkdir(parents=True)
+    (tmp_path / "runs" / old / "run.json").write_text(json.dumps(run))
+    app = create_app(tmp_path, workers=0)
+    try:
+        c = TestClient(app)
+        new = legacy_ulid("run", old)
+        assert c.get("/runs").json()[0]["id"] == new
+        assert c.get(f"/runs/{old}").json()["id"] == new
+        assert c.get(f"/runs/{new}").json()["aliases"] == [old]
+    finally:
+        app.state.workers.stop()

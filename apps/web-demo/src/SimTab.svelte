@@ -323,12 +323,12 @@ const sweepPlot = $derived.by(() => {
 		</div>
 		{#if history.length === 0}<p class="muted">{t("history.empty")}</p>{:else}
 			<table class="tbl">
-				<thead><tr><th>{t("history.compare")}</th><th>{t("lab.import.id")}</th><th>{t("nav.design")}</th><th>{t("history.col.stride")}</th><th>{t("sim.ensemble.col.meanTorque")}</th><th>{t("history.col.time")}</th></tr></thead>
+				<thead><tr><th>{t("history.compare")}</th><th>{t("history.col.id")}</th><th>{t("nav.design")}</th><th>{t("history.col.stride")}</th><th>{t("sim.ensemble.col.meanTorque")}</th><th>{t("history.col.time")}</th></tr></thead>
 				<tbody>
 					{#each history as r}
 						<tr>
 							<td><input type="checkbox" checked={chosen.includes(r.id)} onchange={() => toggle(r.id)} /></td>
-							<td>{r.id}</td><td>{r.design_name}</td><td>{r.metrics.stride_per_rev?.toFixed(3)}</td>
+							<td title={r.id}>{r.id.slice(0, 10)}…</td><td>{r.design_name}</td><td>{r.metrics.stride_per_rev?.toFixed(3)}</td>
 							<td>{r.ranges ? fmt(r.ranges, "mean_torque", 4) : r.metrics.mean_torque?.toFixed(4)}</td>
 							<td class="muted">{r.created?.slice(0, 19).replace("T", " ")}</td>
 						</tr>

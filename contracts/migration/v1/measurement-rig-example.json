@@ -1,8 +1,6 @@
 {
-	"schema_version": 2,
-	"id": "0000000000BZ4CPPFQTZHEJQQ7",
-	"name": "example-rig-e1",
-	"design_id": "0000000000YNGRWX0MDFYPZHXT",
+	"schema_version": 1,
+	"id": "example-rig-e1",
 	"design_name": "jansen-small-6leg",
 	"synthetic": false,
 	"build_note": "example record, numbers made up",
@@ -38,6 +36,5 @@
 		"dropouts": 0,
 		"time_offset_s": 0.03,
 		"warnings": ["example"]
-	},
-	"aliases": ["example-rig-e1"]
+	}
 }

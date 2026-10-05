@@ -3,6 +3,7 @@ import {
 	JANSEN_LENGTHS,
 	JANSEN_PARAM_NAMES,
 	type JansenParams,
+	migrateDesign,
 } from "strandbeest-core";
 import { call, download } from "./api";
 import Evolver from "./Evolver.svelte";
@@ -50,6 +51,7 @@ function apply(doc: any) {
 		JANSEN_PARAM_NAMES.map((n) => [n, p[n]]),
 	) as JansenParams;
 	store.name = doc.name;
+	store.designId = doc.id;
 	store.legs = doc.walker.legs;
 	store.unitMm = doc.walker.unit_m * 1000;
 	store.clearance = doc.manufacturing.clearance_mm;
@@ -62,7 +64,8 @@ async function importJson(e: Event) {
 	const f = (e.target as HTMLInputElement).files?.[0];
 	if (!f) return;
 	await guard(async () => {
-		const doc = JSON.parse(await f.text());
+		const raw = JSON.parse(await f.text());
+		const doc = raw?.schema_version === 1 ? migrateDesign(raw) : raw;
 		const v = await call("/designs/validate", doc);
 		if (!v.ok)
 			throw new Error(t("design.invalid", { join: v.errors.join("; ") }));

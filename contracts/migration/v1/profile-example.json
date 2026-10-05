@@ -1,13 +1,12 @@
 {
-	"schema_version": 2,
-	"id": "0000000000Y3930JPZBZAMT2A8",
+	"schema_version": 1,
 	"name": "example-profile",
 	"parameters": {
 		"foot_friction": 0.9,
 		"contact_solref": 0.02
 	},
 	"provenance": {
-		"measurement_ids": ["0000000000Q99ZNR6M9ZGYJAY3"],
+		"measurement_ids": ["example-motor-no-wind"],
 		"synthetic": true,
 		"method": "example",
 		"residual": 0.0

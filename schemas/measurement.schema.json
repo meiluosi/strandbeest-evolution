@@ -7,7 +7,8 @@
 	"required": [
 		"schema_version",
 		"id",
-		"design_name",
+		"name",
+		"design_id",
 		"synthetic",
 		"conditions",
 		"channels"
@@ -15,14 +16,28 @@
 	"additionalProperties": false,
 	"properties": {
 		"schema_version": {
-			"const": 1
+			"const": 2
 		},
 		"id": {
+			"$ref": "#/$defs/Ulid"
+		},
+		"name": {
 			"type": "string",
-			"minLength": 1
+			"minLength": 1,
+			"x-doc": {
+				"zh": "测量的名字（显示用的标签）",
+				"en": "Name of the measurement (a display label)"
+			}
+		},
+		"design_id": {
+			"$ref": "#/$defs/Ulid"
 		},
 		"design_name": {
-			"type": "string"
+			"type": "string",
+			"x-doc": {
+				"zh": "测量时设计的名字（只是显示用的快照）",
+				"en": "The design's name at measurement time (a display snapshot only)"
+			}
 		},
 		"synthetic": {
 			"type": "boolean",
@@ -56,7 +71,7 @@
 		},
 		"channels": {
 			"type": "object",
-			"description": "equal-length arrays; t (s) is required. psi = crank rotation in the walking direction (rad), torque in N\u00b7m, x = body forward position (m).",
+			"description": "equal-length arrays; t (s) is required. psi = crank rotation in the walking direction (rad), torque in N·m, x = body forward position (m).",
 			"required": ["t"],
 			"additionalProperties": {
 				"type": "array",
@@ -130,6 +145,26 @@
 						"type": "string"
 					}
 				}
+			}
+		},
+		"aliases": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"x-doc": {
+				"zh": "旧名字或旧 ID；指向它们的引用都解析到这个资产",
+				"en": "Former names or ids; a reference to any of them resolves to this asset"
+			}
+		}
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+			"x-doc": {
+				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
+				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
 			}
 		}
 	}
