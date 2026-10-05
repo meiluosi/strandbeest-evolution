@@ -9,6 +9,7 @@
 - [x] `apps/api`: validate / evaluate / export / run jobs / series; `strandbeest-pipeline` one-command CLI
 - [x] `apps/web-demo`: Fabricate panel (evaluate, printability + download, simulate) wired to the API
 - [x] Fab depth: gripping crank arms + phase jig, spacers/washers computed per axle, standoffs, motor bracket and shaft coupler (N20-class motor assumed), more checks
+- [x] Front end: four tabs (design, fabrication, simulation, lab), design save/load/import/export, run history with overlay, part outlines, measurement import (CSV/JSON), measured-vs-simulated comparison, calibration from the UI; torque reported as a range
 - [ ] Known thin spots: no auth; geometry for the motor/coupler is an unverified assumption until printed; torque is a range (EXPERIMENTS §8)
 
 > Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
@@ -18,7 +19,8 @@
 | P0 foundations | core, demo, sim S1, docs | mostly done |
 | MVP walking skeleton | schemas, fab export, thin API, front end, calibration on synthetic data, one-command pipeline | **done (thin)**, see below |
 | P1 trustworthy sim | contact study, timestep convergence | **done**: findings in EXPERIMENTS §8; torque level remains model-dependent |
-| P2 front end + P3 fab depth | (next) | **next** |
+| P2 front end + P3 fab depth | tabs, history, lab, outlines; crank arms, jig, spacers, motor bracket, coupler | **done (first version)**; P3 print feedback pending |
+| P4 local backend deepening | job queue, storage, sweeps, docker compose | **next** |
 | P2 static viewer + design save/load | run viewer and designer without a backend | |
 | P3 fab MVP | printable single leg, you print it | |
 | P4 local backend | FastAPI + jobs + storage | |

@@ -26,7 +26,7 @@
 ```bash
 ./scripts/setup-python.sh && source .venv/bin/activate
 strandbeest-pipeline run schemas/examples/design-jansen-small-6leg.json out/   # 评估 → 打印包 → 仿真
-strandbeest-api                                                                 # 后端，配合下面的网页演示
+strandbeest-api                                                                 # 后端（http://127.0.0.1:8000），配合下面的网页演示：设计/制造/仿真/实验室四个标签页
 ```
 
 
