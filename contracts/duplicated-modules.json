@@ -1,0 +1,25 @@
+{
+	"note": "Modules implemented in BOTH TypeScript and Python. Each must be covered by a contract corpus. ADR-0009 trigger line: more than 3 duplicated modules, or a second 'the two sides disagreed' incident, means evaluate a single Rust/WASM kernel.",
+	"max_duplicated_modules": 3,
+	"incidents_of_disagreement": 0,
+	"modules": [
+		{
+			"name": "linkage-solver",
+			"ts": "packages/core/src/linkage.ts",
+			"py": "packages/common/src/strandbeest_common/linkage.py",
+			"corpus": "contracts/kinematics"
+		},
+		{
+			"name": "gait-metrics",
+			"ts": "packages/core/src/metrics.ts",
+			"py": "packages/common/src/strandbeest_common/gait.py",
+			"corpus": "contracts/kinematics"
+		},
+		{
+			"name": "design-model",
+			"ts": "packages/core/src/design.ts",
+			"py": "packages/common/src/strandbeest_common/design.py",
+			"corpus": "schemas/examples"
+		}
+	]
+}

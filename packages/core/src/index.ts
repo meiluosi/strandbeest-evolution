@@ -2,6 +2,7 @@ export * from "./design";
 export * from "./dynamics";
 export * from "./dynamics-fitness";
 export * from "./fitness";
+export * from "./frames";
 export * from "./ga";
 export * from "./geometry";
 export * from "./jansen";

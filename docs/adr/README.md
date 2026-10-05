@@ -13,7 +13,7 @@
 | [0006](0006-telemetry-and-geometry-formats.md) | 遥测与几何的数据格式 | 单向门 #7 | 接受 |
 | [0007](0007-property-system-and-plugin-api.md) | 属性系统与扩展 API | 单向门 #8、#9 | 接受 |
 | [0008](0008-project-format-and-i18n.md) | 项目文件格式与国际化 | 单向门 #11、#12 | 接受 |
-| 0009 | 运动学的唯一真相来源（双实现、Rust/WASM 内核、Pyodide…） | #13 | **待写**（先保持双实现；触发线见 ENGINE.md §4.10） |
+| [0009](0009-single-source-of-kinematics.md) | 运动学的唯一真相来源（双实现、Rust/WASM 内核、Pyodide…） | #13 | 接受（先保持双实现，触发线可检查） |
 
 ## 模板
 ```
