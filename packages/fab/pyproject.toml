@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Turn a Strandbeest Design into printable parts, a bill of materials and assembly notes"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["strandbeest-common", "shapely>=2.0", "trimesh>=4.0", "numpy>=1.26", "mapbox-earcut>=1.0"]
+dependencies = ["strandbeest-common", "shapely>=2.0", "trimesh>=4.0", "numpy>=1.26", "mapbox-earcut>=1.0", "manifold3d>=2.5"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from strandbeest_common import Design
 
-from .parts import GAP_MM, LegPlan
+from .parts import GAP_MM, AxlePlan, LegPlan
 
 
 @dataclass
@@ -18,7 +18,7 @@ class Check:
     note: str = ""
 
 
-def run_checks(design: Design, plan: LegPlan) -> list[Check]:
+def run_checks(design: Design, plan: LegPlan, axles: AxlePlan | None = None) -> list[Check]:
     m = design.mfg
     hole = m["pin_diameter_mm"] + m["clearance_mm"]
     wall = m["bar_width_mm"] / 2 - hole / 2
@@ -40,5 +40,12 @@ def run_checks(design: Design, plan: LegPlan) -> list[Check]:
     add("aspect ratio of longest bar", longest / m["bar_width_mm"] <= 20, round(longest / m["bar_width_mm"], 1), "<= 20",
         "very slender bars warp and flex", warn=True)
     stack = plan.layers * (m["bar_thickness_mm"] + GAP_MM)
+    if axles is not None:
+        spacer_wall = (4.0 + m["pin_diameter_mm"] - hole) / 2
+        add("spacer tube wall", spacer_wall >= min_wall, round(spacer_wall, 3), f">= {min_wall} mm", "spacers are pin diameter + 4 mm outside")
+        slender = (axles.inner_width_mm + 2 * m["bar_thickness_mm"]) / m["pin_diameter_mm"]
+        add("shaft slenderness (length / diameter)", slender <= 60, round(slender, 1), "<= 60", "long thin shafts sag and bind under load", warn=True)
+        add("legs fit between the frame plates", axles.inner_width_mm <= min(bed), round(axles.inner_width_mm, 1), f"<= {min(bed)} mm",
+            "the spacers and standoffs are printed to this length")
     add("leg stack height", True, round(stack, 1), "informational", f"{plan.layers} layers per leg; legs sit side by side along the axle")
     return out

@@ -8,7 +8,8 @@
 - [x] `packages/calib`: Measurement import, compare, fit, Profile; recovery tested on synthetic data
 - [x] `apps/api`: validate / evaluate / export / run jobs / series; `strandbeest-pipeline` one-command CLI
 - [x] `apps/web-demo`: Fabricate panel (evaluate, printability + download, simulate) wired to the API
-- [ ] Known thin spots: no persistence beyond files; no auth; no measurement upload UI; fab has frame plates and bars only (no crankshaft/axle design); sim torque not yet trustworthy (P1)
+- [x] Fab depth: gripping crank arms + phase jig, spacers/washers computed per axle, standoffs, motor bracket and shaft coupler (N20-class motor assumed), more checks
+- [ ] Known thin spots: no auth; geometry for the motor/coupler is an unverified assumption until printed; torque is a range (EXPERIMENTS §8)
 
 > Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
 

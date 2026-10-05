@@ -89,3 +89,47 @@ def plan_leg(design: Design) -> LegPlan:
         for p in (b.a, b.b):
             plan.pins.setdefault(p, []).append(b.layer)
     return plan
+
+
+@dataclass
+class AxlePlan:
+    """Where things sit along the hip axle and the crankshaft, and what fills the gaps."""
+
+    leg_pitch_mm: float  # distance from one leg to the next
+    inner_width_mm: float  # between the two frame plates
+    hip_spacers: list[float]  # lengths (mm) of spacer tubes along the hip axle, in order
+    crank_spacers: list[float]
+    washers: int  # layer washers per axle (one per occupied slot)
+
+
+def axle_plan(design: Design, plan: LegPlan) -> AxlePlan:
+    m = design.mfg
+    pitch = m["bar_thickness_mm"] + GAP_MM
+    leg_gap = m.get("leg_gap_mm", 1.0)
+    n = design.walker["legs"]
+    leg_pitch = plan.layers * pitch + leg_gap
+
+    def runs(occupied: set[int]) -> list[float]:
+        """Contiguous empty slots in one leg's stack become one spacer tube each; the leg gap is added at the end."""
+        out: list[float] = []
+        run = 0
+        for layer in range(plan.layers):
+            if layer in occupied:
+                if run:
+                    out.append(round(run * pitch, 2))
+                run = 0
+            else:
+                run += 1
+        tail = run * pitch + leg_gap
+        out.append(round(tail, 2))
+        return out
+
+    hip_layers = {b.layer for b in plan.bars if b.a == "G"}
+    crank_layers = {b.layer for b in plan.bars if b.key == "crank"}
+    return AxlePlan(
+        leg_pitch_mm=leg_pitch,
+        inner_width_mm=n * leg_pitch,
+        hip_spacers=runs(hip_layers) * n,
+        crank_spacers=runs(crank_layers) * n,
+        washers=n * (len(hip_layers) + len(crank_layers)),
+    )

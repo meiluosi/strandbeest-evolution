@@ -78,6 +78,13 @@
 		"clearance_mm": 0.3,
 		"layer_height_mm": 0.2,
 		"min_wall_mm": 1.2,
-		"bed_mm": [220, 220]
+		"bed_mm": [220, 220],
+		"press_fit_offset_mm": -0.05,
+		"leg_gap_mm": 1.0,
+		"motor": {
+			"shaft_diameter_mm": 3,
+			"mount_hole_spacing_mm": 9,
+			"mount_hole_diameter_mm": 1.8
+		}
 	}
 }

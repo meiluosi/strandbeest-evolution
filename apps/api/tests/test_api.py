@@ -36,7 +36,7 @@ def test_evaluate_returns_a_d_shaped_gait(client):
 
 def test_export_returns_checks_and_a_downloadable_zip(client):
     r = client.post("/exports", json=DESIGN).json()
-    assert r["parts"] == 12 and not [c for c in r["checks"] if c["status"] == "fail"]
+    assert r["parts"] == 18 and not [c for c in r["checks"] if c["status"] == "fail"]
     z = client.get(r["download"])
     assert z.status_code == 200 and z.headers["content-type"] == "application/zip" and z.content[:2] == b"PK"
 

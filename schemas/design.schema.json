@@ -14,9 +14,16 @@
 	],
 	"additionalProperties": false,
 	"properties": {
-		"schema_version": { "const": 1 },
-		"name": { "type": "string", "minLength": 1 },
-		"notes": { "type": "string" },
+		"schema_version": {
+			"const": 1
+		},
+		"name": {
+			"type": "string",
+			"minLength": 1
+		},
+		"notes": {
+			"type": "string"
+		},
 		"linkage": {
 			"type": "object",
 			"description": "A LinkageSpec as exported by packages/core: named lengths, crank, and joints defined as circle intersections.",
@@ -25,7 +32,10 @@
 			"properties": {
 				"params": {
 					"type": "object",
-					"additionalProperties": { "type": "number", "exclusiveMinimum": 0 },
+					"additionalProperties": {
+						"type": "number",
+						"exclusiveMinimum": 0
+					},
 					"minProperties": 1
 				},
 				"crank": {
@@ -33,9 +43,15 @@
 					"required": ["x", "y", "length"],
 					"additionalProperties": false,
 					"properties": {
-						"x": { "$ref": "#/$defs/ref" },
-						"y": { "$ref": "#/$defs/ref" },
-						"length": { "$ref": "#/$defs/ref" }
+						"x": {
+							"$ref": "#/$defs/ref"
+						},
+						"y": {
+							"$ref": "#/$defs/ref"
+						},
+						"length": {
+							"$ref": "#/$defs/ref"
+						}
 					}
 				},
 				"joints": {
@@ -46,24 +62,35 @@
 						"required": ["id", "centers", "radii", "side"],
 						"additionalProperties": false,
 						"properties": {
-							"id": { "type": "string", "minLength": 1 },
+							"id": {
+								"type": "string",
+								"minLength": 1
+							},
 							"centers": {
 								"type": "array",
-								"items": { "type": "string" },
+								"items": {
+									"type": "string"
+								},
 								"minItems": 2,
 								"maxItems": 2
 							},
 							"radii": {
 								"type": "array",
-								"items": { "$ref": "#/$defs/ref" },
+								"items": {
+									"$ref": "#/$defs/ref"
+								},
 								"minItems": 2,
 								"maxItems": 2
 							},
-							"side": { "enum": [1, -1] }
+							"side": {
+								"enum": [1, -1]
+							}
 						}
 					}
 				},
-				"foot": { "type": "string" }
+				"foot": {
+					"type": "string"
+				}
 			}
 		},
 		"walker": {
@@ -71,7 +98,10 @@
 			"required": ["legs", "unit_m", "direction", "body_mass_kg"],
 			"additionalProperties": false,
 			"properties": {
-				"legs": { "type": "integer", "minimum": 1 },
+				"legs": {
+					"type": "integer",
+					"minimum": 1
+				},
 				"unit_m": {
 					"type": "number",
 					"exclusiveMinimum": 0,
@@ -86,8 +116,14 @@
 					"exclusiveMinimum": 0,
 					"description": "frame, motor and payload; excludes the legs"
 				},
-				"lateral_spacing_m": { "type": "number", "minimum": 0 },
-				"body_length_m": { "type": "number", "exclusiveMinimum": 0 }
+				"lateral_spacing_m": {
+					"type": "number",
+					"minimum": 0
+				},
+				"body_length_m": {
+					"type": "number",
+					"exclusiveMinimum": 0
+				}
 			}
 		},
 		"drive": {
@@ -95,16 +131,32 @@
 			"required": ["kind"],
 			"additionalProperties": false,
 			"properties": {
-				"kind": { "enum": ["motor", "sail"] },
-				"motor_omega_rad_s": { "type": "number" },
+				"kind": {
+					"enum": ["motor", "sail"]
+				},
+				"motor_omega_rad_s": {
+					"type": "number"
+				},
 				"sail": {
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"area_m2": { "type": "number", "exclusiveMinimum": 0 },
-						"radius_m": { "type": "number", "exclusiveMinimum": 0 },
-						"drag_coeff": { "type": "number", "exclusiveMinimum": 0 },
-						"gear": { "type": "number", "exclusiveMinimum": 0 }
+						"area_m2": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						},
+						"radius_m": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						},
+						"drag_coeff": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						},
+						"gear": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						}
 					}
 				}
 			}
@@ -121,10 +173,20 @@
 			],
 			"additionalProperties": false,
 			"properties": {
-				"process": { "enum": ["fdm"] },
-				"material": { "enum": ["PLA", "PETG"] },
-				"bar_width_mm": { "type": "number", "exclusiveMinimum": 0 },
-				"bar_thickness_mm": { "type": "number", "exclusiveMinimum": 0 },
+				"process": {
+					"enum": ["fdm"]
+				},
+				"material": {
+					"enum": ["PLA", "PETG"]
+				},
+				"bar_width_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0
+				},
+				"bar_thickness_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0
+				},
 				"pin_diameter_mm": {
 					"type": "number",
 					"exclusiveMinimum": 0,
@@ -135,13 +197,50 @@
 					"minimum": 0,
 					"description": "added to the hole diameter"
 				},
-				"layer_height_mm": { "type": "number", "exclusiveMinimum": 0 },
-				"min_wall_mm": { "type": "number", "exclusiveMinimum": 0 },
+				"layer_height_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0
+				},
+				"min_wall_mm": {
+					"type": "number",
+					"exclusiveMinimum": 0
+				},
 				"bed_mm": {
 					"type": "array",
-					"items": { "type": "number", "exclusiveMinimum": 0 },
+					"items": {
+						"type": "number",
+						"exclusiveMinimum": 0
+					},
 					"minItems": 2,
 					"maxItems": 2
+				},
+				"press_fit_offset_mm": {
+					"type": "number",
+					"description": "added to a shaft diameter for holes that must grip (negative = tighter); FDM holes print small, tune after a test print"
+				},
+				"leg_gap_mm": {
+					"type": "number",
+					"minimum": 0,
+					"description": "clearance between neighbouring legs along the axles"
+				},
+				"motor": {
+					"type": "object",
+					"additionalProperties": false,
+					"description": "small gear motor mounted behind a frame plate; a hole pattern assumption for N20-class motors",
+					"properties": {
+						"shaft_diameter_mm": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						},
+						"mount_hole_spacing_mm": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						},
+						"mount_hole_diameter_mm": {
+							"type": "number",
+							"exclusiveMinimum": 0
+						}
+					}
 				}
 			}
 		}
@@ -149,7 +248,14 @@
 	"$defs": {
 		"ref": {
 			"description": "a number, or the name of an entry in linkage.params",
-			"oneOf": [{ "type": "number" }, { "type": "string" }]
+			"oneOf": [
+				{
+					"type": "number"
+				},
+				{
+					"type": "string"
+				}
+			]
 		}
 	}
 }
