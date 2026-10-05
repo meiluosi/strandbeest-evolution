@@ -62,6 +62,20 @@ class RemoveJointArgs(_Strict):
     drop_params: bool = Field(default=True, description='Also delete named lengths only this joint used')
 
 
+class SetLengthArgs(_Strict):
+    """Set one length by handle"""
+
+    key: str = Field(..., min_length=1, description='Length handle: the name of a named length, or crank.x, crank.y, crank.length, joint:ID.radii.N (a number written inline in the spec)')
+    value: float = Field(..., description='New length')
+
+
+class SetPropertyArgs(_Strict):
+    """Set an existing editable property of the design"""
+
+    path: str = Field(..., min_length=1, description='JSON pointer such as /walker/legs; editable roots: /name, /notes, /walker, /drive, /manufacturing')
+    value: Any = Field(..., description='New value; it must keep the kind of the old value, ranges are enforced by the schema')
+
+
 class ArrayLegsArgs(_Strict):
     """Set the number of legs"""
 
@@ -108,6 +122,28 @@ class SetParamOp(_Strict):
     id: Ulid = Field(...)
     type: Literal['set_param'] = Field(...)
     args: SetParamArgs = Field(...)
+    actor: Actor = Field(...)
+    reason: str = Field(default='', description='Why the change was made (for people and agents)')
+    time: str = Field(..., pattern='^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$', description='When it happened (ISO 8601, UTC)')
+
+
+class SetLengthOp(_Strict):
+    """Set a length by handle"""
+
+    id: Ulid = Field(...)
+    type: Literal['set_length'] = Field(...)
+    args: SetLengthArgs = Field(...)
+    actor: Actor = Field(...)
+    reason: str = Field(default='', description='Why the change was made (for people and agents)')
+    time: str = Field(..., pattern='^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$', description='When it happened (ISO 8601, UTC)')
+
+
+class SetPropertyOp(_Strict):
+    """Set a property"""
+
+    id: Ulid = Field(...)
+    type: Literal['set_property'] = Field(...)
+    args: SetPropertyArgs = Field(...)
     actor: Actor = Field(...)
     reason: str = Field(default='', description='Why the change was made (for people and agents)')
     time: str = Field(..., pattern='^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$', description='When it happened (ISO 8601, UTC)')
@@ -199,4 +235,4 @@ class OpLog(_Strict):
     ops: list[Operation] = Field(..., description='Operations in the order they were applied')
 
 
-Operation = Union[SetParamOp, AddDyadOp, RemoveJointOp, ArrayLegsOp, ScaleOp, MirrorOp, SetMaterialOp, PatchOp]
+Operation = Union[SetParamOp, SetLengthOp, SetPropertyOp, AddDyadOp, RemoveJointOp, ArrayLegsOp, ScaleOp, MirrorOp, SetMaterialOp, PatchOp]

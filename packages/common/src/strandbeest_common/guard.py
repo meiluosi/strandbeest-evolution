@@ -19,6 +19,7 @@ import math
 from typing import Any
 
 from .linkage import load_spec, solve_pose
+from .schemas import validator
 from .validity import structure_errors
 
 SAMPLES = 72  # crank angles tested: every 5 degrees
@@ -65,3 +66,18 @@ def kinematic_problems(linkage: dict[str, Any]) -> list[dict[str, str]]:
 
 def design_problems(design: dict[str, Any]) -> list[dict[str, str]]:
     return kinematic_problems(design["linkage"])
+
+
+def schema_problems(design: dict[str, Any]) -> list[dict[str, str]]:
+    """The design against schemas/design.schema.json (types, ranges, enums, no unknown fields)."""
+    out = []
+    for e in sorted(validator("design").iter_errors(design), key=lambda e: list(map(str, e.path))):
+        path = ".".join(str(p) for p in e.path) or "<root>"
+        out.append({"level": "error", "code": "schema", "path": path, "message": f"{path}: {e.message}"})
+    return out
+
+
+def default_problems(design: dict[str, Any]) -> list[dict[str, str]]:
+    """Schema, then kinematics (the kinematic checks assume a well-formed linkage)."""
+    schema = schema_problems(design)
+    return schema if schema else design_problems(design)

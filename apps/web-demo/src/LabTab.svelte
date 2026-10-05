@@ -1,8 +1,9 @@
 <script lang="ts">
 import { newUlid } from "strandbeest-core";
 import { call, runJob } from "./api";
+import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
-import { currentDesign, store } from "./store.svelte";
+import { store, view } from "./store.svelte";
 
 type Meas = {
 	id: string;
@@ -100,8 +101,8 @@ const convertRaw = () =>
 			raw_name: rawName,
 			calibration: cal,
 			name: newName,
-			design_id: store.designId,
-			design_name: store.name,
+			design_id: view.designId,
+			design_name: view.name,
 			kind,
 			omega,
 			wind: kind === "fan" ? wind : undefined,
@@ -198,8 +199,8 @@ const save = () =>
 			schema_version: 2,
 			id: newUlid(),
 			name: newName,
-			design_id: store.designId,
-			design_name: store.name,
+			design_id: view.designId,
+			design_name: view.name,
 			synthetic,
 			conditions: {
 				kind,

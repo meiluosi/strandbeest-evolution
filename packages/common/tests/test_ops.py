@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from strandbeest_common import Design
 from strandbeest_common.gait import foot_path
-from strandbeest_common.guard import design_problems, kinematic_problems
+from strandbeest_common.guard import default_problems, design_problems, kinematic_problems
 from strandbeest_common.ids import is_ulid
 from strandbeest_common.jsonpatch import apply_patch, diff, same
 from strandbeest_common.linkage import load_spec, solve_pose
@@ -81,13 +81,25 @@ BASES = {
 def random_op(rng: random.Random, d: dict):
     lk = d["linkage"]
     points = ["G", "C", *[j["id"] for j in lk["joints"]]]
-    kind = rng.choice(["set_param"] * 5 + ["add_dyad"] * 3 + ["remove_joint", "array_legs", "scale", "mirror", "set_material"])
+    kind = rng.choice(["set_param"] * 5 + ["add_dyad"] * 3 + ["set_length", "set_property", "set_property", "remove_joint", "array_legs", "scale", "mirror", "set_material"])
     if kind == "remove_joint" and not lk["joints"]:
         kind = "set_param"
     if kind == "set_param":
         name = rng.choice(list(lk["params"]) + ["nope"])
         cur = lk["params"].get(name, 10.0)
         return "set_param", {"name": name, "value": cur * rng.choice([0.5, 0.9, 0.99, 1.01, 1.1, 1.5, 3.0]) if rng.random() < 0.9 else rng.choice([0.0, -3.0, 1e-9])}
+    if kind == "set_length":
+        keys = ["crank.x", "crank.length", "joint:K.radii.0", "joint:J1.radii.1", *lk["params"]]
+        return "set_length", {"key": rng.choice(keys), "value": rng.choice([5, 12, 30, 55, -2])}
+    if kind == "set_property":
+        return rng.choice([
+            ("set_property", {"path": "/walker/legs", "value": rng.choice([0, 2, 6, 12, "six"])}),
+            ("set_property", {"path": "/name", "value": rng.choice(["a", "", "walker"])}),
+            ("set_property", {"path": "/manufacturing/clearance_mm", "value": rng.choice([-1, 0.2, 0.4, 3])}),
+            ("set_property", {"path": "/walker/body_mass_kg", "value": rng.choice([0, 0.2, 1])}),
+            ("set_property", {"path": "/drive/kind", "value": rng.choice(["motor", "sail", "wind"])}),
+            ("set_property", {"path": "/linkage/foot", "value": "C"}),
+        ])
     if kind == "add_dyad":
         n = rng.randrange(1000)
         return "add_dyad", {"id": rng.choice([f"J{n}", "K"]), "centers": [rng.choice(points), rng.choice(points)],
@@ -106,7 +118,7 @@ def random_op(rng: random.Random, d: dict):
 
 
 def no_errors(d):
-    return [p for p in design_problems(d) if p["level"] == "error"]
+    return [p for p in default_problems(d) if p["level"] == "error"]
 
 
 @pytest.mark.parametrize("base_name", BASES)
@@ -234,3 +246,20 @@ def test_scale_with_keep_physical_leaves_the_physical_foot_path_unchanged():
 def test_kinematic_guard_accepts_every_corpus_design_and_jansen_with_sensible_edits():
     for f in sorted((ROOT / "contracts" / "kinematics").glob("*.json")):
         assert kinematic_problems(json.loads(f.read_text())["spec"]) == [], f.name
+
+
+def test_a_group_of_operations_is_one_undo_step_and_all_or_nothing():
+    h = History(BASES["jansen"])
+    before = copy.deepcopy(h.design)
+    h.commit_many([op_of("set_param", {"name": "b", "value": 42.0}), op_of("set_param", {"name": "d", "value": 41.0})])
+    assert len(h.ops) == 2 and h.design["linkage"]["params"]["b"] == 42.0 and h.design["linkage"]["params"]["d"] == 41.0
+    h.undo()
+    assert h.design == before and h.ops == [] and not h.can_undo
+    h.redo()
+    assert len(h.ops) == 2
+    with pytest.raises(GuardError):
+        h.commit_many([op_of("set_param", {"name": "b", "value": 40.0}), op_of("set_param", {"name": "h", "value": 1.0})])
+    assert h.design["linkage"]["params"]["b"] == 42.0, "a group with a rejected member must leave the design unchanged"
+    assert len(h.ops) == 2
+    with pytest.raises(OpError):
+        h.commit_many([])

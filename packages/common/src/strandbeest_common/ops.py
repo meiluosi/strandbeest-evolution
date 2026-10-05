@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable
 
-from .guard import design_problems
+from .guard import default_problems
 from .ids import new_ulid
 from .jsonpatch import apply_patch, diff
 
@@ -131,6 +131,61 @@ def _remove_joint(doc: Design, a: dict[str, Any]) -> None:
                 del lk["params"][r]
 
 
+def _handle_target(doc: Design, key: str) -> tuple[Any, Any]:
+    """(container, index) of the number a length handle key addresses: a named param, 'crank.x|y|length', or 'joint:ID.radii.N'."""
+    lk = doc["linkage"]
+    if key in lk["params"]:
+        return lk["params"], key
+    if key in ("crank.x", "crank.y", "crank.length"):
+        name = key.split(".")[1]
+        if isinstance(lk["crank"][name], str):
+            raise OpError("not_inline", f"'{key}' is the named length '{lk['crank'][name]}'; set that param instead")
+        return lk["crank"], name
+    if key.startswith("joint:") and ".radii." in key:
+        jid, _, k = key[6:].partition(".radii.")
+        joint = next((j for j in lk["joints"] if j["id"] == jid), None)
+        if joint is not None and k in ("0", "1"):
+            if isinstance(joint["radii"][int(k)], str):
+                raise OpError("not_inline", f"'{key}' is the named length '{joint['radii'][int(k)]}'; set that param instead")
+            return joint["radii"], int(k)
+    raise OpError("unknown_length", f"'{key}' is not a length of this linkage")
+
+
+def _set_length(doc: Design, a: dict[str, Any]) -> None:
+    key = _need(a, "key", (str,), "a string")
+    value = _need(a, "value", (int, float), "a number")
+    container, index = _handle_target(doc, key)
+    container[index] = value
+
+
+EDITABLE_ROOTS = ("name", "notes", "walker", "drive", "manufacturing")
+
+
+def _set_property(doc: Design, a: dict[str, Any]) -> None:
+    """Set an existing editable property of the design (not the linkage, not ids). The value keeps the kind of the old value;
+    ranges and enums are enforced by the schema guard."""
+    path = _need(a, "path", (str,), "a JSON pointer such as /walker/legs")
+    parts = [p.replace("~1", "/").replace("~0", "~") for p in path.split("/")[1:]] if path.startswith("/") else None
+    if not parts or parts[0] not in EDITABLE_ROOTS:
+        raise OpError("not_editable", f"'{path}' is not an editable property (editable: {', '.join('/' + r for r in EDITABLE_ROOTS)})")
+    if "value" not in a:
+        raise OpError("bad_args", "'value' is required")
+    node: Any = doc
+    for p in parts[:-1]:
+        if isinstance(node, dict) and p in node:
+            node = node[p]
+        else:
+            raise OpError("unknown_property", f"'{path}' does not exist in this design")
+    last = parts[-1]
+    if not isinstance(node, dict) or last not in node:
+        raise OpError("unknown_property", f"'{path}' does not exist in this design")
+    old, new = node[last], a["value"]
+    kind = lambda v: "boolean" if isinstance(v, bool) else "number" if isinstance(v, (int, float)) else "string" if isinstance(v, str) else "array" if isinstance(v, list) else "object" if isinstance(v, dict) else "null"  # noqa: E731
+    if kind(old) != kind(new):
+        raise OpError("bad_args", f"'{path}' holds a {kind(old)}; the value is a {kind(new)}")
+    node[last] = new
+
+
 def _array_legs(doc: Design, a: dict[str, Any]) -> None:
     n = _need(a, "legs", (int,), "an integer")
     if n < 1:
@@ -190,6 +245,8 @@ OPS: dict[str, OpType] = {
         OpType("set_param", _set_param, "Set one named length of the linkage."),
         OpType("add_dyad", _add_dyad, "Add a joint at the intersection of two circles (optionally with new named lengths, optionally as the foot)."),
         OpType("remove_joint", _remove_joint, "Remove a joint nothing else is built on (naming a new foot if it was the foot)."),
+        OpType("set_length", _set_length, "Set one length by handle: a named param, an inline crank length, or an inline bar length."),
+        OpType("set_property", _set_property, "Set an existing editable property of the design (name, notes, walker, drive, manufacturing)."),
         OpType("array_legs", _array_legs, "Set the number of legs around the axle."),
         OpType("scale", _scale, "Multiply every length of the linkage by a factor (optionally keeping the physical size by changing the unit)."),
         OpType("mirror", _mirror, "Reflect the leg left to right and reverse the crank direction."),
@@ -217,7 +274,7 @@ def _check_envelope(op: dict[str, Any]) -> None:
         raise OpError("bad_op", "actor must be {kind: human|algorithm|agent, id}")
 
 
-def apply_op(design: Design, op: dict[str, Any], guards: tuple[Guard, ...] = (design_problems,)) -> Applied:
+def apply_op(design: Design, op: dict[str, Any], guards: tuple[Guard, ...] = (default_problems,)) -> Applied:
     """Apply `op` to a copy of `design`. Raises OpError (cannot apply) or GuardError (would introduce errors); the input is never changed.
 
     Guard rule: errors that were already there before the operation do not block it (so a broken design can be repaired
@@ -247,7 +304,7 @@ def apply_op(design: Design, op: dict[str, Any], guards: tuple[Guard, ...] = (de
     return Applied(new, inverse, [p for p in after if p["level"] == "warning"])
 
 
-def replay(base: Design, ops: list[dict[str, Any]], guards: tuple[Guard, ...] = (design_problems,)) -> Design:
+def replay(base: Design, ops: list[dict[str, Any]], guards: tuple[Guard, ...] = (default_problems,)) -> Design:
     d = base
     for op in ops:
         d = apply_op(d, op, guards).design
@@ -256,7 +313,7 @@ def replay(base: Design, ops: list[dict[str, Any]], guards: tuple[Guard, ...] = 
 
 @dataclass
 class _Entry:
-    op: dict[str, Any]
+    ops: list[dict[str, Any]]  # one entry = one undo step; a group of operations is applied and undone together
     forward: list[dict[str, Any]]
     backward: list[dict[str, Any]]
 
@@ -264,7 +321,7 @@ class _Entry:
 class History:
     """A design with its log, undo and redo. The log (`ops`) is the source of truth; `design` is its fold."""
 
-    def __init__(self, base: Design, guards: tuple[Guard, ...] = (design_problems,)) -> None:
+    def __init__(self, base: Design, guards: tuple[Guard, ...] = (default_problems,)) -> None:
         self.base = copy.deepcopy(base)
         self.design = copy.deepcopy(base)
         self.guards = guards
@@ -273,7 +330,7 @@ class History:
 
     @property
     def ops(self) -> list[dict[str, Any]]:
-        return [e.op for e in self._done]
+        return [op for e in self._done for op in e.ops]
 
     @property
     def can_undo(self) -> bool:
@@ -284,25 +341,35 @@ class History:
         return bool(self._undone)
 
     def commit(self, op: dict[str, Any]) -> Applied:
-        applied = apply_op(self.design, op, self.guards)
-        self._done.append(_Entry(op, diff(self.design, applied.design), applied.inverse["args"]["patch"]))
+        return self.commit_many([op])[-1]
+
+    def commit_many(self, ops: list[dict[str, Any]]) -> list[Applied]:
+        """Apply several operations as ONE undo step (e.g. dragging a point changes two bar lengths). All or nothing."""
+        if not ops:
+            raise OpError("bad_op", "nothing to commit")
+        design, applied = self.design, []
+        for op in ops:
+            a = apply_op(design, op, self.guards)
+            applied.append(a)
+            design = a.design
+        self._done.append(_Entry(list(ops), diff(self.design, design), diff(design, self.design)))
         self._undone.clear()
-        self.design = applied.design
+        self.design = design
         return applied
 
-    def undo(self) -> dict[str, Any]:
-        """Undo the last operation (restoring a previous state is always allowed); returns the operation undone."""
+    def undo(self) -> list[dict[str, Any]]:
+        """Undo the last step (restoring a previous state is always allowed); returns the operations undone."""
         if not self._done:
             raise OpError("nothing_to_undo", "the log is empty")
         e = self._done.pop()
         self.design = apply_patch(self.design, e.backward)
         self._undone.append(e)
-        return e.op
+        return e.ops
 
-    def redo(self) -> dict[str, Any]:
+    def redo(self) -> list[dict[str, Any]]:
         if not self._undone:
             raise OpError("nothing_to_redo", "there is nothing to redo")
         e = self._undone.pop()
         self.design = apply_patch(self.design, e.forward)
         self._done.append(e)
-        return e.op
+        return e.ops

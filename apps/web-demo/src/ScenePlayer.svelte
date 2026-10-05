@@ -1,8 +1,9 @@
 <script lang="ts">
 import type * as T from "three";
 import { call, runJob } from "./api";
+import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
-import { currentDesign, store } from "./store.svelte";
+import { store, view } from "./store.svelte";
 
 type Scene = {
 	bodies: string[];
@@ -494,7 +495,7 @@ const outcome = $derived.by(() => {
 		{#if scene.sail}<label>{t("scenes.meanWind")} <input type="number" min="0" max="20" step="0.5" bind:value={wind} /></label>{/if}
 		<button class="btn primary" disabled={!!busy} onclick={run}>{t("scenes.run")}</button>
 		{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
-		<small>{t("scenes.currentDesign", { name: store.name })}</small>
+		<small>{t("scenes.currentDesign", { name: view.name })}</small>
 	</div>
 	{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
 

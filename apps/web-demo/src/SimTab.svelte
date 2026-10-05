@@ -1,8 +1,9 @@
 <script lang="ts">
 import { call, type Job, runJob } from "./api";
+import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
 import ScenePlayer from "./ScenePlayer.svelte";
-import { currentDesign, store } from "./store.svelte";
+import { store, view } from "./store.svelte";
 
 type Metrics = Record<string, number | null>;
 type Variant = {
@@ -221,7 +222,7 @@ const sweepPlot = $derived.by(() => {
 	<ScenePlayer />
 	<div class="card">
 		<h2>{t("sim.title")}</h2>
-		<p class="muted">{t("design.current")}<b>{store.name}</b>{t("sim.intro.after")}</p>
+		<p class="muted">{t("design.current")}<b>{view.name}</b>{t("sim.intro.after")}</p>
 		<div class="row center">
 			<label>{t("sim.revolutions")} <input type="number" min="0.5" max="6" step="0.5" bind:value={revolutions} /></label>
 			<label class="inline"><input type="checkbox" bind:checked={ensemble} /> {t("sim.ensemble")}</label>

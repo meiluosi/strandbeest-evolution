@@ -618,6 +618,506 @@
 			}
 		},
 		{
+			"name": "set_length edits a named length like set_param",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_length",
+					"args": {
+						"key": "m",
+						"value": 14.0
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/params/m",
+						"value": 14.0
+					}
+				]
+			}
+		},
+		{
+			"name": "set_length edits an inline bar length",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": [30.0, 25.0],
+						"side": -1,
+						"foot": true
+					}
+				},
+				{
+					"type": "set_length",
+					"args": {
+						"key": "joint:X.radii.0",
+						"value": 32.0
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/linkage/foot",
+						"value": "X"
+					},
+					{
+						"op": "replace",
+						"path": "/linkage/joints",
+						"value": [
+							{
+								"id": "K",
+								"centers": ["G", "C"],
+								"radii": ["b", "j"],
+								"side": 1
+							},
+							{
+								"id": "X",
+								"centers": ["C", "K"],
+								"radii": [32.0, 25.0],
+								"side": -1
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"name": "set_length on a named bar says to set the param",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "set_length",
+					"args": {
+						"key": "joint:K.radii.0",
+						"value": 40.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "not_inline",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_length on the named crank pivot says to set the param",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "set_length",
+					"args": {
+						"key": "crank.x",
+						"value": 41.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "not_inline",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_length on an unknown handle",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "set_length",
+					"args": {
+						"key": "joint:Q.radii.0",
+						"value": 1.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "unknown_length",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_length that cannot assemble",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json",
+				"linkage": "contracts/kinematics/fourbar-crank-rocker.json"
+			},
+			"ops": [
+				{
+					"type": "add_dyad",
+					"args": {
+						"id": "X",
+						"centers": ["C", "K"],
+						"radii": [30.0, 25.0],
+						"side": -1,
+						"foot": true
+					}
+				},
+				{
+					"type": "set_length",
+					"args": {
+						"key": "joint:X.radii.0",
+						"value": 1.0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["cannot_assemble"],
+					"step": 1
+				}
+			}
+		},
+		{
+			"name": "set_property changes the leg count",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/walker/legs",
+						"value": 4
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/walker/legs",
+						"value": 4
+					}
+				]
+			}
+		},
+		{
+			"name": "set_property below the schema minimum",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/walker/legs",
+						"value": 0
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["schema"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property with the wrong kind of value",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/walker/legs",
+						"value": "four"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property renames the design",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/name",
+						"value": "my walker"
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/name",
+						"value": "my walker"
+					}
+				]
+			}
+		},
+		{
+			"name": "set_property of the name to a number",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/name",
+						"value": 5
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "bad_args",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of the linkage is not allowed",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/linkage/foot",
+						"value": "K"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "not_editable",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of the id is not allowed",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/id",
+						"value": "x"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "not_editable",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of a property that does not exist",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/walker/tail",
+						"value": 1
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "unknown_property",
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of a negative spacing",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/walker/lateral_spacing_m",
+						"value": -1
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["schema"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of an enum to an unknown member",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/drive/kind",
+						"value": "wind"
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["schema"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of an enum to another member",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/drive/kind",
+						"value": "sail"
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/drive/kind",
+						"value": "sail"
+					}
+				]
+			}
+		},
+		{
+			"name": "set_property of an array with the wrong length",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/manufacturing/bed_mm",
+						"value": [100]
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "guard",
+					"codes": ["schema"],
+					"step": 0
+				}
+			}
+		},
+		{
+			"name": "set_property of an array",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "/manufacturing/bed_mm",
+						"value": [100, 120]
+					}
+				}
+			],
+			"expect": {
+				"patch": [
+					{
+						"op": "replace",
+						"path": "/manufacturing/bed_mm/0",
+						"value": 100
+					},
+					{
+						"op": "replace",
+						"path": "/manufacturing/bed_mm/1",
+						"value": 120
+					}
+				]
+			}
+		},
+		{
+			"name": "set_property with a pointer that is not a pointer",
+			"base": {
+				"design": "schemas/examples/design-jansen-small-6leg.json"
+			},
+			"ops": [
+				{
+					"type": "set_property",
+					"args": {
+						"path": "walker/legs",
+						"value": 4
+					}
+				}
+			],
+			"expect": {
+				"error": {
+					"kind": "op",
+					"code": "not_editable",
+					"step": 0
+				}
+			}
+		},
+		{
 			"name": "array_legs sets the leg count",
 			"base": {
 				"design": "schemas/examples/design-jansen-small-6leg.json"

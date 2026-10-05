@@ -6,9 +6,9 @@ import type { Design } from "./generated/design";
 import { diff, type Json, same } from "./jsonpatch";
 import {
 	applyOp,
-	designProblems,
 	GuardError,
 	History,
+	makeGuard,
 	makeOp,
 	OPS,
 	OpError,
@@ -32,8 +32,8 @@ const opOf = (type: string, args: Record<string, unknown>) =>
 		id: "0000000000YNGRWX0MDFYPZHXT",
 		time: "2026-10-06T00:00:00.000Z",
 	});
-const errors = (d: Design) =>
-	designProblems(d).filter((p) => p.level === "error");
+const guard = makeGuard(load("schemas/design.schema.json"));
+const errors = (d: Design) => guard(d).filter((p) => p.level === "error");
 
 const cases = load("contracts/ops/cases.json").cases as {
 	name: string;
@@ -52,7 +52,7 @@ describe("operation corpus (shared with Python)", () => {
 			const start = structuredClone(d);
 			for (const [i, o] of c.ops.entries()) {
 				try {
-					d = applyOp(d, opOf(o.type, o.args)).design;
+					d = applyOp(d, opOf(o.type, o.args), [guard]).design;
 				} catch (e) {
 					if (e instanceof OpError)
 						expect(c.expect.error).toEqual({
@@ -97,6 +97,7 @@ describe("add_dyad", () => {
 				params: { p: 30, q: 25 },
 				foot: true,
 			}),
+			[guard],
 		).design;
 		expect(six.linkage).toEqual(
 			load("contracts/kinematics/sixbar-extra-dyad.json").spec,
@@ -155,6 +156,41 @@ function randomOp(
 			},
 		];
 	}
+	if (kind === "set_length") {
+		const keys = [
+			"crank.x",
+			"crank.length",
+			"joint:K.radii.0",
+			"joint:J1.radii.1",
+			...Object.keys(lk.params),
+		];
+		return [
+			"set_length",
+			{ key: pick(keys), value: pick([5, 12, 30, 55, -2]) },
+		];
+	}
+	if (kind === "set_property") {
+		return pick<[string, Record<string, unknown>]>([
+			[
+				"set_property",
+				{ path: "/walker/legs", value: pick([0, 2, 6, 12, "six"]) },
+			],
+			["set_property", { path: "/name", value: pick(["a", "", "walker"]) }],
+			[
+				"set_property",
+				{ path: "/manufacturing/clearance_mm", value: pick([-1, 0.2, 0.4, 3]) },
+			],
+			[
+				"set_property",
+				{ path: "/walker/body_mass_kg", value: pick([0, 0.2, 1]) },
+			],
+			[
+				"set_property",
+				{ path: "/drive/kind", value: pick(["motor", "sail", "wind"]) },
+			],
+			["set_property", { path: "/linkage/foot", value: "C" }],
+		]);
+	}
 	if (kind === "add_dyad") {
 		const n = Math.floor(rng() * 1000);
 		return [
@@ -193,7 +229,7 @@ describe("properties over random operation sequences", () => {
 			let accepted = 0;
 			let rejected = 0;
 			for (let round = 0; round < 40; round++) {
-				const h = new History(base);
+				const h = new History(base, [guard]);
 				const snapshots = [structuredClone(h.design)];
 				for (let k = 0; k < 12; k++) {
 					const [t, a] = randomOp(rng, h.design);
@@ -216,7 +252,7 @@ describe("properties over random operation sequences", () => {
 					).toBe(true);
 					snapshots.push(structuredClone(h.design));
 				}
-				expect(same(replay(base, h.ops), h.design)).toBe(true);
+				expect(same(replay(base, h.ops, [guard]), h.design)).toBe(true);
 				for (const snap of snapshots.slice(0, -1).reverse()) {
 					h.undo();
 					expect(same(h.design, snap)).toBe(true);
@@ -235,7 +271,7 @@ describe("properties over random operation sequences", () => {
 	}
 
 	it("a new commit discards the redo branch", () => {
-		const h = new History(BASES.jansen as Design);
+		const h = new History(BASES.jansen as Design, [guard]);
 		h.commit(opOf("array_legs", { legs: 4 }));
 		h.undo();
 		expect(h.canRedo).toBe(true);
@@ -248,10 +284,11 @@ describe("properties over random operation sequences", () => {
 		const broken = structuredClone(BASES.jansen as Design);
 		broken.linkage.params.h = 1;
 		expect(errors(broken).map((p) => p.code)).toEqual(["cannot_assemble"]);
-		applyOp(broken, opOf("array_legs", { legs: 4 }));
+		applyOp(broken, opOf("array_legs", { legs: 4 }), [guard]);
 		expect(
 			errors(
-				applyOp(broken, opOf("set_param", { name: "h", value: 65.7 })).design,
+				applyOp(broken, opOf("set_param", { name: "h", value: 65.7 }), [guard])
+					.design,
 			),
 		).toEqual([]);
 	});
@@ -280,7 +317,7 @@ describe("properties over random operation sequences", () => {
 		expect(op.actor).toEqual({ kind: "agent", id: "claude" });
 		expect(op.reason).toBe("longer stride");
 		expect(op.time.endsWith("Z")).toBe(true);
-		const applied = applyOp(BASES.jansen as Design, op);
+		const applied = applyOp(BASES.jansen as Design, op, [guard]);
 		expect(applied.inverse.type).toBe("patch");
 		expect(() =>
 			applyOp(BASES.jansen as Design, {
@@ -302,5 +339,32 @@ describe("properties over random operation sequences", () => {
 			.map(([, d]) => d.properties?.type?.const)
 			.sort();
 		expect(inSchema).toEqual([...Object.keys(OPS), "patch"].sort());
+	});
+});
+
+describe("grouped commits", () => {
+	it("a group is one undo step and all or nothing", () => {
+		const h = new History(BASES.jansen as Design, [guard]);
+		const before = structuredClone(h.design);
+		h.commitMany([
+			opOf("set_param", { name: "b", value: 42 }),
+			opOf("set_param", { name: "d", value: 41 }),
+		]);
+		expect(h.ops).toHaveLength(2);
+		expect(h.steps).toHaveLength(1);
+		h.undo();
+		expect(h.design).toEqual(before);
+		expect(h.ops).toEqual([]);
+		h.redo();
+		expect(h.ops).toHaveLength(2);
+		expect(() =>
+			h.commitMany([
+				opOf("set_param", { name: "b", value: 40 }),
+				opOf("set_param", { name: "h", value: 1 }),
+			]),
+		).toThrow(GuardError);
+		expect(h.design.linkage.params.b).toBe(42);
+		expect(h.ops).toHaveLength(2);
+		expect(() => h.commitMany([])).toThrow(OpError);
 	});
 });

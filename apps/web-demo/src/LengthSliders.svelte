@@ -3,11 +3,19 @@ import {
 	type LengthHandle,
 	type LinkageSpec,
 	lengthHandles,
-	withLength,
 } from "strandbeest-core";
 import { t } from "./i18n/index.svelte";
 
-let { spec = $bindable() }: { spec: LinkageSpec } = $props();
+/** `spec` is what is shown (draft included); dragging calls onpreview, letting go calls oncommit: one operation per gesture. */
+let {
+	spec,
+	onpreview,
+	oncommit,
+}: {
+	spec: LinkageSpec;
+	onpreview: (key: string, value: number) => void;
+	oncommit: (key: string, value: number) => void;
+} = $props();
 
 const handles = $derived(lengthHandles(spec));
 const GROUPS = [
@@ -30,10 +38,18 @@ function role(h: LengthHandle): string {
 		.join(", ");
 }
 
-function set(key: string, e: Event) {
+function value(e: Event): number | null {
 	const v = Number.parseFloat((e.target as HTMLInputElement).value);
-	if (Number.isFinite(v)) spec = withLength(spec, key, v);
+	return Number.isFinite(v) ? v : null;
 }
+const preview = (key: string, e: Event) => {
+	const v = value(e);
+	if (v !== null) onpreview(key, v);
+};
+const commit = (key: string, e: Event) => {
+	const v = value(e);
+	if (v !== null) oncommit(key, v);
+};
 </script>
 
 <div class="stack">
@@ -44,8 +60,8 @@ function set(key: string, e: Event) {
 				{#each g.items as h (h.key)}
 					<div class="s">
 						<span class="n" title={role(h)}>{h.label}<small> {role(h)}</small></span>
-						<input type="range" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => set(h.key, e)} />
-						<input type="number" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => set(h.key, e)} />
+						<input type="range" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => preview(h.key, e)} onchange={(e) => commit(h.key, e)} />
+						<input type="number" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => preview(h.key, e)} onchange={(e) => commit(h.key, e)} />
 					</div>
 				{/each}
 			</div>

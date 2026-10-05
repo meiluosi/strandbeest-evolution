@@ -2,6 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true,
 		"types": ["svelte", "vite/client", "node"],
 		"lib": ["ES2022", "DOM", "DOM.Iterable"],
 		"paths": {

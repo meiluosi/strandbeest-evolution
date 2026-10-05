@@ -1,10 +1,4 @@
-import {
-	type Design,
-	defaultDesign,
-	jansenSpec,
-	type LinkageSpec,
-	newUlid,
-} from "strandbeest-core";
+import { currentDesign, editor } from "./editor.svelte";
 
 const DEFAULT_API: string =
 	import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
@@ -17,30 +11,32 @@ function loadApi(): string {
 	}
 }
 
-/** State shared by every tab: the design being edited and where the backend is. */
-export const store = $state({
-	api: loadApi(),
-	/** the linkage being edited: any chain of dyads, Jansen's leg is only the starting point */
-	linkage: jansenSpec() as LinkageSpec,
-	/** stable identity of the design being edited; the name is only a label */
-	designId: newUlid(),
-	name: "jansen-small-6leg",
-	legs: 6,
-	unitMm: 2,
-	clearance: 0.3,
-});
+/** State shared by every tab that is not the design: where the backend is. The design lives in editor.svelte.ts. */
+export const store = $state({ api: loadApi() });
 
-export function currentDesign(): Design {
-	const d = defaultDesign(
-		$state.snapshot(store.linkage) as LinkageSpec,
-		store.name,
-		store.designId,
-	);
-	d.walker.legs = store.legs;
-	d.walker.unit_m = store.unitMm / 1000;
-	d.manufacturing.clearance_mm = store.clearance;
-	return d;
-}
+/** Read-only facade over the design being edited; change it only with the operations in editor.svelte.ts. */
+export const view = {
+	get name() {
+		return editor.design.name;
+	},
+	get designId() {
+		return editor.design.id;
+	},
+	get legs() {
+		return editor.design.walker.legs;
+	},
+	get unitMm() {
+		return editor.design.walker.unit_m * 1000;
+	},
+	get clearance() {
+		return editor.design.manufacturing.clearance_mm;
+	},
+	get linkage() {
+		return editor.design.linkage;
+	},
+};
+
+export { currentDesign };
 
 export function setApi(url: string) {
 	store.api = url;

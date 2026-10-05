@@ -3,6 +3,7 @@ import type { OpLogActor, OpLogOperation } from "./generated/ops";
 import { kinematicProblems, type Problem } from "./guard";
 import { newUlid } from "./ids";
 import { applyPatch, diff, type Json, type PatchStep } from "./jsonpatch";
+import { schemaProblems } from "./schema-lite";
 
 /**
  * The edit algebra (ADR-0003, E3-02/E3-03): every change to a design is a typed, reversible, logged operation.
@@ -32,6 +33,14 @@ export class GuardError extends Error {
 
 export const ACTOR_KINDS = ["human", "algorithm", "agent"] as const;
 export const designProblems: Guard = (d) => kinematicProblems(d.linkage);
+
+/** Schema first, then kinematics (the kinematic checks assume a well-formed linkage). Twin of guard.default_problems. */
+export function makeGuard(designSchema: { [k: string]: unknown }): Guard {
+	return (d) => {
+		const bad = schemaProblems(designSchema, d);
+		return bad.length ? bad : designProblems(d);
+	};
+}
 
 export function makeOp(
 	type: Operation["type"],
@@ -178,6 +187,104 @@ const removeJoint: Handler = (doc, a) => {
 	}
 };
 
+function handleTarget(
+	doc: Design,
+	key: string,
+): { holder: Record<string | number, unknown>; at: string | number } {
+	const lk = doc.linkage;
+	if (key in lk.params) return { holder: lk.params, at: key };
+	if (key === "crank.x" || key === "crank.y" || key === "crank.length") {
+		const name = key.split(".")[1] as "x" | "y" | "length";
+		if (typeof lk.crank[name] === "string")
+			throw new OpError(
+				"not_inline",
+				`'${key}' is the named length '${lk.crank[name]}'; set that param instead`,
+			);
+		return { holder: lk.crank as unknown as Record<string, unknown>, at: name };
+	}
+	const m = /^joint:(.+)\.radii\.([01])$/.exec(key);
+	const joint = m && lk.joints.find((j) => j.id === m[1]);
+	if (m && joint) {
+		const k = Number(m[2]);
+		if (typeof joint.radii[k] === "string")
+			throw new OpError(
+				"not_inline",
+				`'${key}' is the named length '${joint.radii[k]}'; set that param instead`,
+			);
+		return { holder: joint.radii as unknown as Record<number, unknown>, at: k };
+	}
+	throw new OpError(
+		"unknown_length",
+		`'${key}' is not a length of this linkage`,
+	);
+}
+
+const setLength: Handler = (doc, a) => {
+	const key = need(a, "key", isStr, "a string");
+	const value = need(a, "value", isNum, "a number");
+	const { holder, at } = handleTarget(doc, key);
+	holder[at] = value;
+};
+
+const EDITABLE_ROOTS = ["name", "notes", "walker", "drive", "manufacturing"];
+const kindOf = (v: unknown) =>
+	v === null
+		? "null"
+		: Array.isArray(v)
+			? "array"
+			: typeof v === "object"
+				? "object"
+				: typeof v;
+
+const setProperty: Handler = (doc, a) => {
+	const path = need(a, "path", isStr, "a JSON pointer such as /walker/legs");
+	const parts = path.startsWith("/")
+		? path
+				.slice(1)
+				.split("/")
+				.map((p) => p.replace(/~1/g, "/").replace(/~0/g, "~"))
+		: null;
+	if (!parts || !EDITABLE_ROOTS.includes(parts[0] as string))
+		throw new OpError(
+			"not_editable",
+			`'${path}' is not an editable property (editable: ${EDITABLE_ROOTS.map((r) => `/${r}`).join(", ")})`,
+		);
+	if (!("value" in a)) throw new OpError("bad_args", "'value' is required");
+	let node: unknown = doc;
+	for (const p of parts.slice(0, -1)) {
+		if (
+			node !== null &&
+			typeof node === "object" &&
+			!Array.isArray(node) &&
+			p in (node as object)
+		)
+			node = (node as Record<string, unknown>)[p];
+		else
+			throw new OpError(
+				"unknown_property",
+				`'${path}' does not exist in this design`,
+			);
+	}
+	const last = parts[parts.length - 1] as string;
+	if (
+		node === null ||
+		typeof node !== "object" ||
+		Array.isArray(node) ||
+		!(last in (node as object))
+	)
+		throw new OpError(
+			"unknown_property",
+			`'${path}' does not exist in this design`,
+		);
+	const holder = node as Record<string, unknown>;
+	if (kindOf(holder[last]) !== kindOf(a.value))
+		throw new OpError(
+			"bad_args",
+			`'${path}' holds a ${kindOf(holder[last])}; the value is a ${kindOf(a.value)}`,
+		);
+	holder[last] = a.value;
+};
+
 const arrayLegs: Handler = (doc, a) => {
 	const n = need(
 		a,
@@ -238,6 +345,14 @@ export const OPS: Record<string, { apply: Handler; doc: string }> = {
 	remove_joint: {
 		apply: removeJoint,
 		doc: "Remove a joint nothing else is built on (naming a new foot if it was the foot).",
+	},
+	set_length: {
+		apply: setLength,
+		doc: "Set one length by handle: a named param, an inline crank length, or an inline bar length.",
+	},
+	set_property: {
+		apply: setProperty,
+		doc: "Set an existing editable property of the design (name, notes, walker, drive, manufacturing).",
 	},
 	array_legs: {
 		apply: arrayLegs,
@@ -331,7 +446,7 @@ export function replay(
 }
 
 interface Entry {
-	op: Operation;
+	ops: Operation[];
 	forward: PatchStep[];
 	backward: PatchStep[];
 }
@@ -352,7 +467,11 @@ export class History {
 	}
 
 	get ops(): Operation[] {
-		return this.done.map((e) => e.op);
+		return this.done.flatMap((e) => e.ops);
+	}
+	/** Undo steps, oldest first (a step may hold several operations). */
+	get steps(): Operation[][] {
+		return this.done.map((e) => e.ops);
 	}
 	get canUndo(): boolean {
 		return this.done.length > 0;
@@ -362,22 +481,31 @@ export class History {
 	}
 
 	commit(op: Operation): Applied {
-		const applied = applyOp(this.design, op, this.guards);
+		return this.commitMany([op]).at(-1) as Applied;
+	}
+
+	/** Apply several operations as ONE undo step (e.g. dragging a point changes two bar lengths). All or nothing. */
+	commitMany(ops: Operation[]): Applied[] {
+		if (!ops.length) throw new OpError("bad_op", "nothing to commit");
+		let design = this.design;
+		const applied: Applied[] = [];
+		for (const op of ops) {
+			const a = applyOp(design, op, this.guards);
+			applied.push(a);
+			design = a.design;
+		}
 		this.done.push({
-			op,
-			forward: diff(
-				this.design as unknown as Json,
-				applied.design as unknown as Json,
-			),
-			backward: (applied.inverse.args as { patch: PatchStep[] }).patch,
+			ops: [...ops],
+			forward: diff(this.design as unknown as Json, design as unknown as Json),
+			backward: diff(design as unknown as Json, this.design as unknown as Json),
 		});
 		this.undone = [];
-		this.design = applied.design;
+		this.design = design;
 		return applied;
 	}
 
-	/** Undo the last operation (restoring a previous state is always allowed); returns the operation undone. */
-	undo(): Operation {
+	/** Undo the last step (restoring a previous state is always allowed); returns the operations undone. */
+	undo(): Operation[] {
 		const e = this.done.pop();
 		if (!e) throw new OpError("nothing_to_undo", "the log is empty");
 		this.design = applyPatch(
@@ -385,10 +513,10 @@ export class History {
 			e.backward,
 		) as unknown as Design;
 		this.undone.push(e);
-		return e.op;
+		return e.ops;
 	}
 
-	redo(): Operation {
+	redo(): Operation[] {
 		const e = this.undone.pop();
 		if (!e) throw new OpError("nothing_to_redo", "there is nothing to redo");
 		this.design = applyPatch(
@@ -396,6 +524,6 @@ export class History {
 			e.forward,
 		) as unknown as Design;
 		this.done.push(e);
-		return e.op;
+		return e.ops;
 	}
 }

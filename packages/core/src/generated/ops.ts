@@ -48,6 +48,22 @@ export interface OpLogRemoveJointArgs {
 	drop_params?: boolean;
 }
 
+/** Set one length by handle */
+export interface OpLogSetLengthArgs {
+	/** Length handle: the name of a named length, or crank.x, crank.y, crank.length, joint:ID.radii.N (a number written inline in the spec) */
+	key: string;
+	/** New length (unit: unit_m) */
+	value: number;
+}
+
+/** Set an existing editable property of the design */
+export interface OpLogSetPropertyArgs {
+	/** JSON pointer such as /walker/legs; editable roots: /name, /notes, /walker, /drive, /manufacturing */
+	path: string;
+	/** New value; it must keep the kind of the old value, ranges are enforced by the schema */
+	value: unknown;
+}
+
 /** Set the number of legs */
 export interface OpLogArrayLegsArgs {
 	/** Number of legs (unit: count) */
@@ -94,6 +110,30 @@ export interface OpLogSetParamOp {
 	id: OpLogUlid;
 	type: "set_param";
 	args: OpLogSetParamArgs;
+	actor: OpLogActor;
+	/** Why the change was made (for people and agents) (default: "") */
+	reason: string;
+	/** When it happened (ISO 8601, UTC) */
+	time: string;
+}
+
+/** Set a length by handle */
+export interface OpLogSetLengthOp {
+	id: OpLogUlid;
+	type: "set_length";
+	args: OpLogSetLengthArgs;
+	actor: OpLogActor;
+	/** Why the change was made (for people and agents) (default: "") */
+	reason: string;
+	/** When it happened (ISO 8601, UTC) */
+	time: string;
+}
+
+/** Set a property */
+export interface OpLogSetPropertyOp {
+	id: OpLogUlid;
+	type: "set_property";
+	args: OpLogSetPropertyArgs;
 	actor: OpLogActor;
 	/** Why the change was made (for people and agents) (default: "") */
 	reason: string;
@@ -186,7 +226,7 @@ export interface OpLogPatchOp {
 }
 
 /** Any design operation */
-export type OpLogOperation = OpLogSetParamOp | OpLogAddDyadOp | OpLogRemoveJointOp | OpLogArrayLegsOp | OpLogScaleOp | OpLogMirrorOp | OpLogSetMaterialOp | OpLogPatchOp;
+export type OpLogOperation = OpLogSetParamOp | OpLogSetLengthOp | OpLogSetPropertyOp | OpLogAddDyadOp | OpLogRemoveJointOp | OpLogArrayLegsOp | OpLogScaleOp | OpLogMirrorOp | OpLogSetMaterialOp | OpLogPatchOp;
 
 /** The edit log of a design: the base design and the operations applied to it. The log is the source of truth; the current design is its fold. */
 export interface OpLog {

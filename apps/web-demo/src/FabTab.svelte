@@ -1,7 +1,8 @@
 <script lang="ts">
 import { call } from "./api";
+import { currentDesign, setProperty } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
-import { currentDesign, store } from "./store.svelte";
+import { store, view } from "./store.svelte";
 import Viewer3D from "./Viewer3D.svelte";
 
 type Check = {
@@ -90,9 +91,9 @@ const counts = $derived({
 <div class="stack">
 	<div class="card">
 		<h2>{t("nav.fab")}</h2>
-		<p class="muted">{t("design.current")}<b>{store.name}</b>{t("fab.designSummary", { legs: store.legs, unitMm: store.unitMm })}</p>
+		<p class="muted">{t("design.current")}<b>{view.name}</b>{t("fab.designSummary", { legs: view.legs, unitMm: view.unitMm })}</p>
 		<div class="row center">
-			<label>{t("fab.clearance")} <input type="number" min="0" max="1" step="0.05" bind:value={store.clearance} /></label>
+			<label>{t("fab.clearance")} <input type="number" min="0" max="1" step="0.05" value={view.clearance} onchange={(e) => { const r = setProperty("/manufacturing/clearance_mm", Number.parseFloat((e.target as HTMLInputElement).value)); if (!r.ok) error = r.message ?? ""; }} /></label>
 			<button class="btn" disabled={!!busy} onclick={evaluate}>{t("fab.evalGait")}</button>
 			<button class="btn primary" disabled={!!busy} onclick={exportPack}>{t("fab.checkExport")}</button>
 			{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
@@ -136,8 +137,8 @@ const counts = $derived({
 					api={store.api}
 					exportId={pack.export_id}
 					{manifest}
-					spec={store.linkage}
-					unitMm={designAtExport?.walker.unit_m ? designAtExport.walker.unit_m * 1000 : store.unitMm}
+					spec={view.linkage}
+					unitMm={designAtExport?.walker.unit_m ? designAtExport.walker.unit_m * 1000 : view.unitMm}
 					thickness={designAtExport?.manufacturing.bar_thickness_mm ?? 3}
 				/>
 			{/key}

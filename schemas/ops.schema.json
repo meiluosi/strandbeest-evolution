@@ -210,6 +210,58 @@
 			},
 			"required": ["id"]
 		},
+		"SetLengthArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"key": {
+					"type": "string",
+					"x-doc": {
+						"zh": "长度句柄：具名长度的名字，或 crank.x、crank.y、crank.length、joint:ID.radii.N（写在规格里的数字）",
+						"en": "Length handle: the name of a named length, or crank.x, crank.y, crank.length, joint:ID.radii.N (a number written inline in the spec)"
+					},
+					"minLength": 1
+				},
+				"value": {
+					"type": "number",
+					"x-unit": "unit_m",
+					"x-doc": {
+						"zh": "新长度",
+						"en": "New length"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "按句柄设置一个长度",
+				"en": "Set one length by handle"
+			},
+			"required": ["key", "value"]
+		},
+		"SetPropertyArgs": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"path": {
+					"type": "string",
+					"x-doc": {
+						"zh": "JSON 指针，如 /walker/legs；可编辑的根：/name、/notes、/walker、/drive、/manufacturing",
+						"en": "JSON pointer such as /walker/legs; editable roots: /name, /notes, /walker, /drive, /manufacturing"
+					},
+					"minLength": 1
+				},
+				"value": {
+					"x-doc": {
+						"zh": "新值；类型必须与旧值一致，范围由 schema 检查",
+						"en": "New value; it must keep the kind of the old value, ranges are enforced by the schema"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "设置设计的一个已有的可编辑属性",
+				"en": "Set an existing editable property of the design"
+			},
+			"required": ["path", "value"]
+		},
 		"ArrayLegsArgs": {
 			"type": "object",
 			"additionalProperties": false,
@@ -373,6 +425,84 @@
 			"x-doc": {
 				"zh": "设置长度",
 				"en": "Set a length"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"SetLengthOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "set_length"
+				},
+				"args": {
+					"$ref": "#/$defs/SetLengthArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "按句柄设置长度",
+				"en": "Set a length by handle"
+			},
+			"required": ["id", "type", "args", "actor", "reason", "time"]
+		},
+		"SetPropertyOp": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"type": {
+					"const": "set_property"
+				},
+				"args": {
+					"$ref": "#/$defs/SetPropertyArgs"
+				},
+				"actor": {
+					"$ref": "#/$defs/Actor"
+				},
+				"reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "为什么做这个修改（给人和 agent 看）",
+						"en": "Why the change was made (for people and agents)"
+					},
+					"default": ""
+				},
+				"time": {
+					"type": "string",
+					"x-doc": {
+						"zh": "发生时间（ISO 8601，UTC）",
+						"en": "When it happened (ISO 8601, UTC)"
+					},
+					"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+				}
+			},
+			"x-doc": {
+				"zh": "设置属性",
+				"en": "Set a property"
 			},
 			"required": ["id", "type", "args", "actor", "reason", "time"]
 		},
@@ -653,6 +783,12 @@
 			"oneOf": [
 				{
 					"$ref": "#/$defs/SetParamOp"
+				},
+				{
+					"$ref": "#/$defs/SetLengthOp"
+				},
+				{
+					"$ref": "#/$defs/SetPropertyOp"
 				},
 				{
 					"$ref": "#/$defs/AddDyadOp"

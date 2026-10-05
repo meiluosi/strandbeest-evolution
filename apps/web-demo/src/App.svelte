@@ -1,6 +1,8 @@
 <script lang="ts">
 import { call } from "./api";
+import CommandPalette from "./CommandPalette.svelte";
 import DesignTab from "./DesignTab.svelte";
+import { redo, undo } from "./editor.svelte";
 import FabTab from "./FabTab.svelte";
 import { LOCALE_NAMES, LOCALES } from "./i18n/core";
 import { i18n, setLocale, t } from "./i18n/index.svelte";
@@ -16,6 +18,37 @@ const tabs = [
 ] as const;
 let tab = $state<(typeof tabs)[number][0]>("design");
 let online = $state<"unknown" | "up" | "down">("unknown");
+let paletteOpen = $state(false);
+let editMessage = $state("");
+
+function typing(e: KeyboardEvent): boolean {
+	const el = e.target as HTMLElement | null;
+	return (
+		!!el &&
+		(el.tagName === "INPUT" ||
+			el.tagName === "TEXTAREA" ||
+			el.tagName === "SELECT" ||
+			el.isContentEditable)
+	);
+}
+
+function keys(e: KeyboardEvent) {
+	const mod = e.metaKey || e.ctrlKey;
+	if (mod && e.key.toLowerCase() === "k") {
+		e.preventDefault();
+		tab = "design";
+		paletteOpen = !paletteOpen;
+	} else if (
+		mod &&
+		e.key.toLowerCase() === "z" &&
+		!typing(e) &&
+		tab === "design"
+	) {
+		e.preventDefault();
+		const r = e.shiftKey ? redo() : undo();
+		editMessage = r.ok ? "" : (r.message ?? "");
+	}
+}
 
 async function ping() {
 	try {
@@ -60,8 +93,11 @@ $effect(() => {
 	{#if online === "down" && tab !== "design"}
 		<p class="notice error">{t("app.backend.unreachable.before", { api: store.api })} <code>strandbeest-api</code>{t("app.backend.unreachable.or")} <code>docker compose up</code>{t("app.backend.unreachable.after")}</p>
 	{/if}
-	{#if tab === "design"}<DesignTab />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else}<LabTab />{/if}
+	{#if editMessage}<p class="notice error">{editMessage}</p>{/if}
+	{#if tab === "design"}<DesignTab oncommand={() => (paletteOpen = true)} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else}<LabTab />{/if}
 </main>
+<CommandPalette bind:open={paletteOpen} onmessage={(m) => (editMessage = m)} />
+<svelte:window onkeydown={keys} />
 
 
 <style>
