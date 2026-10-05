@@ -11,6 +11,8 @@ What this project could grow into (Chinese): [docs/VISION.md](docs/VISION.md).
 
 Engine-style architecture blueprint and decision records (Chinese): [docs/ENGINE.md](docs/ENGINE.md), [docs/adr/](docs/adr/).
 
+What to do next (task cards with acceptance criteria, in Chinese): [docs/ACTIONS.md](docs/ACTIONS.md).
+
 ## What's inside
 
 | Path | Contents |

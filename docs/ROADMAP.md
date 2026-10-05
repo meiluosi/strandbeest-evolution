@@ -16,7 +16,7 @@
 - [ ] First real measurements (needs a printed walker and the rig)
 - [ ] Known thin spots: no auth; geometry for the motor/coupler is an unverified assumption until printed; torque is a range (EXPERIMENTS §8)
 
-> Engine-style architecture blueprint (what to settle before building more) and the decision records: [ENGINE.md](ENGINE.md), [adr/](adr/). Longer-term product shapes and the design of the editor, glass-box simulation, AI-native layer and algorithm map: [VISION.md](VISION.md) (second version). Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
+> **Task cards (what to do next, with acceptance criteria): [ACTIONS.md](ACTIONS.md).** Engine-style architecture blueprint (what to settle before building more) and the decision records: [ENGINE.md](ENGINE.md), [adr/](adr/). Longer-term product shapes and the design of the editor, glass-box simulation, AI-native layer and algorithm map: [VISION.md](VISION.md) (second version). Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
 
 | phase | goal | status |
 |---|---|---|

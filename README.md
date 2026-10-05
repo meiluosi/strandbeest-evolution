@@ -13,6 +13,8 @@
 
 架构蓝图（要做成"引擎"，哪些决定要先定）：[docs/ENGINE.md](docs/ENGINE.md)，决定记录在 [docs/adr/](docs/adr/)。
 
+下一步做什么（带验收条件的任务卡）：[docs/ACTIONS.md](docs/ACTIONS.md)。
+
 ## 里面有什么
 
 | 目录 | 内容 |

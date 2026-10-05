@@ -36,3 +36,8 @@ Use `pnpm` (Node >= 22).
 - The Design, Scenario and Run documents are the interfaces between components (`docs/PLATFORM.md` §3). Do not add a parameter to one component without putting it in the schema.
 - Every physical parameter that is a guess is a named config field with an `assumption` default; never hard-code one in logic.
 - Report negative and limiting results in `docs/EXPERIMENTS.md`, with numbers.
+
+## Taking a task card
+Tasks live in `docs/ACTIONS.md` (IDs like `E1-01`). Before starting: restate the acceptance criteria, and say so if the card does not match the code or its dependencies are unmet. A card is done only when its acceptance criteria have evidence and the Definition of Done in that file holds. Accepted architecture decisions are in `docs/adr/` (0001-0008: stable asset IDs, SI units and a frames convention, an edit-operation log as the source of truth, determinism/snapshots/provenance/cache, a world/entity model with a PhysicsBackend boundary, Arrow/Parquet + glTF data formats, JSON Schema `x-` annotations as the property system plus a versioned plugin API, text project folders and i18n). The engine is called Beest Engine.
+- Anything user-visible goes through i18n message keys once E1-01 lands; no new hard-coded UI strings.
+- Never publish (npm, Pages, blog, print exports) without the user's confirmation.
