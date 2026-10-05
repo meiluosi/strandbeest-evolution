@@ -221,17 +221,23 @@ Same baseline as section 8. What changed:
 
 Stride stays within 3 % everywhere. What survives: the torque *level* depends strongly on how stick–slip friction is treated numerically (up to ×2.4 now), stride is robust, and leg mass raises mean torque for a reason we do not understand. What does not survive: the "plateau above k = 1e5", the need for a 0.25 ms step, and the claim that soft loop constraints halve the torque.
 
-### Small printed walker (6 legs, 1 unit = 2 mm), flat ground, corrected simulator
-Kinematic stride from the reduced-order model: 0.2665 m/rev.
+### Small printed walker (6 legs, 1 unit = 2 mm), flat ground, corrected simulator and corrected metric
+Kinematic stride from the reduced-order model: 0.2665 m/rev. 3 revolutions, statistics over revolutions 2 and 3 (see "Metric window" below).
 
-| contact stiffness k (1/s²) | stride (m/rev) | mean torque (mN·m) | peak (mN·m) | deepest foot sinkage (mm) | feet down (mean) |
+| contact stiffness k (1/s²) | stride (m/rev) | mean torque (mN·m) | peak (mN·m) | peak-to-peak (mN·m) | deepest foot sinkage (mm) |
 |---|---|---|---|---|---|
-| 3e4 | 0.265 | 1.13 | 9.1 | 2.6 | 2.8 |
-| 1e5 | 0.276 | 1.22 | 8.1 | 0.9 | 2.3 |
-| 3e5 | 0.278 | 1.31 | 14.7 | 0.6 | 2.1 |
-| 1e6 | 0.279 | 1.32 | 16.9 | 0.3 | 2.0 |
+| 3e4 | 0.267 | 0.90 | 6.5 | 9.1 | 2.6 |
+| 1e5 | 0.279 | 0.66 | 7.4 | 13.4 | 0.9 |
+| 3e5 | 0.280 | 0.65 | 15.0 | 23.6 | 0.6 |
+| 1e6 | 0.281 | 0.82 | 16.7 | 27.3 | 0.3 |
 
-Stride converges (4 to 5 % above kinematic) and about two of six feet are down at any time, as 43 % duty implies. Peak torque grows with k (impact-like loads). The earlier finding that "small-walker stride depends strongly on pad stiffness" was an artefact of the bug plus very soft contact. The stiff-loop instability at this scale (section 8) was not re-investigated.
+Stride converges (0.3 % to 5 % above kinematic). Mean torque is small and non-monotonic in k; peak torque grows with k (impact-like loads). About two of six feet are down at any moment, as 43 % duty implies. The earlier finding that "small-walker stride depends strongly on pad stiffness" was an artefact of the foot bug plus very soft contact. The stiff-loop instability at this scale (section 8) was not re-investigated.
+
+### Metric window (a second bug found afterwards)
+The gait metric averaged over a window that depended on the run length: runs of at most 1.5 revolutions included the start-up ramp (the small walker's mean torque read 1.3 mN·m instead of 0.65), and runs of 2.5 revolutions averaged 1.5 revolutions (a partial cycle, a few per cent off). Now the first revolution is skipped and the statistics cover the largest whole number of revolutions after it; runs shorter than two revolutions are marked `steady_window: 0`. Effect on the 12-leg P1 numbers: below 0.5 % (baseline mean torque 8.89 → 8.85 N·m; every conclusion above stands). The small-walker table above was recomputed. A regression test checks that the mean torque of a 2-revolution and a 3-revolution run agree within 5 %.
+
+### Energy accounting: where does the work go? (`packages/sim/scripts/energy_account.py`)
+Small walker, motor-driven, revolutions 2 and 3 averaged. Input work per revolution 4.05 mJ (equivalent mean crank torque 0.645 mN·m, which agrees with the metric above). Dissipated: **contacts 3.91 mJ (97 %)**, loop closures 0.13 mJ (3 %), joint friction 0, unexplained 0.008 mJ (0.2 %). The account closes. So on flat ground the mean torque is almost entirely energy lost at the feet (slip plus contact damping), which is why it is as sensitive to the friction treatment as section 9 shows, and why a model without that loss (the reduced-order one) predicts about zero. This was a hypothesis for a week; it is now measured (inside the simulator).
 
 ### Scenes, and a sail drive (new)
 The simulator now has terrains (flat, slope, step, random bumps, a crude soft ground), an environment (gravity, air density), winds (constant, gusts, lull) and a **sail drive**: a drag sail turning the crank through a gear, no motor. The motor has a torque limit (0.3 N·m for the small walker, an assumption), otherwise a blocked foot forces the linkage open and the run blows up.

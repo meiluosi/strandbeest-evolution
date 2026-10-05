@@ -7,24 +7,30 @@ from .registry import metrics
 
 @metrics.register("gait")
 def gait(res) -> dict:
-    """Stride per revolution and mean speed over the revolutions after the start-up ramp."""
-    sc = res.scenario
-    ramp_rev = 0.0
+    """Stride, speed and torque statistics over a whole number of crank revolutions.
+
+    The first revolution (start-up ramp and transient) is skipped when the run has at least two; the window is then the largest
+    whole number of revolutions after it, so a partial revolution never biases a mean. Runs shorter than two revolutions use
+    everything and are flagged `steady_window: 0` (their means include the start-up)."""
     psi, x, t = res.psi, res.x, res.t
-    # skip the first revolution (ramp + transient) when there is more than one
-    start = 2 * math.pi if psi[-1] > 2 * math.pi * 1.5 else 0.0
-    reached = np.flatnonzero(psi >= start)  # psi need not be monotonic if the crank is pushed back
-    i0 = int(reached[0]) if len(reached) else 0
-    dpsi = psi[-1] - psi[i0]
-    if dpsi <= 0:
-        return {"stride": float("nan"), "mean_speed": float("nan")}
-    stride = (x[-1] - x[i0]) / dpsi * 2 * math.pi
-    speed = (x[-1] - x[i0]) / (t[-1] - t[i0])
-    del ramp_rev, sc
+    rev = 2 * math.pi
+    total_revs = (psi[-1] - psi[0]) / rev if len(psi) else 0.0
+    if total_revs >= 1.98:  # a run asked to do 2 revolutions ends a hair short of 2.0
+        n = max(1, math.floor(total_revs + 0.02) - 1)
+        lo, hi, steady = rev, min(rev * (1 + n), psi[-1]), 1.0
+    else:
+        lo, hi, steady = 0.0, psi[-1] if len(psi) else 0.0, 0.0
+    idx = np.flatnonzero((psi >= lo) & (psi <= hi))  # psi need not be monotonic if the crank is pushed back
+    if len(idx) < 2 or psi[idx[-1]] - psi[idx[0]] <= 0:
+        return {"stride_per_rev": float("nan"), "mean_speed": float("nan"), "steady_window": steady}
+    i0, i1 = int(idx[0]), int(idx[-1])
+    dpsi = psi[i1] - psi[i0]
+    seg = res.torque[i0 : i1 + 1]
     return {
-        "stride_per_rev": float(stride),
-        "mean_speed": float(speed),
-        "mean_torque": float(np.mean(res.torque[i0:])),
-        "peak_torque": float(np.max(res.torque[i0:])),
-        "torque_ptp": float(np.ptp(res.torque[i0:])),
+        "stride_per_rev": float((x[i1] - x[i0]) / dpsi * rev),
+        "mean_speed": float((x[i1] - x[i0]) / (t[i1] - t[i0])),
+        "mean_torque": float(np.mean(seg)),
+        "peak_torque": float(np.max(seg)),
+        "torque_ptp": float(np.ptp(seg)),
+        "steady_window": steady,
     }

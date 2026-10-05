@@ -70,3 +70,13 @@ def test_terrain_geometry_and_gravity_come_from_the_scenario():
 def test_a_blocked_walker_is_stopped_by_the_motor_torque_limit_instead_of_blowing_up():
     r = run(sc(terrain={"kind": "step", "params": {"distance": 0.1, "height": 0.03}}, run={"revolutions": 1.5, "frame_rate": 0}))
     assert np.isfinite(r.x).all() and abs(r.x).max() < 5.0
+
+
+def test_mean_torque_does_not_depend_on_how_many_revolutions_were_run():
+    """The mean is taken over whole revolutions after the first, so run length must not bias it."""
+    a = run(sc(run={"revolutions": 2.0, "frame_rate": 0})).metrics
+    b = run(sc(run={"revolutions": 3.0, "frame_rate": 0})).metrics
+    assert a["steady_window"] == 1.0 and b["steady_window"] == 1.0
+    assert a["mean_torque"] == pytest.approx(b["mean_torque"], rel=0.05)
+    short = run(sc(run={"revolutions": 1.2, "frame_rate": 0})).metrics
+    assert short["steady_window"] == 0.0  # shorter runs are marked: their means include the start-up
