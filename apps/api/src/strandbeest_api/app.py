@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse
 from strandbeest_common import Design
 from strandbeest_fab import export as fab_export
 
-from .pipeline import evaluate, simulate
+from .pipeline import evaluate, simulate, simulate_ensemble
 
 
 def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
@@ -93,7 +93,8 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
     def start_run(body: dict = Body(...)):
         d = parse(body["design"])
         overrides = body.get("overrides")
-        jid = submit(lambda: simulate(d, root / "runs", overrides))
+        fn = simulate_ensemble if body.get("ensemble", True) else simulate
+        jid = submit(lambda: fn(d, root / "runs", overrides))
         return {"job_id": jid}
 
     @app.get("/jobs/{jid}")

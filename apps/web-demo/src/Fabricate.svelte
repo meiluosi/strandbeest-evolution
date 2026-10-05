@@ -23,9 +23,21 @@ let exportResult = $state<{
 		limit: string;
 	}[];
 } | null>(null);
+let ensemble = $state(true);
+type Variant = {
+	name: string;
+	valid: boolean;
+	reason?: string;
+	metrics: Record<string, number | null>;
+};
 let runResult = $state<{
 	metrics: Record<string, number | null>;
 	stalled: boolean;
+	ensemble?: {
+		variants: Variant[];
+		ranges: Record<string, [number, number]>;
+		note: string;
+	};
 } | null>(null);
 let torque = $state<{ psi: number[]; torque: number[] } | null>(null);
 
@@ -69,6 +81,7 @@ const simulate = () =>
 		torque = null;
 		const { job_id } = await call("/runs", {
 			design,
+			ensemble,
 			overrides: { run: { revolutions: 1.5 } },
 		});
 		for (;;) {
@@ -108,6 +121,7 @@ const spark = $derived.by(() => {
 		<button disabled={!!busy} onclick={evaluate}>评估步态</button>
 		<button disabled={!!busy} onclick={exportPack}>可打印性检查 + 导出打印包</button>
 		<button disabled={!!busy} onclick={simulate}>高保真仿真（MuJoCo）</button>
+		<label><input type="checkbox" bind:checked={ensemble} /> 同时跑 4 种摩擦建模，给出范围</label>
 		{#if busy}<span>{busy}…</span>{/if}
 	</div>
 	{#if error}<p class="err">出错：{error}（后端启动了吗？<code>strandbeest-api</code>）</p>{/if}
@@ -129,11 +143,41 @@ const spark = $derived.by(() => {
 	{/if}
 
 	{#if runResult}
-		<p>
-			仿真：每转步幅 {runResult.metrics.stride_per_rev?.toFixed(3)} m · 平均速度 {runResult.metrics.mean_speed?.toFixed(3)} m/s ·
-			平均扭矩 {runResult.metrics.mean_torque?.toFixed(3)} N·m · 峰值 {runResult.metrics.peak_torque?.toFixed(3)} N·m
-			{#if runResult.stalled}（<b>卡住了</b>）{/if}
-		</p>
+		{#if runResult.ensemble}
+			{@const r = runResult.ensemble.ranges}
+			{@const fmt = (k: string, d = 3) => (r[k] ? `${r[k][0].toFixed(d)} – ${r[k][1].toFixed(d)}` : "–")}
+			<table>
+				<thead><tr><th>量</th><th>范围（有效的运行）</th></tr></thead>
+				<tbody>
+					<tr><td>每转步幅 (m)</td><td>{fmt("stride_per_rev")}</td></tr>
+					<tr><td>平均速度 (m/s)</td><td>{fmt("mean_speed")}</td></tr>
+					<tr><td>平均扭矩 (N·m)</td><td>{fmt("mean_torque", 4)}</td></tr>
+					<tr><td>峰值扭矩 (N·m)</td><td>{fmt("peak_torque", 4)}</td></tr>
+				</tbody>
+			</table>
+			<p class="note">{runResult.ensemble.note}</p>
+			<details>
+				<summary>各摩擦建模的结果（{runResult.ensemble.variants.filter((v) => v.valid).length}/{runResult.ensemble.variants.length} 有效）</summary>
+				<table>
+					<thead><tr><th>设置</th><th>有效</th><th>步幅</th><th>平均扭矩</th><th>环约束偏差 (mm)</th></tr></thead>
+					<tbody>
+						{#each runResult.ensemble.variants as v}
+							<tr class={v.valid ? "" : "warn"}>
+								<td>{v.name}</td><td>{v.valid ? "是" : `否（${v.reason}）`}</td>
+								<td>{v.metrics.stride_per_rev?.toFixed(3)}</td><td>{v.metrics.mean_torque?.toFixed(4)}</td>
+								<td>{((v.metrics.max_loop_violation ?? 0) * 1000).toFixed(2)}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</details>
+		{:else}
+			<p>
+				仿真（单次）：每转步幅 {runResult.metrics.stride_per_rev?.toFixed(3)} m · 平均速度 {runResult.metrics.mean_speed?.toFixed(3)} m/s ·
+				平均扭矩 {runResult.metrics.mean_torque?.toFixed(3)} N·m · 峰值 {runResult.metrics.peak_torque?.toFixed(3)} N·m
+				{#if runResult.stalled}（<b>卡住了</b>）{/if}
+			</p>
+		{/if}
 		<svg viewBox="0 0 300 100" class="chart"><polyline points={spark} fill="none" stroke="#e5733f" stroke-width="2" /></svg>
 	{/if}
 	<small>仿真的接触、摩擦、关节间隙都是假设值，尚未用实测校准；导出的零件是第一版，请先打印单条腿手摇验证。</small>
@@ -150,4 +194,5 @@ const spark = $derived.by(() => {
 	.chart { width: 100%; max-width: 480px; height: 110px; border: 1px solid #8884; border-radius: 8px; }
 	.err { color: #c0392b; }
 	small { opacity: 0.7; }
+	.note { opacity: 0.75; margin: 0; }
 </style>

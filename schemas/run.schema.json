@@ -14,28 +14,99 @@
 	],
 	"additionalProperties": false,
 	"properties": {
-		"schema_version": { "const": 1 },
-		"id": { "type": "string", "minLength": 1 },
-		"design_name": { "type": "string" },
+		"schema_version": {
+			"const": 1
+		},
+		"id": {
+			"type": "string",
+			"minLength": 1
+		},
+		"design_name": {
+			"type": "string"
+		},
 		"scenario": {
 			"type": "object",
 			"description": "the fully resolved scenario that was run"
 		},
 		"metrics": {
 			"type": "object",
-			"additionalProperties": { "type": ["number", "boolean", "null"] }
+			"additionalProperties": {
+				"type": ["number", "boolean", "null"]
+			}
 		},
-		"stalled": { "type": "boolean" },
-		"arrays_file": { "type": "string" },
+		"stalled": {
+			"type": "boolean"
+		},
+		"arrays_file": {
+			"type": "string"
+		},
 		"provenance": {
 			"type": "object",
 			"required": ["code_version"],
 			"additionalProperties": false,
 			"properties": {
-				"code_version": { "type": "string" },
-				"engine": { "type": "string" },
-				"engine_version": { "type": "string" },
-				"created": { "type": "string" }
+				"code_version": {
+					"type": "string"
+				},
+				"engine": {
+					"type": "string"
+				},
+				"engine_version": {
+					"type": "string"
+				},
+				"created": {
+					"type": "string"
+				}
+			}
+		},
+		"ensemble": {
+			"type": "object",
+			"description": "Same scenario re-run under several friction-regularisation settings (docs/EXPERIMENTS.md section 8). Torque level depends on these numerical choices, so report ranges, not single numbers.",
+			"required": ["variants", "ranges", "note"],
+			"additionalProperties": false,
+			"properties": {
+				"variants": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": ["name", "valid", "metrics"],
+						"additionalProperties": false,
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"overrides": {
+								"type": "object"
+							},
+							"valid": {
+								"type": "boolean"
+							},
+							"reason": {
+								"type": "string"
+							},
+							"metrics": {
+								"type": "object",
+								"additionalProperties": {
+									"type": ["number", "boolean", "null"]
+								}
+							}
+						}
+					}
+				},
+				"ranges": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "array",
+						"items": {
+							"type": "number"
+						},
+						"minItems": 2,
+						"maxItems": 2
+					}
+				},
+				"note": {
+					"type": "string"
+				}
 			}
 		}
 	}

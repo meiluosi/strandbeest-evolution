@@ -57,7 +57,71 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
     return doc
 
 
-def full_pipeline(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None, skip_sim: bool = False) -> dict[str, Any]:
+# Friction-regularisation variants (docs/EXPERIMENTS.md section 8): on flat ground the torque level is mostly slip
+# dissipation and moved by up to a factor 1.9 across these numerical choices, so a run is reported as a range.
+ENSEMBLE: list[tuple[str, dict[str, Any]]] = [
+    ("pyramidal cone (default)", {}),
+    ("elliptic cone", {"solver": {"cone": "elliptic"}}),
+    ("friction impedance ratio 10", {"solver": {"impratio": 10}}),
+    ("no-slip iterations 10", {"solver": {"noslip_iterations": 10}}),
+]
+RANGE_METRICS = ("stride_per_rev", "mean_speed", "mean_torque", "peak_torque", "torque_ptp")
+MAX_LOOP_VIOLATION = 1e-3  # m; a run whose loops opened more than this is discarded
+
+
+def _merge(dst: dict, src: dict) -> dict:
+    for k, v in src.items():
+        if isinstance(v, dict):
+            _merge(dst.setdefault(k, {}), v)
+        else:
+            dst[k] = v
+    return dst
+
+
+def _variant(design: Design, overrides: dict[str, Any] | None, extra: dict[str, Any]) -> dict[str, Any]:
+    ov = _merge(json.loads(json.dumps(overrides or {})), extra)
+    res = sim_run(scenario_from_design(design, ov))
+    m = {k: (None if isinstance(v, float) and v != v else v) for k, v in res.metrics.items()}
+    ok = (
+        not res.stalled
+        and all(isinstance(m.get(k), (int, float)) for k in RANGE_METRICS)
+        and m.get("max_loop_violation", 1.0) < MAX_LOOP_VIOLATION
+    )
+    reason = "" if ok else ("stalled" if res.stalled else "loops opened or non-finite metrics")
+    return {"metrics": m, "valid": ok, "reason": reason}
+
+
+def simulate_ensemble(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Base run (with arrays) plus the friction-regularisation variants, and the range of each metric over valid runs."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    base = simulate(design, out_dir, overrides)
+    others = ENSEMBLE[1:]
+    with ThreadPoolExecutor(max_workers=len(others)) as ex:  # MuJoCo releases the GIL while stepping
+        results = list(ex.map(lambda nv: _variant(design, overrides, nv[1]), others))
+    variants = [{"name": ENSEMBLE[0][0], "overrides": {}, "valid": base["metrics"].get("max_loop_violation", 1.0) < MAX_LOOP_VIOLATION and not base["stalled"],
+                 "metrics": base["metrics"]}]
+    for (name, ov), r in zip(others, results):
+        row = {"name": name, "overrides": ov, "valid": r["valid"], "metrics": r["metrics"]}
+        if r["reason"]:
+            row["reason"] = r["reason"]
+        variants.append(row)
+    ranges = {}
+    for k in RANGE_METRICS:
+        vals = [v["metrics"][k] for v in variants if v["valid"] and isinstance(v["metrics"].get(k), (int, float))]
+        if vals:
+            ranges[k] = [min(vals), max(vals)]
+    base["ensemble"] = {
+        "variants": variants,
+        "ranges": ranges,
+        "note": "Torque level depends on how stick-slip friction is regularised; the range spans four numerical settings, not measurement uncertainty.",
+    }
+    validate("run", base)
+    (Path(out_dir) / base["id"] / "run.json").write_text(json.dumps(base, indent=2))
+    return base
+
+
+def full_pipeline(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None, skip_sim: bool = False, ensemble: bool = True) -> dict[str, Any]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     report: dict[str, Any] = {"design": design.name, "evaluation": evaluate(design)}
@@ -82,8 +146,9 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("design")
     r.add_argument("out")
     r.add_argument("--skip-sim", action="store_true", help="skip the (slow) simulation")
+    r.add_argument("--no-ensemble", action="store_true", help="single run instead of the friction-regularisation range")
     a = ap.parse_args(argv)
-    rep = full_pipeline(Design.load(a.design), Path(a.out), skip_sim=a.skip_sim)
+    rep = full_pipeline(Design.load(a.design), Path(a.out), skip_sim=a.skip_sim, ensemble=not a.no_ensemble)
     print(json.dumps(rep, indent=2))
     raise SystemExit(1 if rep["fabrication"]["failed_checks"] else 0)
 

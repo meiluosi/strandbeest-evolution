@@ -59,3 +59,20 @@ def test_unknown_things_are_404(client):
     assert client.get("/jobs/nope").status_code == 404
     assert client.get("/runs/nope").status_code == 404
     assert client.get("/designs/nope").status_code == 404
+
+
+def test_ensemble_run_reports_ranges_and_marks_invalid_variants(client):
+    jid = client.post("/runs", json={"design": DESIGN, "ensemble": True, "overrides": {"run": {"revolutions": 0.8, "settle": 0.3}}}).json()["job_id"]
+    for _ in range(400):
+        j = client.get(f"/jobs/{jid}").json()
+        if j["status"] in ("done", "failed"):
+            break
+        time.sleep(0.5)
+    assert j["status"] == "done", j
+    ens = j["result"]["ensemble"]
+    assert len(ens["variants"]) == 4 and ens["variants"][0]["valid"] is not None
+    for key, (lo, hi) in ens["ranges"].items():
+        assert lo <= hi, key
+    # ranges only use valid variants
+    valid_stride = [v["metrics"]["stride_per_rev"] for v in ens["variants"] if v["valid"]]
+    assert ens["ranges"]["stride_per_rev"] == [min(valid_stride), max(valid_stride)]
