@@ -25,6 +25,7 @@ Full chain (Python side):
 ./scripts/setup-python.sh && source .venv/bin/activate
 strandbeest-pipeline run schemas/examples/design-jansen-small-6leg.json out/   # evaluate → print pack → simulate
 strandbeest-api                                                                 # backend for the web demo below
+docker compose up --build                                                       # or the whole local lab at once (web 8080, API 8000); see docs/DEPLOY.md
 ```
 
 

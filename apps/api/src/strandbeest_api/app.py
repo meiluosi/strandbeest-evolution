@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import threading
-import uuid
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -21,18 +18,23 @@ from strandbeest_common import Design
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
 
+from .jobs import JobContext, JobStore, Workers
 from .pipeline import evaluate, simulate, simulate_ensemble
+from .sweeps import expand, run_sweep
+
+PARAMS = {"contact_stiffness": CONTACT_STIFFNESS, "friction": FRICTION}
 
 
-def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
+def create_app(data_dir: str | Path | None = None, workers: int | None = None) -> FastAPI:
     root = Path(data_dir or os.environ.get("STRANDBEEST_DATA", "data"))
     for sub in ("designs", "runs", "exports", "measurements", "profiles"):
         (root / sub).mkdir(parents=True, exist_ok=True)
-    app = FastAPI(title="Strandbeest platform API", version="0.1.0")
-    app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_methods=["*"], allow_headers=["*"])
-    pool = ThreadPoolExecutor(max_workers=workers)
-    jobs: dict[str, dict[str, Any]] = {}
-    lock = threading.Lock()
+    n_workers = workers if workers is not None else int(os.environ.get("STRANDBEEST_WORKERS", "2"))
+    origins = os.environ.get("STRANDBEEST_CORS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080").split(",")
+
+    store = JobStore(root / "strandbeest.db")
+    interrupted = store.recover()
+    _reindex(store, root)
 
     def parse(doc: dict) -> Design:
         try:
@@ -40,10 +42,46 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
 
+    def measurement_doc(m: Any) -> dict:
+        if isinstance(m, str):
+            p = root / "measurements" / f"{Path(m).name}.json"
+            if not p.exists():
+                raise HTTPException(404, "no such measurement")
+            return json.loads(p.read_text())
+        return m
+
+    # -- job handlers (run inside worker threads) --------------------------
+    def h_run(ctx: JobContext, payload: dict[str, Any]):
+        d = Design(payload["design"])
+        fn = simulate_ensemble if payload.get("ensemble", True) else simulate
+        ctx.progress(0, 1, "simulating")
+        doc = fn(d, root / "runs", payload.get("overrides"))
+        store.index_run(doc)
+        ctx.progress(1, 1, "done")
+        return doc
+
+    def h_calibration(ctx: JobContext, payload: dict[str, Any]):
+        d = Design(payload["design"])
+        profile = calibrate(d, measurement_doc(payload["measurement"]), [PARAMS[n] for n in payload["params"]], max_evals=payload["max_evals"])
+        validate("profile", profile)
+        (root / "profiles" / f"{profile['name']}.json").write_text(json.dumps(profile, indent=2))
+        return profile
+
+    def h_sweep(ctx: JobContext, payload: dict[str, Any]):
+        return run_sweep(ctx, payload, root / "runs", parallel=max(1, n_workers + 1))
+
+    pool = Workers(store, {"run": h_run, "calibration": h_calibration, "sweep": h_sweep}, n=n_workers)
+    pool.start()
+
+    app = FastAPI(title="Strandbeest platform API", version="0.2.0")
+    app.state.store, app.state.workers = store, pool
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
+
     @app.get("/health")
     def health():
-        return {"ok": True}
+        return {"ok": True, "interrupted_jobs_recovered": interrupted, "workers": n_workers}
 
+    # -- designs -------------------------------------------------------------
     @app.post("/designs/validate")
     def validate_design(doc: dict = Body(...)):
         try:
@@ -73,49 +111,54 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
     def evaluate_design(doc: dict = Body(...)):
         return evaluate(parse(doc))
 
-    def submit(fn, *args) -> str:
-        jid = uuid.uuid4().hex[:12]
-        with lock:
-            jobs[jid] = {"status": "queued", "result": None, "error": None}
-
-        def work():
-            with lock:
-                jobs[jid]["status"] = "running"
-            try:
-                res = fn(*args)
-                with lock:
-                    jobs[jid].update(status="done", result=res)
-            except Exception as e:  # report to the client instead of losing it in the pool
-                with lock:
-                    jobs[jid].update(status="failed", error=f"{type(e).__name__}: {e}")
-
-        pool.submit(work)
-        return jid
-
+    # -- jobs ----------------------------------------------------------------
     @app.post("/runs")
     def start_run(body: dict = Body(...)):
         d = parse(body["design"])
-        overrides = body.get("overrides")
-        fn = simulate_ensemble if body.get("ensemble", True) else simulate
-        jid = submit(lambda: fn(d, root / "runs", overrides))
-        return {"job_id": jid}
+        return {"job_id": store.create("run", {"design": d.doc, "overrides": body.get("overrides"), "ensemble": body.get("ensemble", True)})}
+
+    @app.post("/sweeps")
+    def start_sweep(body: dict = Body(...)):
+        d = parse(body["design"])
+        try:
+            points = expand(body["axes"])
+        except (ValueError, KeyError) as e:
+            raise HTTPException(422, str(e)) from e
+        jid = store.create("sweep", {"design": d.doc, "axes": body["axes"], "overrides": body.get("overrides")})
+        return {"job_id": jid, "points": len(points)}
+
+    @app.post("/calibrations")
+    def start_calibration(body: dict = Body(...)):
+        d = parse(body["design"])
+        names = body.get("params", ["contact_stiffness"])
+        unknown = [n for n in names if n not in PARAMS]
+        if unknown:
+            raise HTTPException(422, f"unknown parameters {unknown}; available: {sorted(PARAMS)}")
+        measurement_doc(body["measurement"])  # 404 early if it does not exist
+        return {"job_id": store.create("calibration", {"design": d.doc, "measurement": body["measurement"], "params": names,
+                                                        "max_evals": min(int(body.get("max_evals", 20)), 40)})}
+
+    @app.get("/jobs")
+    def list_jobs(status: str | None = None, kind: str | None = None, limit: int = 50):
+        return store.list(status, kind, limit)
 
     @app.get("/jobs/{jid}")
-    def job(jid: str):
-        if jid not in jobs:
+    def get_job(jid: str):
+        j = store.get(jid)
+        if j is None:
             raise HTTPException(404, "no such job")
-        return jobs[jid]
+        return j
 
+    @app.post("/jobs/{jid}/cancel")
+    def cancel_job(jid: str):
+        if store.get(jid) is None:
+            raise HTTPException(404, "no such job")
+        return {"cancel_requested": store.request_cancel(jid)}
+
+    # -- runs ----------------------------------------------------------------
     @app.get("/runs")
     def list_runs(limit: int = 30):
-        rows = []
-        for p in (root / "runs").glob("*/run.json"):
-            d = json.loads(p.read_text())
-            rows.append({"id": d["id"], "design_name": d["design_name"], "created": d["provenance"].get("created", ""),
-                         "stalled": d.get("stalled", False), "metrics": d["metrics"],
-                         "ranges": d.get("ensemble", {}).get("ranges")})
-        rows.sort(key=lambda r: r["created"], reverse=True)
-        return rows[:limit]
+        return store.list_runs(limit)
 
     @app.get("/runs/{rid}")
     def get_run(rid: str):
@@ -130,23 +173,19 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
         if not p.exists():
             raise HTTPException(404, "no such run")
         a = np.load(p)
-        n = len(a["t"])
-        step = max(1, n // max_points)
+        step = max(1, len(a["t"]) // max_points)
         return {k: a[k][::step].tolist() for k in a.files}
 
+    # -- exports -------------------------------------------------------------
     @app.post("/exports")
     def make_export(doc: dict = Body(...)):
         d = parse(doc)
+        import uuid
+
         eid = uuid.uuid4().hex[:12]
-        out = root / "exports" / eid
-        manifest = fab_export(d, out)
-        return {
-            "export_id": eid,
-            "parts": len(manifest["parts"]),
-            "layers_per_leg": manifest["layers_per_leg"],
-            "checks": manifest["checks"],
-            "download": f"/exports/{eid}/download",
-        }
+        manifest = fab_export(d, root / "exports" / eid)
+        return {"export_id": eid, "parts": len(manifest["parts"]), "layers_per_leg": manifest["layers_per_leg"],
+                "checks": manifest["checks"], "download": f"/exports/{eid}/download"}
 
     @app.get("/exports/{eid}/parts")
     def export_parts(eid: str):
@@ -155,6 +194,21 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
             raise HTTPException(404, "no such export")
         return json.loads(p.read_text())
 
+    @app.get("/exports/{eid}/stl/{name}")
+    def export_stl(eid: str, name: str):
+        p = root / "exports" / Path(eid).name / "stl" / f"{Path(name).name}.stl"
+        if not p.exists():
+            raise HTTPException(404, "no such part")
+        return FileResponse(p, media_type="model/stl")
+
+    @app.get("/exports/{eid}/download")
+    def download(eid: str):
+        zips = list((root / "exports" / Path(eid).name).glob("*.zip"))
+        if not zips:
+            raise HTTPException(404, "no such export")
+        return FileResponse(zips[0], filename=zips[0].name, media_type="application/zip")
+
+    # -- measurements --------------------------------------------------------
     @app.post("/measurements")
     def save_measurement(doc: dict = Body(...)):
         try:
@@ -174,26 +228,14 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
 
     @app.get("/measurements/{mid}")
     def get_measurement(mid: str):
-        p = root / "measurements" / f"{Path(mid).name}.json"
-        if not p.exists():
-            raise HTTPException(404, "no such measurement")
-        return json.loads(p.read_text())
-
-    def _run_curves(rid: str):
-        p = root / "runs" / Path(rid).name / "arrays.npz"
-        if not p.exists():
-            raise HTTPException(404, "no such run")
-        a = np.load(p)
-        return curves(a["t"], a["psi"], a["torque"], a["x"], skip_rev=0.5)
+        return measurement_doc(mid)
 
     @app.post("/compare")
     def compare(body: dict = Body(...)):
         """Measured vs simulated crank torque per crank-angle bin, plus a single mismatch number."""
-        meas = body["measurement"] if "measurement" in body else None
-        if meas is None:
+        if "measurement" not in body:
             raise HTTPException(422, "measurement required")
-        if isinstance(meas, str):
-            meas = get_measurement(meas)
+        meas = measurement_doc(body["measurement"])
         try:
             validate("measurement", meas)
         except ValueError as e:
@@ -202,48 +244,29 @@ def create_app(data_dir: str | Path | None = None, workers: int = 2) -> FastAPI:
         if "psi" not in ch or "torque" not in ch:
             raise HTTPException(422, "measurement needs psi and torque channels to compare")
         mc = curves(np.array(ch["t"]), np.array(ch["psi"]), np.array(ch["torque"]), np.array(ch["x"]) if "x" in ch else None, 0.5)
-        sc = _run_curves(body["run_id"])
+        p = root / "runs" / Path(body["run_id"]).name / "arrays.npz"
+        if not p.exists():
+            raise HTTPException(404, "no such run")
+        a = np.load(p)
+        sc = curves(a["t"], a["psi"], a["torque"], a["x"], skip_rev=0.5)
         nb = len(mc.torque)
-        centers = [(i + 0.5) / nb * 360.0 for i in range(nb)]
         clean = lambda arr: [None if v != v else float(v) for v in arr]  # noqa: E731
         d = distance(mc, sc)
-        return {"angle_deg": centers, "measured": clean(mc.torque), "simulated": clean(sc.torque),
+        return {"angle_deg": [(i + 0.5) / nb * 360.0 for i in range(nb)], "measured": clean(mc.torque), "simulated": clean(sc.torque),
                 "stride_measured": mc.stride, "stride_simulated": sc.stride, "distance": None if d != d or d == float("inf") else d}
 
-    PARAMS = {"contact_stiffness": CONTACT_STIFFNESS, "friction": FRICTION}
-
-    @app.post("/calibrations")
-    def start_calibration(body: dict = Body(...)):
-        d = parse(body["design"])
-        names = body.get("params", ["contact_stiffness"])
-        unknown = [n for n in names if n not in PARAMS]
-        if unknown:
-            raise HTTPException(422, f"unknown parameters {unknown}; available: {sorted(PARAMS)}")
-        meas = body["measurement"]
-        if isinstance(meas, str):
-            meas = get_measurement(meas)
-        evals = min(int(body.get("max_evals", 20)), 40)
-
-        def work():
-            profile = calibrate(d, meas, [PARAMS[n] for n in names], max_evals=evals)
-            validate("profile", profile)
-            (root / "profiles" / f"{profile['name']}.json").write_text(json.dumps(profile, indent=2))
-            return profile
-
-        return {"job_id": submit(work)}
-
-    @app.get("/exports/{eid}/download")
-    def download(eid: str):
-        folder = root / "exports" / Path(eid).name
-        zips = list(folder.glob("*.zip"))
-        if not zips:
-            raise HTTPException(404, "no such export")
-        return FileResponse(zips[0], filename=zips[0].name, media_type="application/zip")
-
     return app
+
+
+def _reindex(store: JobStore, root: Path) -> None:
+    """Rebuild the run index from run.json files (covers runs written before the index existed)."""
+    for p in (root / "runs").glob("*/run.json"):
+        d = json.loads(p.read_text())
+        if not store.has_run(d["id"]):
+            store.index_run(d)
 
 
 def serve() -> None:
     import uvicorn
 
-    uvicorn.run(create_app(), host="127.0.0.1", port=8000)
+    uvicorn.run(create_app(), host=os.environ.get("STRANDBEEST_HOST", "127.0.0.1"), port=int(os.environ.get("STRANDBEEST_PORT", "8000")))

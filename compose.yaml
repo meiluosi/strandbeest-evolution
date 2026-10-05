@@ -1,0 +1,15 @@
+# Local lab: web on http://localhost:8080, API on http://localhost:8000. Data lives in the named volume.
+services:
+  api:
+    build: { context: ., dockerfile: docker/api.Dockerfile, args: { GIT_SHA: "${GIT_SHA:-unknown}" } }
+    ports: ["8000:8000"]
+    environment:
+      STRANDBEEST_WORKERS: "2"
+      STRANDBEEST_CORS: "http://localhost:8080,http://127.0.0.1:8080,http://localhost:5173"
+    volumes: ["strandbeest-data:/data"]
+  web:
+    build: { context: ., dockerfile: docker/web.Dockerfile, args: { VITE_API_URL: "http://127.0.0.1:8000" } }
+    ports: ["8080:80"]
+    depends_on: [api]
+volumes:
+  strandbeest-data:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -21,6 +22,9 @@ from strandbeest_sim import scenario_from_design
 
 
 def code_version() -> str:
+    env = os.environ.get("STRANDBEEST_CODE_VERSION")
+    if env and env != "unknown":
+        return env
     try:
         return subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=True,
                               cwd=Path(__file__).parent).stdout.strip()

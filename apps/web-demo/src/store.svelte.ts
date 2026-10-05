@@ -5,11 +5,14 @@ import {
 	type JansenParams,
 } from "strandbeest-core";
 
+const DEFAULT_API: string =
+	import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
+
 function loadApi(): string {
 	try {
-		return localStorage.getItem("strandbeest-api") ?? "http://127.0.0.1:8000";
+		return localStorage.getItem("strandbeest-api") ?? DEFAULT_API;
 	} catch {
-		return "http://127.0.0.1:8000";
+		return DEFAULT_API;
 	}
 }
 

@@ -27,7 +27,7 @@ const summary = $derived(
 const result = $derived(summary ? windWalk(DEFAULT_SAIL, summary, wind) : null);
 </script>
 
-<div class="wind">
+<div class="wind stack">
 	<div class="grid">
 		<label>风速 {wind} m/s <input type="range" min="0" max="15" step="0.5" bind:value={wind} /></label>
 		<label>质量 {mass} kg <input type="range" min="10" max="200" step="5" bind:value={mass} /></label>

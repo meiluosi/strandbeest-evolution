@@ -254,6 +254,20 @@ def export(design: Design, out_dir: Path) -> dict:
         "crank_phase_deg": phases,
         "layers_per_leg": plan.layers,
         "layer_of_part": {b.key: b.layer for b in plan.bars},
+        "bars": [
+            {
+                "key": b.key,
+                "label": b.label,
+                "a": b.a,
+                "b": b.b,
+                "length_mm": round(b.length_mm, 3),
+                "layer": b.layer,
+                "part": f"crank_arm_{plan.crank_mm:.1f}mm" if b.key == "crank" else f"bar_{b.length_mm:.1f}mm",
+            }
+            for b in plan.bars
+        ],
+        "crank_pivot_mm": [round(px, 3), round(py, 3)],
+        "layer_pitch_mm": round(T + GAP_MM, 3),
         "leg_pitch_mm": round(axles.leg_pitch_mm, 2),
         "legs_width_mm": round(legs_width, 2),
         "inner_width_mm": round(inner_width, 2),

@@ -154,76 +154,83 @@ const chart = $derived.by(() => {
 });
 </script>
 
-<section>
-	<h2>实验室：实测与仿真对照</h2>
-	<p class="note">把线下测的数据导入、和一次仿真叠在一起看，再让校准去拟合足垫刚度/摩擦。没有实测数据时，可以先用合成数据试链路（勾选“合成数据”）。</p>
-	<div class="row"><button disabled={!!busy} onclick={refresh}>刷新测量与运行列表</button>{#if busy}<span>{busy}…</span>{/if}</div>
-	{#if error}<p class="err">出错：{error}</p>{/if}
-	{#if info}<p class="note">{info}</p>{/if}
+<div class="stack">
+	<div class="card">
+		<h2>实验室：实测与仿真对照</h2>
+		<p class="muted">把线下测的数据导入，和一次仿真叠在一起看，再让校准去拟合足垫刚度或摩擦。没有实测数据时，可以先用合成数据试链路（勾选“合成数据”）。</p>
+		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>刷新测量与运行列表</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
+		{#if error}<p class="notice error">出错：{error}</p>{/if}
+		{#if info}<p class="notice info">{info}</p>{/if}
+	</div>
 
-	<h3>导入测量</h3>
-	<div class="row">
-		<label class="file">CSV / JSON <input type="file" accept=".csv,.json" onchange={pick} /></label>
-		<label>编号 <input type="text" bind:value={newId} size="12" /></label>
-		<label>类型
-			<select bind:value={kind}><option value="motor_no_wind">电机驱动无风</option><option value="fan">风扇</option></select>
-		</label>
-		<label>曲柄转速 rad/s <input type="number" step="0.1" bind:value={omega} /></label>
-		{#if kind === "fan"}<label>风速 m/s <input type="number" step="0.5" min="0" bind:value={wind} /></label>{/if}
-		<label><input type="checkbox" bind:checked={synthetic} /> 合成数据</label>
-		<button disabled={!!busy || !channels} onclick={save}>保存测量</button>
+	<div class="card">
+		<h3>1. 导入测量</h3>
+		<div class="row">
+			<label class="btn inline" style="cursor:pointer">选择 CSV / JSON <input type="file" accept=".csv,.json" onchange={pick} hidden /></label>
+			<label>编号 <input type="text" bind:value={newId} size="12" /></label>
+			<label>类型
+				<select bind:value={kind}><option value="motor_no_wind">电机驱动无风</option><option value="fan">风扇</option></select>
+			</label>
+			<label>曲柄转速 (rad/s) <input type="number" step="0.1" bind:value={omega} /></label>
+			{#if kind === "fan"}<label>风速 (m/s) <input type="number" step="0.5" min="0" bind:value={wind} /></label>{/if}
+			<label class="inline"><input type="checkbox" bind:checked={synthetic} /> 合成数据</label>
+			<button class="btn primary" disabled={!!busy || !channels} onclick={save}>保存测量</button>
+		</div>
+		<small>CSV 第一行是列名：<code>t,psi,torque,x</code>（t 秒、psi 曲柄转角 rad、torque 曲柄扭矩 N·m、x 机体前进位置 m）。{fileName ? `已选 ${fileName}` : ""}</small>
 	</div>
-	<p class="note">CSV 第一行是列名：<code>t,psi,torque,x</code>（t 秒、psi 曲柄转角 rad、torque 曲柄扭矩 N·m、x 机体前进位置 m）。{fileName ? `已选 ${fileName}` : ""}</p>
 
-	<h3>对照与校准</h3>
-	<div class="row">
-		<label>测量
-			<select bind:value={mId}>
-				<option value="">选择…</option>
-				{#each measurements as m}<option value={m.id}>{m.id}{m.synthetic ? "（合成）" : ""}</option>{/each}
-			</select>
-		</label>
-		<label>仿真运行
-			<select bind:value={runId}>
-				<option value="">选择…</option>
-				{#each runs as r}<option value={r.id}>{r.id} · {r.design_name}</option>{/each}
-			</select>
-		</label>
-		<button disabled={!!busy || !mId || !runId} onclick={compare}>对照</button>
+	<div class="card">
+		<h3>2. 对照</h3>
+		<div class="row center">
+			<label>测量
+				<select bind:value={mId}>
+					<option value="">选择…</option>
+					{#each measurements as m}<option value={m.id}>{m.id}{m.synthetic ? "（合成）" : ""}</option>{/each}
+				</select>
+			</label>
+			<label>仿真运行
+				<select bind:value={runId}>
+					<option value="">选择…</option>
+					{#each runs as r}<option value={r.id}>{r.id} · {r.design_name}</option>{/each}
+				</select>
+			</label>
+			<button class="btn primary" disabled={!!busy || !mId || !runId} onclick={compare}>对照</button>
+		</div>
+		{#if cmp && chart}
+			<div class="cards">
+				<div class="stat"><b>{cmp.distance === null ? "–" : cmp.distance.toFixed(3)}</b><span>失配度（0 = 一致）</span></div>
+				{#if cmp.stride_measured !== null && cmp.stride_simulated !== null}
+					<div class="stat"><b>{cmp.stride_measured.toFixed(3)} / {cmp.stride_simulated.toFixed(3)}</b><span>步幅 实测 / 仿真 (m)</span></div>
+				{/if}
+			</div>
+			<p class="muted">扭矩随曲柄转角（0–360°，纵轴 {chart.lo.toFixed(4)} – {chart.hi.toFixed(4)} N·m）：<span style="color:var(--blue)"> ■ 实测</span> <span style="color:var(--accent)"> ■ 仿真</span></p>
+			<svg viewBox="0 0 300 100" class="chart"><polyline points={chart.m} fill="none" stroke="var(--blue)" stroke-width="1.5" /><polyline points={chart.s} fill="none" stroke="var(--accent)" stroke-width="1.5" /></svg>
+			<small>失配度 = 扭矩均方根差 ÷ 实测平均幅值，再加步幅相对误差。</small>
+		{/if}
 	</div>
-	{#if cmp && chart}
-		<p>失配度 {cmp.distance === null ? "–" : cmp.distance.toFixed(3)}（0 表示一致；扭矩均方根差除以实测平均幅值，加上步幅相对误差）
-			{#if cmp.stride_measured !== null && cmp.stride_simulated !== null}· 步幅 实测 {cmp.stride_measured.toFixed(3)} m / 仿真 {cmp.stride_simulated.toFixed(3)} m{/if}</p>
-		<p class="note">扭矩随曲柄转角（0–360°，纵轴 {chart.lo.toFixed(4)} – {chart.hi.toFixed(4)} N·m）：<span style="color:#3f8fe5"> ■ 实测</span> <span style="color:#e5733f"> ■ 仿真</span></p>
-		<svg viewBox="0 0 300 100" class="chart"><polyline points={chart.m} fill="none" stroke="#3f8fe5" stroke-width="1.5" /><polyline points={chart.s} fill="none" stroke="#e5733f" stroke-width="1.5" /></svg>
-	{/if}
-	<div class="row">
-		<label><input type="checkbox" bind:checked={calParams.contact_stiffness} /> 足垫刚度</label>
-		<label><input type="checkbox" bind:checked={calParams.friction} /> 摩擦系数</label>
-		<button disabled={!!busy || !mId} onclick={calibrate}>用这份测量校准（当前设计）</button>
+
+	<div class="card">
+		<h3>3. 校准</h3>
+		<div class="row center">
+			<label class="inline"><input type="checkbox" bind:checked={calParams.contact_stiffness} /> 足垫刚度</label>
+			<label class="inline"><input type="checkbox" bind:checked={calParams.friction} /> 摩擦系数</label>
+			<button class="btn primary" disabled={!!busy || !mId} onclick={calibrate}>用这份测量校准（当前设计）</button>
+		</div>
+		{#if profile}
+			<table class="tbl">
+				<thead><tr><th colspan="2">校准结果 {profile.name}</th></tr></thead>
+				<tbody>
+					{#each Object.entries(profile.parameters) as [k, v]}<tr><td>{k}</td><td>{v.toPrecision(4)}</td></tr>{/each}
+					<tr><td>残差</td><td>{profile.provenance.residual.toFixed(3)}</td></tr>
+					<tr><td>方法</td><td>{profile.provenance.method}</td></tr>
+				</tbody>
+			</table>
+			{#if profile.provenance.synthetic}<p class="notice">这份结果来自合成数据，只说明链路能跑通，没有物理含义。</p>{/if}
+		{/if}
+		<p class="notice info">校准目前只在合成数据上验证过；真实数据的模型误差会比噪声大，拟合出的值未必有物理意义。</p>
 	</div>
-	{#if profile}
-		<table>
-			<thead><tr><th colspan="2">校准结果 {profile.name}</th></tr></thead>
-			<tbody>
-				{#each Object.entries(profile.parameters) as [k, v]}<tr><td>{k}</td><td>{v.toPrecision(4)}</td></tr>{/each}
-				<tr><td>残差</td><td>{profile.provenance.residual.toFixed(3)}</td></tr>
-				<tr><td>方法</td><td>{profile.provenance.method}</td></tr>
-			</tbody>
-		</table>
-		{#if profile.provenance.synthetic}<p class="note">这份结果来自合成数据，只说明链路能跑通，没有物理含义。</p>{/if}
-	{/if}
-	<small>校准目前只在合成数据上验证过；真实数据的模型误差会比噪声大，拟合出的值未必有物理意义。</small>
-</section>
+</div>
 
 <style>
-	.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin: 8px 0; font-size: 14px; }
-	input[type="number"] { width: 80px; }
-	table { border-collapse: collapse; font-size: 13px; margin: 6px 0; }
-	td, th { border: 1px solid #8884; padding: 3px 8px; text-align: left; }
-	.chart { width: 100%; max-width: 520px; height: 120px; border: 1px solid #8884; border-radius: 8px; }
-	.note { opacity: 0.75; margin: 4px 0; font-size: 13px; }
-	.err { color: #c0392b; }
-	small { opacity: 0.7; }
-	.file input { font-size: 12px; }
+	.chart { width: 100%; max-width: 560px; height: 130px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
 </style>

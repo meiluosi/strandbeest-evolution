@@ -12,7 +12,18 @@ DESIGN = json.loads((schema_dir() / "examples" / "design-jansen-small-6leg.json"
 
 @pytest.fixture
 def client(tmp_path):
-    return TestClient(create_app(tmp_path))
+    app = create_app(tmp_path)
+    yield TestClient(app)
+    app.state.workers.stop()
+
+
+def wait(client, jid, tries=400):
+    for _ in range(tries):
+        j = client.get(f"/jobs/{jid}").json()
+        if j["status"] in ("done", "failed", "cancelled"):
+            return j
+        time.sleep(0.25)
+    return j
 
 
 def test_validate_reports_errors_and_accepts_good_designs(client):
@@ -117,3 +128,86 @@ def test_export_parts_endpoint_serves_outlines(client):
 def test_calibration_rejects_unknown_parameters(client):
     r = client.post("/calibrations", json={"design": DESIGN, "measurement": MEAS, "params": ["nope"]})
     assert r.status_code == 422
+
+
+def test_jobs_report_progress_kind_and_are_listed(client):
+    jid = client.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 0.4, "settle": 0.2}}}).json()["job_id"]
+    j = wait(client, jid)
+    assert j["status"] == "done" and j["kind"] == "run" and j["progress"]["done"] == 1
+    assert any(x["id"] == jid for x in client.get("/jobs?kind=run").json())
+
+
+def test_jobs_and_runs_survive_a_restart_and_running_jobs_are_marked_interrupted(tmp_path):
+    from strandbeest_api.jobs import JobStore
+
+    app = create_app(tmp_path)
+    c = TestClient(app)
+    jid = c.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 0.4, "settle": 0.2}}}).json()["job_id"]
+    j = wait(c, jid)
+    assert j["status"] == "done"
+    rid = j["result"]["id"]
+    app.state.workers.stop()
+    # simulate a crash: one job left 'running' in the database
+    store = JobStore(tmp_path / "strandbeest.db")
+    stuck = store.create("run", {"design": DESIGN})
+    store.claim_next()
+    app2 = create_app(tmp_path)
+    c2 = TestClient(app2)
+    try:
+        assert c2.get(f"/jobs/{jid}").json()["status"] == "done"
+        assert c2.get(f"/jobs/{stuck}").json()["status"] == "failed"
+        assert "interrupted" in c2.get(f"/jobs/{stuck}").json()["error"]
+        assert c2.get("/runs").json()[0]["id"] == rid
+    finally:
+        app2.state.workers.stop()
+
+
+def test_queued_jobs_can_be_cancelled(tmp_path):
+    app = create_app(tmp_path, workers=0)  # nothing consumes the queue, so the job stays queued
+    c = TestClient(app)
+    jid = c.post("/runs", json={"design": DESIGN}).json()["job_id"]
+    assert c.get(f"/jobs/{jid}").json()["status"] == "queued"
+    assert c.post(f"/jobs/{jid}/cancel").json()["cancel_requested"] is True
+    assert c.get(f"/jobs/{jid}").json()["status"] == "cancelled"
+    assert c.post(f"/jobs/{jid}/cancel").json()["cancel_requested"] is False  # already finished
+
+
+def test_sweep_expands_a_grid_runs_each_point_and_reports_progress(client):
+    body = {"design": DESIGN, "axes": [{"path": "scenario.solver.contact_stiffness", "values": [3000, 10000]},
+                                       {"path": "design.walker.legs", "values": [4, 6]}],
+            "overrides": {"run": {"revolutions": 0.5, "settle": 0.2}}}
+    r = client.post("/sweeps", json=body).json()
+    assert r["points"] == 4
+    j = wait(client, r["job_id"], tries=800)
+    assert j["status"] == "done", j
+    rows = j["result"]["rows"]
+    assert len(rows) == 4 and j["progress"]["done"] == 4
+    assert {(row["point"]["scenario.solver.contact_stiffness"], row["point"]["design.walker.legs"]) for row in rows} == {(3000, 4), (3000, 6), (10000, 4), (10000, 6)}
+    assert all(row["run_id"] for row in rows)
+    assert len(client.get("/runs?limit=10").json()) >= 4  # each point is a real, stored run
+
+
+def test_sweep_rejects_bad_axes_and_oversized_grids(client):
+    bad = client.post("/sweeps", json={"design": DESIGN, "axes": [{"path": "walker.legs", "values": [4]}]})
+    assert bad.status_code == 422
+    big = client.post("/sweeps", json={"design": DESIGN, "axes": [{"path": "scenario.solver.iterations", "values": list(range(10, 100))}]})
+    assert big.status_code == 422
+
+
+def test_export_serves_stl_files_and_the_bar_list(client):
+    e = client.post("/exports", json=DESIGN).json()
+    parts = client.get(f"/exports/{e['export_id']}/parts").json()
+    assert len(parts["bars"]) == 11 and parts["bars"][0]["part"] in parts["parts"]
+    stl = client.get(f"/exports/{e['export_id']}/stl/frame_plate")
+    assert stl.status_code == 200 and len(stl.content) > 200
+    assert client.get(f"/exports/{e['export_id']}/stl/nope").status_code == 404
+
+
+def test_sweep_axis_can_set_linked_paths():
+    from strandbeest_api.sweeps import expand
+
+    pts = expand([{"path": "scenario.walker.foot_friction", "also": ["scenario.terrain.friction"], "values": [0.5, 1.0]}])
+    assert pts == [
+        {"scenario.walker.foot_friction": 0.5, "scenario.terrain.friction": 0.5},
+        {"scenario.walker.foot_friction": 1.0, "scenario.terrain.friction": 1.0},
+    ]
