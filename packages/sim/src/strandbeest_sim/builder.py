@@ -23,14 +23,15 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-from .config import Scenario
+from .config import Scenario, SimConfig, sim_config
 from .linkage import LinkageSpec, Point, load_spec, solve_pose
 from .registry import terrain_xml
 
 DATA = Path(__file__).parent / "data"
 
 
-def resolve_spec(sc: Scenario) -> LinkageSpec:
+def resolve_spec(sc: Scenario | SimConfig) -> LinkageSpec:
+    sc = sim_config(sc)
     src = sc.linkage.spec
     if isinstance(src, dict):
         d = json.loads(json.dumps(src))
@@ -64,7 +65,8 @@ class _Bar:
     mass: float
 
 
-def build(sc: Scenario, spec: LinkageSpec) -> Built:
+def build(sc: Scenario | SimConfig, spec: LinkageSpec) -> Built:
+    sc = sim_config(sc)
     w = sc.walker
     u = w.unit
     n = w.legs

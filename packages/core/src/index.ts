@@ -6,6 +6,7 @@ export * from "./frames";
 export * from "./ga";
 export type * from "./generated/ops";
 export type * from "./generated/scenario";
+export type * from "./generated/scenario-v1";
 export * from "./genome";
 export * from "./geometry";
 export * from "./guard";

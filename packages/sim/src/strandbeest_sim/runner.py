@@ -10,14 +10,14 @@ import mujoco
 import numpy as np
 
 from .builder import Built, build, resolve_spec
-from .config import Scenario
+from .config import Scenario, SimConfig, sim_config
 from .registry import drives, metrics, terrains
 from .scene import describe_scene
 
 
 @dataclass
 class Result:
-    scenario: Scenario
+    scenario: SimConfig  # the flat configuration that was run
     t: np.ndarray
     psi: np.ndarray  # crank rotation in the walking direction, rad, unwrapped, 0 at the start of driving
     x: np.ndarray  # torso forward position, m
@@ -33,7 +33,7 @@ class Result:
 class Sim:
     """Everything a terrain / drive / metric extension may touch."""
 
-    scenario: Scenario
+    scenario: SimConfig
     built: Built
     model: mujoco.MjModel
     data: mujoco.MjData
@@ -46,7 +46,8 @@ class Sim:
         return -d * (float(self.data.qpos[self.crank_qadr]) - self.q0)
 
 
-def make_sim(sc: Scenario) -> Sim:
+def make_sim(sc: Scenario | SimConfig) -> Sim:
+    sc = sim_config(sc)
     spec = resolve_spec(sc)
     built = build(sc, spec)
     model = mujoco.MjModel.from_xml_string(built.xml)
@@ -58,7 +59,8 @@ def make_sim(sc: Scenario) -> Sim:
     return sim
 
 
-def run(sc: Scenario) -> Result:
+def run(sc: Scenario | SimConfig | dict) -> Result:
+    sc = sim_config(sc)
     sim = make_sim(sc)
     m, d = sim.model, sim.data
     drive = drives.get(sc.drive.kind)(sim)

@@ -1,4 +1,4 @@
-"""Build a simulator Scenario from a Design (the platform's single source of truth for a walker)."""
+"""Build a (schema v2) simulator Scenario from a Design (the platform's single source of truth for a walker)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,9 @@ from typing import Any
 
 from strandbeest_common import Design
 
-from .config import Scenario
+from strandbeest_common.scenario import to_v2
+
+from .config import Scenario, SimConfig
 
 
 def scenario_from_design(design: Design, overrides: dict[str, Any] | None = None) -> Scenario:
@@ -68,4 +70,5 @@ def scenario_from_design(design: Design, overrides: dict[str, Any] | None = None
             sc.setdefault(key, {}).update(val)
         else:
             sc[key] = val
-    return Scenario.model_validate(sc)
+    # overrides use the flat shape (terrain, wind, drive, environment, walker, solver, run); the result is a schema v2 scenario
+    return Scenario.model_validate(to_v2(SimConfig.model_validate(sc).model_dump(mode="json")))

@@ -80,3 +80,12 @@ def test_mean_torque_does_not_depend_on_how_many_revolutions_were_run():
     assert a["mean_torque"] == pytest.approx(b["mean_torque"], rel=0.05)
     short = run(sc(run={"revolutions": 1.2, "frame_rate": 0})).metrics
     assert short["steady_window"] == 0.0  # shorter runs are marked: their means include the start-up
+
+
+def test_soft_ground_is_actually_softer_than_flat_ground():
+    """Regression: for two geoms with direct solref MuJoCo uses the stiffer one, so 'soft' ground had no effect while only the
+    feet were softened (it behaved exactly like flat ground until 2026-10-06)."""
+    flat = run(sc(run={"revolutions": 0.5, "frame_rate": 0}))
+    soft = run(sc(terrain={"kind": "soft", "params": {"stiffness": 4000.0, "damping": 120.0}}, run={"revolutions": 0.5, "frame_rate": 0}))
+    assert soft.metrics["max_penetration"] > 10 * flat.metrics["max_penetration"]
+    assert soft.metrics["peak_torque"] > flat.metrics["peak_torque"]

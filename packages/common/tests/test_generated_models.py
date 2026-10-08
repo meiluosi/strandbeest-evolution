@@ -11,6 +11,7 @@ from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 from strandbeest_common.models import design as design_models
 from strandbeest_common.models import scenario as scenario_models
+from strandbeest_common.models import scenario_v1 as scenario_v1_models
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -31,12 +32,15 @@ def schema(name: str) -> dict:
     return json.loads((ROOT / "schemas" / f"{name}.schema.json").read_text())
 
 
+GOLDEN_SCENARIO_V1 = json.loads((ROOT / "contracts" / "sim-golden" / "runs.json").read_text())["runs"][0]["scenario"]
+
+
 def test_generated_files_are_up_to_date():
     assert gen.main(["--check"]) == 0
 
 
 def test_annotations_complete_for_design_and_scenario():
-    for name in ("design", "scenario", "ops"):
+    for name in ("design", "scenario", "scenario-v1", "ops"):
         assert annotations.check(ROOT / "schemas" / f"{name}.schema.json") == []
 
 
@@ -56,12 +60,18 @@ def schema_defaults(node: dict, root: dict):
 
 
 def test_model_defaults_equal_schema_defaults_and_validate():
-    s = schema("scenario")
+    s = schema("scenario-v1")
     doc = schema_defaults(s, s)
     Draft202012Validator(s).validate(doc)
-    assert scenario_models.Scenario.model_validate(doc) == scenario_models.Scenario()
+    assert scenario_v1_models.ScenarioV1.model_validate(doc) == scenario_v1_models.ScenarioV1()
     # and the model's own dump is a valid document
-    Draft202012Validator(s).validate(scenario_models.Scenario().model_dump(mode="json"))
+    Draft202012Validator(s).validate(scenario_v1_models.ScenarioV1().model_dump(mode="json"))
+    # v2: the world and the run settings default; the entities are required
+    v2 = schema("scenario")
+    walker = {"name": "walker", "kind": "walker", "components": {"linkage": {}, "body": {}, "drive": {}}}
+    d2 = {"schema_version": 2, "entities": [walker]}
+    Draft202012Validator(v2).validate(d2)
+    assert scenario_models.Scenario.model_validate(d2).world.gravity == 9.81
 
 
 MUTATIONS = [0, -1, 1, 0.0001, 3.5, "x", None, [], {}, [1], {"a": 1}, "__del__", "jansen"]
@@ -87,13 +97,19 @@ def set_path(d, p, v):
 
 
 @pytest.mark.parametrize("name,models,base_file", [
-    ("scenario", scenario_models.Scenario, None),
+    ("scenario-v1", scenario_v1_models.ScenarioV1, None),
+    ("scenario", scenario_models.Scenario, "V2"),
     ("design", design_models.Design, "design-jansen-small-6leg.json"),
 ])
 def test_pydantic_and_json_schema_agree(name, models, base_file):
     s = schema(name)
     validator = Draft202012Validator(s)
-    base = json.loads((ROOT / "schemas" / "examples" / base_file).read_text()) if base_file else schema_defaults(s, s)
+    if base_file == "V2":
+        from strandbeest_common.scenario import to_v2
+
+        base = to_v2(GOLDEN_SCENARIO_V1)
+    else:
+        base = json.loads((ROOT / "schemas" / "examples" / base_file).read_text()) if base_file else schema_defaults(s, s)
     assert validator.is_valid(base)
     models.model_validate(base)
     ps = [p for p in paths(base) if p]
@@ -128,10 +144,10 @@ def test_schema_change_changes_both_languages(tmp_path):
     """Add one field to the scenario schema in a scratch copy: the Python and TypeScript outputs both gain it."""
     sdir = tmp_path / "schemas"
     sdir.mkdir()
-    for name in ("design", "scenario", "ops"):
+    for name in ("design", "scenario", "scenario-v1", "ops"):
         s = schema(name)
         if name == "scenario":
-            s["$defs"]["Walker"]["properties"]["tail_length"] = {
+            s["$defs"]["Body"]["properties"]["tail_length"] = {
                 "type": "number", "minimum": 0, "default": 0.5,
                 "x-unit": "m", "x-doc": {"zh": "尾巴长度", "en": "Tail length"},
             }
@@ -147,10 +163,26 @@ def test_schema_change_changes_both_languages(tmp_path):
 def test_generator_rejects_unsupported_keywords(tmp_path):
     sdir = tmp_path / "schemas"
     sdir.mkdir()
-    for name in ("design", "scenario", "ops"):
+    for name in ("design", "scenario", "scenario-v1", "ops"):
         s = schema(name)
         if name == "design":
             s["$defs"]["Walker"]["properties"]["legs"]["multipleOf"] = 2
         (sdir / f"{name}.schema.json").write_text(json.dumps(s))
     with pytest.raises(SystemExit, match="multipleOf"):
         gen.main(["--schemas", str(sdir), "--py-out", str(tmp_path / "p"), "--ts-out", str(tmp_path / "t")])
+
+
+def test_scenario_v1_and_v2_share_their_definitions():
+    """The flat v1 schema is kept for the migration and the simulator's internal shape; its definitions must stay identical to v2's."""
+    v1, v2 = schema("scenario-v1")["$defs"], schema("scenario")["$defs"]
+    for name in ("Linkage", "Wind", "Terrain", "Drive", "Solver", "Run"):
+        assert v1[name] == v2[name], name
+    body = json.loads(json.dumps(v1["Walker"]))
+    for p in body["properties"].values():
+        if p.get("x-group") == "group.walker":
+            p["x-group"] = "group.body"
+    body["x-group"] = "group.body"
+    body["x-doc"] = v2["Body"]["x-doc"]
+    assert body == v2["Body"]
+    assert v1["Environment"]["properties"]["gravity"] == v2["World"]["properties"]["gravity"]
+    assert v1["Environment"]["properties"]["air_density"] == v2["Atmosphere"]["properties"]["air_density"]

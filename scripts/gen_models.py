@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMAS = ("design", "scenario", "ops")
+SCHEMAS = ("design", "scenario", "scenario-v1", "ops")
 KNOWN = {
     "$schema", "$id", "$defs", "$ref", "title", "description", "type", "properties", "required", "additionalProperties",
     "minProperties", "items", "minItems", "maxItems", "enum", "const", "oneOf", "anyOf", "default", "minimum",
@@ -326,7 +326,7 @@ def outputs(schemas_dir: Path, py_out: Path, ts_out: Path) -> dict[Path, str]:
     for name in SCHEMAS:
         schema = json.loads((schemas_dir / f"{name}.schema.json").read_text())
         check_keywords(schema, name)
-        res[py_out / f"{name}.py"] = PyGen(name, schema).render()
+        res[py_out / f"{name.replace('-', '_')}.py"] = PyGen(name, schema).render()
         res[ts_out / f"{name}.ts"] = TsGen(name, schema).render()
     res[py_out / "__init__.py"] = '"""Models generated from schemas/*.schema.json (see scripts/gen_models.py)."""\n'
     return res

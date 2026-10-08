@@ -1,15 +1,14 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/scenario.schema.json",
-	"title": "Scenario",
-	"description": "One document that fully determines a simulation run: a World (gravity, atmosphere, wind, terrain) with the entities placed in it (a walker is an entity with a linkage, a body and a drive), plus solver and run settings. Defaults marked x-assumption are guesses, not measurements.",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/scenario-v1.schema.json",
+	"title": "ScenarioV1",
+	"description": "The flat scenario of schema version 1 (one walker, its environment, drive and solver in one object). The simulator still runs on this shape internally; scenarios are written as schema version 2 (World + Entities) and migrated with strandbeest_common.migrate.",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["entities"],
 	"properties": {
 		"schema_version": {
-			"const": 2,
-			"default": 2
+			"const": 1,
+			"default": 1
 		},
 		"name": {
 			"type": "string",
@@ -19,20 +18,29 @@
 				"en": "Scenario name"
 			}
 		},
-		"world": {
-			"$ref": "#/$defs/World",
+		"linkage": {
+			"$ref": "#/$defs/Linkage",
 			"default": {}
 		},
-		"entities": {
-			"type": "array",
-			"minItems": 1,
-			"items": {
-				"$ref": "#/$defs/Entity"
-			},
-			"x-doc": {
-				"zh": "放进世界里的实体",
-				"en": "The entities placed in the world"
-			}
+		"walker": {
+			"$ref": "#/$defs/Walker",
+			"default": {}
+		},
+		"environment": {
+			"$ref": "#/$defs/Environment",
+			"default": {}
+		},
+		"wind": {
+			"$ref": "#/$defs/Wind",
+			"default": {}
+		},
+		"terrain": {
+			"$ref": "#/$defs/Terrain",
+			"default": {}
+		},
+		"drive": {
+			"$ref": "#/$defs/Drive",
+			"default": {}
 		},
 		"solver": {
 			"$ref": "#/$defs/Solver",
@@ -87,7 +95,7 @@
 			},
 			"x-group": "group.linkage"
 		},
-		"Body": {
+		"Walker": {
 			"type": "object",
 			"additionalProperties": false,
 			"properties": {
@@ -97,7 +105,7 @@
 					"default": 12,
 					"x-unit": "count",
 					"x-range": [1, 16],
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "腿数",
 						"en": "Number of legs"
@@ -109,7 +117,7 @@
 					"exclusiveMinimum": 0,
 					"default": 50.0,
 					"x-unit": "kg",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "总质量（机身拿走杆件之外的部分）；设了 body_mass 时忽略",
 						"en": "Total mass (the torso gets what the bars do not); ignored if body_mass is set"
@@ -123,7 +131,7 @@
 					"exclusiveMinimum": 0,
 					"default": null,
 					"x-unit": "kg",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "机身质量，腿另算",
 						"en": "Torso mass; legs are added on top"
@@ -135,7 +143,7 @@
 					"exclusiveMinimum": 0,
 					"default": 0.02,
 					"x-unit": "m",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "连杆每个长度单位对应的米数",
 						"en": "Metres per length unit of the linkage"
@@ -147,7 +155,7 @@
 				"direction": {
 					"enum": [-1, 1],
 					"default": -1,
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "使腿向前走的曲柄转向；Jansen 腿为 -1",
 						"en": "Crank turning sense that walks the leg forward; -1 for the Jansen leg"
@@ -159,7 +167,7 @@
 					"minimum": 0,
 					"default": 0.12,
 					"x-unit": "kg/m",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "每米管材的质量",
 						"en": "Mass per metre of tube"
@@ -173,7 +181,7 @@
 					"exclusiveMinimum": 0,
 					"default": 0.001,
 					"x-unit": "kg",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "单根杆质量的下限",
 						"en": "Floor on a bar's mass"
@@ -185,7 +193,7 @@
 					"minimum": 0,
 					"default": 0.1,
 					"x-unit": "m",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "相邻腿之间的距离（仅视觉）",
 						"en": "Distance between neighbouring legs (visual only)"
@@ -197,7 +205,7 @@
 					"exclusiveMinimum": 0,
 					"default": 1.0,
 					"x-unit": "m",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "机身长度：只决定俯仰转动惯量",
 						"en": "Torso length; sets pitch inertia only"
@@ -209,7 +217,7 @@
 				"pitch": {
 					"enum": ["free", "locked"],
 					"default": "free",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "机身俯仰自由度；locked 去掉倾覆",
 						"en": "Torso pitch freedom; 'locked' removes tipping"
@@ -221,7 +229,7 @@
 					"exclusiveMinimum": 0,
 					"default": 0.008,
 					"x-unit": "m",
-					"x-group": "group.body",
+					"x-group": "group.walker",
 					"x-doc": {
 						"zh": "杆胶囊体的半径（仅视觉，不参与碰撞）",
 						"en": "Visual capsule radius of bars, no collisions"
@@ -258,20 +266,27 @@
 				}
 			},
 			"x-doc": {
-				"zh": "机身与步行者的物理参数",
-				"en": "Physical parameters of the body and the walker"
+				"zh": "步行者",
+				"en": "Walker"
 			},
-			"x-group": "group.body"
+			"x-group": "group.walker"
 		},
-		"Atmosphere": {
+		"Environment": {
 			"type": "object",
 			"additionalProperties": false,
-			"x-group": "group.environment",
-			"x-doc": {
-				"zh": "大气",
-				"en": "Atmosphere"
-			},
 			"properties": {
+				"gravity": {
+					"type": "number",
+					"minimum": 0,
+					"default": 9.81,
+					"x-unit": "m/s²",
+					"x-group": "group.environment",
+					"x-doc": {
+						"zh": "重力加速度",
+						"en": "Gravitational acceleration"
+					},
+					"x-affects": ["sim"]
+				},
 				"air_density": {
 					"type": "number",
 					"minimum": 0,
@@ -284,7 +299,12 @@
 					},
 					"x-affects": ["sim"]
 				}
-			}
+			},
+			"x-doc": {
+				"zh": "环境",
+				"en": "Environment"
+			},
+			"x-group": "group.environment"
 		},
 		"Wind": {
 			"type": "object",
@@ -583,90 +603,6 @@
 				"en": "Drive"
 			},
 			"x-group": "group.drive"
-		},
-		"World": {
-			"type": "object",
-			"additionalProperties": false,
-			"x-group": "group.environment",
-			"x-doc": {
-				"zh": "世界：重力、大气、风场、地形",
-				"en": "The world: gravity, atmosphere, wind, terrain"
-			},
-			"properties": {
-				"gravity": {
-					"type": "number",
-					"minimum": 0,
-					"default": 9.81,
-					"x-unit": "m/s²",
-					"x-group": "group.environment",
-					"x-doc": {
-						"zh": "重力加速度",
-						"en": "Gravitational acceleration"
-					},
-					"x-affects": ["sim"]
-				},
-				"atmosphere": {
-					"$ref": "#/$defs/Atmosphere",
-					"default": {}
-				},
-				"wind": {
-					"$ref": "#/$defs/Wind",
-					"default": {}
-				},
-				"terrain": {
-					"$ref": "#/$defs/Terrain",
-					"default": {}
-				}
-			}
-		},
-		"Components": {
-			"type": "object",
-			"additionalProperties": false,
-			"x-doc": {
-				"zh": "实体的组件袋",
-				"en": "The bag of components of an entity"
-			},
-			"properties": {
-				"linkage": {
-					"$ref": "#/$defs/Linkage"
-				},
-				"body": {
-					"$ref": "#/$defs/Body"
-				},
-				"drive": {
-					"$ref": "#/$defs/Drive"
-				}
-			}
-		},
-		"Entity": {
-			"type": "object",
-			"additionalProperties": false,
-			"required": ["name", "kind", "components"],
-			"x-doc": {
-				"zh": "放进世界里的实体；名字就是命名空间",
-				"en": "An entity placed in the world; its name is its namespace"
-			},
-			"properties": {
-				"name": {
-					"type": "string",
-					"minLength": 1,
-					"pattern": "^[A-Za-z][A-Za-z0-9_-]*$",
-					"x-doc": {
-						"zh": "实体名（命名空间，如 walker）",
-						"en": "Entity name (the namespace, e.g. walker)"
-					}
-				},
-				"kind": {
-					"enum": ["walker"],
-					"x-doc": {
-						"zh": "实体种类；walker 需要 linkage、body、drive 三个组件",
-						"en": "Entity kind; a walker needs the linkage, body and drive components"
-					}
-				},
-				"components": {
-					"$ref": "#/$defs/Components"
-				}
-			}
 		},
 		"Solver": {
 			"type": "object",

@@ -17,6 +17,7 @@ from strandbeest_calib.compare import curves, distance
 from strandbeest_common import Design
 from strandbeest_common.ids import legacy_ulid
 from strandbeest_common.migrate import migrate_any, migrate_doc
+from strandbeest_common.scenario import flatten as flatten_scenario
 from strandbeest_common.schemas import validate
 from strandbeest_common.guard import design_problems
 from strandbeest_common.ops import GuardError, OpError, apply_op, replay
@@ -240,7 +241,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         run_doc = json.loads((folder / "run.json").read_text())
         step = max(1, len(fr["t"]) // max_frames)
         sstep = max(1, len(ar["t"]) // 500)
-        sc = run_doc["scenario"]
+        sc = flatten_scenario(run_doc["scenario"])  # runs store schema v2; older ones the flat v1 shape
         # distance one crank revolution would carry the body if no foot slipped or was blocked: stance travel / duty factor
         from strandbeest_common import gait_metrics, load_spec
 

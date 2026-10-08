@@ -55,6 +55,6 @@ def test_a_non_jansen_chain_is_designed_evaluated_exported_and_simulated(client,
     jid = client.post("/runs", json={"design": d, "ensemble": False, "overrides": {"run": {"revolutions": 0.6, "settle": 0.3}}}).json()["job_id"]
     j = wait(client, jid)
     assert j["status"] == "done", j
-    assert j["result"]["design_id"] == d["id"] and j["result"]["scenario"]["walker"]["legs"] == d["walker"]["legs"]
+    assert j["result"]["design_id"] == d["id"] and j["result"]["scenario"]["entities"][0]["components"]["body"]["legs"] == d["walker"]["legs"]
     # the run completes and reports numbers; whether this chain walks well is a different question (it need not)
     assert j["result"]["metrics"]["stride_per_rev"] is not None

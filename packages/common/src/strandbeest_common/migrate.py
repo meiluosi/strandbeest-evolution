@@ -19,9 +19,10 @@ from pathlib import Path
 from typing import Any
 
 from .ids import is_ulid, legacy_ulid
+from .scenario import to_v2
 from .schemas import validate
 
-KINDS = ("design", "run", "measurement", "profile")
+KINDS = ("design", "run", "measurement", "profile", "scenario")
 TARGET_VERSION = 2
 
 
@@ -34,6 +35,8 @@ def detect_kind(doc: dict[str, Any]) -> str | None:
         return "measurement"
     if "parameters" in doc and "provenance" in doc:
         return "profile"
+    if "entities" in doc or ("walker" in doc and "terrain" in doc and "solver" in doc):
+        return "scenario"
     return None
 
 
@@ -42,12 +45,14 @@ def migrate_doc(kind: str, doc: dict[str, Any]) -> dict[str, Any]:
     if kind not in KINDS:
         raise ValueError(f"unknown kind {kind!r}; expected one of {KINDS}")
     doc = copy.deepcopy(doc)
-    version = doc.get("schema_version")
+    version = doc.get("schema_version", 1 if kind == "scenario" else None)
     if version == TARGET_VERSION:
         return doc
     if version != 1:
         raise ValueError(f"cannot migrate a {kind} with schema_version {version!r}")
     out: dict[str, Any] = {}
+    if kind == "scenario":
+        return to_v2(doc)  # validated by the v1 model it goes through; the v2 schema is checked by the tests
     if kind == "design":
         out = {"schema_version": 2, "id": legacy_ulid("design", doc["name"]), **{k: v for k, v in doc.items() if k != "schema_version"}}
     elif kind == "run":

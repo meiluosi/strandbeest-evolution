@@ -1,10 +1,10 @@
 """Configurable MuJoCo dynamics simulator for Strandbeest-style linkage walkers."""
 
-from .config import Scenario, load_scenario
+from .config import Scenario, SimConfig, load_scenario, sim_config
 from .from_design import scenario_from_design
 from .runner import Result, run
 
-__all__ = ["Scenario", "load_scenario", "Result", "run", "scenario_from_design"]
+__all__ = ["Scenario", "SimConfig", "load_scenario", "sim_config", "Result", "run", "scenario_from_design"]
 
 # importing these modules registers the built-in extensions
 from . import drives as _drives  # noqa: E402,F401
