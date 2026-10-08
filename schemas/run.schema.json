@@ -132,6 +132,56 @@
 				"zh": "旧名字或旧 ID；指向它们的引用都解析到这个资产",
 				"en": "Former names or ids; a reference to any of them resolves to this asset"
 			}
+		},
+		"events": {
+			"type": "array",
+			"description": "Facts with a time: foot touchdown/liftoff/slip, torque limit, loop opening, start, stall, gusts",
+			"items": {
+				"type": "object",
+				"required": ["t", "kind"],
+				"additionalProperties": false,
+				"properties": {
+					"t": {
+						"type": "number",
+						"x-unit": "s",
+						"description": "time since the start of driving"
+					},
+					"kind": {
+						"type": "string"
+					},
+					"leg": {
+						"type": "integer",
+						"minimum": 0,
+						"x-unit": "count"
+					},
+					"detail": {
+						"type": "object"
+					}
+				}
+			}
+		},
+		"diagnosis": {
+			"type": "array",
+			"description": "Rule-based explanation of how the run went, best explanation first, with the numbers that support it",
+			"items": {
+				"type": "object",
+				"required": ["code", "severity", "message", "evidence"],
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"severity": {
+						"enum": ["info", "warning", "error"]
+					},
+					"message": {
+						"type": "string"
+					},
+					"evidence": {
+						"type": "object"
+					}
+				}
+			}
 		}
 	},
 	"$defs": {

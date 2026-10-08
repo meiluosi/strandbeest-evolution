@@ -26,7 +26,8 @@ class Result:
     metrics: dict[str, Any] = field(default_factory=dict)
     stalled: bool = False
     scene: dict | None = None  # geometry for replay
-    frames: dict | None = None  # recorded body poses: t, pos (F,B,3), quat (F,B,4), contact (F,feet)
+    frames: dict | None = None  # recorded body poses: t, pos (F,B,3), quat (F,B,4), contact (F,feet), foot_pos, foot_force, foot_slip, com
+    series: dict = field(default_factory=dict)  # per-sample series beyond the basic five: foot loads, energies, loop residual, ...
 
 
 @dataclass
@@ -57,11 +58,16 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
     sc = sim_config(sc)
     sim = make_sim(sc, backend)
     be = sim.backend
+    info = sim.info
     drive = drives.get(sc.drive.kind)(sim)
     dt = be.timestep
     rec = sc.run.record_every
 
     t_, psi_, x_, z_, tau_ = [], [], [], [], []
+    ser: dict[str, list] = {k: [] for k in ("loop_residual", "penetration", "foot_normal", "foot_tangent", "foot_slip", "kinetic", "potential",
+                                          "e_in", "e_contact", "e_loops", "e_friction", "crank_reaction")}
+    e_in = e_contact = e_loops = e_friction = 0.0  # cumulative energy account since the start of driving, J
+    f_foot_pos, f_foot_force, f_foot_slip, f_com = [], [], [], []
     max_viol = 0.0
     max_pen = 0.0
     frame_every = max(1, round(1.0 / (sc.run.frame_rate * dt))) if sc.run.frame_rate > 0 else 0
@@ -79,6 +85,13 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
         drive.control(sim, t, driving=True)
         be.step()
         t += dt
+        # energy account: what the drive puts in, where it goes (rectangle rule at the step rate)
+        omega = -sc.walker.direction * be.joint_velocity(info.crank_joint)
+        pb = be.power_balance()
+        e_in += drive.torque(sim) * omega * dt
+        e_contact += pb.contact * dt
+        e_loops += pb.equality * dt
+        e_friction += (pb.joint_friction + pb.viscous) * dt
         if k % rec == 0:
             t_.append(t)
             psi_.append(sim.psi() - psi_start)
@@ -86,14 +99,28 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
             x_.append(torso[0])
             z_.append(torso[2])
             tau_.append(drive.torque(sim))
-            max_pen = max(max_pen, be.max_penetration())
-            max_viol = max(max_viol, be.forces().loop_residual)
+            pen = be.max_penetration()
+            viol = be.forces().loop_residual
+            max_pen = max(max_pen, pen)
+            max_viol = max(max_viol, viol)
+            loads = be.foot_loads()
+            en = be.energies()
+            for key, val in (("loop_residual", viol), ("penetration", pen), ("foot_normal", [f.normal for f in loads]),
+                             ("foot_tangent", [f.tangent for f in loads]), ("foot_slip", [f.slip for f in loads]),
+                             ("kinetic", en.kinetic), ("potential", en.potential), ("e_in", e_in), ("e_contact", e_contact),
+                             ("e_loops", e_loops), ("e_friction", e_friction), ("crank_reaction", be.constraint_torque(info.crank_joint))):
+                ser[key].append(val)
         if frame_every and k % frame_every == 0:
             f_t.append(t)
             pos, quat = be.body_poses()
             f_pos.append(pos)
             f_quat.append(quat)
             f_contact.append(be.foot_contacts())
+            loads = be.foot_loads()
+            f_foot_pos.append([f.pos for f in loads])
+            f_foot_force.append([f.force for f in loads])
+            f_foot_slip.append([f.slip for f in loads])
+            f_com.append(be.center_of_mass())
         k += 1
         if t > sc.run.max_time:
             stalled = True
@@ -103,9 +130,12 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
             break
 
     res = Result(sc, np.array(t_), np.array(psi_), np.array(x_), np.array(z_), np.array(tau_), stalled=stalled)
+    res.series = {k: np.array(v, dtype=float) for k, v in ser.items() if len(v)}
     if f_t:
         res.scene = be.describe_scene()
-        res.frames = {"t": np.array(f_t), "pos": np.array(f_pos, np.float32), "quat": np.array(f_quat, np.float32), "contact": np.array(f_contact, bool)}
+        res.frames = {"t": np.array(f_t), "pos": np.array(f_pos, np.float32), "quat": np.array(f_quat, np.float32), "contact": np.array(f_contact, bool),
+                      "foot_pos": np.array(f_foot_pos, np.float32), "foot_force": np.array(f_foot_force, np.float32),
+                      "foot_slip": np.array(f_foot_slip, np.float32), "com": np.array(f_com, np.float32)}
     res.metrics["max_loop_violation"] = max_viol
     res.metrics["max_penetration"] = max_pen  # deepest foot sinkage into the terrain, m
     for name in metrics.names():

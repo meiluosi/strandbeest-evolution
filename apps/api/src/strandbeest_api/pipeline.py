@@ -18,6 +18,7 @@ from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
 from strandbeest_sim import run as sim_run
+from strandbeest_sim.events import detect_events, diagnose
 from strandbeest_sim import scenario_from_design
 
 
@@ -44,7 +45,8 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
     out.mkdir(parents=True, exist_ok=True)
     sc = scenario_from_design(design, overrides)
     res = sim_run(sc)
-    np.savez(out / "arrays.npz", t=res.t, psi=res.psi, x=res.x, z=res.z, torque=res.torque)
+    events = detect_events(res)
+    np.savez(out / "arrays.npz", t=res.t, psi=res.psi, x=res.x, z=res.z, torque=res.torque, **res.series)
     if res.frames is not None:
         np.savez_compressed(out / "frames.npz", **res.frames)
         (out / "scene.json").write_text(json.dumps(res.scene))
@@ -56,6 +58,8 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "scenario": json.loads(sc.model_dump_json()),
         "metrics": {k: (None if v != v else v) for k, v in res.metrics.items()},
         "stalled": res.stalled,
+        "events": events,
+        "diagnosis": diagnose(res, events),
         "arrays_file": "arrays.npz",
         **({"frames_file": "frames.npz", "scene_file": "scene.json"} if res.frames is not None else {}),
         "provenance": {"code_version": code_version(), "engine": "mujoco", "engine_version": mujoco.__version__,

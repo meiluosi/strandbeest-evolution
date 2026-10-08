@@ -345,3 +345,20 @@ def test_guard_endpoint_and_replay_endpoint(client):
     assert out["walker"]["legs"] == 4 and out["manufacturing"]["material"] == "PETG"
     broken = client.post("/ops/replay", json={"base": DESIGN, "ops": [_op("set_param", {"name": "h", "value": 1.0})]})
     assert broken.status_code == 422
+
+
+def test_replay_carries_loads_events_diagnosis_and_the_energy_account(client):
+    jid = client.post("/runs", json={"design": DESIGN, "ensemble": False, "overrides": {"run": {"revolutions": 1.2, "settle": 0.3}}}).json()["job_id"]
+    j = wait(client, jid)
+    assert j["status"] == "done"
+    doc = j["result"]
+    assert doc["events"] and doc["diagnosis"] and "energy_in_per_rev" in doc["metrics"] or doc["metrics"]["steady_window"] == 0
+    r = client.get(f"/runs/{doc['id']}/replay").json()
+    n, legs = len(r["t"]), DESIGN["walker"]["legs"]
+    assert len(r["foot_force"]) == n == len(r["foot_pos"]) == len(r["foot_slip"]) == len(r["com"])
+    assert len(r["foot_force"][0]) == legs and len(r["foot_force"][0][0]) == 3
+    assert r["energy"]["e_in"] and len(r["energy"]["e_in"]) == len(r["energy"]["t"])
+    assert r["diagnosis"][0]["code"] in {"ok", "slipping", "slow_unexplained"} and r["info"]["legs"] == legs
+    assert {e["kind"] for e in r["events"]} >= {"start", "touchdown"}
+    series = client.get(f"/runs/{doc['id']}/series").json()
+    assert "foot_normal" in series and "kinetic" in series

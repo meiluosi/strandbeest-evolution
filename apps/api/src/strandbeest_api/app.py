@@ -247,18 +247,34 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
 
         g = gait_metrics(load_spec(sc["linkage"]["spec"])) if isinstance(sc["linkage"]["spec"], dict) else None
         nominal = (g.stroke_length / g.duty * sc["walker"]["unit"]) if g and g.duty > 0 else None
+        feet_ok = "foot_force" in fr.files
+        extra = {}
+        if feet_ok:
+            extra = {
+                "foot_pos": np.round(fr["foot_pos"][::step], 4).tolist(),
+                "foot_force": np.round(fr["foot_force"][::step], 3).tolist(),
+                "foot_slip": np.round(fr["foot_slip"][::step], 4).tolist(),
+                "com": np.round(fr["com"][::step], 4).tolist(),
+            }
+        energy = None
+        if "e_in" in ar.files:
+            energy = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar.files}
         return {
             "scene": json.loads((folder / "scene.json").read_text()),
             "t": np.round(fr["t"][::step], 4).tolist(),
             "pos": np.round(fr["pos"][::step], 4).tolist(),
             "quat": np.round(fr["quat"][::step], 4).tolist(),
             "contact": fr["contact"][::step].astype(int).tolist(),
+            **extra,
             "series": {k: np.round(ar[k][::sstep], 5).tolist() for k in ("t", "psi", "x", "torque")},
+            "energy": energy,
+            "events": run_doc.get("events", []),
+            "diagnosis": run_doc.get("diagnosis", []),
             "metrics": run_doc["metrics"],
             "stalled": run_doc.get("stalled", False),
             "nominal_stride_m": nominal,
             "revolutions": float(ar["psi"][-1] / (2 * np.pi)),
-            "info": {"terrain": sc["terrain"], "drive": sc["drive"]["kind"], "wind": sc["wind"], "environment": sc["environment"]},
+            "info": {"terrain": sc["terrain"], "drive": sc["drive"]["kind"], "wind": sc["wind"], "environment": sc["environment"], "legs": sc["walker"]["legs"], "max_torque": sc["drive"].get("max_torque")},
         }
 
     # -- exports -------------------------------------------------------------

@@ -11,7 +11,7 @@ from typing import Any
 import mujoco
 import numpy as np
 
-from ..backend import BuildInfo, Box, Contact, Energies, Forces, Snapshot, TerrainPlan, Vec3
+from ..backend import Box, BuildInfo, Contact, Energies, FootLoad, Forces, PowerBalance, Snapshot, TerrainPlan, Vec3
 from ..builder import build as build_mjcf
 from ..builder import resolve_spec
 from ..config import SimConfig
@@ -211,6 +211,67 @@ class MujocoBackend:
             touching.add(int(d.contact[i].geom1))
             touching.add(int(d.contact[i].geom2))
         return [g in touching for g in self._foot_geoms]
+
+    _CONTACT_ROWS = (
+        mujoco.mjtConstraint.mjCNSTR_CONTACT_FRICTIONLESS,
+        mujoco.mjtConstraint.mjCNSTR_CONTACT_PYRAMIDAL,
+        mujoco.mjtConstraint.mjCNSTR_CONTACT_ELLIPTIC,
+    )
+
+    def power_balance(self) -> PowerBalance:
+        """Dissipation rates from the constraint rows: -sum(force * velocity in constraint space). A friction facet that opposes
+        slip has force*velocity < 0, so the dissipation is positive; the same sum covers the normal damping of a contact."""
+        d = self.data
+        contact = equality = fric = 0.0
+        if d.nefc:
+            p = d.efc_force[: d.nefc] * d.efc_vel[: d.nefc]
+            kinds = d.efc_type[: d.nefc]
+            contact = -float(p[np.isin(kinds, self._CONTACT_ROWS)].sum())
+            equality = -float(p[kinds == mujoco.mjtConstraint.mjCNSTR_EQUALITY].sum())
+            fric = -float(p[kinds == mujoco.mjtConstraint.mjCNSTR_FRICTION_DOF].sum())
+        viscous = float(np.sum(self.model.dof_damping * d.qvel * d.qvel))
+        return PowerBalance(contact, equality, fric, viscous)
+
+    def foot_loads(self) -> list[FootLoad]:
+        m, d = self.model, self.data
+        index = {g: i for i, g in enumerate(self._foot_geoms)}
+        normal = [0.0] * len(index)
+        force = [np.zeros(3) for _ in index]
+        tangent_vec = [np.zeros(3) for _ in index]
+        slip = [0.0] * len(index)
+        f6 = np.zeros(6)
+        vel = np.zeros(6)
+        for i in range(d.ncon):
+            c = d.contact[i]
+            g1, g2 = int(c.geom1), int(c.geom2)
+            foot, sign = (g2, 1.0) if g2 in index else (g1, -1.0) if g1 in index else (None, 0.0)
+            if foot is None:
+                continue
+            mujoco.mj_contactForce(m, d, i, f6)
+            fr = np.asarray(c.frame).reshape(3, 3)
+            f = sign * (fr.T @ f6[:3])
+            n_vec = fr[0]
+            k = index[foot]
+            fn = float(f @ n_vec)
+            normal[k] += abs(fn)
+            force[k] += f
+            tangent_vec[k] += f - fn * n_vec
+            mujoco.mj_objectVelocity(m, d, mujoco.mjtObj.mjOBJ_GEOM, foot, vel, 0)  # [rot, lin] at the geom centre, world frame
+            centre = d.geom_xpos[foot]
+            v = vel[3:] + np.cross(vel[:3], np.asarray(c.pos) - centre)  # velocity of the contact point on the foot
+            slip[k] = max(slip[k], float(np.linalg.norm(v - (v @ n_vec) * n_vec)))
+        return [
+            FootLoad(normal[k], float(np.linalg.norm(tangent_vec[k])), (float(force[k][0]), float(force[k][1]), float(force[k][2])), slip[k],
+                     (float(d.geom_xpos[g][0]), float(d.geom_xpos[g][1]), float(d.geom_xpos[g][2])))
+            for g, k in index.items()
+        ]
+
+    def center_of_mass(self) -> Vec3:
+        c = self.data.subtree_com[0]
+        return (float(c[0]), float(c[1]), float(c[2]))
+
+    def constraint_torque(self, joint: str) -> float:
+        return float(self.data.qfrc_constraint[self.model.jnt_dofadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, joint)]])
 
     def max_penetration(self) -> float:
         d = self.data

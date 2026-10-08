@@ -81,6 +81,27 @@ class Energies:
         return self.kinetic + self.potential
 
 
+@dataclass(frozen=True)
+class PowerBalance:
+    """Where mechanical power goes right now, W (positive = leaving the mechanical energy)."""
+
+    contact: float  # dissipated at the contacts (friction and normal damping)
+    equality: float  # dissipated by the loop-closure constraints
+    joint_friction: float  # Coulomb friction in the joints
+    viscous: float  # viscous damping in the joints
+
+
+@dataclass(frozen=True)
+class FootLoad:
+    """What the ground does to one foot (all its contacts together)."""
+
+    normal: float  # N, magnitude of the force along the contact normal
+    tangent: float  # N, magnitude of the friction force
+    force: Vec3  # N, world frame, force on the foot
+    slip: float  # m/s, sliding speed of the contact point over the ground (largest of the foot's contacts)
+    pos: Vec3  # m, world, centre of the foot
+
+
 @dataclass
 class Snapshot:
     """Opaque to everyone but the backend that made it: restoring it and stepping on equals stepping on without the detour."""
@@ -121,6 +142,13 @@ class PhysicsBackend(Protocol):
         ...
 
     def foot_contacts(self) -> list[bool]: ...
+    def foot_loads(self) -> list[FootLoad]: ...
+    def power_balance(self) -> PowerBalance: ...
+    def center_of_mass(self) -> Vec3: ...
+    def constraint_torque(self, joint: str) -> float:
+        """Generalised force the constraints (loop closures, contacts) put on a joint, N*m: the reaction the drive carries."""
+        ...
+
     def max_penetration(self) -> float: ...
     def actuator_force(self, name: str) -> float: ...
     def describe_scene(self) -> dict: ...
