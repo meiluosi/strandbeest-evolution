@@ -25,7 +25,6 @@ from pathlib import Path
 
 from .config import Scenario, SimConfig, sim_config
 from .linkage import LinkageSpec, Point, load_spec, solve_pose
-from .registry import terrain_xml
 
 DATA = Path(__file__).parent / "data"
 
@@ -65,7 +64,8 @@ class _Bar:
     mass: float
 
 
-def build(sc: Scenario | SimConfig, spec: LinkageSpec) -> Built:
+def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> Built:
+    """`obstacles` is MJCF for the static blocks of the terrain (made by the MuJoCo adapter from the terrain plan)."""
     sc = sim_config(sc)
     w = sc.walker
     u = w.unit
@@ -176,7 +176,7 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec) -> Built:
     <geom solref="{geom_solref}"/>
   </default>
   <worldbody>
-    {terrain_xml.get(sc.terrain.kind)(sc)}
+    {obstacles}
     <geom name="ground" type="plane" size="200 20 0.1" friction="{sc.terrain.friction} 0.005 0.0001" contype="1" conaffinity="2" rgba="0.85 0.82 0.75 1"/>
     <body name="torso" pos="0 0 {_f(hip_h)}">
       <joint name="tx" type="slide" axis="1 0 0"/>

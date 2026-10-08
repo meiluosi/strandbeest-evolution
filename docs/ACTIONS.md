@@ -84,8 +84,8 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | ID | 任务 | 验收 | 依赖 | 规模 | 状态 |
 |---|---|---|---|---|---|
 | E4-01 | **World 与 Entity schema**：World（地形、地表、大气、风场、重力）+ Entity（组件袋）；把现有 Scenario 拆成 World + 放进去的实体；迁移器 | 旧场景迁移后结果与迁移前一致（金标运行比对） | E1-03、E2-01 | M | ✅ |
-| E4-02 | **PhysicsBackend 协议 + MuJoCo 适配器**：`build/step/snapshot/restore/contacts/forces/energies/set_param`；runner、drives、terrains、scene 全部走协议，不再直接 import mujoco（适配器除外） | **行为不变**：现有仿真测试与金标运行逐项一致；`grep "import mujoco"` 只剩适配器 | E4-01 | L | ⬜ |
-| E4-03 | **后端契约测试套件**：能量守恒、镜像对称、单位缩放不变、单摆与斜面滑块解析解 | MuJoCo 适配器全部通过；故意注入一个 bug（例如反向重力）能被抓到 | E4-02 | M | ⬜ |
+| E4-02 | **PhysicsBackend 协议 + MuJoCo 适配器**：`build/step/snapshot/restore/contacts/forces/energies/set_param`；runner、drives、terrains、scene 全部走协议，不再直接 import mujoco（适配器除外） | **行为不变**：现有仿真测试与金标运行逐项一致；`grep "import mujoco"` 只剩适配器 | E4-01 | L | ✅ |
+| E4-03 | **后端契约测试套件**：能量守恒、镜像对称、单位缩放不变、单摆与斜面滑块解析解 | MuJoCo 适配器全部通过；故意注入一个 bug（例如反向重力）能被抓到 | E4-02 | M | ✅ |
 | E4-04 | **多实体构建**：一个世界里放 N 个步行者，实体名字命名空间化；先做两只，互不干扰 | 两只同场景运行，各自结果与单独运行时一致（容差内）；名字不冲突 | E4-02 | M | ⬜ |
 | E4-05 | **快照/恢复/分叉与确定性**：`snapshot→restore→继续` 与不间断运行一致；同输入两次运行一致；明确的确定性声明文档 | 两项测试通过；文档写清"同平台容差内一致，跨平台不保证逐位" | E4-02 | M | ⬜ |
 | E4-06 | **事件流**：落脚、抬脚、打滑、被挡、环约束张开、起步/停转、阵风；写入运行记录并可经 API 读取 | 合成场景里事件数量与时间符合预期（例如平地稳态每圈每条腿一次落脚） | E4-02 | M | ⬜ |

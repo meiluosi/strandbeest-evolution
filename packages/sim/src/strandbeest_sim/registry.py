@@ -30,7 +30,6 @@ class Registry:
 
 
 terrains = Registry("terrain")
-terrain_xml = Registry("terrain geometry")
 winds = Registry("wind")
 drives = Registry("drive")
 metrics = Registry("metric")

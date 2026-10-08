@@ -7,7 +7,7 @@ import pytest
 from strandbeest_common import Design
 from strandbeest_common.schemas import schema_dir
 from strandbeest_sim import run, scenario_from_design
-from strandbeest_sim.runner import make_sim
+from strandbeest_sim.runner import make_sim  # adapter-specific tests below look inside the MuJoCo model through sim.backend
 
 DESIGN = Design.load(schema_dir() / "examples" / "design-jansen-small-6leg.json")
 FAST = {"run": {"revolutions": 0.6, "settle": 0.3}}
@@ -22,7 +22,7 @@ def sc(**ov):
 
 def test_each_leg_has_one_foot_sphere_and_feet_never_collide_with_each_other():
     sim = make_sim(sc())
-    m = sim.model
+    m = sim.backend.model
     feet = [g for g in range(m.ngeom) if (mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_GEOM, g) or "").startswith("foot_")]
     assert len(feet) == DESIGN.walker["legs"]
     for a in feet:
@@ -58,13 +58,13 @@ def test_denser_air_drives_the_same_sail_harder():
 
 def test_terrain_geometry_and_gravity_come_from_the_scenario():
     step = make_sim(sc(terrain={"kind": "step", "params": {"distance": 0.2, "height": 0.01}}))
-    assert any((mujoco.mj_id2name(step.model, mujoco.mjtObj.mjOBJ_GEOM, g) or "") == "step" for g in range(step.model.ngeom))
+    assert any((mujoco.mj_id2name(step.backend.model, mujoco.mjtObj.mjOBJ_GEOM, g) or "") == "step" for g in range(step.backend.model.ngeom))
     bumps = make_sim(sc(terrain={"kind": "bumps", "params": {"count": 5, "seed": 2}}))
-    assert sum((mujoco.mj_id2name(bumps.model, mujoco.mjtObj.mjOBJ_GEOM, g) or "").startswith("bump") for g in range(bumps.model.ngeom)) == 5
+    assert sum((mujoco.mj_id2name(bumps.backend.model, mujoco.mjtObj.mjOBJ_GEOM, g) or "").startswith("bump") for g in range(bumps.backend.model.ngeom)) == 5
     moon = make_sim(sc(environment={"gravity": 1.62}))
-    assert moon.model.opt.gravity[2] == pytest.approx(-1.62)
+    assert moon.backend.model.opt.gravity[2] == pytest.approx(-1.62)
     slope = make_sim(sc(terrain={"kind": "slope", "slope_deg": 10}))
-    assert slope.model.opt.gravity[0] < 0 and np.linalg.norm(slope.model.opt.gravity) == pytest.approx(9.81)
+    assert slope.backend.model.opt.gravity[0] < 0 and np.linalg.norm(slope.backend.model.opt.gravity) == pytest.approx(9.81)
 
 
 def test_a_blocked_walker_is_stopped_by_the_motor_torque_limit_instead_of_blowing_up():

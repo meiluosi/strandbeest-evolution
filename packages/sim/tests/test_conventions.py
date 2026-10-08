@@ -7,7 +7,7 @@ import pytest
 from strandbeest_common import Design, solve_pose
 from strandbeest_common.schemas import schema_dir
 from strandbeest_sim import run, scenario_from_design
-from strandbeest_sim.runner import make_sim
+from strandbeest_sim.runner import make_sim  # adapter-specific tests below look inside the MuJoCo model through sim.backend
 
 DESIGN = Design.load(schema_dir() / "examples" / "design-jansen-small-6leg.json")
 FAST = {"run": {"revolutions": 1.2, "settle": 0.3, "frame_rate": 0}}
@@ -15,7 +15,7 @@ FAST = {"run": {"revolutions": 1.2, "settle": 0.3, "frame_rate": 0}}
 
 def test_initial_crank_tip_in_the_world_matches_the_hip_frame_solution_and_hinge_ref_is_minus_theta():
     sim = make_sim(scenario_from_design(DESIGN, FAST))
-    m, d = sim.model, sim.data
+    m, d = sim.backend.model, sim.backend.data
     mujoco.mj_forward(m, d)
     u = DESIGN.walker["unit_m"]
     leg0_phase = 0.0

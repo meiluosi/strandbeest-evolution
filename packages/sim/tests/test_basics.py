@@ -10,7 +10,7 @@ from strandbeest_sim import load_scenario
 from strandbeest_sim.builder import build, resolve_spec
 from strandbeest_sim.drives import MotorDrive
 from strandbeest_sim.linkage import solve_pose
-from strandbeest_sim.runner import make_sim
+from strandbeest_sim.runner import make_sim  # adapter-specific tests below look inside the MuJoCo model through sim.backend
 
 DATA = Path(__file__).parent / "data"
 
@@ -44,17 +44,17 @@ def test_python_solver_preserves_link_lengths():
 def test_model_has_one_degree_of_freedom_per_leg_plus_cranks_tied():
     sc = load_scenario({"walker": {"legs": 3, "pitch": "locked"}})
     sim = make_sim(sc)
-    m = sim.model
+    m = sim.backend.model
     # 11 hinges per leg (10 bars + crank) + 2 torso slides, minus loop closures, leaves 1 crank DOF for the shared shaft
-    mujoco.mj_forward(m, sim.data)
-    viol = [abs(float(v)) for v, t in zip(sim.data.efc_pos, sim.data.efc_type) if t == mujoco.mjtConstraint.mjCNSTR_EQUALITY]
+    mujoco.mj_forward(m, sim.backend.data)
+    viol = [abs(float(v)) for v, t in zip(sim.backend.data.efc_pos, sim.backend.data.efc_type) if t == mujoco.mjtConstraint.mjCNSTR_EQUALITY]
     assert max(viol) < 1e-6  # the generated model starts exactly assembled
 
 
 def test_twelve_legs_stand_and_start_walking_without_blowing_up():
     sc = load_scenario({"walker": {"legs": 12, "pitch": "locked", "tube_mass_per_m": 0.12}, "drive": {"omega": 0.6, "ramp": 1}})
     sim = make_sim(sc)
-    m, d = sim.model, sim.data
+    m, d = sim.backend.model, sim.backend.data
     drive = MotorDrive(sim)
     for _ in range(int(0.5 / m.opt.timestep)):
         drive.control(sim, 0.0, False)

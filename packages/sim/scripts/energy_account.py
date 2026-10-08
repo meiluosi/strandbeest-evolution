@@ -28,7 +28,7 @@ def main() -> None:
     path = sys.argv[1] if len(sys.argv) > 1 else schema_dir() / "examples" / "design-jansen-small-6leg.json"
     design = Design.load(path)
     sim = make_sim(scenario_from_design(design, {"run": {"settle": 0.5}}))
-    m, d = sim.model, sim.data
+    m, d = sim.backend.model, sim.backend.data
     drive, dt = MotorDrive(sim), m.opt.timestep
     contact_types = (mujoco.mjtConstraint.mjCNSTR_CONTACT_FRICTIONLESS, mujoco.mjtConstraint.mjCNSTR_CONTACT_PYRAMIDAL, mujoco.mjtConstraint.mjCNSTR_CONTACT_ELLIPTIC)
     for _ in range(int(0.5 / dt)):
@@ -42,7 +42,7 @@ def main() -> None:
         drive.control(sim, t, True)
         mujoco.mj_step(m, d)
         t += dt
-        omega = -sim.scenario.walker.direction * float(d.qvel[sim.crank_dofadr])
+        omega = -sim.scenario.walker.direction * float(sim.backend.joint_velocity(sim.info.crank_joint))
         e_in += drive.torque(sim) * omega * dt
         if d.nefc:
             p = d.efc_force[: d.nefc] * d.efc_vel[: d.nefc]
