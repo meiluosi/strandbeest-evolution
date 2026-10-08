@@ -141,11 +141,11 @@ def diagnose(res: Any, events: list[dict[str, Any]] | None = None, sc: SimConfig
             if has_obstacles:
                 add("blocked_by_terrain_torque_limit", "error",
                     f"The walker is blocked by the terrain ({sc.terrain.kind}) and the motor reaches its torque limit ({sc.drive.max_torque:g} N·m) {len(limit_events)} time(s), {limit_time / duration:.0%} of the run in total.",
-                    terrain=sc.terrain.kind, torque_limit_nm=sc.drive.max_torque, time_at_limit_s=limit_time, times_at_limit=len(limit_events), advance_efficiency=efficiency, advanced_m=advanced)
+                    terrain=sc.terrain.kind, torque_limit_nm=sc.drive.max_torque, time_at_limit_s=limit_time, time_at_limit_share=limit_time / max(duration, 1e-9), times_at_limit=len(limit_events), advance_efficiency=efficiency, advanced_m=advanced)
             else:
                 add("torque_limit_too_low", "error",
                     f"The motor reaches its torque limit ({sc.drive.max_torque:g} N·m) {len(limit_events)} time(s), {limit_time / duration:.0%} of the run in total, and the walker makes little progress.",
-                    torque_limit_nm=sc.drive.max_torque, time_at_limit_s=limit_time, times_at_limit=len(limit_events), advance_efficiency=efficiency)
+                    torque_limit_nm=sc.drive.max_torque, time_at_limit_s=limit_time, time_at_limit_share=limit_time / max(duration, 1e-9), times_at_limit=len(limit_events), advance_efficiency=efficiency)
     if "loop_open" in kinds:
         e = next(e for e in events if e["kind"] == "loop_open")
         add("loop_constraints_opened", "error", f"A loop of the linkage opened by {e['detail']['opening_m'] * 1000:.1f} mm at t = {e['t']:.2f} s: the model has come apart, so the numbers after that are not trustworthy.",

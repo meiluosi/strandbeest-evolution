@@ -273,6 +273,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             "metrics": run_doc["metrics"],
             "stalled": run_doc.get("stalled", False),
             "nominal_stride_m": nominal,
+            "kinematic_duty": g.duty if g else None,
             "revolutions": float(ar["psi"][-1] / (2 * np.pi)),
             "info": {"terrain": sc["terrain"], "drive": sc["drive"]["kind"], "wind": sc["wind"], "environment": sc["environment"], "legs": sc["walker"]["legs"], "max_torque": sc["drive"].get("max_torque")},
         }

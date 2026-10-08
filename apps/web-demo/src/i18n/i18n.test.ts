@@ -43,7 +43,7 @@ describe("catalogs", () => {
 		const text = files.map((f) => readFileSync(f, "utf8")).join("\n");
 		const used = new Set<string>();
 		for (const m of text.matchAll(
-			/"((?:[a-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9]+)+)"/g,
+			/"((?:[a-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9_]+)+)"/g,
 		))
 			used.add(m[1] as string);
 		const called = [...text.matchAll(/\bt\("([\w.]+)"/g)].map(
