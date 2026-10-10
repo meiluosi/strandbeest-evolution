@@ -297,3 +297,21 @@ Every run now records, at each sample, the normal and tangential load and the sl
 - **It catches the two historical bugs when they are put back** (switches kept only for this test): the overlapping foot spheres (feet colliding with each other: reported) and the partial-window bias of the gait metrics (the same scenario at 3.0 and 3.5 revolutions gives different stride/torque/speed: reported, relative differences above 4 %).
 - **A healthy run passes**, and the soft-ground and 12 mm step scenes are flagged (penetration; loop opening).
 - **Negative finding from fuzzing:** 4 of 8 random walkers (Jansen's lengths with four of them changed by up to 8 % through the guarded `set_param` operation, 4/6/8 legs, flat / slope / bumps) break an invariant: in 3 of those 4 a loop opens by 7-8 mm and the energy residual then reaches -304 %, -84 % and -2.9 % (the account is meaningless once the model has come apart); the fourth has a residual of -4.4 % with no open loop. The default solver settings are therefore **not robust to small design changes**: the optimiser and the agents can propose designs whose simulation looks fine and is not trustworthy. The skeptic is exposed to agents as `simulate.audit` so they can ask. The cause is not investigated (candidates: loop-constraint impedance, the contact softness, the leg count). Model against model; nothing measured.
+
+
+## 16. CMA-ES against the custom GA on the blind flat-stroke search (O-01, 2026-10-06)
+
+`packages/opt` puts CMA-ES (Hansen's `cma` 4.5) and NSGA-II (`pymoo` 0.6) behind an ask/tell interface; the kinematic fitness is ported to Python and equals the TypeScript one to 1e-9 on a 123-case corpus (`contracts/fitness`). Section 1B asked: starting from random lengths in [5, 80] (Jansen's topology fixed), does blind search reach Jansen's flat-stroke fitness (0.481)? Same objective, same box, seeds 1-20 (`packages/opt/scripts/reproduce_cma.py`, raw: `experiments/reproduce-jansen-cmaes.json`):
+
+| | custom GA (packages/core) | CMA-ES (cma) |
+|---|---|---|
+| evaluations per seed | 75,000 (150 x 500) | **12,000** (population 40) |
+| median best fitness | 0.370 | **0.529** |
+| seeds that beat Jansen's 0.481 | 2 / 20 | **13 / 20** |
+| median shape distance to Jansen's loop | 0.087 | 0.077 |
+| seeds within 0.05 of Jansen's loop | 0 / 20 | 0 / 20 |
+
+- Section 1B's reading, "blind search usually does not reach Jansen's score under our objective", was a statement about the **custom GA**: with a mature optimiser at 16 % of the budget the same objective is beaten by Jansen's leg in 13 of 20 runs. The thing 1B could not separate (stuck optimiser or objective that does not favour Jansen) is now partly answered: the optimiser was a large part of it, and the objective does not have Jansen's leg as its optimum (that was already clear from the 0.71 found by polishing, see section 12).
+- What did not change: neither optimiser lands on Jansen's loop shape (0/20 within 0.05), so "our objective does not single out Jansen's design" stands.
+- **Not done:** the wind objective (`wind-objective`) was not re-run with CMA-ES (its quasi-static dynamics model exists only in TypeScript); the unequal budgets mean this is a comparison of two optimisers *as one would use them*, not at equal evaluations.
+- **A deliberate difference between the two implementations of the fitness:** a leg that assembles at the 24 probe angles but not at every one of the 90 trace samples has an empty trace. packages/core returns **NaN** for it (0/0), which silently changes how its GA ranks such legs; the Python port returns the finite -5.05. Fixing the TypeScript one changed the golden GA result, i.e. it changes committed experiment outputs, so it was left alone; the corpus has no such case. It should be fixed together with regenerating the experiments that could be affected.

@@ -26,7 +26,10 @@ def infeasibility(space: GenomeSpace, genome) -> float | None:
     if ok < PROBES:
         return -10 + 5 * (ok / PROBES)
     foot = foot_path(spec, SAMPLES)
-    assert foot is not None
+    if foot is None:  # assembles at the 24 probes but not at every one of the 90 samples: an empty trace. packages/core returns NaN here (0/0),
+        # which silently changes how its GA ranks such legs; fixing it there would change the committed experiment results, so the
+        # two deliberately differ in this corner (docs/EXPERIMENTS.md section 16). The corpus contains no such case.
+        return -5 + 0.9 * 0.0 - 0.05
     m = gait_metrics(spec, SAMPLES)
     below_hip = sum(1 for p in foot if p[1] < 0) / len(foot)
     max_step = max(math.hypot(a[0] - b[0], a[1] - b[1]) for a, b in zip(foot, foot[1:] + foot[:1]))
