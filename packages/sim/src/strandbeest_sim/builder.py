@@ -28,6 +28,10 @@ from .linkage import LinkageSpec, Point, load_spec, solve_pose
 
 DATA = Path(__file__).parent / "data"
 
+# Reproduces the foot bug of 2026-10-05 (two coincident foot spheres per leg that collided with each other). Kept ONLY so the
+# simulator skeptic can prove it would catch it; never set it outside that test.
+LEGACY_FOOT_BUG = False
+
 
 def resolve_spec(sc: Scenario | SimConfig) -> LinkageSpec:
     sc = sim_config(sc)
@@ -120,11 +124,11 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
                 f'<geom type="capsule" fromto="0 0 0 {_f(rel[0])} 0 {_f(rel[1])}" size="{_f(w.bar_radius)}" mass="{_f(b.mass)}" '
                 f'contype="0" conaffinity="0" rgba="0.75 0.7 0.2 1"/>'
             )
-            if b.end == spec.foot and not foot_done:
+            if b.end == spec.foot and (not foot_done or LEGACY_FOOT_BUG):
                 foot_done.append(True)  # both bars ending at the foot share one sphere: two coincident spheres would collide with each other
                 geoms += (
                     f'<geom name="foot_{b.name}" type="sphere" pos="{_f(rel[0])} 0 {_f(rel[1])}" size="{_f(w.foot_radius)}" '
-                    f'mass="1e-6" friction="{_f(w.foot_friction)} 0.005 0.0001" contype="2" conaffinity="1" rgba="0.9 0.45 0.25 1"/>'
+                    f'mass="1e-6" friction="{_f(w.foot_friction)} 0.005 0.0001" contype="{1 if LEGACY_FOOT_BUG else 2}" conaffinity="1" rgba="0.9 0.45 0.25 1"/>'
                 )
             kids = ""
             if owner_of.get(b.end) == b.name:

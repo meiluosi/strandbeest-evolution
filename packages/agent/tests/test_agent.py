@@ -142,6 +142,8 @@ def test_an_external_agent_can_design_simulate_read_events_and_write_a_note_over
         assert not err and run["metrics"]["stride_per_rev"] and run["diagnosis"]
         events, err = c.tool("simulate.query", run=run["run_id"], layer="events", kinds=["touchdown"])
         assert not err and events["count"] >= 3
+        audit, err = c.tool("simulate.audit", run=run["run_id"])
+        assert not err and "trustworthy" in audit and "findings" in audit
         feet, err = c.tool("simulate.query", run=run["run_id"], layer="feet")
         assert not err and len(feet) == 6 and all(0.0 < f["stance_fraction"] < 1.0 for f in feet)
         note, err = c.tool("notes.add", text="shorter b gives a longer stride", design=did, run=run["run_id"], tags=["stride"])
@@ -154,8 +156,8 @@ def test_an_external_agent_can_design_simulate_read_events_and_write_a_note_over
     ws = Workspace(tmp_path / "ws")
     audit = ws.audit_log()
     assert all(a["actor"] == {"kind": "agent", "id": "ext-agent"} for a in audit)
-    assert [a["tool"] for a in audit] == ["design.create", "design.set_param", "design.set_param", "simulate.run", "simulate.query", "simulate.query", "notes.add", "fab.export"]
-    assert [a["status"] for a in audit] == ["ok", "ok", "error", "ok", "ok", "ok", "ok", "error"]
+    assert [a["tool"] for a in audit] == ["design.create", "design.set_param", "design.set_param", "simulate.run", "simulate.query", "simulate.audit", "simulate.query", "notes.add", "fab.export"]
+    assert [a["status"] for a in audit] == ["ok", "ok", "error", "ok", "ok", "ok", "ok", "ok", "error"]
     assert ws.notes()[0]["actor"]["id"] == "ext-agent"
     log = json.loads((tmp_path / "ws" / "oplogs" / f"{did}.json").read_text())
     assert log["steps"][0][0]["reason"] == "try a shorter upper link" and log["steps"][0][0]["actor"]["id"] == "ext-agent"

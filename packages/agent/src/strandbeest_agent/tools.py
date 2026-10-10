@@ -176,6 +176,18 @@ def simulate_query(ws: Workspace, s: Session, a: dict) -> Any:
     return {k: _decimate(arrays[k], n) for k in names}
 
 
+def simulate_audit(ws: Workspace, s: Session, a: dict) -> Any:
+    """The simulator skeptic on a stored run: do its numbers satisfy the invariants a trustworthy run must satisfy?"""
+    from strandbeest_sim import sim_config
+    from strandbeest_sim.skeptic import audit
+
+    doc = _run_doc(ws, a["run"])
+    arrays = np.load(ws.run_dir(a["run"]) / "arrays.npz")
+    findings = audit(sim_config(doc["scenario"]), doc["metrics"], {k: arrays[k] for k in arrays.files}, doc.get("stalled", False))
+    return {"trustworthy": not findings, "findings": [{"check": f.check, "message": f.message, "evidence": f.evidence} for f in findings],
+            "checked": ["energy_closure", "loop_closure", "penetration", "stride_vs_kinematics", "support"]}
+
+
 # ---- lab ----------------------------------------------------------------------------------------------------------
 def _measurements(ws: Workspace) -> list[dict]:
     d = ws.root / "measurements"
@@ -247,6 +259,7 @@ def default_registry() -> Registry:
         t("simulate.query", "Read one layer of a run: summary, diagnosis, events (filter by kinds), energy (account and series), feet (stance, load, slip per foot), series.",
           obj({"run": RUN, "layer": {"enum": list(LAYERS), "default": "summary"}, "kinds": {"type": "array", "items": {"type": "string"}}, "limit": {"type": "integer", "minimum": 1},
                "names": {"type": "array", "items": {"type": "string"}}, "max_points": {"type": "integer", "minimum": 10, "maximum": 1000}}, ["run"]), "read", simulate_query),
+        t("simulate.audit", "Run the simulator skeptic on a run: energy closure, loop closure, penetration, stride against the kinematic stride, support. Say whether to trust the numbers.", obj({"run": RUN}, ["run"]), "read", simulate_audit),
         t("lab.list_measurements", "Measurements in the workspace (data from a real build).", obj({}), "read", lab_list),
         t("lab.compare", "Compare a measurement with a simulation run: crank torque against crank angle, one mismatch number.", obj({"measurement": {"type": "string"}, "run": RUN}, ["measurement", "run"]), "read", lab_compare),
         t("notes.add", "Write a lab note, optionally tied to a design or run.", obj({"text": {"type": "string", "minLength": 1}, "design": REF, "run": RUN, "tags": {"type": "array", "items": {"type": "string"}}}, ["text"]), "write", notes_add),

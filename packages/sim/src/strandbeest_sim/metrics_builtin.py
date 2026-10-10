@@ -5,6 +5,11 @@ import numpy as np
 from .registry import metrics
 
 
+# Reproduces the window bias of 2026-10-05 (means over every sample, including the start-up and a partial last revolution).
+# Kept ONLY so the simulator skeptic can prove it would catch it; never set it outside that test.
+LEGACY_WINDOW = False
+
+
 @metrics.register("gait")
 def gait(res) -> dict:
     """Stride, speed and torque statistics over a whole number of crank revolutions.
@@ -15,7 +20,9 @@ def gait(res) -> dict:
     psi, x, t = res.psi, res.x, res.t
     rev = 2 * math.pi
     total_revs = (psi[-1] - psi[0]) / rev if len(psi) else 0.0
-    if total_revs >= 1.98:  # a run asked to do 2 revolutions ends a hair short of 2.0
+    if LEGACY_WINDOW:
+        lo, hi, steady = psi[0], psi[-1], 1.0
+    elif total_revs >= 1.98:  # a run asked to do 2 revolutions ends a hair short of 2.0
         n = max(1, math.floor(total_revs + 0.02) - 1)
         lo, hi, steady = rev, min(rev * (1 + n), psi[-1]), 1.0
     else:
