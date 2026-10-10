@@ -25,6 +25,10 @@ type Profile = {
 	name: string;
 	parameters: Record<string, number>;
 	provenance: { residual: number; method: string; synthetic?: boolean };
+	uncertainty?: Record<
+		string,
+		{ ci95: number[]; identifiable: boolean; profile_share_of_prior: number }
+	>;
 };
 
 let busy = $state("");
@@ -36,7 +40,11 @@ let mId = $state("");
 let runId = $state("");
 let cmp = $state<Cmp | null>(null);
 let profile = $state<Profile | null>(null);
-let calParams = $state({ contact_stiffness: true, friction: false });
+let calParams = $state({
+	contact_stiffness: true,
+	friction: false,
+	leg_mass_per_m: false,
+});
 
 // import form
 let newName = $state("bench-1");
@@ -232,6 +240,19 @@ const calibrate = () =>
 		});
 	});
 
+const calibrateBayes = () =>
+	guard(t("lab.bayes.busy"), async () => {
+		const names = Object.entries(calParams)
+			.filter(([, on]) => on)
+			.map(([n]) => n);
+		profile = await runJob("/calibrations/bayes", {
+			design: currentDesign(),
+			measurement: mId,
+			params: names,
+			points: 32,
+		});
+	});
+
 const chart = $derived.by(() => {
 	if (!cmp) return null;
 	const all = [...cmp.measured, ...cmp.simulated].filter(
@@ -357,13 +378,26 @@ const chart = $derived.by(() => {
 		<div class="row center">
 			<label class="inline"><input type="checkbox" bind:checked={calParams.contact_stiffness} /> {t("param.contactStiffness")}</label>
 			<label class="inline"><input type="checkbox" bind:checked={calParams.friction} /> {t("param.friction")}</label>
+			<label class="inline"><input type="checkbox" bind:checked={calParams.leg_mass_per_m} /> {t("param.legMass")}</label>
 			<button class="btn primary" disabled={!!busy || !mId} onclick={calibrate}>{t("lab.calib.run")}</button>
+			<button class="btn" disabled={!!busy || !mId} onclick={calibrateBayes} title={t("lab.bayes.hint")}>{t("lab.bayes.run")}</button>
 		</div>
 		{#if profile}
 			<table class="tbl">
 				<thead><tr><th colspan="2">{t("lab.calib.result", { name: profile.name })}</th></tr></thead>
 				<tbody>
-					{#each Object.entries(profile.parameters) as [k, v]}<tr><td>{k}</td><td>{v.toPrecision(4)}</td></tr>{/each}
+					{#each Object.entries(profile.parameters) as [k, v]}
+						{@const u = profile.uncertainty?.[k]}
+						<tr>
+							<td>{k}</td>
+							<td>{v.toPrecision(4)}
+								{#if u}
+									<small class="muted"> {t("lab.bayes.ci", { lo: u.ci95[0]!.toPrecision(3), hi: u.ci95[1]!.toPrecision(3) })}</small>
+									<span class="badge {u.identifiable ? 'ok' : 'bad'}">{u.identifiable ? t("lab.bayes.identifiable") : t("lab.bayes.notIdentifiable")}</span>
+								{/if}
+							</td>
+						</tr>
+					{/each}
 					<tr><td>{t("lab.calib.residual")}</td><td>{profile.provenance.residual.toFixed(3)}</td></tr>
 					<tr><td>{t("lab.calib.method")}</td><td>{profile.provenance.method}</td></tr>
 				</tbody>
@@ -376,5 +410,8 @@ const chart = $derived.by(() => {
 
 
 <style>
+	.badge { font-size: 11px; padding: 0 8px; border-radius: 8px; margin-left: 6px; }
+	.badge.ok { background: #2e8b5733; color: #2e8b57; }
+	.badge.bad { background: #d6282822; color: #d62828; font-weight: 600; }
 	.chart { width: 100%; max-width: 560px; height: 130px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
 </style>

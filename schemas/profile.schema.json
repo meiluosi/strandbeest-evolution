@@ -60,6 +60,41 @@
 				"zh": "旧名字或旧 ID；指向它们的引用都解析到这个资产",
 				"en": "Former names or ids; a reference to any of them resolves to this asset"
 			}
+		},
+		"uncertainty": {
+			"type": "object",
+			"description": "Per parameter: 95 % intervals from the posterior and from the profile likelihood, the share of the prior range the data cannot exclude, and whether the parameter is identifiable from this data",
+			"additionalProperties": {
+				"type": "object",
+				"required": ["ci95", "identifiable"],
+				"additionalProperties": false,
+				"properties": {
+					"ci95": {
+						"type": "array",
+						"items": {
+							"type": "number"
+						},
+						"minItems": 2,
+						"maxItems": 2
+					},
+					"profile_ci95": {
+						"type": "array",
+						"items": {
+							"type": "number"
+						},
+						"minItems": 2,
+						"maxItems": 2
+					},
+					"identifiable": {
+						"type": "boolean"
+					},
+					"profile_share_of_prior": {
+						"type": "number",
+						"minimum": 0,
+						"maximum": 1
+					}
+				}
+			}
 		}
 	},
 	"$defs": {

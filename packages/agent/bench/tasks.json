@@ -1,0 +1,26 @@
+{
+	"_doc": "Design benchmark v0. An agent gets the intent, the visible scenes and a budget through the tool surface. Its final design is scored on BLIND scenes (bench/blind-scenes.json) that no tool reveals. Score = relative improvement of the blind metric over the starting design, zero if the design is invalid, leaves the allowed envelope, or the simulator skeptic distrusts any blind run.",
+	"start_design": "jansen-small-6leg",
+	"tasks": [
+		{
+			"id": "stride-on-flat",
+			"intent": "Make the walker cover more ground per crank revolution. You may simulate on flat ground; the final design is judged on terrain you have not seen.",
+			"metric": "stride_per_rev",
+			"direction": "max",
+			"visible_scenes": ["flat"],
+			"blind": ["slope-a", "bumps-a"],
+			"budget": { "sim_runs": 6, "ops": 40 },
+			"envelope": { "legs": 6, "length_ratio": [0.7, 1.4] }
+		},
+		{
+			"id": "cheap-stride",
+			"intent": "Make the walker use less input energy per metre walked. You may simulate on flat ground; the final design is judged on terrain you have not seen.",
+			"metric": "energy_per_metre",
+			"direction": "min",
+			"visible_scenes": ["flat"],
+			"blind": ["flat-b", "slope-a"],
+			"budget": { "sim_runs": 6, "ops": 40 },
+			"envelope": { "legs": 6, "length_ratio": [0.7, 1.4] }
+		}
+	]
+}

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Typed tool surface and an MCP server so that agents can design, simulate, read the glass-box layers and keep lab notes"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["strandbeest-common", "strandbeest-sim", "strandbeest-fab", "strandbeest-api", "numpy>=1.26"]
+dependencies = ["strandbeest-common", "strandbeest-sim", "strandbeest-fab", "strandbeest-api", "strandbeest-opt", "numpy>=1.26"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

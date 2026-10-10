@@ -41,8 +41,12 @@ describe("catalogs", () => {
 				.map((f) => join(dir, f)),
 		);
 		const text = files.map((f) => readFileSync(f, "utf8")).join("\n");
+		const extra = readFileSync(
+			join(SRC, "../../../contracts/scenes.json"),
+			"utf8",
+		); // scene labels live in the shared presets file
 		const used = new Set<string>();
-		for (const m of text.matchAll(
+		for (const m of `${text}\n${extra}`.matchAll(
 			/"((?:[a-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9_]+)+)"/g,
 		))
 			used.add(m[1] as string);

@@ -1,0 +1,20 @@
+{
+	"_doc": "Scenario overrides (flat shape) used ONLY to score final designs. They are not exposed by any tool, prompt or workspace file; a test checks that.",
+	"scenes": {
+		"slope-a": {
+			"terrain": { "kind": "slope", "slope_deg": 3.0 },
+			"run": { "revolutions": 2.1, "settle": 0.4, "frame_rate": 0 }
+		},
+		"bumps-a": {
+			"terrain": {
+				"kind": "bumps",
+				"params": { "count": 7, "max_height": 0.004, "start": 0.12, "seed": 11 }
+			},
+			"run": { "revolutions": 2.1, "settle": 0.4, "frame_rate": 0 }
+		},
+		"flat-b": {
+			"run": { "revolutions": 2.6, "settle": 0.5, "frame_rate": 0 },
+			"walker": { "foot_friction": 1.1 }
+		}
+	}
+}

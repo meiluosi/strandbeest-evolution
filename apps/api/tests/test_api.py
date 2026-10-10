@@ -362,3 +362,21 @@ def test_replay_carries_loads_events_diagnosis_and_the_energy_account(client):
     assert {e["kind"] for e in r["events"]} >= {"start", "touchdown"}
     series = client.get(f"/runs/{doc['id']}/series").json()
     assert "foot_normal" in series and "kinetic" in series
+
+
+@pytest.mark.slow
+def test_bayesian_calibration_job_returns_a_profile_with_uncertainty_and_identifiability(client):
+    from strandbeest_calib import CONTACT_STIFFNESS, make_synthetic_measurement
+    from strandbeest_common import Design
+
+    meas = make_synthetic_measurement(Design(DESIGN), {"contact_stiffness": 2e5}, [CONTACT_STIFFNESS], noise=0.02, seed=1)
+    assert client.post("/measurements", json=meas).status_code == 200
+    bad = client.post("/calibrations/bayes", json={"design": DESIGN, "measurement": meas["id"], "params": ["nope"]})
+    assert bad.status_code == 422
+    jid = client.post("/calibrations/bayes", json={"design": DESIGN, "measurement": meas["id"], "params": ["contact_stiffness", "friction"], "points": 8}).json()["job_id"]
+    j = wait(client, jid, tries=2400)
+    assert j["status"] == "done", j
+    p = j["result"]
+    assert set(p["uncertainty"]) == {"contact_stiffness", "friction"} and p["provenance"]["synthetic"] is True
+    for u in p["uncertainty"].values():
+        assert u["ci95"][0] < u["ci95"][1] and isinstance(u["identifiable"], bool)

@@ -315,3 +315,45 @@ Every run now records, at each sample, the normal and tangential load and the sl
 - What did not change: neither optimiser lands on Jansen's loop shape (0/20 within 0.05), so "our objective does not single out Jansen's design" stands.
 - **Not done:** the wind objective (`wind-objective`) was not re-run with CMA-ES (its quasi-static dynamics model exists only in TypeScript); the unequal budgets mean this is a comparison of two optimisers *as one would use them*, not at equal evaluations.
 - **A deliberate difference between the two implementations of the fitness:** a leg that assembles at the 24 probe angles but not at every one of the 90 trace samples has an empty trace. packages/core returns **NaN** for it (0/0), which silently changes how its GA ranks such legs; the Python port returns the finite -5.05. Fixing the TypeScript one changed the golden GA result, i.e. it changes committed experiment outputs, so it was left alone; the corpus has no such case. It should be fixed together with regenerating the experiments that could be affected.
+
+
+## 17. MAP-Elites over (legs, stride, mass) (O-02, 2026-10-06)
+
+`strandbeest_opt/qd.py`, run with `packages/opt/scripts/qd_run.py` (20,000 evaluations, seed 1, raw `experiments/qd-archive.json`). Objective: the kinematic flat-stroke fitness; descriptors: leg count (4-12, even), kinematic stride per revolution (0.05-0.45 m, 8 bins), total mass (0.30-1.50 kg, 6 bins) = 240 cells. Lengths vary within 0.7-1.4 x Jansen's lengths, topology fixed. Compared with filling the same archive by uniform sampling of designs with the same number of evaluations.
+
+| | MAP-Elites | uniform sampling |
+|---|---|---|
+| cells filled (of 240) | 48 (20 %) | 49 (20 %) |
+| QD score (sum of elite fitness) | **21.9** | 6.9 |
+| best elite | **0.778** (6 legs, stride 27 cm, 504 g) | 0.491 |
+
+Best elite per leg count: 4 legs 0.772 (29 cm, 450 g), 6 legs 0.778, 8 legs 0.735 (24 cm, 552 g), 10 legs 0.694, 12 legs 0.685 (20 cm, 649 g). Reading: selection from the archive finds designs about 1.6 times better in fitness and three times better in total than uniform sampling, but **neither fills more than 20 % of the grid**: within this box stride and mass are strongly tied (stride varies only 20-30 cm, and for a given leg count mass varies little), so most cells are unreachable, not unexplored. The descriptor ranges I chose are too wide for this design family, or the descriptors are the wrong ones; the start wind of the card's descriptor list is not included because the quasi-static dynamics model exists only in TypeScript. The fitness is kinematic: nothing here says these designs walk well in the simulator, and section 15 says the simulator is fragile for small design changes. Every elite exports as a design document (a new asset whose parent is the base design) that opens in the designer (`--save-designs data/designs`).
+
+
+## 18. The agent design benchmark and its baselines (A-04, 2026-10-06)
+
+`packages/agent/bench/`: two tasks (longer stride per revolution; less input energy per metre) on the small 6-leg walker, visible scene `flat`, final design scored on two blind scenes each (3 degree slope, bumps, a second flat run with lower friction), budget 6 simulations and 40 operations, allowed envelope: same topology and leg count, every length within 0.7-1.4 x. Three baseline agents through the same tools, two seeds each (`bench/baselines.json`):
+
+| task | random edits | hill climbing | CMA-ES on the kinematic fitness |
+|---|---|---|---|
+| longer stride (score, seeds 1 / 2) | **+4.8 %** / 0 (distrusted) | 0 / 0 (no gain) | 0 (no gain) / 0 (distrusted) |
+| less energy per metre | 0 / 0 (both distrusted) | 0 / 0 (both distrusted) | 0 / 0 (no gain) |
+
+What this shows: **the benchmark is currently dominated by whether a design keeps the simulator trustworthy**, not by how good the design is. Of 12 baseline runs 7 were disqualified by the simulator skeptic (open loops / bad energy closure on a blind scene, consistent with the fuzzing finding in section 15) and only one run improved the metric (+4.8 % stride). That is a real property of this simulator and a poor discrimination for agents; before the benchmark can rank agents the simulator has to survive small design changes (section 15), or the envelope has to be narrower. Two seeds per cell is too few for any ranking of the baselines among themselves; the table gives the floor an agent has to beat (> 0), nothing more. Blind secrecy is by construction (no tool reveals the scenes), not by cryptography: anyone with the repository can read them.
+
+
+## 19. Bayesian calibration with an emulator, on synthetic data (O-04, 2026-10-06)
+
+`packages/calib/src/strandbeest_calib/bayes.py`: run the simulator at K space-filling points of the parameter box, fit an RBF emulator of the torque curve (36 crank-angle bins) and the stride, then Metropolis posterior and profile likelihood on the emulator, the emulator's leave-one-out error added to the noise. Synthetic data from the simulator itself: truth contact stiffness 2e5 (1/s^2), friction 1.2, bar mass per metre nominal; noise 3 % of the mean |torque|; 4.5 revolutions (`packages/calib/scripts/bayes_study.py`, raw `experiments/bayes-calibration-synthetic*.json`). A parameter is called not identifiable when its profile-likelihood 95 % interval covers more than 60 % of the log-range of its prior.
+
+| parameter (truth) | K = 32: 95 % posterior interval, share of prior, verdict | K = 64 |
+|---|---|---|
+| contact stiffness (2e5) | 1.1e4 - 4.3e6, 98 %, **not identifiable** | 1.0e4 - 2.2e6, 88 %, **not identifiable** |
+| friction (1.2) | 0.36 - 2.8, 100 %, **not identifiable** | 0.34 - 2.6, 98 %, **not identifiable** |
+| bar mass per metre (0.0223) | 0.014 - 0.030, 70 %, not identifiable | 0.0133 - 0.0293, 50 %, **identifiable** |
+
+- **The calibration is honest, not accurate:** the truth is inside every interval, but the best-fit point is far off for stiffness (8.9e5 and 9.4e5 against 2e5) and friction (2.6 against 1.2). The point estimates must not be used; the intervals are the result.
+- **What the data cannot tell apart:** contact stiffness and friction are not identifiable from the torque curve and stride of one walk, with either emulator size; the leg mass becomes identifiable only with the larger emulator. This matches the expectation that torque on flat ground is mostly slip dissipation whose level depends on how friction is regularised (section 8).
+- **The emulator is the weak part, and it limits the verdict:** across the parameter box the torque curve varies with a standard deviation of 2.9 mN*m per bin; the emulator's leave-one-out error is 1.7 mN*m (K = 64) while the data noise is 0.007 mN*m. The torque is not smooth in the parameters (stick-slip), the RBF cannot reach the noise level, and the emulator error, not the data, sets the width of the posterior. So "not identifiable" here partly means "not identifiable with this surrogate": the leg mass flipping between 32 and 64 points shows it. A better surrogate (a Gaussian process with its own noise term, many more points, or direct simulation in the likelihood) is needed before this is used on real data, where the verdict could go either way.
+- The profile also needs the Metropolis chain and the grid to be converged; I checked neither beyond the fake-simulator unit tests (a parameter that matters is recovered, one that does not is flagged).
+- The UI shows the 95 % interval and an "identifiable / not identifiable" badge per parameter (Lab tab, "Bayesian calibration"); the profile document has an `uncertainty` section. Model against model; no real measurement exists.

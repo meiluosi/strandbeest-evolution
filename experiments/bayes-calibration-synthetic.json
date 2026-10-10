@@ -1,0 +1,59 @@
+{
+ "truth": {
+  "contact_stiffness": 200000.0,
+  "friction": 1.2,
+  "leg_mass_per_m": 0.02232
+ },
+ "noise": 0.03,
+ "points": 32,
+ "summary": {
+  "contact_stiffness": {
+   "best": 893507.5940682637,
+   "posterior_median": 223381.80019978082,
+   "posterior_ci95": [
+    11412.614372317208,
+    4259831.1368071195
+   ],
+   "profile_ci95": [
+    10000.00000000001,
+    8413951.416451963
+   ],
+   "profile_share_of_prior": 0.9750000000000001,
+   "posterior_std_over_prior_std": 0.8852766248866819,
+   "identifiable": false
+  },
+  "friction": {
+   "best": 2.630069265425982,
+   "posterior_median": 1.2202259562750597,
+   "posterior_ci95": [
+    0.35684674287759244,
+    2.819978439178817
+   ],
+   "profile_ci95": [
+    0.3,
+    3.0000000000000004
+   ],
+   "profile_share_of_prior": 1.0,
+   "posterior_std_over_prior_std": 0.9452050081535533,
+   "identifiable": false
+  },
+  "leg_mass_per_m": {
+   "best": 0.022294215926688652,
+   "posterior_median": 0.020852952276338686,
+   "posterior_ci95": [
+    0.014017466062681833,
+    0.029649013359945214
+   ],
+   "profile_ci95": [
+    0.011553556550069776,
+    0.03049001853075812
+   ],
+   "profile_share_of_prior": 0.7000000000000001,
+   "posterior_std_over_prior_std": 0.48337044096822274,
+   "identifiable": false
+  }
+ },
+ "chi2_min": 0.2944121171597665,
+ "emulator_loo_rms_mean": 0.002719828219390737,
+ "synthetic": true
+}

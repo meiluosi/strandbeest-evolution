@@ -89,10 +89,18 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         (root / "profiles" / f"{profile['name']}.json").write_text(json.dumps(profile, indent=2))
         return profile
 
+    def h_bayes(ctx: JobContext, payload: dict[str, Any]):
+        from strandbeest_calib.bayes_job import calibrate_bayes
+
+        d = Design(payload["design"])
+        profile = calibrate_bayes(d, measurement_doc(payload["measurement"]), payload["params"], payload["points"], progress=lambda i, k, msg: ctx.progress(i, k, msg))
+        (root / "profiles" / f"{profile['name']}.json").write_text(json.dumps(profile, indent=2))
+        return profile
+
     def h_sweep(ctx: JobContext, payload: dict[str, Any]):
         return run_sweep(ctx, payload, root / "runs", parallel=max(1, n_workers + 1))
 
-    pool = Workers(store, {"run": h_run, "calibration": h_calibration, "sweep": h_sweep}, n=n_workers)
+    pool = Workers(store, {"run": h_run, "calibration": h_calibration, "bayes": h_bayes, "sweep": h_sweep}, n=n_workers)
     pool.start()
 
     app = FastAPI(title="Strandbeest platform API", version="0.2.0")
@@ -191,6 +199,19 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         measurement_doc(body["measurement"])  # 404 early if it does not exist
         return {"job_id": store.create("calibration", {"design": d.doc, "measurement": body["measurement"], "params": names,
                                                         "max_evals": min(int(body.get("max_evals", 20)), 40)})}
+
+    @app.post("/calibrations/bayes")
+    def start_bayes(body: dict = Body(...)):
+        """Bayesian calibration with uncertainty and an identifiability verdict (minutes: one simulator run per emulator point)."""
+        d = parse(body["design"])
+        names = body.get("params", ["contact_stiffness", "friction"])
+        from strandbeest_calib.bayes_job import log_params
+
+        unknown = [n for n in names if n not in log_params(d)]
+        if unknown:
+            raise HTTPException(422, f"unknown parameters {unknown}; available: {sorted(log_params(d))}")
+        measurement_doc(body["measurement"])
+        return {"job_id": store.create("bayes", {"design": d.doc, "measurement": body["measurement"], "params": names, "points": max(8, min(int(body.get("points", 32)), 64))})}
 
     @app.get("/jobs")
     def list_jobs(status: str | None = None, kind: str | None = None, limit: int = 50):
