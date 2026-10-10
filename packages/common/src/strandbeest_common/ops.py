@@ -333,6 +333,11 @@ class History:
         return [op for e in self._done for op in e.ops]
 
     @property
+    def steps(self) -> list[list[dict[str, Any]]]:
+        """Undo steps, oldest first (a step may hold several operations)."""
+        return [list(e.ops) for e in self._done]
+
+    @property
     def can_undo(self) -> bool:
         return bool(self._done)
 

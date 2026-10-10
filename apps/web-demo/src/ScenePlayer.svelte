@@ -1,4 +1,5 @@
 <script lang="ts">
+import scenesFile from "../../../contracts/scenes.json";
 import { call, runJob } from "./api";
 import DiagnosisList from "./DiagnosisList.svelte";
 import EnergyPanel from "./EnergyPanel.svelte";
@@ -10,76 +11,11 @@ import ReplayViewport from "./ReplayViewport.svelte";
 import { largestDifference, type Overlays, type Replay } from "./replay-types";
 import { view } from "./store.svelte";
 
-// Planet numbers are approximate (NASA fact sheets, Wikipedia); Moon has no atmosphere, so no sail drive there.
-const SCENES: Record<
+// shared with the agent tools (contracts/scenes.json)
+const SCENES = scenesFile.scenes as Record<
 	string,
 	{ label: string; hint: string; sail?: boolean; ov: Record<string, any> }
-> = {
-	flat: {
-		label: "scene.flat.name",
-		hint: "scene.flat.desc",
-		ov: {},
-	},
-	slope: {
-		label: "scene.slope.name",
-		hint: "scene.slope.desc",
-		ov: { terrain: { kind: "slope", slope_deg: 5 } },
-	},
-	step: {
-		label: "scene.step.name",
-		hint: "scene.step.desc",
-		ov: {
-			terrain: { kind: "step", params: { distance: 0.15, height: 0.012 } },
-			run: { revolutions: 2.5 },
-		},
-	},
-	bumps: {
-		label: "scene.rough.name",
-		hint: "scene.rough.desc",
-		ov: {
-			terrain: {
-				kind: "bumps",
-				params: { count: 8, max_height: 0.01, start: 0.15, seed: 3 },
-			},
-			run: { revolutions: 2.5 },
-		},
-	},
-	wind: {
-		label: "scene.wind.name",
-		hint: "scene.wind.desc",
-		sail: true,
-		ov: {},
-	},
-	gusts: {
-		label: "scene.gust.name",
-		hint: "scene.gust.desc",
-		sail: true,
-		ov: { wind: { kind: "gusts", params: { amplitude: 1.5, period: 5 } } },
-	},
-	mars: {
-		label: "scene.mars.name",
-		hint: "scene.mars.desc",
-		sail: true,
-		ov: { environment: { gravity: 3.73, air_density: 0.02 } },
-	},
-	titan: {
-		label: "scene.titan.name",
-		hint: "scene.titan.desc",
-		sail: true,
-		ov: { environment: { gravity: 1.35, air_density: 5.4 } },
-	},
-	venus: {
-		label: "scene.venus.name",
-		hint: "scene.venus.desc",
-		sail: true,
-		ov: { environment: { gravity: 8.87, air_density: 65 } },
-	},
-	moon: {
-		label: "scene.moon.name",
-		hint: "scene.moon.desc",
-		ov: { environment: { gravity: 1.62, air_density: 0 } },
-	},
-};
+>;
 
 let key = $state("flat");
 let wind = $state(3);
