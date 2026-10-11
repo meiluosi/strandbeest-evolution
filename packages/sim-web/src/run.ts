@@ -125,9 +125,7 @@ export async function runPreview(
 	const spec: LinkageSpec = resolveSpec(sc);
 	const plan = terrainPlan(sc);
 	const built = buildMjcf(sc, spec, obstaclesXml(plan.obstacles));
-	// biome-ignore lint/suspicious/noExplicitAny: the embind typings of MuJoCo expose most members as `any`
 	const m: any = (mj.MjModel as any).from_xml_string(built.xml);
-	// biome-ignore lint/suspicious/noExplicitAny: see above
 	const d: any = new (mj.MjData as any)(m);
 	const freeLater: { delete(): void }[] = [];
 	const yieldNow =
@@ -414,7 +412,6 @@ export async function runPreview(
 	}
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: embind model
 function describeScene(
 	m: any,
 	name: (kind: number, i: number) => string,

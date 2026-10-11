@@ -20,6 +20,7 @@
 			"!**/dist",
 			"!**/generated",
 			"!experiments",
+			"!contracts/sim-run",
 			"!apps/web-demo/public/gallery",
 			"!data",
 			"!packages/sim",
