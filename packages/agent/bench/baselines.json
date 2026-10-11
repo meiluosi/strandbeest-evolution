@@ -1,137 +1,137 @@
 {
- "_doc": "Baseline scores of bench/tasks.json (relative improvement of the blind metric over the starting design; 0 = no gain or disqualified). Same tools and budget as any agent.",
- "results": [
-  {
-   "task": "stride-on-flat",
-   "agent": "random-edits",
-   "seed": 1,
-   "score": 0.04761503675419888,
-   "reason": "ok",
-   "value": 0.2682842695276013,
-   "start_value": 0.2560905104596629,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "stride-on-flat",
-   "agent": "random-edits",
-   "seed": 2,
-   "score": 0.034607443230777656,
-   "reason": "ok",
-   "value": 0.26495314826233657,
-   "start_value": 0.2560905104596629,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "stride-on-flat",
-   "agent": "hill-climb",
-   "seed": 1,
-   "score": 0.0,
-   "reason": "ok",
-   "value": 0.2560905104596629,
-   "start_value": 0.2560905104596629,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "stride-on-flat",
-   "agent": "hill-climb",
-   "seed": 2,
-   "score": 0.0,
-   "reason": "ok",
-   "value": 0.2560905104596629,
-   "start_value": 0.2560905104596629,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "stride-on-flat",
-   "agent": "cmaes-proxy",
-   "seed": 1,
-   "score": 0.0,
-   "reason": "ok",
-   "value": 0.2560905104596629,
-   "start_value": 0.2560905104596629,
-   "runs": 2,
-   "ops": 9
-  },
-  {
-   "task": "stride-on-flat",
-   "agent": "cmaes-proxy",
-   "seed": 2,
-   "score": 0.04040712822796295,
-   "reason": "ok",
-   "value": 0.266438392553771,
-   "start_value": 0.2560905104596629,
-   "runs": 2,
-   "ops": 12
-  },
-  {
-   "task": "cheap-stride",
-   "agent": "random-edits",
-   "seed": 1,
-   "score": -0.0002558427113387272,
-   "reason": "ok",
-   "value": 0.16751620165633385,
-   "start_value": 0.16747335481915993,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "cheap-stride",
-   "agent": "random-edits",
-   "seed": 2,
-   "score": 0.06311619237997768,
-   "reason": "ok",
-   "value": 0.15690307433787357,
-   "start_value": 0.16747335481915993,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "cheap-stride",
-   "agent": "hill-climb",
-   "seed": 1,
-   "score": -0.13377565682292208,
-   "reason": "ok",
-   "value": 0.18987721286043133,
-   "start_value": 0.16747335481915993,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "cheap-stride",
-   "agent": "hill-climb",
-   "seed": 2,
-   "score": -0.12647593390362197,
-   "reason": "ok",
-   "value": 0.18865470377388582,
-   "start_value": 0.16747335481915993,
-   "runs": 6,
-   "ops": 5
-  },
-  {
-   "task": "cheap-stride",
-   "agent": "cmaes-proxy",
-   "seed": 1,
-   "score": -0.0,
-   "reason": "ok",
-   "value": 0.16747335481915993,
-   "start_value": 0.16747335481915993,
-   "runs": 2,
-   "ops": 9
-  },
-  {
-   "task": "cheap-stride",
-   "agent": "cmaes-proxy",
-   "seed": 2,
-   "score": -0.0,
-   "reason": "ok",
-   "value": 0.16747335481915993,
-   "start_value": 0.16747335481915993,
-   "runs": 2,
-   "ops": 12
-  }
- ]
+	"_doc": "Baseline scores of bench/tasks.json (relative improvement of the blind metric over the starting design; 0 = no gain or disqualified). Same tools and budget as any agent.",
+	"results": [
+		{
+			"task": "stride-on-flat",
+			"agent": "random-edits",
+			"seed": 1,
+			"score": 0.04761503675419888,
+			"reason": "ok",
+			"value": 0.2682842695276013,
+			"start_value": 0.2560905104596629,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "stride-on-flat",
+			"agent": "random-edits",
+			"seed": 2,
+			"score": 0.034607443230777656,
+			"reason": "ok",
+			"value": 0.26495314826233657,
+			"start_value": 0.2560905104596629,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "stride-on-flat",
+			"agent": "hill-climb",
+			"seed": 1,
+			"score": 0.0,
+			"reason": "ok",
+			"value": 0.2560905104596629,
+			"start_value": 0.2560905104596629,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "stride-on-flat",
+			"agent": "hill-climb",
+			"seed": 2,
+			"score": 0.0,
+			"reason": "ok",
+			"value": 0.2560905104596629,
+			"start_value": 0.2560905104596629,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "stride-on-flat",
+			"agent": "cmaes-proxy",
+			"seed": 1,
+			"score": 0.0,
+			"reason": "ok",
+			"value": 0.2560905104596629,
+			"start_value": 0.2560905104596629,
+			"runs": 2,
+			"ops": 9
+		},
+		{
+			"task": "stride-on-flat",
+			"agent": "cmaes-proxy",
+			"seed": 2,
+			"score": 0.04040712822796295,
+			"reason": "ok",
+			"value": 0.266438392553771,
+			"start_value": 0.2560905104596629,
+			"runs": 2,
+			"ops": 12
+		},
+		{
+			"task": "cheap-stride",
+			"agent": "random-edits",
+			"seed": 1,
+			"score": -0.0002558427113387272,
+			"reason": "ok",
+			"value": 0.16751620165633385,
+			"start_value": 0.16747335481915993,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "cheap-stride",
+			"agent": "random-edits",
+			"seed": 2,
+			"score": 0.06311619237997768,
+			"reason": "ok",
+			"value": 0.15690307433787357,
+			"start_value": 0.16747335481915993,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "cheap-stride",
+			"agent": "hill-climb",
+			"seed": 1,
+			"score": -0.13377565682292208,
+			"reason": "ok",
+			"value": 0.18987721286043133,
+			"start_value": 0.16747335481915993,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "cheap-stride",
+			"agent": "hill-climb",
+			"seed": 2,
+			"score": -0.12647593390362197,
+			"reason": "ok",
+			"value": 0.18865470377388582,
+			"start_value": 0.16747335481915993,
+			"runs": 6,
+			"ops": 5
+		},
+		{
+			"task": "cheap-stride",
+			"agent": "cmaes-proxy",
+			"seed": 1,
+			"score": -0.0,
+			"reason": "ok",
+			"value": 0.16747335481915993,
+			"start_value": 0.16747335481915993,
+			"runs": 2,
+			"ops": 9
+		},
+		{
+			"task": "cheap-stride",
+			"agent": "cmaes-proxy",
+			"seed": 2,
+			"score": -0.0,
+			"reason": "ok",
+			"value": 0.16747335481915993,
+			"start_value": 0.16747335481915993,
+			"runs": 2,
+			"ops": 12
+		}
+	]
 }
