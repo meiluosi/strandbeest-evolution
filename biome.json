@@ -20,6 +20,7 @@
 			"!**/dist",
 			"!**/generated",
 			"!experiments",
+			"!data",
 			"!packages/sim",
 			"!.venv",
 			"!apps/api",

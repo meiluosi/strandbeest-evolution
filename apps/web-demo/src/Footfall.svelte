@@ -110,7 +110,7 @@ const kinematic = $derived(replay.kinematic_duty);
 			{/each}
 			<line x1={x(time)} x2={x(time)} y1="0" y2={legs * rowH} class="cursor" />
 		</svg>
-		<small>{t("footfall.stats", { sim: `${(stanceFraction * 100).toFixed(0)}%` })}{#if kinematic != null} {t("footfall.kinematic", { duty: `${(kinematic * 100).toFixed(0)}%` })}{/if}</small>
+		<small>{t("footfall.stats", { sim: `${(stanceFraction * 100).toFixed(0)}%` })}{#if kinematic != null}{" "}{t("footfall.kinematic", { duty: `${(kinematic * 100).toFixed(0)}%` })}{/if}</small>
 	</div>
 	<div class="ring">
 		<svg viewBox="0 0 120 120" role="img" aria-label={t("footfall.phase")}>

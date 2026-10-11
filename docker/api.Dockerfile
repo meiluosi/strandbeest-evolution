@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 WORKDIR /app
 COPY schemas ./schemas
+COPY contracts ./contracts
 COPY packages/common ./packages/common
 COPY packages/sim ./packages/sim
 COPY packages/fab ./packages/fab

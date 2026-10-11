@@ -43,11 +43,13 @@ const H = 140;
 const bands = $derived.by(() => {
 	let yIn = 10;
 	let yOut = 10;
+	let labelY = -Infinity;
 	const total = flows.reduce((s, f) => s + Math.max(f.share, 0), 0) || 1;
 	const scale = (H - 20 - 6 * (flows.length - 1)) / total;
 	return flows.map((f) => {
 		const h = Math.max(f.share, 0) * scale;
-		const b = { ...f, h, y0: yIn, y1: yOut };
+		labelY = Math.max(yOut + Math.max(h, 12) / 2 + 4, labelY + 14); // keep the labels of thin bands from overlapping
+		const b = { ...f, h, y0: yIn, y1: yOut, ly: labelY };
 		yIn += h;
 		yOut += h + 6;
 		return b;
@@ -70,12 +72,12 @@ const steady = $derived(m.steady_window === 1);
 		{#if inputJ == null}
 			<p class="muted">{t("energy.none")}</p>
 		{:else}
-			<svg viewBox="0 0 400 {H}" role="img" aria-label={t("energy.title")}>
+			<svg viewBox="0 0 640 {H + 20}" role="img" aria-label={t("energy.title")}>
 				<rect x="60" y="10" width="20" height={H - 20} fill="var(--accent)" />
 				<text x="56" y={H / 2} class="in" text-anchor="end">{(inputJ * 1000).toFixed(2)} mJ</text>
 				{#each bands as b}
 					<path d={path(b)} fill={b.color} opacity="0.55" />
-					<text x="286" y={b.y1 + Math.max(b.h, 12) / 2 + 4} class="lab">{t(FLOW_LABELS[b.id as keyof typeof FLOW_LABELS])} {(b.share * 100).toFixed(1)}% · {(b.share * inputJ * 1000).toFixed(2)} mJ</text>
+					<text x="286" y={b.ly} class="lab">{t(FLOW_LABELS[b.id as keyof typeof FLOW_LABELS])} {(b.share * 100).toFixed(1)}% · {(b.share * inputJ * 1000).toFixed(2)} mJ</text>
 				{/each}
 			</svg>
 			<small class="muted">{t("energy.caption", { revs: (m.energy_window_revs ?? 0).toFixed(1) })} {steady ? "" : t("energy.notSteady")}</small>
@@ -96,7 +98,7 @@ const steady = $derived(m.steady_window === 1);
 <style>
 	.energy { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
 	h4 { margin: 0 0 4px; }
-	svg { width: 100%; max-width: 460px; }
+	svg { width: 100%; max-width: 640px; }
 	.in { font-size: 11px; fill: var(--ink); }
 	.lab { font-size: 11px; fill: var(--ink); }
 	table { border-collapse: collapse; width: 100%; font-size: 13px; }

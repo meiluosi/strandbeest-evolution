@@ -1,13 +1,14 @@
 """A-03: the simulator skeptic passes a healthy simulator and reports the two historical bugs when they are put back."""
 
 import json
+import random
 
 import pytest
 from strandbeest_common import Design
 from strandbeest_common.schemas import schema_dir
 from strandbeest_sim import builder, metrics_builtin, run, scenario_from_design
 from strandbeest_sim.runner import make_sim
-from strandbeest_sim.skeptic import audit, check_no_foot_foot_contacts, check_window_invariance, fuzz
+from strandbeest_sim.skeptic import audit, check_no_foot_foot_contacts, check_window_invariance, fuzz, random_scenario
 
 DESIGN_DOC = json.loads((schema_dir() / "examples" / "design-jansen-small-6leg.json").read_text())
 DESIGN = Design(DESIGN_DOC)
@@ -55,7 +56,7 @@ def test_audit_flags_soft_contact_and_a_blocked_walker():
 
 @pytest.mark.slow
 def test_fuzzing_reports_broken_invariants_and_explains_the_big_energy_residuals():
-    """The fuzzer found that about half of random, guard-valid walkers (four lengths changed by up to 8 %, 4/6/8 legs) open a
+    """(Before the time step went from 0.2 to 0.1 ms, see test below and section 20.) The fuzzer found that about half of random, guard-valid walkers (four lengths changed by up to 8 %, 4/6/8 legs) open a
     loop by more than 5 mm (docs/EXPERIMENTS.md section 15). This test does not pretend otherwise: it checks that what the
     skeptic reports is of the known kinds and that a large energy residual always comes with an open loop (the model has come
     apart, so the account is meaningless), never alone."""
@@ -66,3 +67,17 @@ def test_fuzzing_reports_broken_invariants_and_explains_the_big_energy_residuals
         big = [f for f in findings if f.check == "energy_closure" and abs(f.evidence["residual_share"]) > 0.05]
         if big:
             assert "loop_closure" in kinds, (design, [str(f) for f in findings])
+
+
+@pytest.mark.slow
+def test_small_design_changes_keep_the_loops_closed_at_the_default_time_step():
+    """docs/EXPERIMENTS.md section 20: walkers 2 and 3 of fuzz seed 1 opened a loop by 7-8 mm (energy residual -304 % / -84 %) at the
+    old 0.2 ms time step, when only one foot was on the ground and the motor was at its torque cap. At 0.1 ms they stay closed."""
+    rng = random.Random(1)
+    cases = [random_scenario(rng, DESIGN_DOC) for _ in range(4)]
+    for d, ov in cases[2:4]:
+        sc = scenario_from_design(Design(d), ov)
+        assert sc.solver.timestep == pytest.approx(1e-4)
+        res = run(sc)
+        assert audit(res.scenario, res.metrics, res.series, res.stalled) == []
+        assert res.metrics["max_loop_violation"] < 0.002

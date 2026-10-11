@@ -296,7 +296,7 @@ Every run now records, at each sample, the normal and tangential load and the sl
 
 - **It catches the two historical bugs when they are put back** (switches kept only for this test): the overlapping foot spheres (feet colliding with each other: reported) and the partial-window bias of the gait metrics (the same scenario at 3.0 and 3.5 revolutions gives different stride/torque/speed: reported, relative differences above 4 %).
 - **A healthy run passes**, and the soft-ground and 12 mm step scenes are flagged (penetration; loop opening).
-- **Negative finding from fuzzing:** 4 of 8 random walkers (Jansen's lengths with four of them changed by up to 8 % through the guarded `set_param` operation, 4/6/8 legs, flat / slope / bumps) break an invariant: in 3 of those 4 a loop opens by 7-8 mm and the energy residual then reaches -304 %, -84 % and -2.9 % (the account is meaningless once the model has come apart); the fourth has a residual of -4.4 % with no open loop. The default solver settings are therefore **not robust to small design changes**: the optimiser and the agents can propose designs whose simulation looks fine and is not trustworthy. The skeptic is exposed to agents as `simulate.audit` so they can ask. The cause is not investigated (candidates: loop-constraint impedance, the contact softness, the leg count). Model against model; nothing measured.
+- **Negative finding from fuzzing:** 4 of 8 random walkers (Jansen's lengths with four of them changed by up to 8 % through the guarded `set_param` operation, 4/6/8 legs, flat / slope / bumps) break an invariant: in 3 of those 4 a loop opens by 7-8 mm and the energy residual then reaches -304 %, -84 % and -2.9 % (the account is meaningless once the model has come apart); the fourth has a residual of -4.4 % with no open loop. The default solver settings are therefore **not robust to small design changes**: the optimiser and the agents can propose designs whose simulation looks fine and is not trustworthy. The skeptic is exposed to agents as `simulate.audit` so they can ask. The cause is investigated in section 20: the time step (fixed there). Model against model; nothing measured.
 
 
 ## 16. CMA-ES against the custom GA on the blind flat-stroke search (O-01, 2026-10-06)
@@ -339,7 +339,7 @@ Best elite per leg count: 4 legs 0.772 (29 cm, 450 g), 6 legs 0.778, 8 legs 0.73
 | longer stride (score, seeds 1 / 2) | **+4.8 %** / 0 (distrusted) | 0 / 0 (no gain) | 0 (no gain) / 0 (distrusted) |
 | less energy per metre | 0 / 0 (both distrusted) | 0 / 0 (both distrusted) | 0 / 0 (no gain) |
 
-What this shows: **the benchmark is currently dominated by whether a design keeps the simulator trustworthy**, not by how good the design is. Of 12 baseline runs 7 were disqualified by the simulator skeptic (open loops / bad energy closure on a blind scene, consistent with the fuzzing finding in section 15) and only one run improved the metric (+4.8 % stride). That is a real property of this simulator and a poor discrimination for agents; before the benchmark can rank agents the simulator has to survive small design changes (section 15), or the envelope has to be narrower. Two seeds per cell is too few for any ranking of the baselines among themselves; the table gives the floor an agent has to beat (> 0), nothing more. Blind secrecy is by construction (no tool reveals the scenes), not by cryptography: anyone with the repository can read them.
+What this shows: **the benchmark is currently dominated by whether a design keeps the simulator trustworthy**, not by how good the design is. Of 12 baseline runs 7 were disqualified by the simulator skeptic (open loops / bad energy closure on a blind scene, consistent with the fuzzing finding in section 15) and only one run improved the metric (+4.8 % stride). That is a real property of this simulator and a poor discrimination for agents; before the benchmark can rank agents the simulator has to survive small design changes (section 15; the time-step fix is in section 20, and these baselines predate it), or the envelope has to be narrower. Two seeds per cell is too few for any ranking of the baselines among themselves; the table gives the floor an agent has to beat (> 0), nothing more. Blind secrecy is by construction (no tool reveals the scenes), not by cryptography: anyone with the repository can read them.
 
 
 ## 19. Bayesian calibration with an emulator, on synthetic data (O-04, 2026-10-06)
@@ -357,3 +357,36 @@ What this shows: **the benchmark is currently dominated by whether a design keep
 - **The emulator is the weak part, and it limits the verdict:** across the parameter box the torque curve varies with a standard deviation of 2.9 mN*m per bin; the emulator's leave-one-out error is 1.7 mN*m (K = 64) while the data noise is 0.007 mN*m. The torque is not smooth in the parameters (stick-slip), the RBF cannot reach the noise level, and the emulator error, not the data, sets the width of the posterior. So "not identifiable" here partly means "not identifiable with this surrogate": the leg mass flipping between 32 and 64 points shows it. A better surrogate (a Gaussian process with its own noise term, many more points, or direct simulation in the likelihood) is needed before this is used on real data, where the verdict could go either way.
 - The profile also needs the Metropolis chain and the grid to be converged; I checked neither beyond the fake-simulator unit tests (a parameter that matters is recovered, one that does not is flagged).
 - The UI shows the 95 % interval and an "identifiable / not identifiable" badge per parameter (Lab tab, "Bayesian calibration"); the profile document has an `uncertainty` section. Model against model; no real measurement exists.
+
+## 20. Why loops open under small design changes, and the time-step fix (2026-10-11)
+
+Section 15 found that the default solver settings break down on perturbed walkers and left the cause open. The user-visible symptom (found again while taking README screenshots: three link lengths nudged by 2-3 units in the editor and the replay reports a loop opened by 7 mm and an energy residual of -74 %) made it the first thing to fix.
+
+**Where it breaks.** Four failing walkers from the fuzz (`random_scenario(Random(1), base)`, cases 2, 3, 5, 6; 6-8 legs, flat and slope): the loop first exceeds 5 mm at t = 2.3 s (crank angle 3.4-3.5 rad, about 196-200°), when only **one foot is on the ground** (the others are in the air), the crank torque has reached the motor cap (peak 0.30 N·m), and the penetration is small (0.7 mm). So it is not soft contacts and not a violent impact: it is a stiff constraint chain being driven hard through a single support.
+
+**Solver sweep** (largest loop opening in mm on the four walkers, same runs otherwise):
+
+| setting | cases 2 / 3 / 5 / 6 |
+|---|---|
+| default (time step 0.2 ms, loop constraint time constant 1 ms) | 7.2 / 8.3 / 4.6 / 7.8 |
+| loop constraint time constant 0.5 ms | 4.0 / 4.1 / 4.4 / 4.1 |
+| loop constraint time constant 2 ms | 2.6 / 2.6 / 12.1 / 2.9 |
+| constraint impedance 0.95 0.99 | 9.9 / 10.1 / 9.2 / 9.9 |
+| **time step 0.1 ms** | **0.6 / 0.7 / 4.4 / 0.7** |
+| solver iterations 300 | 7.2 / 8.3 / 4.6 / 7.8 (no effect) |
+| no-slip iterations 10 | 7.2 / 7.0 / 4.6 / 7.4 |
+| contact stiffness 1e6 | 7.9 / 8.4 / 7.4 / 7.9 |
+| elliptic friction cone | 7.3 / 7.6 / 7.1 / 7.3 |
+
+**Fix:** the design-to-scenario defaults now use a 0.1 ms time step (recording interval unchanged at 2 ms, so replays are the same size). Across 16 random walkers (same fuzz generator, seed 1):
+
+| | audit failures | largest loop opening (mm), median / worst | energy residual, worst | run time for 16 |
+|---|---|---|---|---|
+| time step 0.2 ms (before) | 9 of 16 | 5.0 / 9.7 | -304 % | 89 s |
+| time step 0.1 ms (now) | **0 of 16** | 0.7 / 4.4 | -2 % | 242 s (2.7x) |
+
+- Two walkers (cases 4 and 5) still open a loop by 4.2 and 4.4 mm, under the 5 mm limit but not by much, and case 5 has a -2 % energy residual at the limit. Time step is therefore the main cause, not the only one; a second mechanism exists. Not investigated further.
+- The earlier time-step convergence checks (sections 8 and 9) were done on the default design, where 0.2 ms was already converged for the torque; they did not look at perturbed designs, which is why this was missed.
+- 16 walkers from one generator is a small sample, and everything is model against model: a loop that stays closed in the simulation says nothing about the printed linkage. The audit stays on and the replay still reports a failed invariant.
+- Cost: simulation runs are about 2.7 times slower (about 15 s instead of 5 s for a default 1.5-revolution run on an idle machine). Use `overrides: {"solver": {"timestep": 0.0002}}` for a quick look and treat it as unaudited.
+- The golden runs store their full scenario (time step 0.2 ms included), so they are unchanged and still pass. The benchmark baselines (`packages/agent/bench/baselines.json`, section 18) were produced with the old step and **have not been regenerated** (about an hour of runs at the new step); treat them as stale until they are.

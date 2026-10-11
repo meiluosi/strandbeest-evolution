@@ -3,6 +3,9 @@ RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY packages/core ./packages/core
+# the front end imports the schemas and the contract corpora (examples, scenes) directly
+COPY schemas ./schemas
+COPY contracts ./contracts
 COPY apps/web-demo ./apps/web-demo
 RUN pnpm install --frozen-lockfile
 ARG VITE_API_URL=http://127.0.0.1:8000

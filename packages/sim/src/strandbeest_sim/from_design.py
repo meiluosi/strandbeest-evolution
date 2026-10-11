@@ -46,14 +46,16 @@ def scenario_from_design(design: Design, overrides: dict[str, Any] | None = None
         },
         # a softer constraint impedance: at this scale the stiffest setting (0.99 0.999) blew the loops apart
         "solver": {
-            "timestep": 0.0002,
+            # 1e-4, not 2e-4: the loop constraints open by up to 10 mm at 2e-4 on 9 of 16 random walkers; at 1e-4 none of 16 breaks
+            # the invariants (docs/EXPERIMENTS.md section 20). Costs about 2.7x run time.
+            "timestep": 0.0001,
             "solref_time": 0.001,
             "solimp": "0.9 0.95 0.001",
             # Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m. A light walker on light legs needs a large
             # value: at 3e5 the feet sink about 0.6 mm (docs/EXPERIMENTS.md section 9). A calibration target.
             "contact_stiffness": 3e5,
         },
-        "run": {"settle": 0.5, "revolutions": 1.5, "record_every": 10},
+        "run": {"settle": 0.5, "revolutions": 1.5, "record_every": 20},  # keeps the 2 ms recording interval
     }
     sail = d.get("sail") or {}
     if sail:

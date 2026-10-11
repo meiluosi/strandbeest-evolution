@@ -1,28 +1,52 @@
 # strandbeest-evolution
 
-Research project on the leg linkage of Theo Jansen's Strandbeest: kinematics, evolutionary optimization, quasi-static wind-driven dynamics, an interactive demo, and companion articles. ([中文 README](README.md))
+An open-source design → simulate → 3D-print → measure → calibrate → redesign loop for Theo Jansen's Strandbeest (wind-driven walker): a linkage editor, MuJoCo dynamics with a replay that shows what happened, print-pack export, test-rig data import and calibration, and a typed tool surface for AI agents. ([中文 README](README.md))
+
+> **Status: preview (alpha).** The software chain works end to end and is tested, but **nothing has been validated against real hardware**, and the simulator is not yet robust to small design changes (see "Honest caveats"). Fine for exploring, teaching and building on; do not treat simulated numbers as measurements.
+
+![Replay: a six-legged walker in MuJoCo, feet turn green on contact, with contact-force arrows and the support polygon](docs/assets/screens/sim-replay-en.png)
 
 ![Foot path of the Jansen linkage](docs/assets/jansen-leg.gif)
 ![Multi-leg walking (schematic)](docs/assets/walker.gif)
 
-Platform design and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md) (Chinese).
+## What it does
 
-What this project could grow into (Chinese): [docs/VISION.md](docs/VISION.md).
+**Design.** Drag the 13 link lengths and watch the foot path. Every change is an edit operation with an actor, a time and an exact inverse (people and AI agents use the same ones); ⌘K opens the command palette.
 
-Engine-style architecture blueprint and decision records (Chinese): [docs/ENGINE.md](docs/ENGINE.md), [docs/adr/](docs/adr/).
+![Design tab: foot path, length sliders, edit history](docs/assets/screens/design-en.png)
 
-What to do next (task cards with acceptance criteria, in Chinese): [docs/ACTIONS.md](docs/ACTIONS.md).
+**Simulate, and see the process.** Pick a scene (flat ground, slope, step, rough ground, wind, and the gravity and atmosphere of Mars, Titan, Venus, the Moon), run a full MuJoCo simulation and replay it in 3D. The replay is more than an animation: contact-force arrows, slip markers, centre of mass and support polygon, a footfall chart, an event timeline, an energy-flow (Sankey) diagram and an invariant audit (loop opening, penetration, energy residual). Rule-based diagnosis says why the run went the way it did, and says so plainly when the model has come apart and later numbers can't be trusted.
+
+![Simulate tab: diagnosis, footfall chart, energy flow and invariant audit](docs/assets/screens/sim-glassbox-en.png)
+
+**Fabricate.** Printability checks (hole walls, clearance, layers, bed size…), a parts list, a 3D assembly preview, and export of STL + bill of materials + assembly notes.
+
+![Fabricate tab: printability checks, 3D assembly preview, parts](docs/assets/screens/fabricate-en.png)
+
+**Measure and calibrate.** Turn test-rig data (CSV / video tracking) into quality-checked measurements, overlay them on a simulation, and fit contact stiffness, friction and similar with Bayesian calibration that reports uncertainty and whether the parameter is identifiable at all. **So far verified on synthetic data only.**
+
+![Lab tab: import, compare, calibrate](docs/assets/screens/lab-en.png)
+
+**For AI agents.** The same operations are exposed as typed tools (four permission levels: read / write / budget / confirm, budgets, audit log) and run as an MCP server. There is also a "simulator skeptic" (invariant audit + fuzzer + re-injected historical bugs) and an agent design benchmark with blind scenes and baselines. See [docs/AGENT-TOOLS.md](docs/AGENT-TOOLS.md) (Chinese).
+
+**Optimize.** A GA in the browser; CMA-ES, NSGA-II (multi-objective) and quality-diversity (MAP-Elites) on the back end.
 
 ## What's inside
 
 | Path | Contents |
 |---|---|
-| `packages/core` | Pure TypeScript library (npm: `strandbeest-core`): linkage solver, gait metrics, seeded GA, multi-leg, quasi-static dynamics and sail model |
-| `packages/sim` | Python / MuJoCo dynamics simulator, scenario-file driven (see [design](docs/SIM-DESIGN.md)); early, torque results not yet converged |
-| `hardware/` + `packages/rig` | Test rig: design and calibration procedures, ESP32 firmware, raw-data-to-Measurement conversion with quality checks, ArUco video tracking; **not yet run on real hardware**, see [hardware/README.md](hardware/README.md) |
-| `apps/web-demo` | Interactive demo: drag the 13 lengths and watch the foot path; run the GA in the browser; wind estimate panel |
+| `packages/core` | Pure TypeScript library (npm: `strandbeest-core`): linkage solver, gait metrics, seeded GA, multi-leg, quasi-static dynamics and sail model, edit-operation algebra (undo/redo) |
+| `packages/common` | JSON Schemas for design documents (stable IDs, migrations), generated Python / TS models, contract corpora that check the two languages agree |
+| `packages/sim` | Python / MuJoCo simulator: world + entity scenario files, physics-backend interface, glass-box metrics (contact forces, energy, events), the simulator skeptic (see [design](docs/SIM-DESIGN.md)) |
+| `packages/fab` | Printability checks and print-pack export |
+| `packages/rig` + `hardware/` | Test rig: design and calibration procedures, ESP32 firmware, raw-data-to-Measurement conversion, ArUco video tracking; **not yet run on real hardware**, see [hardware/README.md](hardware/README.md) |
+| `packages/calib` | Calibration: least squares and Bayesian (uncertainty, identifiability) |
+| `packages/opt` | Optimizers: CMA-ES, NSGA-II, MAP-Elites |
+| `packages/agent` | Tool registry, MCP server, agent benchmark |
+| `apps/api` | Back end: design / simulation / calibration jobs, reproducible run records |
+| `apps/web-demo` | Web front end: Design, Fabricate, Simulate, Lab tabs; Chinese and English UI |
 | `scripts/` | Experiment scripts (evolution, re-discovering Jansen, dynamics comparison) and GIF rendering |
-| `docs/` | Roadmap, architecture, research notes (sources), experiment log |
+| `docs/` | Vision, architecture and decision records, editor notes, experiment log (negative results included), research notes (sources) |
 
 ## Run
 
@@ -31,23 +55,31 @@ Full chain (Python side):
 ```bash
 ./scripts/setup-python.sh && source .venv/bin/activate
 strandbeest-pipeline run schemas/examples/design-jansen-small-6leg.json out/   # evaluate → print pack → simulate
-strandbeest-api                                                                 # backend for the web demo below
+strandbeest-api                                                                 # back end (http://127.0.0.1:8000) for the web front end below
+strandbeest-mcp --workspace ./agent-workspace --actor my-agent                  # MCP server for agents (stdio)
 docker compose up --build                                                       # or the whole local lab at once (web 8080, API 8000); see docs/DEPLOY.md
 ```
-
 
 ```bash
 pnpm install
 pnpm check
-pnpm --filter @strandbeest/web-demo dev
+pnpm --filter @strandbeest/web-demo dev      # open the web UI (start the API separately)
 pnpm experiment flat 1 80
 pnpm dynamics
 ```
 
 ## Honest caveats
 
+- **Nothing has been validated on real hardware.** The rig firmware, calibration procedure and data import are written and pass on synthetic data, but nobody has measured a real walker with them. Calibration is verified on synthetic data only; with real data the model error will exceed the noise, and fitted values need not be physically meaningful.
+- Contact, friction and joint clearance in the simulator are assumptions; absolute torque depends on the friction model, so the UI reports ranges. Gravity and air density for other planets are approximate. Wind acts on the sail only; soft ground and sand are not modelled.
+- **The simulator is not yet robust to small design changes.** Randomly perturbing the default design's link lengths can pull the closed loops apart (the model "comes apart"). Halving the time step from 2e-4 to 1e-4 took 9 failing audits out of 16 random walkers down to none, at about 2.7x the run time; a few designs still open a loop by close to the 5 mm audit limit. The replay says so, but **do not trust a simulated number without looking at the invariant audit.** Record in [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md) (Chinese).
 - Sources for Jansen's 13 lengths and the linkage topology are in [research notes](docs/RESEARCH-NOTES.md); the evolution timeline was checked against strandbeest.com's period pages (except Pregluton).
-- The dynamics is **quasi-static** (no inertia, no slip, no soft ground); sail, gearing and resistance are illustrative assumptions. Use it to compare designs, not to predict real walkers.
 - Our GA is a reconstruction of the *idea* of evolving leg lengths, not Jansen's actual method.
+
+## Further reading (Chinese)
+
+- Vision: [docs/VISION.md](docs/VISION.md); platform and phase plan: [docs/PLATFORM.md](docs/PLATFORM.md)
+- Engine-style architecture blueprint: [docs/ENGINE.md](docs/ENGINE.md), decision records: [docs/adr/](docs/adr/); editor and operation log: [docs/EDITOR.md](docs/EDITOR.md)
+- What to do next (task cards with acceptance criteria): [docs/ACTIONS.md](docs/ACTIONS.md); experiment log: [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)
 
 Issues and PRs welcome. MIT licensed.
