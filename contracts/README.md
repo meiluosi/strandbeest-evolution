@@ -6,3 +6,7 @@ TS 实现（`packages/core`）和 Python 实现（`packages/common`）各有一�
 - 期望值由 Python 求解器生成（`generate_kinematics.py`），再用**与实现无关的不变量**独立检验：每个关节到它两个圆心的距离等于给定的杆长。所以语料库不只是"两个实现互相一致"，而是"都满足几何定义"。
 - 容差写在每个文件里（`tolerance`）。
 - 为什么有它：ADR-0009 的触发线要靠它来检查两种实现是否漂移。
+
+## sim-mjcf
+
+`sim-mjcf/cases.json`：Python 的 MJCF builder 对一组设计和覆盖项生成的完整 MJCF 文本与建模事实（`generate_sim_mjcf.py` 生成）。`packages/sim-web` 必须逐字节复现。builder、`scenario_from_design`、地形或 `contracts/scenes.json` 有意改动后，运行 `.venv/bin/python contracts/generate_sim_mjcf.py` 重新生成。
