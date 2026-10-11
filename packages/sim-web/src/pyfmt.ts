@@ -3,10 +3,14 @@
 
 /** `f"{v:.9g}"` */
 export function fmtG9(v: number): string {
+	return fmtG(v, 9);
+}
+
+/** `format(v, ".{P}g")` (and `f"{v:g}"` for P = 6) */
+export function fmtG(v: number, P: number): string {
 	if (Number.isNaN(v)) return "nan";
 	if (!Number.isFinite(v)) return v < 0 ? "-inf" : "inf";
 	if (v === 0) return Object.is(v, -0) ? "-0" : "0";
-	const P = 9;
 	const [mant, ex] = v.toExponential(P - 1).split("e") as [string, string];
 	const e = Number(ex);
 	if (e < -4 || e >= P) {
@@ -46,4 +50,22 @@ export function pyFloat(v: number): string {
 /** `str(int)` */
 export function pyInt(v: number): string {
 	return String(Math.trunc(v));
+}
+
+/** `f"{v:.{d}f}"`: like toFixed, but exact ties round half to even as Python does (toFixed picks the larger). */
+export function pyFixed(v: number, d: number): string {
+	if (!Number.isFinite(v)) return fmtG(v, 6);
+	const k = 10 ** d;
+	const scaled = Math.abs(v) * k;
+	if (Math.abs(scaled - Math.floor(scaled) - 0.5) === 0) {
+		const f = Math.floor(scaled);
+		const n = f % 2 === 0 ? f : f + 1;
+		return `${v < 0 ? "-" : ""}${(n / k).toFixed(d)}`;
+	}
+	return v.toFixed(d);
+}
+
+/** `f"{v:.0%}"` */
+export function pyPercent0(v: number): string {
+	return `${pyFixed(v * 100, 0)}%`;
 }
