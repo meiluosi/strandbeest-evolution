@@ -13,7 +13,7 @@
 	"app.docTitle": "Strandbeest linkage evolution · Jansen Linkage Lab",
 	"app.language": "Language",
 	"app.pipeline": "Design → simulate → 3D print → measure → calibrate",
-	"app.static.banner": "Online demo: design and share linkages right in your browser; simulations here are pre-recorded replays of the default Jansen walker. Fabrication, calibration and new simulations run locally.",
+	"app.static.banner": "Online demo: design and share linkages in your browser, play recorded MuJoCo replays, or simulate your own design as a browser preview. Fabrication, calibration and audited simulations run locally.",
 	"app.static.local": "Run it locally →",
 	"app.title": "Strandbeest design and validation platform",
 	"common.busy.simulating": "Simulating",
@@ -286,7 +286,7 @@
 	"scenes.meanSpeed": "Mean speed",
 	"scenes.meanWind": "Mean wind speed (m/s)",
 	"scenes.noReplay": "No replay yet: click \"Run and replay\".",
-	"scenes.recorded": "Pre-recorded MuJoCo run of the default design. Run locally to simulate your own.",
+	"scenes.recorded": "Recorded replays use the default design. \"Simulate my design here\" runs yours in the browser as a preview.",
 	"scenes.run": "Run and replay",
 	"scenes.speed": "Speed",
 	"scenes.title": "Scene demo: watch it move",
@@ -386,5 +386,12 @@
 	"card.subtitle": "Jansen linkage · {legs} legs",
 	"card.footer": "Made with Strandbeest Evolution · github.com/meiluosi/strandbeest-evolution",
 	"scenes.record": "Save video",
-	"scenes.recording": "Recording one pass…"
+	"scenes.recording": "Recording one pass…",
+	"scenes.browserTag": "browser preview",
+	"scenes.browserRun": "Simulate my design here",
+	"scenes.browserLoading": "Loading the physics engine…",
+	"scenes.browserRunning": "Simulating {pct}% · keep this tab in front",
+	"scenes.browserNoSail": "The browser preview does not run sail-driven scenes yet.",
+	"scenes.browserNotice": "Browser preview: the same MuJoCo model as the local simulator, without the energy account, event timeline, diagnosis and invariant audit. Use the local version for audited numbers.",
+	"scenes.revs": "Revolutions"
 }

@@ -1,6 +1,6 @@
 // CI: the static (Pages) build must ship one baked replay per scene, each with the fields the player reads.
 // Usage: node scripts/check-static-build.mjs   (after `VITE_STATIC=1 pnpm --filter @strandbeest/web-demo build`)
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 const dist = "apps/web-demo/dist";
 const scenes = Object.keys(
@@ -8,6 +8,10 @@ const scenes = Object.keys(
 );
 const need = ["t", "pos", "quat", "contact", "series", "metrics", "scene"];
 const problems = [];
+if (!readdirSync(`${dist}/assets`).some((f) => /^mujoco-.*\.wasm$/.test(f)))
+	problems.push(
+		"no MuJoCo wasm in dist/assets (browser preview would not load)",
+	);
 if (!existsSync(`${dist}/index.html`)) problems.push("no index.html");
 for (const s of scenes) {
 	const f = `${dist}/gallery/${s}.json`;

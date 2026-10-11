@@ -20,6 +20,12 @@ importers:
 
   apps/web-demo:
     dependencies:
+      '@mujoco/mujoco':
+        specifier: 3.14.0
+        version: 3.14.0
+      '@strandbeest/sim-web':
+        specifier: workspace:^
+        version: link:../../packages/sim-web
       intl-messageformat:
         specifier: ^12.1.3
         version: 12.1.3

@@ -13,7 +13,7 @@
 	"app.docTitle": "Strandbeest 连杆演化 · Jansen Linkage Lab",
 	"app.language": "语言",
 	"app.pipeline": "设计 → 仿真 → 3D 打印 → 测量 → 校准",
-	"app.static.banner": "在线演示版：可以直接在浏览器里设计连杆并分享；这里的仿真是默认 Jansen 步行者的预录回放。制造、校准和新的仿真需要在本地运行。",
+	"app.static.banner": "在线演示版：可在浏览器里设计和分享连杆、播放预录的 MuJoCo 回放，或把你自己的设计在浏览器里仿真预览。制造、校准和带审计的仿真需要在本地运行。",
 	"app.static.local": "本地运行 →",
 	"app.title": "Strandbeest 设计与验证平台",
 	"common.busy.simulating": "仿真中",
@@ -286,7 +286,7 @@
 	"scenes.meanSpeed": "平均速度",
 	"scenes.meanWind": "平均风速 (m/s)",
 	"scenes.noReplay": "还没有回放：点“运行并回放”。",
-	"scenes.recorded": "默认设计的 MuJoCo 预录回放。想仿真你自己的设计请在本地运行。",
+	"scenes.recorded": "预录回放使用默认设计；点“在这里仿真我的设计”可在浏览器里预览你自己的设计。",
 	"scenes.run": "运行并回放",
 	"scenes.speed": "速度",
 	"scenes.title": "场景演示：看它怎么动",
@@ -386,5 +386,12 @@
 	"card.subtitle": "Jansen 连杆 · {legs} 条腿",
 	"card.footer": "由 Strandbeest Evolution 生成 · github.com/meiluosi/strandbeest-evolution",
 	"scenes.record": "保存视频",
-	"scenes.recording": "正在录制一圈…"
+	"scenes.recording": "正在录制一圈…",
+	"scenes.browserTag": "浏览器预览",
+	"scenes.browserRun": "在这里仿真我的设计",
+	"scenes.browserLoading": "正在加载物理引擎…",
+	"scenes.browserRunning": "仿真中 {pct}% · 请保持此标签页在前台",
+	"scenes.browserNoSail": "浏览器预览暂不支持风帆驱动的场景。",
+	"scenes.browserNotice": "浏览器预览：和本地仿真器是同一个 MuJoCo 模型，但没有能量账、事件时间线、诊断和不变量审计。需要经过审计的数字请用本地版。",
+	"scenes.revs": "圈数"
 }

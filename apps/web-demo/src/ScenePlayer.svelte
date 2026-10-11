@@ -1,6 +1,7 @@
 <script lang="ts">
 import scenesFile from "../../../contracts/scenes.json";
 import { call, runJob } from "./api";
+import { type BrowserRun, previewable, simulateInBrowser } from "./browser-sim";
 import DiagnosisList from "./DiagnosisList.svelte";
 import EnergyPanel from "./EnergyPanel.svelte";
 import EventTimeline from "./EventTimeline.svelte";
@@ -75,6 +76,36 @@ async function loadBaked(k: string) {
 $effect(() => {
 	if (STATIC) loadBaked(key);
 });
+
+// ---- simulate the current design in the browser (MuJoCo WebAssembly, a labelled preview) ----
+let revs = $state(1);
+let browserRun = $state<BrowserRun | null>(null);
+let progress = $state<{ phase: string; fraction: number } | null>(null);
+async function simulateHere() {
+	if (browserRun) return;
+	error = "";
+	const run = simulateInBrowser(
+		currentDesign(),
+		key,
+		revs,
+		(p) => (progress = p),
+	);
+	browserRun = run;
+	try {
+		const { replay: next } = await run.promise;
+		if (replay) previous = { replay, label };
+		replay = next as unknown as Replay;
+		label = `${t(scene.label)} · ${t("scenes.browserTag")}`;
+		time = 0;
+		playing = true;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		if (msg !== "cancelled") error = msg;
+	} finally {
+		browserRun = null;
+		progress = null;
+	}
+}
 
 async function run() {
 	busy = t("common.busy.simulating");
@@ -233,7 +264,18 @@ const rows = $derived(
 	<p class="muted">{t(scene.hint)}</p>
 	<div class="row center">
 		{#if scene.sail && !STATIC}<label>{t("scenes.meanWind")} <input type="number" min="0" max="20" step="0.5" bind:value={wind} /></label>{/if}
-		{#if !STATIC}<button class="btn primary" disabled={!!busy} onclick={run}>{t("scenes.run")}</button>{/if}
+		{#if !STATIC}<button class="btn primary" disabled={!!busy || !!browserRun} onclick={run}>{t("scenes.run")}</button>{/if}
+		{#if previewable(key)}
+			<label class="inline">{t("scenes.revs")} <select bind:value={revs} disabled={!!browserRun}><option value={1}>1</option><option value={2}>2</option></select></label>
+			{#if browserRun}
+				<button class="btn" onclick={() => browserRun?.cancel()}>{t("common.cancel")}</button>
+				<span class="muted"><span class="spin"></span>{progress?.phase === "load" ? t("scenes.browserLoading") : t("scenes.browserRunning", { pct: Math.round((progress?.fraction ?? 0) * 100) })}</span>
+			{:else}
+				<button class="btn" class:primary={STATIC} disabled={!!busy} onclick={simulateHere}>{t("scenes.browserRun")}</button>
+			{/if}
+		{:else}
+			<small class="muted">{t("scenes.browserNoSail")}</small>
+		{/if}
 		{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
 		<small>{STATIC ? t("scenes.recorded") : t("scenes.currentDesign", { name: view.name })}</small>
 		{#if previous}<label class="inline"><input type="checkbox" bind:checked={compare} /> {t("compare.toggle", { label: previous.label })}</label>{/if}
@@ -280,6 +322,7 @@ const rows = $derived(
 			</table>
 		{/if}
 
+		{#if (replay as { quality?: string }).quality === "browser-preview"}<p class="notice">{t("scenes.browserNotice")}</p>{/if}
 		<p class="summary">{replay.stalled ? t("scenes.summaryStalled", { scene: label, dur: outcome.dur.toFixed(1) }) : t(outcome.efficiency === null ? "scenes.summary" : "scenes.summaryEff", { scene: label, dist: outcome.dist.toFixed(2), dur: outcome.dur.toFixed(1), speed: outcome.speed.toFixed(3), eff: Math.round((outcome.efficiency ?? 0) * 100) })}</p>
 		<div class="row center">
 			{#if videoType()}<button class="btn small" disabled={recording} onclick={record}>{recording ? t("scenes.recording") : t("scenes.record")}</button>{/if}

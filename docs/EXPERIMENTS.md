@@ -428,3 +428,21 @@ While baking replays for the static demo, the `bumps` scene (8 bumps up to 10 mm
 - Only the flat scene and the motor drive were run. Terrain obstacles, slope, wind and the sail drive were not.
 
 **Decision for the next step:** go. Port the builder and the run loop (plan: `packages/sim-web`, parity tests that compare generated MJCF and trajectories with Python fixtures), keep Python as the authority for the audit, and make the quick browser run use a clearly labelled "unaudited" preview setting (section 20: 0.2 ms opens loops on perturbed designs).
+
+## 23. Browser preview on MuJoCo WebAssembly: agreement and cost (2026-10-11)
+
+`packages/sim-web` builds the same MJCF as the Python simulator (34 fixtures, byte for byte) and `runPreview` repeats the run loop for the motor drive. It records what the replay needs and skips the per-step energy account, the events and diagnosis and the invariant audit, so its replays carry `quality: "browser-preview"` and the page says so.
+
+**Agreement with Python** (`contracts/sim-run`, test `packages/sim-web/src/run.test.ts`, Node, MuJoCo 3.14.0 on both sides): four short runs (default 6-leg design; flat 0.15 rev, a 6 mm step 3 cm ahead 0.2 rev, an 8 degree slope 0.12 rev, soft ground 0.12 rev). The crank series, every replay frame (poses, quaternions, foot contacts, foot positions, contact forces, slip, centre of mass), the gait metrics and the scene geometry agree **to the rounding of the replay** (the largest differences are exactly half a unit of the last decimal: 5e-6 for the series, 5e-5 for poses, 5e-4 for forces), i.e. the unrounded numbers agree better than that. Dropping the start-up ramp from the loop changes the sample count and fails the test.
+
+**Cost** (Chromium 152 in the desktop app, M4 Mac, default design, flat ground, 0.1 ms time step, one run each, so indicative only):
+
+| run | wall time in the browser | simulated time | frames |
+|---|---|---|---|
+| 1 revolution | 6.1 s | 3.74 s | 113 |
+| 2 revolutions | 10.3 s | 6.88 s | 207 |
+
+For comparison the audited Python run of the same scene took 70 to 100 s for 2 revolutions (most of it the per-step power balance), and the plain `mj_step` loop without recording took 11.5 s per revolution natively (section 22). The 10 MB wasm (2.6 MB gzipped) is fetched only when someone clicks the button.
+
+**What this does not show.** (1) Only the motor drive is ported; the five sail scenes are disabled in the browser. (2) No audit: a loop that opens, as in section 20 for perturbed designs, is not flagged in the browser. (3) One browser, one machine; a hidden tab was sometimes slow in the spike (section 22) and sometimes not here, which I did not explain. (4) The "bumps" scene stops at three times the expected run time (about 12 s of simulated time for 1 revolution) instead of the scene's 40 s, so a blocked walker ends as stalled in about a minute of wall time.
+- The browser preview of the default design on the bumps scene (1 revolution) advanced 0.21 m against 0.28 m on flat ground in 3.7 s of simulated time, and stalled nothing.
