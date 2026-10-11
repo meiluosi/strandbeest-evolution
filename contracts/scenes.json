@@ -1,10 +1,14 @@
 {
-	"_doc": "Scene presets shared by the web player and the agent tools: overrides in the flat scenario shape (terrain, wind, drive, environment, run). Planet numbers are approximate (NASA fact sheets, Wikipedia); the Moon has no atmosphere, so no sail drive there.",
+	"_doc": "Scene presets shared by the web player and the agent tools: overrides in the flat scenario shape (terrain, wind, drive, environment, run). Planet numbers are approximate (NASA fact sheets, Wikipedia); the Moon has no atmosphere, so no sail drive there. Scenes without a sail drive carry a max_time (simulated seconds) so a walker that is blocked on an obstacle ends as stalled instead of running to the 600 s default.",
 	"scenes": {
 		"flat": {
 			"label": "scene.flat.name",
 			"hint": "scene.flat.desc",
-			"ov": {}
+			"ov": {
+				"run": {
+					"max_time": 40
+				}
+			}
 		},
 		"slope": {
 			"label": "scene.slope.name",
@@ -13,6 +17,9 @@
 				"terrain": {
 					"kind": "slope",
 					"slope_deg": 5
+				},
+				"run": {
+					"max_time": 40
 				}
 			}
 		},
@@ -28,7 +35,8 @@
 					}
 				},
 				"run": {
-					"revolutions": 2.5
+					"revolutions": 2.5,
+					"max_time": 40
 				}
 			}
 		},
@@ -46,7 +54,8 @@
 					}
 				},
 				"run": {
-					"revolutions": 2.5
+					"revolutions": 2.5,
+					"max_time": 40
 				}
 			}
 		},
@@ -110,6 +119,9 @@
 				"environment": {
 					"gravity": 1.62,
 					"air_density": 0
+				},
+				"run": {
+					"max_time": 40
 				}
 			}
 		}

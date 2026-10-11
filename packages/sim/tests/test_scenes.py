@@ -89,3 +89,13 @@ def test_soft_ground_is_actually_softer_than_flat_ground():
     soft = run(sc(terrain={"kind": "soft", "params": {"stiffness": 4000.0, "damping": 120.0}}, run={"revolutions": 0.5, "frame_rate": 0}))
     assert soft.metrics["max_penetration"] > 10 * flat.metrics["max_penetration"]
     assert soft.metrics["peak_torque"] > flat.metrics["peak_torque"]
+
+
+def test_every_scene_has_a_time_limit_so_a_blocked_walker_ends_as_stalled():
+    # regression: without max_time the default is 600 simulated seconds, so a walker stuck on a bump kept the crank
+    # stalled for hours of wall time ("Rough ground" in the web player never returned)
+    from strandbeest_sim.scenes import presets, scene_overrides
+
+    for name in presets():
+        run_ov = scene_overrides(name)["run"]
+        assert 0 < run_ov["max_time"] <= 60, name

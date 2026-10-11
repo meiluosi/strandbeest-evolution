@@ -397,3 +397,14 @@ Section 15 found that the default solver settings break down on perturbed walker
 - 16 walkers from one generator is a small sample, and everything is model against model: a loop that stays closed in the simulation says nothing about the printed linkage. The audit stays on and the replay still reports a failed invariant.
 - Cost: simulation runs are about 2.7 times slower (about 15 s instead of 5 s for a default 1.5-revolution run on an idle machine). Use `overrides: {"solver": {"timestep": 0.0002}}` for a quick look and treat it as unaudited.
 - The golden runs store their full scenario (time step 0.2 ms included), so they are unchanged and still pass. The benchmark baselines (`packages/agent/bench/baselines.json`) were regenerated with the new step (section 18).
+
+## 21. "Rough ground" never ended: a blocked walker ran to the 600 s default (2026-10-11)
+
+While baking replays for the static demo, the `bumps` scene (8 bumps up to 10 mm, 2.5 revolutions, default 6-leg design) ran for more than 23 minutes of wall time without finishing, while the other scenes take 1 to 2 minutes (Mars about 8, because its low gravity makes the run last 29 simulated seconds).
+
+**Cause:** only the sail scenes set `run.max_time`; every other scene inherited the schema default of 600 simulated seconds. When the walker is blocked by an obstacle the crank stops, `psi` never reaches the target and the loop only ends at 600 s (6 million steps at 0.1 ms). The web player's "Run and replay" button and the API would have hung the same way. `give_up_after` does not help: it only fires when the crank has hardly moved at all, and this walker had moved.
+
+**Fix:** `contracts/scenes.json` now carries `run.max_time = 40` for all non-sail scenes (shared by the web player and the agent tools; sail scenes keep their 30 s). A normal 2.5-revolution run needs about 13 simulated seconds, so 40 is about three times what a free walker needs. A regression test checks every scene has a limit of at most 60 s.
+
+**Result with the fix** (default design, 2.5 revolutions requested): the walker advanced 0.595 m, reached 2.31 of 2.5 revolutions, then stopped; the run ended as `stalled` at 39.9 s (603 s wall time, mostly the long stalled tail). The distance in 2.31 revolutions is similar to the free-running scenes (0.557 m in 2 revolutions), so the walker was blocked late, by one of the bumps, and not slowed down throughout. One scene, one design, one bump layout (seed 3): it says "this walker can be blocked by bumps of up to 10 mm", not how often.
+- Designs simulated from the Simulation tab (not scenes) still use the 600 s default for non-sail drives; a stuck walker there has the same problem. Not changed here.
