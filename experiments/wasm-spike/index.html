@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><title>spike</title><pre id="o">starting…</pre>
+<script type="module">
+const w = new Worker("./worker.mjs", { type: "module" });
+w.onmessage = (e) => { document.getElementById("o").textContent = JSON.stringify(e.data); window.__r = e.data; };
+w.onerror = (e) => { document.getElementById("o").textContent = "ERR " + e.message; window.__r = { error: e.message }; };
+w.postMessage(1);
+</script>

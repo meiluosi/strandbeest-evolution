@@ -408,3 +408,23 @@ While baking replays for the static demo, the `bumps` scene (8 bumps up to 10 mm
 
 **Result with the fix** (default design, 2.5 revolutions requested): the walker advanced 0.595 m, reached 2.31 of 2.5 revolutions, then stopped; the run ended as `stalled` at 39.9 s (603 s wall time, mostly the long stalled tail). The distance in 2.31 revolutions is similar to the free-running scenes (0.557 m in 2 revolutions), so the walker was blocked late, by one of the bumps, and not slowed down throughout. One scene, one design, one bump layout (seed 3): it says "this walker can be blocked by bumps of up to 10 mm", not how often.
 - Designs simulated from the Simulation tab (not scenes) still use the 600 s default for non-sail drives; a stuck walker there has the same problem. Not changed here.
+
+## 22. Spike: the same MuJoCo model in WebAssembly (2026-10-11)
+
+**Question:** can the browser run the simulator, so that visitors simulate their own designs without a backend? Step 0 of the plan; nothing is integrated yet. Files: `experiments/wasm-spike/`.
+
+**Setup:** default 6-leg design, flat ground, motor drive, time step 0.1 ms, 0.5 s settle then 1 crank revolution (37 415 driven steps). The MJCF is exported from the Python builder; the JS side (`@mujoco/mujoco` **3.14.0**, the same version as the Python wheel) loads that XML and repeats the runner's settle + drive loop. No recording, no energy account, no audit: only `mj_step` and the control update.
+
+| | wall time, settle + 1 rev | torso x at the end (m) | mean crank torque (N m) |
+|---|---|---|---|
+| native Python (3.14.0) | 11.5 s | 0.277384006184408 | 0.00147023626952736 |
+| WebAssembly in Node 24.7 | 17.3 s | 0.277384006184407 | 0.00147023626952737 |
+| WebAssembly in a Web Worker, Chrome 152 (Electron), tab visible | 4.7 s | 0.277384006184407 | torque differs by 1e-13 % |
+
+- **The results agree to floating-point noise** (torso position differs by 1e-12 mm, torque by 1e-13 %) over the whole sampled trajectory (18 samples compared in Node). Same engine version, same XML, same step order: the loop in JS reproduces the Python run.
+- **Speed is not a blocker for the plain loop.** The browser figure is one run on one Apple-silicon Mac in one Chromium; the Node figure on the same machine is 3.7 times slower for the same code, which I did not explain. Treat the 4.7 s as "possible", not as the expected number. Firefox and Safari were not tried.
+- **A hidden tab is much slower.** The same worker, run twice with the browser pane hidden, had not finished after more than 60 s. A production UI must say "keep this tab in front", show progress, and be cancellable.
+- **What these numbers do not include:** the recording that makes a replay (per-step power balance, contact forces, frames), the audit, and the metrics. Native runs with recording took 70 to 100 s for 2 revolutions in the baked scenes, against 11.5 s here for 1 revolution without it, so most of the native cost was bookkeeping, not integration. How much of that survives in JS is untested.
+- Only the flat scene and the motor drive were run. Terrain obstacles, slope, wind and the sail drive were not.
+
+**Decision for the next step:** go. Port the builder and the run loop (plan: `packages/sim-web`, parity tests that compare generated MJCF and trajectories with Python fixtures), keep Python as the authority for the audit, and make the quick browser run use a clearly labelled "unaudited" preview setting (section 20: 0.2 ms opens loops on perturbed designs).
