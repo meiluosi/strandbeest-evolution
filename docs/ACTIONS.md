@@ -173,7 +173,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | ID | 任务 | 验收 | 依赖 | 规模 | 状态 |
 |---|---|---|---|---|---|
 | R-01 | npm 发布 `strandbeest-core` | 包可安装；README 示例可运行 | **你 `npm login`** | S | ⬜（等你） |
-| R-02 | GitHub Pages：静态查看器 + 预算好的示例画廊 | 页面可打开，不需要后端 | **你启用 Pages** | S | ⬜（等你） |
+| R-02 | GitHub Pages：静态查看器 + 预算好的示例画廊 | 页面可打开，不需要后端 | **你启用 Pages** | S | 🟨 代码与回放已就绪（`VITE_STATIC=1`，见 DEPLOY.md）；等你启用 Pages 并手动触发部署 |
 | R-03 | 博客草稿复核与发布（`draft: false`） | 所有数字与 EXPERIMENTS 一致；链接可用 | **你确认** | M | ⬜（等你） |
 | R-04 | PLATFORM、ENGINE、VISION 的英文版 | 与中文版结构一致 | – | M | ⬜ |
 | R-05 | `CONTRIBUTING.md`、Issue 模板、扩展指南、"如何带来真实数据" | 一个陌生人能按文档加一个地形插件并过测试 | E7（扩展 API） | M | ⬜ |

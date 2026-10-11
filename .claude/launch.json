@@ -12,6 +12,15 @@
 				"5173"
 			],
 			"port": 5173
+		},
+		{
+			"name": "web-demo-static",
+			"runtimeExecutable": "bash",
+			"runtimeArgs": [
+				"-c",
+				"cd apps/web-demo && VITE_STATIC=1 npx vite --port 5174"
+			],
+			"port": 5174
 		}
 	]
 }

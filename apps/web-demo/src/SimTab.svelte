@@ -3,6 +3,7 @@ import { call, type Job, runJob } from "./api";
 import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
 import ScenePlayer from "./ScenePlayer.svelte";
+import { STATIC } from "./static";
 import { store, view } from "./store.svelte";
 
 type Metrics = Record<string, number | null>;
@@ -220,6 +221,7 @@ const sweepPlot = $derived.by(() => {
 
 <div class="stack">
 	<ScenePlayer />
+	{#if !STATIC}
 	<div class="card">
 		<h2>{t("sim.title")}</h2>
 		<p class="muted">{t("design.current")}<b>{view.name}</b>{t("sim.intro.after")}</p>
@@ -345,6 +347,7 @@ const sweepPlot = $derived.by(() => {
 			</svg>
 		{/if}
 	</div>
+	{/if}
 </div>
 
 

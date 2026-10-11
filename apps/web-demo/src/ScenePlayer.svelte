@@ -9,6 +9,8 @@ import Footfall from "./Footfall.svelte";
 import { t } from "./i18n/index.svelte";
 import ReplayViewport from "./ReplayViewport.svelte";
 import { largestDifference, type Overlays, type Replay } from "./replay-types";
+import { recordCanvas, saveBlob, videoType } from "./share-export";
+import { STATIC } from "./static";
 import { view } from "./store.svelte";
 
 // shared with the agent tools (contracts/scenes.json)
@@ -50,6 +52,29 @@ const diff = $derived(
 		? largestDifference(previous.replay, replay)
 		: null,
 );
+
+/** Static build: play the replay baked by scripts/bake-gallery.ts instead of simulating. */
+async function loadBaked(k: string) {
+	busy = t("scenes.loading");
+	error = "";
+	try {
+		const r = await fetch(`./gallery/${k}.json`);
+		if (!r.ok) throw new Error(`${r.status} ${k}`);
+		const next: Replay = await r.json();
+		if (replay) previous = { replay, label };
+		replay = next;
+		label = t(SCENES[k]?.label ?? k);
+		time = 0;
+		playing = true;
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+	} finally {
+		busy = "";
+	}
+}
+$effect(() => {
+	if (STATIC) loadBaked(key);
+});
 
 async function run() {
 	busy = t("common.busy.simulating");
@@ -96,6 +121,37 @@ $effect(() => {
 	raf = requestAnimationFrame(tick);
 	return () => cancelAnimationFrame(raf);
 });
+
+let recording = $state(false);
+/** Play the replay once from the start and save what the first viewport draws. */
+async function record() {
+	const canvas = document.querySelector<HTMLCanvasElement>(".views canvas");
+	if (!canvas || recording) return;
+	error = "";
+	try {
+		const stop = recordCanvas(canvas);
+		recording = true;
+		compare = false;
+		time = 0;
+		speed = 1;
+		playing = true;
+		let prev = 0;
+		await new Promise<void>((done) => {
+			const poll = () => {
+				if (time < prev) return done(); // the clock wrapped: one full pass
+				prev = time;
+				requestAnimationFrame(poll);
+			};
+			requestAnimationFrame(poll);
+		});
+		const { blob, ext } = await stop();
+		saveBlob(`strandbeest-${key}.${ext}`, blob);
+	} catch (e) {
+		error = e instanceof Error ? e.message : String(e);
+	} finally {
+		recording = false;
+	}
+}
 
 const seek = (tt: number) => {
 	playing = false;
@@ -176,10 +232,10 @@ const rows = $derived(
 	</div>
 	<p class="muted">{t(scene.hint)}</p>
 	<div class="row center">
-		{#if scene.sail}<label>{t("scenes.meanWind")} <input type="number" min="0" max="20" step="0.5" bind:value={wind} /></label>{/if}
-		<button class="btn primary" disabled={!!busy} onclick={run}>{t("scenes.run")}</button>
+		{#if scene.sail && !STATIC}<label>{t("scenes.meanWind")} <input type="number" min="0" max="20" step="0.5" bind:value={wind} /></label>{/if}
+		{#if !STATIC}<button class="btn primary" disabled={!!busy} onclick={run}>{t("scenes.run")}</button>{/if}
 		{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
-		<small>{t("scenes.currentDesign", { name: view.name })}</small>
+		<small>{STATIC ? t("scenes.recorded") : t("scenes.currentDesign", { name: view.name })}</small>
 		{#if previous}<label class="inline"><input type="checkbox" bind:checked={compare} /> {t("compare.toggle", { label: previous.label })}</label>{/if}
 	</div>
 	{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
@@ -224,6 +280,10 @@ const rows = $derived(
 			</table>
 		{/if}
 
+		<p class="summary">{replay.stalled ? t("scenes.summaryStalled", { scene: label, dur: outcome.dur.toFixed(1) }) : t(outcome.efficiency === null ? "scenes.summary" : "scenes.summaryEff", { scene: label, dist: outcome.dist.toFixed(2), dur: outcome.dur.toFixed(1), speed: outcome.speed.toFixed(3), eff: Math.round((outcome.efficiency ?? 0) * 100) })}</p>
+		<div class="row center">
+			{#if videoType()}<button class="btn small" disabled={recording} onclick={record}>{recording ? t("scenes.recording") : t("scenes.record")}</button>{/if}
+		</div>
 		<div class="cards">
 			<div class="stat"><b>{outcome.dist.toFixed(3)} m</b><span>{t("scenes.advancedIn", { dur: outcome.dur.toFixed(1) })}</span></div>
 			<div class="stat"><b>{outcome.speed.toFixed(3)} m/s</b><span>{t("scenes.meanSpeed")}</span></div>
@@ -255,10 +315,11 @@ const rows = $derived(
 
 
 <style>
+	.summary { font-size: 15px; margin: 10px 0 4px; }
 	.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
 	.views { display: grid; gap: 10px; margin: 8px 0; }
 	.views.two { grid-template-columns: 1fr 1fr; }
-	@media (max-width: 760px) { .views.two { grid-template-columns: 1fr; } }
+	@media (max-width: 760px) { .views.two { grid-template-columns: minmax(0, 1fr); } }
 	.plots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
 	.plots svg { width: 100%; height: 56px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
 	input[type="number"] { width: 70px; }

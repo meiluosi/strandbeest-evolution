@@ -15,6 +15,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm --filter @strandbeest/web-demo build
+        env: { VITE_STATIC: "1" }
       - uses: actions/upload-pages-artifact@v3
         with: { path: apps/web-demo/dist }
       - id: deployment

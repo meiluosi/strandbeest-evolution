@@ -20,6 +20,7 @@
 			"!**/dist",
 			"!**/generated",
 			"!experiments",
+			"!apps/web-demo/public/gallery",
 			"!data",
 			"!packages/sim",
 			"!.venv",

@@ -277,5 +277,5 @@ $effect(() => {
 
 <style>
 	.viewer { width: 100%; }
-	canvas { display: block; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+	canvas { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
 </style>

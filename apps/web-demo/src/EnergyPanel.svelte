@@ -108,5 +108,5 @@ const steady = $derived(m.steady_window === 1);
 	tr.bad { background: #d6282822; }
 	tr.bad td:nth-child(2) { color: #d62828; font-weight: 700; }
 	tr.na td { color: var(--muted); }
-	@media (max-width: 640px) { .energy { grid-template-columns: 1fr; } }
+	@media (max-width: 640px) { .energy { grid-template-columns: minmax(0, 1fr); } }
 </style>

@@ -103,7 +103,7 @@ small,
 }
 @media (max-width: 820px) {
 	.grid2 {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 .cards {

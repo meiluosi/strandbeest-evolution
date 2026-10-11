@@ -2,20 +2,25 @@
 import { call } from "./api";
 import CommandPalette from "./CommandPalette.svelte";
 import DesignTab from "./DesignTab.svelte";
-import { redo, undo } from "./editor.svelte";
+import { openDocument, redo, undo } from "./editor.svelte";
 import FabTab from "./FabTab.svelte";
 import { LOCALE_NAMES, LOCALES } from "./i18n/core";
 import { i18n, setLocale, t } from "./i18n/index.svelte";
 import LabTab from "./LabTab.svelte";
 import SimTab from "./SimTab.svelte";
+import { designFromHash, REPO_URL, STATIC } from "./static";
 import { setApi, store } from "./store.svelte";
 
-const tabs = [
+const allTabs = [
 	["design", "nav.design"],
 	["fab", "nav.fab"],
 	["sim", "nav.sim"],
 	["lab", "nav.lab"],
 ] as const;
+// fabrication and calibration need the backend; the static (Pages) build offers design and replay only
+const tabs = STATIC
+	? allTabs.filter(([id]) => id === "design" || id === "sim")
+	: allTabs;
 let tab = $state<(typeof tabs)[number][0]>("design");
 let online = $state<"unknown" | "up" | "down">("unknown");
 let paletteOpen = $state(false);
@@ -59,6 +64,14 @@ async function ping() {
 	}
 }
 $effect(() => {
+	if (!STATIC) return;
+	designFromHash().then((doc: any) => {
+		if (doc?.linkage?.params && Array.isArray(doc.linkage.joints))
+			openDocument(doc);
+	});
+});
+$effect(() => {
+	if (STATIC) return;
 	store.api;
 	ping();
 	const timer = setInterval(ping, 8000);
@@ -78,10 +91,10 @@ $effect(() => {
 				{#each LOCALES as l}<option value={l}>{LOCALE_NAMES[l]}</option>{/each}
 			</select>
 		</label>
-		<label class="api">
+		{#if !STATIC}<label class="api">
 			<span><i class="dot {online}"></i>{online === "up" ? t("app.backend.online") : online === "down" ? t("app.backend.offline") : t("app.backend.checking")}</span>
 			<input type="text" size="22" value={store.api} onchange={(e) => setApi((e.target as HTMLInputElement).value)} />
-		</label>
+		</label>{/if}
 	</div>
 	<nav class="wrap">
 		{#each tabs as [id, label]}
@@ -90,11 +103,14 @@ $effect(() => {
 	</nav>
 </header>
 <main class="wrap">
-	{#if online === "down" && tab !== "design"}
+	{#if STATIC}
+		<p class="notice">{t("app.static.banner")} <a href={REPO_URL} target="_blank" rel="noreferrer">{t("app.static.local")}</a></p>
+	{/if}
+	{#if !STATIC && online === "down" && tab !== "design"}
 		<p class="notice error">{t("app.backend.unreachable.before", { api: store.api })} <code>strandbeest-api</code>{t("app.backend.unreachable.or")} <code>docker compose up</code>{t("app.backend.unreachable.after")}</p>
 	{/if}
 	{#if editMessage}<p class="notice error">{editMessage}</p>{/if}
-	{#if tab === "design"}<DesignTab oncommand={() => (paletteOpen = true)} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else}<LabTab />{/if}
+	{#if tab === "design"}<DesignTab oncommand={() => (paletteOpen = true)} onsim={() => (tab = "sim")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else}<LabTab />{/if}
 </main>
 <CommandPalette bind:open={paletteOpen} onmessage={(m) => (editMessage = m)} />
 <svelte:window onkeydown={keys} />

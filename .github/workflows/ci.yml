@@ -11,6 +11,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm --filter @strandbeest/web-demo build
+      - run: pnpm --filter @strandbeest/web-demo build
+        env: { VITE_STATIC: "1" }
+      - run: node scripts/check-static-build.mjs
   python:
     runs-on: ubuntu-latest
     steps:

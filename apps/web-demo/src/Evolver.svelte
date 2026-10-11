@@ -1,5 +1,10 @@
 <script lang="ts">
-import { type GAState, genomeSpace, type LinkageSpec } from "strandbeest-core";
+import {
+	type GAState,
+	genomeSpace,
+	type LinkageSpec,
+	trace,
+} from "strandbeest-core";
 import type { WorkerRequest } from "./ga.worker";
 import { t } from "./i18n/index.svelte";
 
@@ -45,6 +50,26 @@ function stop() {
 	running = false;
 }
 
+/** Foot paths of the starting linkage (grey) and of the best individual so far (orange), in one shared frame. */
+const paths = $derived.by(() => {
+	if (!last) return null;
+	const a = trace(spec, 90).foot;
+	const b = trace(genomeSpace(spec).toSpec(last.best), 90).foot;
+	if (!a.length && !b.length) return null;
+	const all = [...a, ...b];
+	const xs = all.map((p) => p.x);
+	const ys = all.map((p) => p.y);
+	const x0 = Math.min(...xs);
+	const y0 = Math.min(...ys);
+	const k = Math.min(
+		280 / (Math.max(...xs) - x0 || 1),
+		80 / (Math.max(...ys) - y0 || 1),
+	);
+	const fmt = (f: typeof a) =>
+		f.map((p) => `${10 + (p.x - x0) * k},${90 - (p.y - y0) * k}`).join(" ");
+	return { before: fmt(a), best: fmt(b) };
+});
+
 const chart = $derived.by(() => {
 	const f = history.filter((h) => Number.isFinite(h.bestFitness));
 	if (f.length < 2) return { best: "", mean: "" };
@@ -88,6 +113,13 @@ const chart = $derived.by(() => {
 		<polyline points={chart.mean} fill="none" stroke="#8888" stroke-width="1.5" />
 		<polyline points={chart.best} fill="none" stroke="#e5733f" stroke-width="2" />
 	</svg>
+	{#if paths}
+		<svg viewBox="0 0 300 100" class="chart" role="img" aria-label={t("evolve.pathsAria")}>
+			<polygon points={paths.before} fill="none" stroke="#8889" stroke-width="1.5" stroke-dasharray="4 3" />
+			<polygon points={paths.best} fill="#e5733f22" stroke="#e5733f" stroke-width="2" />
+		</svg>
+		<small class="muted">{t("evolve.pathsLegend")}</small>
+	{/if}
 	{#if last}
 		<p>{t("evolve.progress", { generation: last.generation, generations: generations, bestFitness: last.bestFitness.toFixed(3) })}</p>
 		<button onclick={() => onapply(genomeSpace(spec).toSpec(last.best))}>{t("evolve.loadBest")}</button>

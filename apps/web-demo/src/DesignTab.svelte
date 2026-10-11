@@ -3,6 +3,7 @@ import {
 	type LinkageSpec,
 	migrateDesign,
 	type Operation,
+	trace,
 } from "strandbeest-core";
 import { call, download } from "./api";
 import Evolver from "./Evolver.svelte";
@@ -24,11 +25,22 @@ import HistoryPanel from "./HistoryPanel.svelte";
 import { t } from "./i18n/index.svelte";
 import LengthSliders from "./LengthSliders.svelte";
 import LinkageViewer, { type LengthEdit } from "./LinkageViewer.svelte";
+import Onboarding from "./Onboarding.svelte";
 import { PRESETS } from "./presets";
+import { designCardPng, saveBlob } from "./share-export";
+import { encodeShare, STATIC } from "./static";
 import { view } from "./store.svelte";
 import WindPanel from "./WindPanel.svelte";
 
-let { oncommand }: { oncommand: () => void } = $props();
+let { oncommand, onsim }: { oncommand: () => void; onsim: () => void } =
+	$props();
+let evolveOpen = $state(false);
+function goEvolve() {
+	evolveOpen = true;
+	queueMicrotask(() =>
+		document.getElementById("evolver")?.scrollIntoView({ behavior: "smooth" }),
+	);
+}
 
 let saved = $state<string[]>([]);
 let pick = $state("");
@@ -83,6 +95,36 @@ function loadPreset(e: Event) {
 }
 
 const load = () => guard(async () => apply(await call(`/designs/${pick}`)));
+async function share() {
+	await guard(async () => {
+		const url = `${location.origin}${location.pathname}#d=${await encodeShare(currentDesign())}`;
+		history.replaceState(null, "", url);
+		await navigator.clipboard.writeText(url);
+		msg = { text: t("design.shareCopied"), kind: "info" };
+	});
+}
+async function exportCard() {
+	await guard(async () => {
+		const m = metrics;
+		const png = await designCardPng({
+			title: view.name,
+			subtitle: t("card.subtitle", { legs: view.legs }),
+			foot: trace(shownLinkage, 180).foot,
+			stats: m
+				? [
+						{
+							value: `${(m.duty * 100).toFixed(0)}%`,
+							label: t("metric.dutyFactor"),
+						},
+						{ value: m.lift.toFixed(1), label: t("metric.liftHeight") },
+						{ value: m.strokeLength.toFixed(1), label: t("metric.flatLength") },
+					]
+				: [],
+			footer: t("card.footer"),
+		});
+		saveBlob(`${view.name}.png`, png);
+	});
+}
 const exportJson = () =>
 	download(`${view.name}.json`, JSON.stringify(currentDesign(), null, 2));
 async function importJson(e: Event) {
@@ -91,9 +133,11 @@ async function importJson(e: Event) {
 	await guard(async () => {
 		const raw = JSON.parse(await f.text());
 		const doc = raw?.schema_version === 1 ? migrateDesign(raw) : raw;
-		const v = await call("/designs/validate", doc);
-		if (!v.ok)
-			throw new Error(t("design.invalid", { join: v.errors.join("; ") }));
+		if (!STATIC) {
+			const v = await call("/designs/validate", doc);
+			if (!v.ok)
+				throw new Error(t("design.invalid", { join: v.errors.join("; ") }));
+		}
 		apply(doc);
 	});
 }
@@ -158,6 +202,7 @@ function applyEvolved(spec: LinkageSpec) {
 </script>
 
 <div class="stack">
+	<Onboarding onevolve={goEvolve} {onsim} />
 	<div class="row center toolbar">
 		<button class="btn small" disabled={!editor.canUndo} onclick={() => rejected(undo())}>{t("history.undo")}</button>
 		<button class="btn small" disabled={!editor.canRedo} onclick={() => rejected(redo())}>{t("history.redo")}</button>
@@ -201,12 +246,16 @@ function applyEvolved(spec: LinkageSpec) {
 			<label>{t("design.unitMm")} <input type="number" min="0.5" max="10" step="0.5" value={view.unitMm} onchange={setUnit} /></label>
 		</div>
 		<div class="row center">
-			<button class="btn primary" onclick={save}>{t("design.saveBackend")}</button>
-			<select bind:value={pick} onfocus={refresh}>
-				<option value="">{t("design.loadPlaceholder")}</option>
-				{#each saved as n}<option value={n}>{n}</option>{/each}
-			</select>
-			<button class="btn" disabled={!pick} onclick={load}>{t("common.load")}</button>
+			{#if !STATIC}
+				<button class="btn primary" onclick={save}>{t("design.saveBackend")}</button>
+				<select bind:value={pick} onfocus={refresh}>
+					<option value="">{t("design.loadPlaceholder")}</option>
+					{#each saved as n}<option value={n}>{n}</option>{/each}
+				</select>
+				<button class="btn" disabled={!pick} onclick={load}>{t("common.load")}</button>
+			{/if}
+			<button class="btn" class:primary={STATIC} onclick={share}>{t("design.share")}</button>
+			<button class="btn" onclick={exportCard}>{t("design.exportCard")}</button>
 			<button class="btn" onclick={exportJson}>{t("design.downloadJson")}</button>
 			<label class="inline btn" style="cursor:pointer">{t("design.importJson")} <input type="file" accept="application/json" onchange={importJson} hidden /></label>
 		</div>
@@ -221,7 +270,7 @@ function applyEvolved(spec: LinkageSpec) {
 		<summary><b>{t("wind.title")}</b> <small>{t("wind.subtitle")}</small></summary>
 		<WindPanel spec={view.linkage} />
 	</details>
-	<details class="card">
+	<details class="card" id="evolver" bind:open={evolveOpen}>
 		<summary><b>{t("evolve.title")}</b> <small>{t("evolve.subtitle")}</small></summary>
 		<Evolver spec={view.linkage} onapply={applyEvolved} />
 	</details>

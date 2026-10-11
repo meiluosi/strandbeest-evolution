@@ -135,5 +135,5 @@ const kinematic = $derived(replay.kinematic_duty);
 	.on { fill: none; stroke: #2e8b57; stroke-width: 8; }
 	.hand { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; }
 	.mid { text-anchor: middle; font-size: 12px; fill: var(--ink); }
-	@media (max-width: 560px) { .foot { grid-template-columns: 1fr; } }
+	@media (max-width: 560px) { .foot { grid-template-columns: minmax(0, 1fr); } }
 </style>
