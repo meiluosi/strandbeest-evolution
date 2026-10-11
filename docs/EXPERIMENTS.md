@@ -336,11 +336,18 @@ Best elite per leg count: 4 legs 0.772 (29 cm, 450 g), 6 legs 0.778, 8 legs 0.73
 
 | task | random edits | hill climbing | CMA-ES on the kinematic fitness |
 |---|---|---|---|
-| longer stride (score, seeds 1 / 2) | **+4.8 %** / 0 (distrusted) | 0 / 0 (no gain) | 0 (no gain) / 0 (distrusted) |
-| less energy per metre | 0 / 0 (both distrusted) | 0 / 0 (both distrusted) | 0 / 0 (no gain) |
+| longer stride (score, seeds 1 / 2) | **+4.8 %** / +3.5 % | 0 / 0 (no gain) | 0 (no gain) / +4.0 % |
+| less energy per metre | 0 (no gain) / **+6.3 %** | **-13.4 % / -12.6 %** (worse than the start) | 0 / 0 (no gain) |
 
-What this shows: **the benchmark is currently dominated by whether a design keeps the simulator trustworthy**, not by how good the design is. Of 12 baseline runs 7 were disqualified by the simulator skeptic (open loops / bad energy closure on a blind scene, consistent with the fuzzing finding in section 15) and only one run improved the metric (+4.8 % stride). That is a real property of this simulator and a poor discrimination for agents; before the benchmark can rank agents the simulator has to survive small design changes (section 15; the time-step fix is in section 20, and these baselines predate it), or the envelope has to be narrower. Two seeds per cell is too few for any ranking of the baselines among themselves; the table gives the floor an agent has to beat (> 0), nothing more. Blind secrecy is by construction (no tool reveals the scenes), not by cryptography: anyone with the repository can read them.
+*Regenerated 2026-10-11 with the 0.1 ms time step (section 20) and a budget counted in simulation runs and operations only.* The first version of this table (0.2 ms) looked very different: 6 of the 12 runs were disqualified by the skeptic (open loops / bad energy closure on a blind scene, in line with the fuzzing finding of section 15) and a single run scored above zero (+4.8 % stride). With the fix **no run is disqualified, and 4 of 12 score above zero** (3.5-6.3 %). The +4.8 % run is identical in both versions, so the fix changed which designs are trusted, not that design.
 
+What this shows now:
+
+- The benchmark can discriminate again, but only weakly: the best gains are 4-6 % of the metric and two seeds per cell cannot rank the baselines against each other. The table gives the floor an agent has to beat (> 0).
+- **Hill climbing on the energy task made the blind score worse by 13 % in both seeds**: it accepts what looks better on the one visible scene (flat), and the design then does worse on the blind slope / bumps / low-friction scenes. That is the failure the blind scenes exist to expose. I did not check the visible-scene value of those runs, so "it overfits the visible scene" is the likely reading, not a verified one.
+- Negative scores are possible (the score is not floored at 0 except for invalid, out-of-envelope or distrusted designs).
+- A first regeneration attempt crashed: the tool surface's default 600 s wall-clock compute budget ran out because the simulations got slower and the machine was heavily loaded. The benchmark budget is now runs and operations only (`bench.py`), so scores do not depend on how fast the machine is.
+- Everything is model against model; blind secrecy is by construction (no tool reveals the scenes), not by cryptography: anyone with the repository can read them.
 
 ## 19. Bayesian calibration with an emulator, on synthetic data (O-04, 2026-10-06)
 
@@ -389,4 +396,4 @@ Section 15 found that the default solver settings break down on perturbed walker
 - The earlier time-step convergence checks (sections 8 and 9) were done on the default design, where 0.2 ms was already converged for the torque; they did not look at perturbed designs, which is why this was missed.
 - 16 walkers from one generator is a small sample, and everything is model against model: a loop that stays closed in the simulation says nothing about the printed linkage. The audit stays on and the replay still reports a failed invariant.
 - Cost: simulation runs are about 2.7 times slower (about 15 s instead of 5 s for a default 1.5-revolution run on an idle machine). Use `overrides: {"solver": {"timestep": 0.0002}}` for a quick look and treat it as unaudited.
-- The golden runs store their full scenario (time step 0.2 ms included), so they are unchanged and still pass. The benchmark baselines (`packages/agent/bench/baselines.json`, section 18) were produced with the old step and **have not been regenerated** (about an hour of runs at the new step); treat them as stale until they are.
+- The golden runs store their full scenario (time step 0.2 ms included), so they are unchanged and still pass. The benchmark baselines (`packages/agent/bench/baselines.json`) were regenerated with the new step (section 18).

@@ -123,7 +123,7 @@ class ToolClient:
         self.ws, self.task = ws, task
         self.registry = registry or default_registry()
         b = task["budget"]
-        self.session = Session(actor_id=actor, budget=Budget(sim_runs=b["sim_runs"], ops=b["ops"]))
+        self.session = Session(actor_id=actor, budget=Budget(sim_runs=b["sim_runs"], ops=b["ops"], sim_seconds=float("inf")))  # wall-clock is not part of the benchmark: scores must not depend on the machine
 
     def call(self, tool: str, **args: Any) -> Any:
         if tool == "simulate.run" and args.get("scene", "flat") not in self.task[ALLOWED_SCENES_KEY]:
