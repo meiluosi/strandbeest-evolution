@@ -65,11 +65,11 @@ class SailDrive:
         return self.tau
 
 
-@drives.register("motor")
+@drives.register("motor", energy_source="test_rig")
 def motor(sim) -> MotorDrive:
     return MotorDrive(sim)
 
 
-@drives.register("sail")
+@drives.register("sail", energy_source="wind")
 def sail(sim) -> SailDrive:
     return SailDrive(sim)

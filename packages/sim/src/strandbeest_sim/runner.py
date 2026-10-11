@@ -138,6 +138,7 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
                       "foot_slip": np.array(f_foot_slip, np.float32), "com": np.array(f_com, np.float32)}
     res.metrics["max_loop_violation"] = max_viol
     res.metrics["max_penetration"] = max_pen  # deepest foot sinkage into the terrain, m
+    res.metrics["wind_only"] = drives.meta(sc.drive.kind)["energy_source"] == "wind"  # False for the electric test rig (docs/WIND.md)
     for name in metrics.names():
         res.metrics.update(metrics.get(name)(res))
     return res
