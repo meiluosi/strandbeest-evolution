@@ -18,6 +18,34 @@
 
 > **Task cards (what to do next, with acceptance criteria): [ACTIONS.md](ACTIONS.md).** Engine-style architecture blueprint (what to settle before building more) and the decision records: [ENGINE.md](ENGINE.md), [adr/](adr/). Longer-term product shapes and the design of the editor, glass-box simulation, AI-native layer and algorithm map: [VISION.md](VISION.md) (second version). Platform-level plan (phases P0–P7 with exit criteria): [PLATFORM.md §9](PLATFORM.md). The milestones below (M0–M5) are the research track and feed into those phases.
 
+## 方向（2026-10-11 决定）：风驱动原教旨 + 证据优先的仿真
+
+- **定位**：一个证据分级的 Strandbeest 仿真平台。能量只来自风（电机只作测试台），每个数字带证据等级 E0–E3。详见 [WIND.md](WIND.md)、[VALIDATION.md](VALIDATION.md)。
+- **接受的现实**：没有 3D 打印设备，E3（自己的实测）暂时为空。检验靠独立求解器 K2、文献数据、公开视频、社区数据。制造（F 卡）冻结，只保留导出。
+- **旗舰问题**：只靠风的走兽，起步最少要多大的风？低于多大的尺寸走不动？
+
+### 总体目标（可检查）
+
+| 目标 | 检查方式 | 阶段 |
+|---|---|---|
+| G1 仿真可信 | 随机走兽审计在 64 个样本上失败 0 个；基准基线在新时间步下重跑 | A |
+| G2 有独立证据 | K2 与 MuJoCo 在慢速平地步幅一致到约定容差；Jansen 足端轨迹与已发表数据对照；每个旗舰结果带证据等级 | B |
+| G3 风驱动结论带区间 | 起步风速给出对假设参数的敏感性区间；"起步风速随尺度"曲线含"走不动"的尺度 | B、C |
+| G4 优化懂风 | 优化目标含起步风速和阵风稳健性；排名通过稳定性检查才被采信 | C |
+| G5 能公开 | 静态网页带证据徽章；一篇方法与负面结果并重的技术报告（发布前须你确认） | D |
+
+### 阶段
+
+| 阶段 | 内容 | 任务卡 | 出口 |
+|---|---|---|---|
+| **A 地基清理** | 查第二种闭环张开机制；重跑基准；修适应度 NaN 差异；能量来源声明；销轴摩擦命名参数 | S-07、Q-05、Q-06、W-01、W-02 | G1 |
+| **B 证据层** | 证据等级字段；Jansen 几何对照；K2 独立求解器；起步风速查找器与敏感性；排名稳定性 | V-07、V-01、V-02、W-03、V-04 | G2、G3（部分） |
+| **C 风驱动与优化** | 风场 v2；虚拟测力计；机体风阻；旗舰实验；帆参数进优化 | W-04、W-06、W-10、W-05、W-08 | G3、G4 |
+| **D 公开** | 静态网页（R-02）、证据徽章、技术报告、社区数据入口 | R-02、V-06、R-03 | G5 |
+| **E 条件项** | 沙地、气动储能、3D、柔性；有 E3 数据后再校准 | S-03、W-09、S-05、F-07 | 取决于数据 |
+
+下面是更早的阶段表，保留作历史。
+
 | phase | goal | status |
 |---|---|---|
 | P0 foundations | core, demo, sim S1, docs | mostly done |
