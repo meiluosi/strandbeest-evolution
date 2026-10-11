@@ -21,6 +21,7 @@
 			"!**/generated",
 			"!experiments",
 			"!contracts/sim-run",
+			"!contracts/sim-events",
 			"!apps/web-demo/public/gallery",
 			"!data",
 			"!packages/sim",

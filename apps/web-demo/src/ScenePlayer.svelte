@@ -322,7 +322,7 @@ const rows = $derived(
 			</table>
 		{/if}
 
-		{#if (replay as { quality?: string }).quality === "browser-preview"}<p class="notice">{t("scenes.browserNotice")}</p>{/if}
+		{#if (replay as { quality?: string }).quality === "browser"}<p class="notice">{t("scenes.browserNotice")}</p>{/if}
 		<p class="summary">{replay.stalled ? t("scenes.summaryStalled", { scene: label, dur: outcome.dur.toFixed(1) }) : t(outcome.efficiency === null ? "scenes.summary" : "scenes.summaryEff", { scene: label, dist: outcome.dist.toFixed(2), dur: outcome.dur.toFixed(1), speed: outcome.speed.toFixed(3), eff: Math.round((outcome.efficiency ?? 0) * 100) })}</p>
 		<div class="row center">
 			{#if videoType()}<button class="btn small" disabled={recording} onclick={record}>{recording ? t("scenes.recording") : t("scenes.record")}</button>{/if}

@@ -31,7 +31,7 @@ export interface RunResult {
 	x: number[];
 	torque: number[];
 	stalled: boolean;
-	metrics: Record<string, number | null>;
+	metrics: Record<string, number | boolean | null>;
 	series: {
 		foot_normal?: number[][];
 		foot_slip?: number[][];
@@ -165,7 +165,7 @@ export function diagnose(
 	const t = res.t;
 	const m = res.metrics;
 	const out: Diagnosis[] = [];
-	const stride = m.stride_per_rev;
+	const stride = m.stride_per_rev as number | null | undefined;
 	const efficiency =
 		nominal && stride !== null && stride !== undefined && !Number.isNaN(stride)
 			? stride / nominal
@@ -303,7 +303,7 @@ export function diagnose(
 				},
 			);
 	}
-	const pen = m.max_penetration;
+	const pen = m.max_penetration as number | null | undefined;
 	if (pen !== null && pen !== undefined && pen > 0.005)
 		add(
 			"deep_sinkage",

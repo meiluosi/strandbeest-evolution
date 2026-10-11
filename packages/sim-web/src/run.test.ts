@@ -28,7 +28,10 @@ interface Expected {
 		| "com"
 		| "contact",
 		unknown[]
-	>;
+	> | null;
+	events: unknown[];
+	diagnosis: unknown[];
+	energy: Record<string, number[]>;
 	scene: {
 		bodies: string[];
 		geoms: {
@@ -42,8 +45,8 @@ interface Expected {
 		}[];
 		obstacles: unknown[];
 		slope_deg: number;
-	};
-	metrics: Record<string, number | null>;
+	} | null;
+	metrics: Record<string, number | boolean | null>;
 	stalled: boolean;
 }
 
@@ -56,6 +59,30 @@ function maxDiff(got: unknown, want: unknown): number {
 	if (g.length !== w.length) return Number.POSITIVE_INFINITY;
 	return g.reduce((m, v, i) => Math.max(m, Math.abs(v - (w[i] as number))), 0);
 }
+
+// deep comparison with a relative tolerance for numbers (events, diagnosis evidence, metrics)
+const near = (a: unknown, b: unknown, path: string, tol = 1e-9): void => {
+	if (typeof b === "number" && typeof a === "number")
+		expect(Math.abs(a - b), path).toBeLessThanOrEqual(
+			tol * Math.max(1, Math.abs(b)),
+		);
+	else if (Array.isArray(b)) {
+		expect(Array.isArray(a), path).toBe(true);
+		expect((a as unknown[]).length, path).toBe(b.length);
+		b.forEach((v, i) => near((a as unknown[])[i], v, `${path}[${i}]`, tol));
+	} else if (b && typeof b === "object") {
+		expect(Object.keys(a as object).sort(), path).toEqual(
+			Object.keys(b).sort(),
+		);
+		for (const k of Object.keys(b))
+			near(
+				(a as Record<string, unknown>)[k],
+				(b as Record<string, unknown>)[k],
+				`${path}.${k}`,
+				tol,
+			);
+	} else expect(a, path).toEqual(b);
+};
 
 let mj: Awaited<ReturnType<typeof loadMujoco>>;
 beforeAll(async () => {
@@ -75,45 +102,67 @@ describe("browser preview follows the Python run (contracts/sim-run)", () => {
 			);
 			const e = c.expected;
 			const half = (d: number) => 0.5 * 10 ** -d + 1e-6; // + float32 slack: Python frames are float32
-			expect(rep.series.t.length).toBe(e.series.t.length);
-			expect(maxDiff(rep.series.t, e.series.t)).toBeLessThan(half(5));
-			expect(maxDiff(rep.series.psi, e.series.psi)).toBeLessThan(half(5));
-			expect(maxDiff(rep.series.x, e.series.x)).toBeLessThan(half(5));
-			expect(maxDiff(rep.series.torque, e.series.torque)).toBeLessThan(half(5));
-			expect(rep.t.length).toBe(e.frames.t.length);
-			expect(maxDiff(rep.t, e.frames.t)).toBeLessThan(half(4));
-			expect(maxDiff(rep.pos, e.frames.pos)).toBeLessThan(half(4));
-			expect(maxDiff(rep.quat, e.frames.quat)).toBeLessThan(half(4));
-			expect(rep.contact).toEqual(e.frames.contact);
-			expect(maxDiff(rep.foot_pos, e.frames.foot_pos)).toBeLessThan(half(4));
-			expect(maxDiff(rep.foot_force, e.frames.foot_force)).toBeLessThan(
-				half(3),
-			);
-			expect(maxDiff(rep.foot_slip, e.frames.foot_slip)).toBeLessThan(half(4));
-			expect(maxDiff(rep.com, e.frames.com)).toBeLessThan(half(4));
-			for (const [k, v] of Object.entries(e.metrics)) {
-				const got = rep.metrics[k];
-				if (v === null) expect(got, k).toBeNull();
-				else
-					expect(Math.abs((got as number) - v), k).toBeLessThan(
-						1e-9 * Math.max(1, Math.abs(v)),
-					);
+			// the replay keeps at most about 500 samples of the crank series, as the API does (len // 500)
+			const step = Math.max(1, Math.floor(e.series.t.length / 500));
+			const dec = (v: number[]) => v.filter((_, i) => i % step === 0);
+			const want = {
+				t: dec(e.series.t),
+				psi: dec(e.series.psi),
+				x: dec(e.series.x),
+				torque: dec(e.series.torque),
+			};
+			expect(rep.series.t.length).toBe(want.t.length);
+			expect(maxDiff(rep.series.t, want.t)).toBeLessThan(half(5));
+			expect(maxDiff(rep.series.psi, want.psi)).toBeLessThan(half(5));
+			expect(maxDiff(rep.series.x, want.x)).toBeLessThan(half(5));
+			expect(maxDiff(rep.series.torque, want.torque)).toBeLessThan(half(5));
+			const fr = e.frames;
+			if (fr) {
+				expect(rep.t.length).toBe(fr.t.length);
+				expect(maxDiff(rep.t, fr.t)).toBeLessThan(half(4));
+				expect(maxDiff(rep.pos, fr.pos)).toBeLessThan(half(4));
+				expect(maxDiff(rep.quat, fr.quat)).toBeLessThan(half(4));
+				expect(rep.contact).toEqual(fr.contact);
+				expect(maxDiff(rep.foot_pos, fr.foot_pos)).toBeLessThan(half(4));
+				expect(maxDiff(rep.foot_force, fr.foot_force)).toBeLessThan(half(3));
+				expect(maxDiff(rep.foot_slip, fr.foot_slip)).toBeLessThan(half(4));
+				expect(maxDiff(rep.com, fr.com)).toBeLessThan(half(4));
 			}
-			expect(rep.stalled).toBe(e.stalled);
-			expect(rep.scene.bodies).toEqual(e.scene.bodies);
-			expect(rep.scene.geoms.length).toBe(e.scene.geoms.length);
-			expect(rep.scene.obstacles.length).toBe(e.scene.obstacles.length);
-			expect(rep.scene.slope_deg).toBeCloseTo(e.scene.slope_deg, 12);
-			expect(rep.scene.geoms.filter((g) => g.foot).length).toBe(
-				e.scene.geoms.filter((g) => g.foot).length,
+			// the audit: metrics (including the energy account), events, diagnosis and the energy panel's series
+			expect(Object.keys(rep.metrics).sort()).toEqual(
+				Object.keys(e.metrics).sort(),
 			);
-			e.scene.geoms.forEach((g, i) => {
-				const got = rep.scene.geoms[i] as (typeof rep.scene.geoms)[number];
-				expect(got.type).toBe(g.type);
-				expect(got.name).toBe(g.name);
-				if (g.a) expect(maxDiff(got.a, g.a)).toBeLessThan(1e-4);
-				if (g.b) expect(maxDiff(got.b, g.b)).toBeLessThan(1e-4);
-			});
+			// a walker stalled at its torque limit turns the crank by 0.0015 rad: 1e-11 of divergence between wasm and native (the free
+			// runs agree to 1e-16) becomes 1e-8 in stride_per_rev, which divides by that angle
+			near(rep.metrics, e.metrics, "metrics", 1e-7);
+			near(rep.events, e.events, "events");
+			near(rep.diagnosis, e.diagnosis, "diagnosis", 1e-7);
+			expect(Object.keys(rep.energy ?? {}).sort()).toEqual(
+				Object.keys(e.energy).sort(),
+			);
+			for (const [k, want] of Object.entries(e.energy))
+				expect(
+					maxDiff((rep.energy as Record<string, number[]>)[k], want),
+					`energy.${k}`,
+				).toBeLessThan(1.5e-7);
+			expect(rep.stalled).toBe(e.stalled);
+			const sc = e.scene; // Python writes a scene only for runs with frames
+			if (sc) {
+				expect(rep.scene.bodies).toEqual(sc.bodies);
+				expect(rep.scene.geoms.length).toBe(sc.geoms.length);
+				expect(rep.scene.obstacles.length).toBe(sc.obstacles.length);
+				expect(rep.scene.slope_deg).toBeCloseTo(sc.slope_deg, 12);
+				expect(rep.scene.geoms.filter((g) => g.foot).length).toBe(
+					sc.geoms.filter((g) => g.foot).length,
+				);
+				sc.geoms.forEach((g, i) => {
+					const got = rep.scene.geoms[i] as (typeof rep.scene.geoms)[number];
+					expect(got.type).toBe(g.type);
+					expect(got.name).toBe(g.name);
+					if (g.a) expect(maxDiff(got.a, g.a)).toBeLessThan(1e-4);
+					if (g.b) expect(maxDiff(got.b, g.b)).toBeLessThan(1e-4);
+				});
+			}
 		});
 	}
 
@@ -124,13 +173,15 @@ describe("browser preview follows the Python run (contracts/sim-run)", () => {
 			?.expected as Expected;
 		const down = (e: Expected) =>
 			Math.max(
-				...(e.frames.contact as number[][]).map((r) =>
-					r.reduce((a, b) => a + b, 0),
-				),
+				...(
+					(e.frames as NonNullable<Expected["frames"]>).contact as number[][]
+				).map((r) => r.reduce((a, b) => a + b, 0)),
 			);
 		expect(down(flat)).toBeGreaterThanOrEqual(2);
 		expect(down(step)).toBeGreaterThanOrEqual(down(flat));
-		expect(step.scene.obstacles.length).toBe(1);
+		expect(
+			(step.scene as NonNullable<Expected["scene"]>).obstacles.length,
+		).toBe(1);
 	});
 });
 
