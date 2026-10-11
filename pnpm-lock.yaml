@@ -72,6 +72,9 @@ importers:
 
   packages/sim-web:
     dependencies:
+      '@mujoco/mujoco':
+        specifier: 3.14.0
+        version: 3.14.0
       strandbeest-core:
         specifier: workspace:^
         version: link:../core
@@ -480,6 +483,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@mujoco/mujoco@3.14.0':
+    resolution: {integrity: sha512-WPUYidu4Fx8+uM4hQv80SOA0ifpWGrsNJguKs8JBV8SCTxjKQ2/rqsh880nUH0/Vwa8vuefghvCQkkoed3bkUg==}
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -1633,6 +1639,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@mujoco/mujoco@3.14.0': {}
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
