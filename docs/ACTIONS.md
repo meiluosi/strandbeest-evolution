@@ -195,7 +195,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | ID | 任务 | 验收 | 依赖 | 规模 | 状态 |
 |---|---|---|---|---|---|
 | W-01 | **能量来源由驱动声明**：注册表里每个驱动声明 `energy_source`（`sail`→`wind`，`motor`→`test_rig`）；运行指标 `wind_only`（布尔）。不新增 schema 输入字段（WIND.md §2 说明理由） | 两个驱动各有测试；`wind_only` 在帆驱动为真、电机驱动为假；金标运行不变；注册第三个驱动时不声明会报错 | – | S | ✅ |
-| W-02 | **销轴摩擦与阻尼成为命名参数**：`joint_friction`、`joint_damping` 加入 Scenario schema（`x-assumption`、`x-source`、`x-calibratable`、中英文说明），MuJoCo 构建器应用到连杆销轴 | 值为 0 时金标运行逐项不变；值大于 0 时帆驱动平均曲柄转速下降；能量账的"关节摩擦与阻尼"项吸收这部分功且残差仍小于 2%；`gen_models.py --check` 和注解校验通过 | – | M | ⬜ |
+| W-02 | **销轴摩擦与阻尼成为命名参数**：`joint_friction`、`joint_damping` 加入 Scenario schema（`x-assumption`、`x-source`、`x-calibratable`、中英文说明），MuJoCo 构建器应用到连杆销轴 | 值为 0 时金标运行逐项不变；值大于 0 时帆驱动平均曲柄转速下降；能量账的"关节摩擦与阻尼"项吸收这部分功且残差仍小于 2%；`gen_models.py --check` 和注解校验通过 | – | M | ✅ |
 | W-03 | **起步风速查找器 + 敏感性**：二分法求起步风速（曲柄转满一整圈的最小定常风速），对 `crank_friction`、`crank_damping`、`joint_friction`、`sail_drag_coeff`、`sail_area`、`sail_gear`、足部摩擦、接触刚度做敏感性分析；每个数给区间 | 小模型的起步风速与 SIM-DESIGN 记录的约 0.45 m/s 在给出的区间内相符，或如实记录差异；敏感性表（哪个参数最敏感）写入 EXPERIMENTS；"不走"的情形有记录 | W-02 | M | ⬜ |
 | W-04 | **风场 v2**：随高度的风廓线、湍流（谱和积分尺度作为 `assumption`）、风与机体朝向夹角 | 样本统计量（均值、方差、谱形状）测试通过；固定种子可复现；注册到 `winds` | – | M | ⬜ |
 | W-05 | **旗舰实验：起步风速随尺度的曲线**：把一个设计族整体放大若干倍，求起步风速和最小可行尺寸；与 WIND.md §3 的尺度假设对比 | 曲线与区间入 EXPERIMENTS；结论明说假设是否被支持；至少包含一种"走不动"的尺度 | W-03、V-02 | L | ⬜ |

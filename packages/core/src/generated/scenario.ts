@@ -36,6 +36,10 @@ export interface ScenarioBody {
 	foot_radius?: number;
 	/** Foot friction coefficient (unit: 1; default: 1.5; assumption) */
 	foot_friction?: number;
+	/** Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins (unit: N·m; default: 0.0; assumption) */
+	joint_friction?: number;
+	/** Viscous damping at every linkage pin; 0 means undamped (unit: N·m·s/rad; default: 0.0; assumption) */
+	joint_damping?: number;
 }
 
 /** Atmosphere */

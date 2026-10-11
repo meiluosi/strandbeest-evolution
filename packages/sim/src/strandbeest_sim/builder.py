@@ -84,6 +84,8 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
 
     lowest = min(p[spec.foot][1] for p in poses) * u
     hip_h = -lowest + w.foot_radius
+    # pin friction and damping (assumptions, 0 = ideal); written only when non-zero so the default model text is unchanged
+    pin_loss = (f' frictionloss="{_f(w.joint_friction)}"' if w.joint_friction > 0 else "") + (f' damping="{_f(w.joint_damping)}"' if w.joint_damping > 0 else "")
 
     def mass_of(length_units: float) -> float:
         return max(w.tube_mass_per_m * length_units * u, w.min_bar_mass)
@@ -135,7 +137,7 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
                 kids = "".join(emit(c, ps, 0.0) for c in bars_at.get(b.end, []))
             return (
                 f'<body name="{b.name}" pos="{_f(pos[0])} {_f(pos[1])} {_f(pos[2])}">'
-                f'<joint name="{b.name}" type="hinge" axis="0 1 0"/>{geoms}{kids}</body>'
+                f'<joint name="{b.name}" type="hinge" axis="0 1 0"{pin_loss}/>{geoms}{kids}</body>'
             )
 
         # bars hinged at the hip G hang from the torso (offset laterally by this leg's y)

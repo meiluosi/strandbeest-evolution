@@ -44,6 +44,8 @@ class Walker(_Strict):
     bar_radius: float = Field(default=0.008, gt=0, description='Visual capsule radius of bars, no collisions')
     foot_radius: float = Field(default=0.01, gt=0, description='Foot sphere radius')
     foot_friction: float = Field(default=1.5, gt=0, description='Foot friction coefficient')
+    joint_friction: float = Field(default=0.0, ge=0, description='Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins')
+    joint_damping: float = Field(default=0.0, ge=0, description='Viscous damping at every linkage pin; 0 means undamped')
 
 
 class Environment(_Strict):

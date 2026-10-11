@@ -255,6 +255,38 @@
 					"x-source": "Rubber-ish pad guess; a calibration target",
 					"x-calibratable": true,
 					"x-affects": ["sim"]
+				},
+				"joint_friction": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0,
+					"x-unit": "N·m",
+					"x-range": [0.0, 0.005],
+					"x-group": "group.contact",
+					"x-doc": {
+						"zh": "连杆销轴处的库仑摩擦扭矩（每个销轴）；0 表示理想无摩擦",
+						"en": "Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins"
+					},
+					"x-assumption": true,
+					"x-source": "Unknown for printed pin joints (fit and surface finish decide it); 0 keeps the earlier ideal behaviour. A calibration target, and the sail start wind is sensitive to it (docs/WIND.md)",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"joint_damping": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0,
+					"x-unit": "N·m·s/rad",
+					"x-range": [0.0, 0.002],
+					"x-group": "group.contact",
+					"x-doc": {
+						"zh": "连杆销轴处的粘性阻尼（每个销轴）；0 表示无阻尼",
+						"en": "Viscous damping at every linkage pin; 0 means undamped"
+					},
+					"x-assumption": true,
+					"x-source": "Unknown for printed pin joints; 0 keeps the earlier ideal behaviour. A calibration target",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
 				}
 			},
 			"x-doc": {
