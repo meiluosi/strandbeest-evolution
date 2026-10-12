@@ -60,9 +60,7 @@
 				"packages/sim/src/strandbeest_sim/drives.py",
 				"packages/sim/src/strandbeest_sim/winds.py"
 			],
-			"ts_also": [
-				"packages/sim-web/src/winds.ts"
-			]
+			"ts_also": ["packages/sim-web/src/winds.ts"]
 		},
 		{
 			"name": "sim-events-diagnosis",
