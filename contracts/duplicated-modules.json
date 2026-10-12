@@ -52,10 +52,17 @@
 			"corpus": "contracts/sim-mjcf"
 		},
 		{
-			"name": "sim-run-loop (settle, motor drive, recording, audit account, gait/energy metrics)",
+			"name": "sim-run-loop (settle, motor and sail drives, winds, recording, audit account, gait/energy metrics)",
 			"ts": "packages/sim-web/src/run.ts",
 			"py": "packages/sim/src/strandbeest_sim/runner.py",
-			"corpus": "contracts/sim-run"
+			"corpus": "contracts/sim-run",
+			"py_also": [
+				"packages/sim/src/strandbeest_sim/drives.py",
+				"packages/sim/src/strandbeest_sim/winds.py"
+			],
+			"ts_also": [
+				"packages/sim-web/src/winds.ts"
+			]
 		},
 		{
 			"name": "sim-events-diagnosis",

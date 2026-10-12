@@ -19,16 +19,17 @@ export type Progress = {
 	simTime: number;
 };
 
-/** The scenes the preview can run: everything but the sail-driven ones (the sail drive is not ported yet). */
-export const previewable = (scene: string): boolean => !SCENES[scene]?.sail;
+/** Every scene runs in the browser: the motor ones as the electric test rig, the sail ones in the chosen wind. */
+export const isSail = (scene: string): boolean => !!SCENES[scene]?.sail;
 
 export function simulateInBrowser(
 	design: Design,
 	scene: string,
 	revolutions: number,
+	windSpeed: number,
 	onProgress: (p: Progress) => void,
 ): BrowserRun {
-	const ov = sceneOverrides(scene, { revolutions });
+	const ov = sceneOverrides(scene, { revolutions, windSpeed });
 	// a free walker needs about revolutions * 2 pi / omega + ramp simulated seconds; allow three times that, so a walker that is
 	// blocked on an obstacle ends as stalled in about a minute instead of the scene's 40 s of simulated time
 	const omega = design.drive.motor_omega_rad_s ?? 2.0;
@@ -37,7 +38,10 @@ export function simulateInBrowser(
 	ov.run = {
 		...run,
 		revolutions, // the choice in the UI wins over a scene's own count
-		max_time: Math.min(Number(run.max_time ?? 40), 3 * expected + 1),
+		// a sail walker's speed depends on the wind, not on the motor: it keeps the scene's own limit (30 s)
+		max_time: isSail(scene)
+			? run.max_time
+			: Math.min(Number(run.max_time ?? 40), 3 * expected + 1),
 	};
 	const config = scenarioFromDesign(design, ov);
 	const worker = new Worker(new URL("./sim.worker.ts", import.meta.url), {

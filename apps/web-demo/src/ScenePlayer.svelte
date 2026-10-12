@@ -1,7 +1,7 @@
 <script lang="ts">
 import scenesFile from "../../../contracts/scenes.json";
 import { call, runJob } from "./api";
-import { type BrowserRun, previewable, simulateInBrowser } from "./browser-sim";
+import { type BrowserRun, simulateInBrowser } from "./browser-sim";
 import DiagnosisList from "./DiagnosisList.svelte";
 import EnergyPanel from "./EnergyPanel.svelte";
 import EventTimeline from "./EventTimeline.svelte";
@@ -88,6 +88,7 @@ async function simulateHere() {
 		currentDesign(),
 		key,
 		revs,
+		wind,
 		(p) => (progress = p),
 	);
 	browserRun = run;
@@ -95,7 +96,7 @@ async function simulateHere() {
 		const { replay: next } = await run.promise;
 		if (replay) previous = { replay, label };
 		replay = next as unknown as Replay;
-		label = `${t(scene.label)} · ${t("scenes.browserTag")}`;
+		label = `${t(scene.label)}${scene.sail ? ` · ${wind} m/s` : ""} · ${t("scenes.browserTag")}`;
 		time = 0;
 		playing = true;
 	} catch (e) {
@@ -263,19 +264,15 @@ const rows = $derived(
 	</div>
 	<p class="muted">{t(scene.hint)}</p>
 	<div class="row center">
-		{#if scene.sail && !STATIC}<label>{t("scenes.meanWind")} <input type="number" min="0" max="20" step="0.5" bind:value={wind} /></label>{/if}
+		{#if scene.sail}<label>{t("scenes.meanWind")} <input type="number" min="0" max="20" step="0.5" bind:value={wind} /></label>{/if}
 		{#if !STATIC}<button class="btn primary" disabled={!!busy || !!browserRun} onclick={run}>{t("scenes.run")}</button>{/if}
-		{#if previewable(key)}
-			<label class="inline">{t("scenes.revs")} <select bind:value={revs} disabled={!!browserRun}><option value={1}>1</option><option value={2}>2</option></select></label>
+		<label class="inline">{t("scenes.revs")} <select bind:value={revs} disabled={!!browserRun}><option value={1}>1</option><option value={2}>2</option></select></label>
 			{#if browserRun}
 				<button class="btn" onclick={() => browserRun?.cancel()}>{t("common.cancel")}</button>
 				<span class="muted"><span class="spin"></span>{progress?.phase === "load" ? t("scenes.browserLoading") : t("scenes.browserRunning", { pct: Math.round((progress?.fraction ?? 0) * 100) })}</span>
 			{:else}
 				<button class="btn" class:primary={STATIC} disabled={!!busy} onclick={simulateHere}>{t("scenes.browserRun")}</button>
 			{/if}
-		{:else}
-			<small class="muted">{t("scenes.browserNoSail")}</small>
-		{/if}
 		{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
 		<small>{STATIC ? t("scenes.recorded") : t("scenes.currentDesign", { name: view.name })}</small>
 		{#if previous}<label class="inline"><input type="checkbox" bind:checked={compare} /> {t("compare.toggle", { label: previous.label })}</label>{/if}

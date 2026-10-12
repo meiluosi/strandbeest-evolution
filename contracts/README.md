@@ -14,3 +14,5 @@ TS 实现（`packages/core`）和 Python 实现（`packages/common`）各有一�
 `sim-run/cases.json`：Python 跑出的短运行（稳定期加零点几圈：平地、台阶、坡、软地面），含曲柄序列、回放帧（位姿、足端接触、受力、质心）、回放场景和步态指标，未取整。`packages/sim-web/src/run.test.ts` 在 MuJoCo WebAssembly（同为 3.14.0）上跑同样的场景，要求在回放取整精度内一致。用 `PYTHONPATH=packages/common/src:packages/sim/src python contracts/generate_sim_run.py` 重新生成（需要时指向对应工作区的源码）。
 
 `sim-run/cases.json` 现在还含审计：事件、诊断、能量面板序列和全部指标（含能量账）；多了 4 个不带帧的审计用例（卡住的台阶、扭矩上限、软地面下陷、松弛环路）。`sim-events/cases.json`：18 个手工构造的运行结果，让 `events.py` 的每条规则都触发，包括风帆和阵风分支；用 `.venv/bin/python contracts/generate_sim_events.py` 生成。
+
+`sim-run` 还含 4 个风帆用例（定常风、阵风、风突然停、微风起不来），它们同时检验 `drives.py` 的 SailDrive 和 `winds.py`。

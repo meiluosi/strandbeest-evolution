@@ -13,7 +13,7 @@
 	"app.docTitle": "Strandbeest 连杆演化 · Jansen Linkage Lab",
 	"app.language": "语言",
 	"app.pipeline": "设计 → 仿真 → 3D 打印 → 测量 → 校准",
-	"app.static.banner": "在线演示版：可在浏览器里设计和分享连杆、播放预录的 MuJoCo 回放，或直接在这里仿真你自己的设计（电机驱动）。制造和校准需要在本地运行。",
+	"app.static.banner": "在线演示版：可在浏览器里设计和分享连杆、播放预录的 MuJoCo 回放，或直接在这里仿真你自己的设计（电机或风中的帆）。制造和校准需要在本地运行。",
 	"app.static.local": "本地运行 →",
 	"app.title": "Strandbeest 设计与验证平台",
 	"common.busy.simulating": "仿真中",
@@ -286,7 +286,7 @@
 	"scenes.meanSpeed": "平均速度",
 	"scenes.meanWind": "平均风速 (m/s)",
 	"scenes.noReplay": "还没有回放：点“运行并回放”。",
-	"scenes.recorded": "预录回放使用默认设计；点“在这里仿真我的设计”可在浏览器里运行你自己的设计。",
+	"scenes.recorded": "预录回放使用默认设计和 3 m/s 的风；点“在这里仿真我的设计”可在浏览器里运行你自己的设计。",
 	"scenes.run": "运行并回放",
 	"scenes.speed": "速度",
 	"scenes.title": "场景演示：看它怎么动",
@@ -391,7 +391,6 @@
 	"scenes.browserRun": "在这里仿真我的设计",
 	"scenes.browserLoading": "正在加载物理引擎…",
 	"scenes.browserRunning": "仿真中 {pct}% · 请保持此标签页在前台",
-	"scenes.browserNoSail": "浏览器暂不支持风帆驱动的场景。",
-	"scenes.browserNotice": "由 MuJoCo WebAssembly 在你的浏览器里运行，带能量账、事件和诊断。只支持电机驱动：这是电动测试台，不是纯风驱动的结果。",
+	"scenes.browserNotice": "由 MuJoCo WebAssembly 在你的浏览器里运行，带能量账、事件和诊断。电机场景用的是电动测试台，只有风帆场景才由风驱动。",
 	"scenes.revs": "圈数"
 }

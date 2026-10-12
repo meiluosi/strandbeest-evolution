@@ -13,7 +13,7 @@
 	"app.docTitle": "Strandbeest linkage evolution · Jansen Linkage Lab",
 	"app.language": "Language",
 	"app.pipeline": "Design → simulate → 3D print → measure → calibrate",
-	"app.static.banner": "Online demo: design and share linkages in your browser, play recorded MuJoCo replays, or simulate your own design right here (motor drive). Fabrication and calibration run locally.",
+	"app.static.banner": "Online demo: design and share linkages in your browser, play recorded MuJoCo replays, or simulate your own design right here, with a motor or a sail in the wind. Fabrication and calibration run locally.",
 	"app.static.local": "Run it locally →",
 	"app.title": "Strandbeest design and validation platform",
 	"common.busy.simulating": "Simulating",
@@ -286,7 +286,7 @@
 	"scenes.meanSpeed": "Mean speed",
 	"scenes.meanWind": "Mean wind speed (m/s)",
 	"scenes.noReplay": "No replay yet: click \"Run and replay\".",
-	"scenes.recorded": "Recorded replays use the default design. \"Simulate my design here\" runs yours in the browser.",
+	"scenes.recorded": "Recorded replays use the default design and 3 m/s of wind. \"Simulate my design here\" runs yours in the browser.",
 	"scenes.run": "Run and replay",
 	"scenes.speed": "Speed",
 	"scenes.title": "Scene demo: watch it move",
@@ -391,7 +391,6 @@
 	"scenes.browserRun": "Simulate my design here",
 	"scenes.browserLoading": "Loading the physics engine…",
 	"scenes.browserRunning": "Simulating {pct}% · keep this tab in front",
-	"scenes.browserNoSail": "The browser run does not do sail-driven scenes yet.",
-	"scenes.browserNotice": "Run in your browser by MuJoCo WebAssembly, with the energy account, events and diagnosis. Motor drive only: the electric test rig, not a wind-only result.",
+	"scenes.browserNotice": "Run in your browser by MuJoCo WebAssembly, with the energy account, events and diagnosis. The motor scenes use the electric test rig; only the sail scenes are wind-driven.",
 	"scenes.revs": "Revolutions"
 }

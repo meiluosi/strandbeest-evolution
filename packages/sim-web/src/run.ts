@@ -1,7 +1,7 @@
 /** Port of strandbeest_sim.runner.run (motor drive) on MuJoCo WebAssembly: settle, drive for N revolutions, record a replay and
  *  audit it: the per-step energy account, foot loads, loop residual and penetration at every recorded sample, then events,
- *  diagnosis and the energy metrics (events.ts). The drive is the electric motor only (the test rig of docs/WIND.md, so
- *  `wind_only` is false); the sail drive is not ported yet. Same engine version, same MJCF and the same step order as Python, so
+ *  diagnosis and the energy metrics (events.ts). Drives: the electric motor (the test rig of docs/WIND.md, `wind_only`
+ *  false) and the drag sail in a constant, gusty or lulling wind (`wind_only` true). Same engine version, same MJCF and the same step order as Python, so
  *  the trajectory and the audit are the Python ones (run.test.ts, contracts/sim-run). */
 import type { MainModule } from "@mujoco/mujoco";
 import { gaitMetrics, type LinkageSpec, trace } from "strandbeest-core";
@@ -16,6 +16,7 @@ import {
 } from "./events";
 import type { Replay, ReplayScene } from "./replay";
 import { obstaclesXml, terrainPlan } from "./terrains";
+import { makeWind } from "./winds";
 
 export class RunCancelled extends Error {
 	constructor() {
@@ -126,10 +127,11 @@ export async function runPreview(
 	sc: SimConfig,
 	opts: RunOptions = {},
 ): Promise<Replay> {
-	if (sc.drive.kind !== "motor")
+	if (sc.drive.kind !== "motor" && sc.drive.kind !== "sail")
 		throw new Error(
-			`the browser run supports the motor drive, not '${sc.drive.kind}' (run it locally)`,
+			`the browser run knows the motor and sail drives, not '${sc.drive.kind}'`,
 		);
+	const sail = sc.drive.kind === "sail";
 	const spec: LinkageSpec = resolveSpec(sc);
 	const plan = terrainPlan(sc);
 	const built = buildMjcf(sc, spec, obstaclesXml(plan.obstacles));
@@ -183,6 +185,14 @@ export async function runPreview(
 		const q0 = built.crank_q0;
 		const nb = m.nbody - 1;
 		const nv = m.nv as number;
+		// SailDrive.__init__: rotor inertia, viscous damping and Coulomb friction act at the crank (backend.configure_joint)
+		if (sail) {
+			m.dof_armature[dofadr] = sc.drive.rotor_inertia;
+			m.dof_damping[dofadr] = sc.drive.crank_damping;
+			m.dof_frictionloss[dofadr] = sc.drive.crank_friction;
+		}
+		const wind = sail ? makeWind(sc.wind) : null;
+		// read after the lines above: power_balance uses the live damping
 		const dofDamping = Array.from(m.dof_damping as ArrayLike<number>);
 		const hasDamping = dofDamping.some((v) => v !== 0);
 		// out parameters of the C API live in wasm memory (README: "Working with Out Parameters")
@@ -195,14 +205,61 @@ export async function runPreview(
 		let qpos = d.qpos;
 		let qvel = d.qvel;
 		let aforce = d.actuator_force;
+		let qfrcApplied = d.qfrc_applied;
 		const refresh = () => {
+			qfrcApplied = d.qfrc_applied;
 			ctrl = d.ctrl;
 			qpos = d.qpos;
 			qvel = d.qvel;
 			aforce = d.actuator_force;
 		};
 		const psi = () => -dir * ((qpos[qadr] as number) - q0);
-		const tau = () => -dir * (aforce[act] as number);
+		// the drive (drives.py): `control` before every step; `tau` is the crank torque in the walking direction after it
+		let released = false;
+		let sailTau = 0;
+		const control = (t: number, driving: boolean) => {
+			if (!driving) {
+				ctrl[act] = q0; // hold the initial angle while settling
+				return;
+			}
+			if (!sail) {
+				// MotorDrive: smooth start-up ramp on the servo target
+				const f0 = sc.drive.ramp <= 0 ? 1.0 : Math.min(t / sc.drive.ramp, 1.0);
+				const f = f0 * f0 * (3 - 2 * f0);
+				ctrl[act] = (ctrl[act] as number) + -dir * f * sc.drive.omega * dt;
+				return;
+			}
+			if (!released) {
+				// SailDrive: switch the servo off (backend.release_actuator zeroes the gain and bias of its row)
+				const gain = m.actuator_gainprm;
+				const bias = m.actuator_biasprm;
+				for (let i = 0; i < 10; i++) {
+					gain[act * 10 + i] = 0;
+					bias[act * 10 + i] = 0;
+				}
+				released = true;
+			}
+			const dd = sc.drive as unknown as Record<string, number>;
+			const omegaNow = -dir * (qvel[dofadr] as number);
+			const rel =
+				(wind as (t: number) => number)(t) -
+				Math.max(omegaNow, 0) *
+					(dd.sail_gear as number) *
+					(dd.sail_radius as number);
+			sailTau =
+				rel > 0
+					? (dd.sail_gear as number) *
+						0.5 *
+						sc.environment.air_density *
+						(dd.sail_drag_coeff as number) *
+						(dd.sail_area as number) *
+						(dd.sail_radius as number) *
+						rel *
+						rel
+					: 0.0;
+			qfrcApplied[dofadr] = -dir * sailTau;
+		};
+		const tau = () => (sail ? sailTau : -dir * (aforce[act] as number));
 
 		// ---- what a contact pass gives (Python: foot_loads, foot_contacts, max_penetration) ----
 		interface Pass {
@@ -305,7 +362,7 @@ export async function runPreview(
 
 		const settleSteps = Math.round(sc.run.settle / dt);
 		for (let i = 0; i < settleSteps; i++) {
-			ctrl[act] = q0; // MotorDrive.control(driving=False): hold the initial angle
+			control(0.0, false);
 			mj.mj_step(m, d);
 			if ((i & 255) === 0) await maybeYield("settle", i / settleSteps, 0);
 		}
@@ -380,10 +437,7 @@ export async function runPreview(
 		let t = 0;
 		let stalled = false;
 		while (psi() - psiStart < target) {
-			// MotorDrive.control(driving=True): smooth start-up ramp on the servo target
-			const f0 = sc.drive.ramp <= 0 ? 1.0 : Math.min(t / sc.drive.ramp, 1.0);
-			const f = f0 * f0 * (3 - 2 * f0);
-			ctrl[act] = (ctrl[act] as number) + -dir * f * sc.drive.omega * dt;
+			control(t, true);
 			mj.mj_step(m, d);
 			t += dt;
 
@@ -474,7 +528,7 @@ export async function runPreview(
 		const metrics: Record<string, number | boolean | null> = {
 			max_loop_violation: maxViol,
 			max_penetration: maxPen,
-			wind_only: false, // the motor drive is the electric test rig (docs/WIND.md): never a wind-only result
+			wind_only: sail, // the electric motor is the test rig (docs/WIND.md), never a wind-only result
 			...gaitWindow(tSer, psiSer, xSer, tauSer),
 			...energyMetrics(psiSer, ser),
 		};

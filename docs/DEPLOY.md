@@ -34,7 +34,7 @@ Runs, sweeps and calibrations are jobs in `strandbeest.db` (SQLite).
 - Replays live in `apps/web-demo/public/gallery/<scene>.json` and are produced by `tsx scripts/bake-gallery.ts [scene ...]` against a running `strandbeest-api` (about 100 s per scene, 1.6-2 MB each, about 0.3 MB gzipped on the wire). Re-bake whenever the simulator or a scene in `contracts/scenes.json` changes; the replays are an output of the simulator, not a source.
 - CI builds it and `scripts/check-static-build.mjs` fails when a scene has no baked replay.
 - `.github/workflows/pages.yml` deploys it by hand (`workflow_dispatch`); enabling Pages (Source: GitHub Actions) is the repository owner's step.
-- The simulation tab also has **"Simulate my design here"**: a Web Worker runs MuJoCo WebAssembly (`@mujoco/mujoco` 3.14.0, 10 MB wasm, loaded only on click) through `packages/sim-web`. It is a labelled *browser preview*: motor-driven scenes only, no energy account, events, diagnosis or invariant audit. See docs/EXPERIMENTS.md section 23.
+- The simulation tab also has **"Simulate my design here"**: a Web Worker runs MuJoCo WebAssembly (`@mujoco/mujoco` 3.14.0, 10 MB wasm, loaded only on click) through `packages/sim-web`. It runs the motor (the electric test rig) and the sail in a constant, gusty or lulling wind, and records the same audit as the local simulator: energy account, events, diagnosis, invariants. See docs/EXPERIMENTS.md sections 23 to 25.
 - Share links carry the whole design in the URL fragment (`#d=`, deflate + base64url); nothing is sent to a server.
 
 ## What this is not

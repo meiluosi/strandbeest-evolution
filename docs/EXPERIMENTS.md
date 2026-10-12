@@ -458,3 +458,15 @@ Step 3 added to the browser run what section 23 left out: the per-step energy ac
 **Cost** (same machine and browser as section 23, but with other sessions loading the machine heavily, load average about 98, so these are pessimistic): 1 revolution 6.6 s (5.8 s in the worker), 2 revolutions 9.9 s, against 6.1 s and 10.3 s without the audit. The audit costs almost nothing in the browser, against a Python run that spends most of its 70 to 100 s on it.
 
 **What is still not covered.** The sail drive and the winds (so no wind-only result in the browser, the product's main constraint); one engine version (3.14.0) on both sides, the corpora must be regenerated when either side changes; the Python diagnosis rules are only checked on the cases above.
+
+## 25. The sail drive and the winds in the browser run (2026-10-12)
+
+`packages/sim-web` now ports `SailDrive` (the servo is switched off by zeroing the actuator's gain and bias row; rotor inertia, viscous damping and Coulomb friction go on the crank joint; the sail torque `gear * 0.5 * rho * Cd * A * r * (wind - omega*gear*r)^2` is applied to the crank every step) and the three winds of `winds.py` (`constant`, `gusts`, `lull`). The browser run therefore does the five sail scenes (wind, gusts, Mars, Titan, Venus) and reports `wind_only: true` for them; the motor scenes stay the electric test rig (`wind_only: false`, docs/WIND.md).
+
+**Agreement with Python.** Four new Python runs in `contracts/sim-run`: sail in a 3 m/s wind with frames, in gusts (period 2 s, amplitude 1.5 m/s), in a wind that drops to zero at 1.2 s, and in a 0.5 m/s breeze that cannot start the walker (`sail_torque_insufficient`). Crank series, frames, audit series, events (including `gust`), diagnosis and metrics match as in section 24. Changing the sail torque from `rel * rel` to `rel` fails the wind case (338 samples against 332).
+
+**Whole scenes against the baked Python replays** (default design, 2 revolutions, 3 m/s, in the browser): wind 0.5548 m in 4.2001 s with 38 events and diagnosis `ok`, identical to the Python replay; gusts 0.5574 m in 3.5881 s, 46 events, `ok`, identical; Mars 0.5601 m in 28.7841 s, 26 events, `sail_weak`, identical.
+
+**Cost** (same machine; load average still high): wind 6.9 s, gusts 5.9 s, Mars 44.2 s for the whole run, against 122 s (wind), 72 s (gusts) and 506 s (Mars) of wall time when the Python replays were baked (audited runs, a loaded machine, one run each). Mars is slow because its low gravity makes the walker take 28.8 simulated seconds.
+
+**Not covered.** `lull` has no scene of its own (only the Python corpus); the wind is uniform and constant along the body (docs/WIND.md section 4 lists what is missing); one engine version.

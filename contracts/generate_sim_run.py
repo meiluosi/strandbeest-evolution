@@ -30,6 +30,11 @@ CASES = [
     ("audit-torque-limit", {"drive": {"max_torque": 0.0004}, "run": {"revolutions": 0.5, "max_time": 3, "frame_rate": 0}}),
     ("audit-soft-sinkage", {"solver": {"contact_stiffness": 1500.0}, "run": {"revolutions": 0.2, "frame_rate": 0}}),
     ("audit-loose-loops", {"solver": {"iterations": 3, "solref_time": 0.05, "timestep": 0.0005}, "run": {"revolutions": 0.15, "frame_rate": 0}}),
+    # the sail drive in the three winds (the web player runs it as scenes wind / gusts), and a sail that cannot start
+    ("sail-wind", {"drive": {"kind": "sail"}, "wind": {"speed": 3.0}, "run": {"revolutions": 0.3, "max_time": 10, "give_up_after": 6, "frame_rate": 30}}),
+    ("sail-gusts", {"drive": {"kind": "sail"}, "wind": {"kind": "gusts", "speed": 3.0, "params": {"period": 2.0, "amplitude": 1.5}}, "run": {"revolutions": 0.3, "max_time": 10, "give_up_after": 6, "frame_rate": 0}}),
+    ("sail-lull", {"drive": {"kind": "sail"}, "wind": {"kind": "lull", "speed": 4.0, "params": {"at": 1.2}}, "run": {"revolutions": 0.6, "max_time": 6, "give_up_after": 3, "frame_rate": 0}}),
+    ("sail-calm-stall", {"drive": {"kind": "sail"}, "wind": {"speed": 0.5}, "run": {"revolutions": 0.5, "max_time": 8, "give_up_after": 3, "frame_rate": 0}}),
 ]
 
 
@@ -60,12 +65,22 @@ def one(overrides):
 
 
 def main() -> None:
-    cases = [{"name": n, "design": DESIGN, "overrides": ov, "expected": one(ov)} for n, ov in CASES]
-    for c in cases:
+    """With names: regenerate only those cases and merge them into the existing file; without: all."""
+    import sys
+
+    names = sys.argv[1:]
+    old = json.loads(OUT.read_text())["cases"] if OUT.exists() else []
+    kept = {c["name"]: c for c in old}
+    for n, ov in CASES:
+        if names and n not in names:
+            continue
+        c = {"name": n, "design": DESIGN, "overrides": ov, "expected": one(ov)}
         e = c["expected"]
-        print(c["name"], len(e["series"]["t"]), "samples", len(e["frames"]["t"]) if e["frames"] else 0, "frames", "diagnosis", [d["code"] for d in e["diagnosis"]], "events", sorted({x["kind"] for x in e["events"]}))
+        print(n, len(e["series"]["t"]), "samples", len(e["frames"]["t"]) if e["frames"] else 0, "frames", "diagnosis", [d["code"] for d in e["diagnosis"]], "events", sorted({x["kind"] for x in e["events"]}), "wind_only", e["metrics"].get("wind_only"), flush=True)
+        kept[n] = c
+    cases = [kept[n] for n, _ in CASES if n in kept]
     OUT.parent.mkdir(exist_ok=True)
-    OUT.write_text(json.dumps({"note": "Python runs for packages/sim-web/src/run.test.ts; regenerate with contracts/generate_sim_run.py", "cases": cases}, separators=(",", ":")) + "\n")
+    OUT.write_text(json.dumps({"note": "Python runs for packages/sim-web/src/run.test.ts; regenerate with contracts/generate_sim_run.py [case ...]", "cases": cases}, separators=(",", ":")) + "\n")
     print(OUT.stat().st_size // 1000, "kB")
 
 

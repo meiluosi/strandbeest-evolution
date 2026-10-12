@@ -186,7 +186,7 @@ describe("browser preview follows the Python run (contracts/sim-run)", () => {
 });
 
 describe("run control", () => {
-	it("refuses a sail drive in the preview", async () => {
+	it("refuses a drive it does not know", async () => {
 		const design = JSON.parse(
 			readFileSync(
 				repo("schemas/examples/design-jansen-small-6leg.json"),
@@ -194,8 +194,11 @@ describe("run control", () => {
 			),
 		) as Design;
 		await expect(
-			runPreview(mj, scenarioFromDesign(design, { drive: { kind: "sail" } })),
-		).rejects.toThrow(/motor drive/);
+			runPreview(
+				mj,
+				scenarioFromDesign(design, { drive: { kind: "flywheel" } }),
+			),
+		).rejects.toThrow(/motor and sail drives/);
 	});
 
 	it("stops when cancelled and reports progress", {
