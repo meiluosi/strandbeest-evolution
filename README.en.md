@@ -2,6 +2,8 @@
 
 Adjust link lengths, watch the gait, and export parts for 3D printing: an open-source lab for exploring Theo Jansen's Strandbeest through design and simulation.
 
+**[▶ Try it online (no install)](https://meiluosi.github.io/strandbeest-evolution/)**: drag the linkage, let it evolve itself, simulate your own design with MuJoCo in the browser (motor or a sail in the wind), and share it as a link.
+
 [中文](README.md) · **English** · [Get started](#run) · [Features and screenshots](#what-it-does) · [Experiment log](docs/EXPERIMENTS.md)
 
 > **Preview (alpha) · Not yet validated against real hardware.** The software chain works end to end and is tested. It is suitable for exploring, teaching and building on. The simulator is not yet robust to small design changes; do not treat simulated numbers as measurements. See [honest caveats](#honest-caveats).
