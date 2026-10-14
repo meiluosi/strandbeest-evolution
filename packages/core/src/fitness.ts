@@ -10,6 +10,9 @@ const MAX_STEP_RATIO = 0.25;
 /** Fitness values at or below this mean the leg is infeasible (cannot assemble, flips, or hits the body). */
 export const INFEASIBLE = -4;
 
+/** Penalty for a leg that assembles at the probe angles but not at every trace sample: the worst of the "[-5, -4.1]" band. Equals the Python port. */
+const NO_TRACE_PENALTY = -5.05;
+
 /**
  * Graded penalty for an infeasible leg, always in [-10, -4): the closer it is to a working leg, the higher.
  * A flat -Infinity gives a GA nothing to climb when random lengths almost never assemble.
@@ -26,6 +29,8 @@ export function infeasibility(
 		if (solvePose(spec, (2 * Math.PI * i) / probes)) ok++;
 	if (ok < probes) return -10 + 5 * (ok / probes); // [-10, -5)
 	const t = trace(spec, 90);
+	// assembles at the 24 probes but not at every one of the 90 samples: an empty trace (it used to give NaN, which the GA ranked arbitrarily)
+	if (!t.assembled) return NO_TRACE_PENALTY;
 	const m = gaitMetrics(t.foot);
 	const belowHip = t.foot.filter((p) => p.y < 0).length / t.foot.length;
 	const flipped = m.width <= 0 || t.maxStep > MAX_STEP_RATIO * m.width;

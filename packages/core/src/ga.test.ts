@@ -43,16 +43,17 @@ describe("fitness sanity", () => {
 
 describe("golden run (guards refactors of the fitness/genome code: E3-01 moved them to GenomeSpace unchanged)", () => {
 	it("flat-stroke GA from Jansen's lengths, seed 1, 80 x 25, gives the recorded result", () => {
-		// recorded 2026-10-06 with the code from before the GenomeSpace refactor; the refactor reproduced it bit for bit
+		// recorded 2026-10-06 with the code from before the GenomeSpace refactor (0.6469557486851051); the refactor reproduced it bit for bit.
+		// Re-recorded 2026-10-15 (Q-06): a leg that assembles at the probes but not at every trace sample no longer scores NaN but -5.05.
 		const r = runGA(JANSEN_SPACE.toGenome(), fitnessFlatStroke(JANSEN_SPACE), {
 			seed: 1,
 			population: 80,
 			generations: 25,
 		});
-		expect(r.bestFitness).toBeCloseTo(0.6469557486851051, 12);
+		expect(r.bestFitness).toBeCloseTo(0.6776223287613968, 12);
 		expect(r.best.slice(0, 4)).toEqual([
-			40.04691481317351, 41.40904494877912, 36.44959992390091,
-			43.45318752527301,
+			43.11465820766656, 40.83226668567402, 37.394963188048635,
+			40.87346286896109,
 		]);
 	});
 });

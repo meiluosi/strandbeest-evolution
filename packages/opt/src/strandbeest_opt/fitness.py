@@ -26,9 +26,8 @@ def infeasibility(space: GenomeSpace, genome) -> float | None:
     if ok < PROBES:
         return -10 + 5 * (ok / PROBES)
     foot = foot_path(spec, SAMPLES)
-    if foot is None:  # assembles at the 24 probes but not at every one of the 90 samples: an empty trace. packages/core returns NaN here (0/0),
-        # which silently changes how its GA ranks such legs; fixing it there would change the committed experiment results, so the
-        # two deliberately differ in this corner (docs/EXPERIMENTS.md section 16). The corpus contains no such case.
+    if foot is None:  # assembles at the 24 probes but not at every one of the 90 samples: an empty trace. packages/core used to return NaN here
+        # (0/0); both now return this finite penalty (Q-06, docs/EXPERIMENTS.md section 26). The corpus has three such genomes.
         return -5 + 0.9 * 0.0 - 0.05
     m = gait_metrics(spec, SAMPLES)
     below_hip = sum(1 for p in foot if p[1] < 0) / len(foot)

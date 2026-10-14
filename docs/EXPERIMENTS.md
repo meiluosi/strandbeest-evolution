@@ -12,8 +12,8 @@ Raw: `experiments/reproduce-jansen-default-ga.json`.
 
 | | result |
 |---|---|
-| median shape distance | 0.0155 |
-| seeds with shape distance < 0.02 | 16 / 20 |
+| median shape distance | 0.0148 |
+| seeds with shape distance < 0.02 | 19 / 20 |
 | seeds recovering the *lengths* (mean log error after rescaling < 0.1) | 0 / 20 |
 
 Reading: the search reliably finds legs whose foot path looks like Jansen's, but **not his numbers**. Different length sets produce nearly the same loop (the mapping is many-to-one), so matching the shape does not pin down the lengths. We have not checked whether the found solutions are genuinely different mechanisms or the same one under a symmetry we did not normalise.
@@ -23,8 +23,8 @@ Reading: the search reliably finds legs whose foot path looks like Jansen's, but
 | | result |
 |---|---|
 | Jansen's own fitness | 0.481 |
-| median best fitness over seeds | 0.370 |
-| seeds that beat Jansen | 2 / 20 |
+| median best fitness over seeds | 0.390 |
+| seeds that beat Jansen | 0 / 20 |
 | median shape distance to Jansen's loop | 0.087 |
 | seeds within 0.05 of Jansen's loop | 0 / 20 |
 
@@ -37,21 +37,21 @@ Reading: with default settings, blind search usually does **not** reach Jansen's
 
 | | default | tuned |
 |---|---|---|
-| A. median shape distance | 0.0155 | 0.0195 |
-| A. seeds with distance < 0.02 | 16 / 20 | 11 / 20 |
+| A. median shape distance | 0.0148 | 0.0203 |
+| A. seeds with distance < 0.02 | 19 / 20 | 10 / 20 |
 | A. seeds recovering lengths | 0 / 20 | 0 / 20 |
-| B. median best fitness (Jansen 0.481) | 0.370 | 0.337 |
-| B. seeds beating Jansen | 2 / 20 | 0 / 20 |
-| B. seeds within 0.05 of Jansen's loop | 0 / 20 | 0 / 20 |
+| B. median best fitness (Jansen 0.481) | 0.390 | 0.384 |
+| B. seeds beating Jansen | 0 / 20 | 1 / 20 |
+| B. seeds within 0.05 of Jansen's loop | 0 / 20 | 3 / 20 |
 
-Reading: tuning did **not** help. The earlier impression came from a 6-seed trial and was noise. So "premature convergence from too little mutation" is not established as the cause of B; the structure of the search space and our objective are both still candidates, and we have not separated them.
+*(Tables of sections 1 and 1b regenerated on 2026-10-15 after the NaN fix of section 26; before it: default 0.0155 / 16 of 20 / median fitness 0.370 / 2 beat Jansen, tuned 0.0195 / 11 of 20 / 0.337 / 0 beat Jansen.)* Reading: tuning did **not** clearly help. It is worse on the shape fit (0.0203 against 0.0148; 10 against 19 seeds under 0.02) and the same on median fitness (0.384 against 0.390); it beat Jansen once and put 3 seeds within 0.05 of his loop where the default settings had none, but 0 against 3 out of 20 is within noise. The earlier impression of a clear benefit came from a 6-seed trial and was noise. So "premature convergence from too little mutation" is not established as the cause of B; the structure of the search space and our objective are both still candidates, and we have not separated them.
 
 ## 2. Objectives on top of Jansen's start (seed 1, 80 generations)
 
 | objective | fitness: Jansen → evolved | evolved: stroke length / lift / duty |
 |---|---|---|
-| flat stroke (v1) | 0.48 → 0.71 | 54.6 / 10.8 / 0.60 |
-| high step | 0.33 → 1.29 | 46.7 / 88.9 / 0.36 |
+| flat stroke (v1) | 0.48 → 0.72 | 58.3 / 19.6 / 0.55 |
+| high step | 0.33 → 1.47 | 41.0 / 76.0 / 0.37 |
 
 (Jansen's loop: stroke 57.1, lift 22.5, duty 0.43.) Lessons: without the "foot below the hip" and "real swing phase" constraints the GA exploits the metric (foot swings through the body; foot only slides). The thresholds that block this are our own design choices.
 
@@ -63,10 +63,10 @@ Reading: tuning did **not** help. The earlier impression came from a 6-seed tria
 |---|---|---|---|---|
 | Jansen | 0° | 2.67 | 14.7 | 0.14 / 0.31 / 0.48 |
 | Jansen | 10° | 2.67 | 49.3 | 0.12 / 0.29 / 0.45 |
-| evolved (flat v1) | 0° | 1.73 | 12.6 | 0.10 / 0.21 / 0.32 |
-| evolved (flat v1) | 10° | 1.73 | 37.3 | 0.08 / 0.19 / 0.30 |
-| evolved (high step) | 0° | 2.66 | 14.0 | 0.14 / 0.31 / 0.48 |
-| evolved (high step) | 10° | 2.66 | 49.3 | 0.12 / 0.28 / 0.45 |
+| evolved (flat v1) | 0° | 2.09 | 16.8 | 0.11 / 0.25 / 0.38 |
+| evolved (flat v1) | 10° | 2.09 | 47.4 | 0.10 / 0.23 / 0.36 |
+| evolved (high step) | 0° | 2.19 | 9.7 | 0.12 / 0.26 / 0.40 |
+| evolved (high step) | 10° | 2.19 | 40.6 | 0.10 / 0.24 / 0.38 |
 
 Reading: the kinematic objectives do not translate into big dynamic differences here; a shorter-stride leg needs less torque but also goes slower per crank turn. The quasi-static torque is set mostly by slope and drag times stride, so a design objective that actually targets torque (not implemented yet) is a more honest route to "better" legs.
 
@@ -78,16 +78,18 @@ Speeds in m/s. "At Jansen's size" rescales each evolved leg so its mean hip-to-f
 
 | | seed 1 | seed 2 | seed 3 | seed 4 | seed 5 |
 |---|---|---|---|---|---|
-| flat: evolved speed (Jansen 0.228) | 0.228 | 0.312 | 0.277 | 0.282 | 0.284 |
-| flat: size vs Jansen | 1.00× | 1.18× | 1.13× | 1.12× | 1.12× |
-| flat: at Jansen's size | 0.228 | 0.266 | 0.246 | 0.254 | 0.253 |
-| 10°: evolved speed (Jansen 0.200) | 0.200 | 0.266 | 0.239 | 0.215 | 0.242 |
-| 10°: at Jansen's size | 0.200 | 0.230 | 0.214 | 0.217 | 0.217 |
+| flat: evolved speed (Jansen 0.228) | 0.286 | 0.286 | 0.274 | 0.290 | 0.263 |
+| flat: size vs Jansen | 1.09× | 1.10× | 1.13× | 1.13× | 1.06× |
+| flat: at Jansen's size | 0.264 | 0.258 | 0.243 | 0.258 | 0.248 |
+| 10°: evolved speed (Jansen 0.200) | 0.246 | 0.245 | 0.237 | 0.220 | 0.228 |
+| 10°: at Jansen's size | 0.229 | 0.224 | 0.212 | 0.208 | 0.216 |
 
 Reading, within the model's assumptions:
-- Most of the raw gain is **size**: the GA makes the leg larger (longer stride per crank turn). At Jansen's size the gain is about +8 % to +17 % on flat ground and +7 % to +15 % on the slope.
-- Seed 1 found nothing better than Jansen's own lengths.
-- Peak torque rises with the larger legs (e.g. 14.7 → 16.9–20.2 N·m on flat ground), which is the price of the longer stride.
+- Most of the raw gain is **size**: the GA makes the leg larger (longer stride per crank turn). At Jansen's size the gain is about +7 % to +16 % on flat ground and +4 % to +14 % on the slope.
+- Every seed now finds something better than Jansen's own lengths (before the NaN fix of section 26, seed 1 found nothing: its search was being steered by NaN fitness values).
+- Peak torque rises with the larger legs on most seeds (Jansen 14.7; 14.1–18.6 N·m on flat ground), which is the price of the longer stride.
+
+*(Section 4 regenerated on 2026-10-15; before the fix the table read flat 0.228 / 0.312 / 0.277 / 0.282 / 0.284 m/s and 10° 0.200 / 0.266 / 0.239 / 0.215 / 0.242 m/s.)*
 - None of this has been checked against a real walker or a time-domain simulation; the sail, gearing and resistance are assumptions. It shows that a torque-aware objective changes what evolution finds, not that these legs would beat Jansen's in the field.
 
 ## 5. What inertia changes (time-domain model)
@@ -259,7 +261,7 @@ A 12 mm step blocks the small walker (it advances 12 % of the ideal distance); t
 
 E3-01 moved the fitness functions and the genome from Jansen-only helpers to a `GenomeSpace` derived from any `LinkageSpec`. Before trusting that the move changed nothing, I re-ran fixed-seed experiments with the code from before the refactor and after it:
 
-- `pnpm experiment flat 1 80`: output of the old code and the new code is **identical** (every field of `original`, `evolved`, `history`), so the refactor did not change behaviour. A golden test (`ga.test.ts`, seed 1, 80 x 25, best fitness 0.6469557486851051) now guards this.
+- `pnpm experiment flat 1 80`: output of the old code and the new code is **identical** (every field of `original`, `evolved`, `history`), so the refactor did not change behaviour. A golden test (`ga.test.ts`, seed 1, 80 x 25, best fitness 0.6469557486851051) now guards this (re-recorded to 0.6776223287613968 on 2026-10-15, section 26).
 - `pnpm reproduce 20 500 150 default` and `... tuned`: both reproduce the committed `experiments/reproduce-jansen-*-ga.json` exactly (same content). Their conclusions in section 2 stand.
 - **Negative finding:** the committed `experiments/flat-seed1.json` and `highstep-seed1.json` did **not** reproduce with the code at HEAD (for `flat`: evolved fitness 0.7129 committed vs 0.7446 now; the GA history differs from generation 0). They predate the commit that introduced graded infeasibility penalties (a8127b1) and were never regenerated. They are demo inputs (`scripts/dynamics-demo.ts` reads the evolved lengths), no number in this document or the README cites them, and I regenerated both with the current code. Nothing else was found stale. Model-internal; nothing here is measured.
 
@@ -314,7 +316,7 @@ Every run now records, at each sample, the normal and tangential load and the sl
 - Section 1B's reading, "blind search usually does not reach Jansen's score under our objective", was a statement about the **custom GA**: with a mature optimiser at 16 % of the budget the same objective is beaten by Jansen's leg in 13 of 20 runs. The thing 1B could not separate (stuck optimiser or objective that does not favour Jansen) is now partly answered: the optimiser was a large part of it, and the objective does not have Jansen's leg as its optimum (that was already clear from the 0.71 found by polishing, see section 12).
 - What did not change: neither optimiser lands on Jansen's loop shape (0/20 within 0.05), so "our objective does not single out Jansen's design" stands.
 - **Not done:** the wind objective (`wind-objective`) was not re-run with CMA-ES (its quasi-static dynamics model exists only in TypeScript); the unequal budgets mean this is a comparison of two optimisers *as one would use them*, not at equal evaluations.
-- **A deliberate difference between the two implementations of the fitness:** a leg that assembles at the 24 probe angles but not at every one of the 90 trace samples has an empty trace. packages/core returns **NaN** for it (0/0), which silently changes how its GA ranks such legs; the Python port returns the finite -5.05. Fixing the TypeScript one changed the golden GA result, i.e. it changes committed experiment outputs, so it was left alone; the corpus has no such case. It should be fixed together with regenerating the experiments that could be affected.
+- **A difference between the two implementations of the fitness, since fixed (section 26):** a leg that assembles at the 24 probe angles but not at every one of the 90 trace samples has an empty trace. packages/core returned **NaN** for it (0/0) and the Python port the finite -5.05; both now return -5.05.
 
 
 ## 17. MAP-Elites over (legs, stride, mass) (O-02, 2026-10-06)
@@ -470,3 +472,16 @@ Step 3 added to the browser run what section 23 left out: the per-step energy ac
 **Cost** (same machine; load average still high): wind 6.9 s, gusts 5.9 s, Mars 44.2 s for the whole run, against 122 s (wind), 72 s (gusts) and 506 s (Mars) of wall time when the Python replays were baked (audited runs, a loaded machine, one run each). Mars is slow because its low gravity makes the walker take 28.8 simulated seconds.
 
 **Not covered.** `lull` has no scene of its own (only the Python corpus); the wind is uniform and constant along the body (docs/WIND.md section 4 lists what is missing); one engine version.
+
+## 26. The NaN fitness corner is fixed in both implementations (Q-06, 2026-10-15)
+
+Section 16 left a known difference: for a leg that assembles at the 24 probe angles but not at every one of the 90 trace samples, `packages/core` computed 0/0 = NaN while the Python port returned -5.05, and every comparison with NaN is false, so the TypeScript GA ranked such legs arbitrarily. It now returns -5.05 as well (`NO_TRACE_PENALTY`, `packages/core/src/fitness.ts`); the fitness corpus (`contracts/fitness/cases.json`) has three such genomes (Jansen's topology), and `packages/core/src/fitness.test.ts` checks that every fitness function gives one finite penalty and never NaN, and that the Python port agrees.
+
+**What changed because of it** (everything re-run on 2026-10-15; the old values are quoted in the sections they belong to):
+
+- the golden GA run (seed 1, 80 x 25, flat stroke): best fitness 0.6469557 -> 0.6776223;
+- `experiments/flat-seed1.json` (evolved fitness 0.7446 -> 0.7237) and `highstep-seed1.json` (1.397 -> 1.471), so the evolved rows of section 2 and 3;
+- `experiments/reproduce-jansen-default-ga.json` and `-tuned-ga.json` (section 1 and 1b): the default GA now beats Jansen's fitness in 0 of 20 seeds instead of 2, the tuned one in 1 instead of 0;
+- `experiments/wind-objective-w6-s0.json` and `-s10.json` (section 4): seed 1 had found nothing better than Jansen's lengths, now it does (0.228 -> 0.286 m/s on flat ground).
+
+**What this does not change:** the qualitative reading of sections 1-4 (blind search finds the loop shape but not the lengths, most of the wind-objective gain is size) still holds; the numbers moved by a few percent to a few tenths. The size of the effect on the wind objective, where one seed changed from "no gain" to the best result, shows how much an unnoticed NaN can steer a GA. Model against model; nothing here is measured.
