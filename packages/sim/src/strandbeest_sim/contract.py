@@ -111,7 +111,7 @@ def _scenario(design: dict, overrides: dict | None = None):
 
     from .from_design import scenario_from_design
 
-    ov = {"run": {"revolutions": 0.6, "settle": 0.3, "frame_rate": 0}, **(overrides or {})}
+    ov = {"run": {"revolutions": 0.6, "settle": 0.3, "max_time": 10.0, "frame_rate": 0}, **(overrides or {})}
     return scenario_from_design(Design(design), ov)
 
 
@@ -185,10 +185,12 @@ CHECKS: dict[str, Callable[[Factory], None]] = {
 }
 
 
-def run_contract(make: Factory) -> dict[str, str | None]:
-    """Run every check; the result maps each check name to None (passed) or the failure message."""
+def run_contract(make: Factory, only: set[str] | None = None) -> dict[str, str | None]:
+    """Run every check (or `only`); the result maps each check name to None (passed) or the failure message."""
     out: dict[str, str | None] = {}
     for name, fn in CHECKS.items():
+        if only is not None and name not in only:
+            continue
         try:
             fn(make)
             out[name] = None

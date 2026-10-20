@@ -44,6 +44,18 @@ class MujocoBackend:
         self._plan = TerrainPlan()
         self._info: BuildInfo | None = None
         self._foot_geoms: list[int] = []
+        self._foot_index: dict[int, int] = {}
+        self._id_cache: dict[tuple[Any, str], int] = {}
+        self._qposadr_cache: dict[str, int] = {}
+        self._dofadr_cache: dict[str, int] = {}
+        self._has_damping: bool = False
+
+    def _reset_caches(self) -> None:
+        self._id_cache.clear()
+        self._qposadr_cache.clear()
+        self._dofadr_cache.clear()
+        self._foot_index = {g: i for i, g in enumerate(self._foot_geoms)}
+        self._has_damping = bool(np.any(self.model.dof_damping != 0)) if self.model is not None else False
 
     # ---- build ------------------------------------------------------------------------------------------------
     def build(self, cfg: SimConfig, plan: TerrainPlan) -> BuildInfo:
@@ -61,6 +73,7 @@ class MujocoBackend:
         if plan.softness is not None:
             self.set_param("contact.softness", plan.softness)
         self._foot_geoms = [g for g in range(m.ngeom) if (self._name(mujoco.mjtObj.mjOBJ_GEOM, g)).startswith("foot_")]
+        self._reset_caches()
         mujoco.mj_forward(m, self.data)
         self._info = BuildInfo(
             n_legs=built.n_legs,
@@ -100,15 +113,35 @@ class MujocoBackend:
         self.model.opt.enableflags |= mujoco.mjtEnableBit.mjENBL_ENERGY
         self._plan = TerrainPlan()
         self._foot_geoms = []
+        self._reset_caches()
 
     def _name(self, kind: Any, i: int) -> str:
         return mujoco.mj_id2name(self.model, kind, i) or ""
 
     def _id(self, kind: Any, name: str) -> int:
+        key = (kind, name)
+        cached = self._id_cache.get(key)
+        if cached is not None:
+            return cached
         i = mujoco.mj_name2id(self.model, kind, name)
         if i < 0:
             raise KeyError(f"no {kind.name} named '{name}'")
+        self._id_cache[key] = i
         return i
+
+    def _qposadr(self, name: str) -> int:
+        adr = self._qposadr_cache.get(name)
+        if adr is None:
+            adr = int(self.model.jnt_qposadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, name)])
+            self._qposadr_cache[name] = adr
+        return adr
+
+    def _dofadr(self, name: str) -> int:
+        adr = self._dofadr_cache.get(name)
+        if adr is None:
+            adr = int(self.model.jnt_dofadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, name)])
+            self._dofadr_cache[name] = adr
+        return adr
 
     # ---- stepping and state -----------------------------------------------------------------------------------
     @property
@@ -173,6 +206,10 @@ class MujocoBackend:
             )
         return out
 
+    def loop_residual(self) -> float:
+        d = self.data
+        return float(np.abs(d.efc_pos[: d.ne]).max()) if d.ne else 0.0
+
     def forces(self) -> Forces:
         m, d = self.model, self.data
         net = np.zeros(3)
@@ -180,11 +217,7 @@ class MujocoBackend:
         for i in range(d.ncon):
             mujoco.mj_contactForce(m, d, i, f6)
             net += np.asarray(d.contact[i].frame).reshape(3, 3).T @ f6[:3]
-        viol = 0.0
-        if d.nefc:
-            eq = d.efc_type == mujoco.mjtConstraint.mjCNSTR_EQUALITY
-            if eq.any():
-                viol = float(np.abs(d.efc_pos[eq]).max())
+        viol = self.loop_residual()
         acts = {self._name(mujoco.mjtObj.mjOBJ_ACTUATOR, a): float(d.actuator_force[a]) for a in range(m.nu)}
         return Forces(acts, (float(net[0]), float(net[1]), float(net[2])), viol)
 
@@ -192,10 +225,10 @@ class MujocoBackend:
         return Energies(kinetic=float(self.data.energy[1]), potential=float(self.data.energy[0]))
 
     def joint_position(self, name: str) -> float:
-        return float(self.data.qpos[self.model.jnt_qposadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, name)]])
+        return float(self.data.qpos[self._qposadr(name)])
 
     def joint_velocity(self, name: str) -> float:
-        return float(self.data.qvel[self.model.jnt_dofadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, name)]])
+        return float(self.data.qvel[self._dofadr(name)])
 
     def body_position(self, name: str) -> Vec3:
         p = self.data.xpos[self._id(mujoco.mjtObj.mjOBJ_BODY, name)]
@@ -212,32 +245,31 @@ class MujocoBackend:
             touching.add(int(d.contact[i].geom2))
         return [g in touching for g in self._foot_geoms]
 
-    _CONTACT_ROWS = (
-        mujoco.mjtConstraint.mjCNSTR_CONTACT_FRICTIONLESS,
-        mujoco.mjtConstraint.mjCNSTR_CONTACT_PYRAMIDAL,
-        mujoco.mjtConstraint.mjCNSTR_CONTACT_ELLIPTIC,
-    )
-
     def power_balance(self) -> PowerBalance:
         """Dissipation rates from the constraint rows: -sum(force * velocity in constraint space). A friction facet that opposes
         slip has force*velocity < 0, so the dissipation is positive; the same sum covers the normal damping of a contact."""
         d = self.data
         contact = equality = fric = 0.0
-        if d.nefc:
-            p = d.efc_force[: d.nefc] * d.efc_vel[: d.nefc]
-            kinds = d.efc_type[: d.nefc]
-            contact = -float(p[np.isin(kinds, self._CONTACT_ROWS)].sum())
-            equality = -float(p[kinds == mujoco.mjtConstraint.mjCNSTR_EQUALITY].sum())
-            fric = -float(p[kinds == mujoco.mjtConstraint.mjCNSTR_FRICTION_DOF].sum())
-        viscous = float(np.sum(self.model.dof_damping * d.qvel * d.qvel))
+        nefc = d.nefc
+        if nefc:
+            p = d.efc_force[:nefc] * d.efc_vel[:nefc]
+            ne, nf, nl = d.ne, d.nf, d.nl
+            if ne:
+                equality = -float(p[:ne].sum())
+            if nf:
+                fric = -float(p[ne : ne + nf].sum())
+            nc = ne + nf + nl
+            if nc < nefc:
+                contact = -float(p[nc:nefc].sum())
+        viscous = float(np.sum(self.model.dof_damping * d.qvel * d.qvel)) if self._has_damping else 0.0
         return PowerBalance(contact, equality, fric, viscous)
 
     def foot_loads(self) -> list[FootLoad]:
         m, d = self.model, self.data
-        index = {g: i for i, g in enumerate(self._foot_geoms)}
+        index = self._foot_index
         normal = [0.0] * len(index)
-        force = [np.zeros(3) for _ in index]
-        tangent_vec = [np.zeros(3) for _ in index]
+        force = [[0.0, 0.0, 0.0] for _ in index]
+        tangent_vec = [[0.0, 0.0, 0.0] for _ in index]
         slip = [0.0] * len(index)
         f6 = np.zeros(6)
         vel = np.zeros(6)
@@ -248,20 +280,35 @@ class MujocoBackend:
             if foot is None:
                 continue
             mujoco.mj_contactForce(m, d, i, f6)
-            fr = np.asarray(c.frame).reshape(3, 3)
-            f = sign * (fr.T @ f6[:3])
-            n_vec = fr[0]
+            fr = c.frame
+            fx = sign * (f6[0] * fr[0] + f6[1] * fr[3] + f6[2] * fr[6])
+            fy = sign * (f6[0] * fr[1] + f6[1] * fr[4] + f6[2] * fr[7])
+            fz = sign * (f6[0] * fr[2] + f6[1] * fr[5] + f6[2] * fr[8])
+            nx, ny, nz = float(fr[0]), float(fr[1]), float(fr[2])
             k = index[foot]
-            fn = float(f @ n_vec)
+            fn = float(fx * nx + fy * ny + fz * nz)
             normal[k] += abs(fn)
-            force[k] += f
-            tangent_vec[k] += f - fn * n_vec
+            fk = force[k]
+            fk[0] += fx
+            fk[1] += fy
+            fk[2] += fz
+            tk = tangent_vec[k]
+            tk[0] += fx - fn * nx
+            tk[1] += fy - fn * ny
+            tk[2] += fz - fn * nz
             mujoco.mj_objectVelocity(m, d, mujoco.mjtObj.mjOBJ_GEOM, foot, vel, 0)  # [rot, lin] at the geom centre, world frame
             centre = d.geom_xpos[foot]
-            v = vel[3:] + np.cross(vel[:3], np.asarray(c.pos) - centre)  # velocity of the contact point on the foot
-            slip[k] = max(slip[k], float(np.linalg.norm(v - (v @ n_vec) * n_vec)))
+            pos = c.pos
+            rx, ry, rz = float(pos[0] - centre[0]), float(pos[1] - centre[1]), float(pos[2] - centre[2])
+            wx, wy, wz = float(vel[0]), float(vel[1]), float(vel[2])
+            vx = float(vel[3]) + (wy * rz - wz * ry)
+            vy = float(vel[4]) + (wz * rx - wx * rz)
+            vz = float(vel[5]) + (wx * ry - wy * rx)
+            vn = vx * nx + vy * ny + vz * nz
+            slip[k] = max(slip[k], math.hypot(vx - vn * nx, vy - vn * ny, vz - vn * nz))
         return [
-            FootLoad(normal[k], float(np.linalg.norm(tangent_vec[k])), (float(force[k][0]), float(force[k][1]), float(force[k][2])), slip[k],
+            FootLoad(normal[k], math.hypot(tangent_vec[k][0], tangent_vec[k][1], tangent_vec[k][2]),
+                     (float(force[k][0]), float(force[k][1]), float(force[k][2])), slip[k],
                      (float(d.geom_xpos[g][0]), float(d.geom_xpos[g][1]), float(d.geom_xpos[g][2])))
             for g, k in index.items()
         ]
@@ -271,7 +318,7 @@ class MujocoBackend:
         return (float(c[0]), float(c[1]), float(c[2]))
 
     def constraint_torque(self, joint: str) -> float:
-        return float(self.data.qfrc_constraint[self.model.jnt_dofadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, joint)]])
+        return float(self.data.qfrc_constraint[self._dofadr(joint)])
 
     def max_penetration(self) -> float:
         d = self.data
@@ -318,10 +365,11 @@ class MujocoBackend:
         self.model.actuator_biasprm[aid, :] = 0.0
 
     def apply_joint_torque(self, name: str, torque: float) -> None:
-        self.data.qfrc_applied[self.model.jnt_dofadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, name)]] = torque
+        self.data.qfrc_applied[self._dofadr(name)] = torque
 
     def configure_joint(self, name: str, *, armature: float, damping: float, frictionloss: float) -> None:
-        dof = int(self.model.jnt_dofadr[self._id(mujoco.mjtObj.mjOBJ_JOINT, name)])
+        dof = self._dofadr(name)
         self.model.dof_armature[dof] = armature
         self.model.dof_damping[dof] = damping
         self.model.dof_frictionloss[dof] = frictionloss
+        self._has_damping = bool(np.any(self.model.dof_damping != 0))

@@ -100,7 +100,7 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
             z_.append(torso[2])
             tau_.append(drive.torque(sim))
             pen = be.max_penetration()
-            viol = be.forces().loop_residual
+            viol = be.loop_residual() if hasattr(be, "loop_residual") else be.forces().loop_residual
             max_pen = max(max_pen, pen)
             max_viol = max(max_viol, viol)
             loads = be.foot_loads()
@@ -110,13 +110,16 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
                              ("kinetic", en.kinetic), ("potential", en.potential), ("e_in", e_in), ("e_contact", e_contact),
                              ("e_loops", e_loops), ("e_friction", e_friction), ("crank_reaction", be.constraint_torque(info.crank_joint))):
                 ser[key].append(val)
+        else:
+            loads = None
         if frame_every and k % frame_every == 0:
             f_t.append(t)
             pos, quat = be.body_poses()
             f_pos.append(pos)
             f_quat.append(quat)
             f_contact.append(be.foot_contacts())
-            loads = be.foot_loads()
+            if loads is None:
+                loads = be.foot_loads()
             f_foot_pos.append([f.pos for f in loads])
             f_foot_force.append([f.force for f in loads])
             f_foot_slip.append([f.slip for f in loads])

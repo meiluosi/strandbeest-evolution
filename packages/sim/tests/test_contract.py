@@ -78,6 +78,6 @@ class UnitBug(MujocoBackend):
     ],
 )
 def test_the_suite_catches_a_broken_backend(mutant, must_fail):
-    result = run_contract(mutant)
+    result = run_contract(mutant, only=must_fail | {"determinism"})
     failed = {k for k, v in result.items() if v is not None}
     assert must_fail <= failed, f"{mutant.__name__}: expected {must_fail} to fail, got {failed}"
