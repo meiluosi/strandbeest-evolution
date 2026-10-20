@@ -1,6 +1,7 @@
 <script lang="ts">
 import scenarioSchema from "../../../schemas/scenario.schema.json";
 import { call, type Job, runJob } from "./api";
+import EvidenceBadge from "./EvidenceBadge.svelte";
 import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
 import ScenePlayer from "./ScenePlayer.svelte";
@@ -251,6 +252,9 @@ const sweepPlot = $derived.by(() => {
 		{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
 
 		{#if current}
+			<div class="row" style="margin-top: 10px">
+				<EvidenceBadge evidence={(current as any).evidence} />
+			</div>
 			{#if current.ensemble}
 				{@const r = current.ensemble.ranges}
 				<div class="cards" style="margin-top:10px">

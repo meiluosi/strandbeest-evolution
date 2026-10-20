@@ -10,7 +10,7 @@
 | :--- | :--- | ---: | ---: | ---: |
 | `schemas/design.schema.json` | [design.md](design.md) | 55 | 14 | 4 |
 | `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 71 | 19 | 8 |
-| `schemas/run.schema.json` | [run.md](run.md) | 35 | 0 | 0 |
+| `schemas/run.schema.json` | [run.md](run.md) | 41 | 0 | 0 |
 | `schemas/measurement.schema.json` | [measurement.md](measurement.md) | 31 | 0 | 0 |
 | `schemas/profile.schema.json` | [profile.md](profile.md) | 12 | 0 | 0 |
 | `schemas/ops.schema.json` | [ops.md](ops.md) | 4 | 0 | 0 |

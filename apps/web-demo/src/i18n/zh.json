@@ -410,5 +410,12 @@
 	"schemaForm.sourceHint": "假设来源：{source}",
 	"schemaForm.calibratable": "可校准",
 	"schemaForm.calibratableHint": "可在实验室模块中通过实测数据拟合该参数",
-	"schemaForm.range": "范围 {lo}–{hi}"
+	"schemaForm.range": "范围 {lo}–{hi}",
+	"evidence.downgraded": "（已降级）",
+	"evidence.e0.desc": "E0：单模型仿真（未经独立核对）",
+	"evidence.e1.desc": "E1：独立双求解器交叉核对一致",
+	"evidence.e2.desc": "E2：与文献或公开实验数据对比核对",
+	"evidence.e3.desc": "E3：经实物测试台实测验证",
+	"evidence.basis": "依据：{basis}",
+	"evidence.downgradeReason": "降级原因：{reason}"
 }

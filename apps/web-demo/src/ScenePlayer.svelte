@@ -5,6 +5,7 @@ import { type BrowserRun, simulateInBrowser } from "./browser-sim";
 import DiagnosisList from "./DiagnosisList.svelte";
 import EnergyPanel from "./EnergyPanel.svelte";
 import EventTimeline from "./EventTimeline.svelte";
+import EvidenceBadge from "./EvidenceBadge.svelte";
 import { currentDesign } from "./editor.svelte";
 import Footfall from "./Footfall.svelte";
 import { t } from "./i18n/index.svelte";
@@ -340,6 +341,7 @@ const rows = $derived(
 		<p class="summary">{replay.stalled ? t("scenes.summaryStalled", { scene: label, dur: outcome.dur.toFixed(1) }) : t(outcome.efficiency === null ? "scenes.summary" : "scenes.summaryEff", { scene: label, dist: outcome.dist.toFixed(2), dur: outcome.dur.toFixed(1), speed: outcome.speed.toFixed(3), eff: Math.round((outcome.efficiency ?? 0) * 100) })}</p>
 		<div class="row center">
 			{#if videoType()}<button class="btn small" disabled={recording} onclick={record}>{recording ? t("scenes.recording") : t("scenes.record")}</button>{/if}
+			<EvidenceBadge evidence={(replay as any).evidence} />
 		</div>
 		<div class="cards">
 			<div class="stat"><b>{outcome.dist.toFixed(3)} m</b><span>{t("scenes.advancedIn", { dur: outcome.dur.toFixed(1) })}</span></div>

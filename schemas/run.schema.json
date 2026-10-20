@@ -182,6 +182,74 @@
 					}
 				}
 			}
+		},
+		"evidence": {
+			"type": "object",
+			"description": "Evidence level (E0-E3) and verification basis for the run metrics (docs/VALIDATION.md). Defaults to E0.",
+			"required": ["level"],
+			"additionalProperties": false,
+			"properties": {
+				"level": {
+					"type": "string",
+					"enum": ["E0", "E1", "E2", "E3"],
+					"default": "E0",
+					"x-doc": {
+						"zh": "证据等级（E0 单模型，E1 独立双求解器，E2 文献/公开数据，E3 真实实测）",
+						"en": "Evidence level (E0 single model, E1 dual independent solvers, E2 literature/public data, E3 real measurement)"
+					}
+				},
+				"basis": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"x-doc": {
+						"zh": "证据依据来源列表",
+						"en": "List of evidence/verification sources"
+					}
+				},
+				"downgraded": {
+					"type": "boolean",
+					"x-doc": {
+						"zh": "是否已被降级",
+						"en": "Whether the evidence level has been downgraded"
+					}
+				},
+				"downgrade_reason": {
+					"type": "string",
+					"x-doc": {
+						"zh": "降级原因",
+						"en": "Reason for evidence downgrade"
+					}
+				},
+				"claims": {
+					"type": "object",
+					"description": "Per-metric or per-claim evidence levels and downgrade status",
+					"additionalProperties": {
+						"type": "object",
+						"required": ["level"],
+						"additionalProperties": false,
+						"properties": {
+							"level": {
+								"type": "string",
+								"enum": ["E0", "E1", "E2", "E3"]
+							},
+							"basis": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"downgraded": {
+								"type": "boolean"
+							},
+							"downgrade_reason": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"$defs": {

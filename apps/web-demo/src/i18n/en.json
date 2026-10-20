@@ -410,5 +410,12 @@
 	"schemaForm.sourceHint": "Assumption source: {source}",
 	"schemaForm.calibratable": "calibratable",
 	"schemaForm.calibratableHint": "Can be fitted against measurements in the Lab tab",
-	"schemaForm.range": "range {lo}–{hi}"
+	"schemaForm.range": "range {lo}–{hi}",
+	"evidence.downgraded": " (downgraded)",
+	"evidence.e0.desc": "E0: Single-model simulation (unverified)",
+	"evidence.e1.desc": "E1: Cross-checked by dual independent solvers",
+	"evidence.e2.desc": "E2: Verified against published literature / data",
+	"evidence.e3.desc": "E3: Verified by traceable physical measurements",
+	"evidence.basis": "Basis: {basis}",
+	"evidence.downgradeReason": "Downgrade reason: {reason}"
 }

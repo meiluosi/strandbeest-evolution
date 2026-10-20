@@ -13,7 +13,7 @@ from typing import Any
 import mujoco
 import numpy as np
 
-from strandbeest_common import Design, gait_metrics
+from strandbeest_common import Design, audit_run_evidence, default_evidence, gait_metrics
 from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
@@ -58,6 +58,7 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "scenario": json.loads(sc.model_dump_json()),
         "metrics": {k: (None if v != v else v) for k, v in res.metrics.items()},
         "stalled": res.stalled,
+        "evidence": audit_run_evidence({"metrics": res.metrics, "stalled": res.stalled}),
         "events": events,
         "diagnosis": diagnose(res, events),
         "arrays_file": "arrays.npz",

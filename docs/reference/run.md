@@ -3,7 +3,7 @@
 
 > Metadata and metrics of one simulation run. Time series live next to it in an arrays file.
 
-- **Fields documented**: 35
+- **Fields documented**: 41
 - **Assumed parameters (`x-assumption: true`)**: 0
 - **Calibratable parameters (`x-calibratable: true`)**: 0
 
@@ -46,3 +46,9 @@
 | `diagnosis[].severity` | enum `"info"` \| `"warning"` \| `"error"` | *(required)* | – | – | – | – |
 | `diagnosis[].message` | `string` | *(required)* | – | – | – | – |
 | `diagnosis[].evidence` | `object` | *(required)* | – | – | – | – |
+| `evidence` | `object` | – | – | – | – | Evidence level (E0-E3) and verification basis for the run metrics (docs/VALIDATION.md). Defaults to E0. |
+| `evidence.level` | enum `"E0"` \| `"E1"` \| `"E2"` \| `"E3"` | `"E0"` | – | – | – | 证据等级（E0 单模型，E1 独立双求解器，E2 文献/公开数据，E3 真实实测）<br>Evidence level (E0 single model, E1 dual independent solvers, E2 literature/public data, E3 real measurement) |
+| `evidence.basis` | array<`string`> | – | – | – | – | 证据依据来源列表<br>List of evidence/verification sources |
+| `evidence.downgraded` | `boolean` | – | – | – | – | 是否已被降级<br>Whether the evidence level has been downgraded |
+| `evidence.downgrade_reason` | `string` | – | – | – | – | 降级原因<br>Reason for evidence downgrade |
+| `evidence.claims` | map<string, `object`> | – | – | – | – | Per-metric or per-claim evidence levels and downgrade status |
