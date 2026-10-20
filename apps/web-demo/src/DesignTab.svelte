@@ -5,6 +5,7 @@ import {
 	type Operation,
 	trace,
 } from "strandbeest-core";
+import designSchema from "../../../schemas/design.schema.json";
 import { call, download } from "./api";
 import Evolver from "./Evolver.svelte";
 import {
@@ -27,6 +28,8 @@ import LengthSliders from "./LengthSliders.svelte";
 import LinkageViewer, { type LengthEdit } from "./LinkageViewer.svelte";
 import Onboarding from "./Onboarding.svelte";
 import { PRESETS } from "./presets";
+import SchemaForm from "./SchemaForm.svelte";
+import type { SchemaField } from "./schema-form";
 import { designCardPng, saveBlob } from "./share-export";
 import { encodeShare, STATIC } from "./static";
 import { view } from "./store.svelte";
@@ -170,20 +173,12 @@ function dragEdit(edits: LengthEdit[] | null, final: boolean) {
 	rejected(ops.length ? commit(ops) : { ok: true });
 }
 
-function numberInput(e: Event): number | null {
-	const v = Number.parseFloat((e.target as HTMLInputElement).value);
-	return Number.isFinite(v) ? v : null;
-}
-function renameDesign(e: Event) {
-	rejected(setProperty("/name", (e.target as HTMLInputElement).value));
-}
-function setLegs(e: Event) {
-	const v = numberInput(e);
-	if (v !== null) rejected(edit("array_legs", { legs: Math.round(v) }));
-}
-function setUnit(e: Event) {
-	const v = numberInput(e);
-	if (v !== null) rejected(setProperty("/walker/unit_m", v / 1000));
+function applySchemaField(field: SchemaField, value: unknown) {
+	if (field.path === "walker.legs" && typeof value === "number") {
+		rejected(edit("array_legs", { legs: Math.round(value) }));
+		return;
+	}
+	rejected(setProperty(field.pointer, value));
 }
 
 /** The best genome of the evolver becomes operations by the algorithm, in one undo step. */
@@ -240,11 +235,12 @@ function applyEvolved(spec: LinkageSpec) {
 
 	<div class="card">
 		<h2>{t("design.file")}</h2>
-		<div class="row">
-			<label>{t("design.name")} <input type="text" value={view.name} onchange={renameDesign} size="20" /></label>
-			<label>{t("design.legs")} <input type="number" min="1" max="64" value={view.legs} onchange={setLegs} /></label>
-			<label>{t("design.unitMm")} <input type="number" min="0.5" max="10" step="0.5" value={view.unitMm} onchange={setUnit} /></label>
-		</div>
+		<SchemaForm
+			schema={designSchema as Record<string, unknown>}
+			sections={["", "walker"]}
+			value={shown as unknown as Record<string, unknown>}
+			onchange={applySchemaField}
+		/>
 		<div class="row center">
 			{#if !STATIC}
 				<button class="btn primary" onclick={save}>{t("design.saveBackend")}</button>

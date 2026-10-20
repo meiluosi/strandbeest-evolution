@@ -1,8 +1,11 @@
 <script lang="ts">
+import scenarioSchema from "../../../schemas/scenario.schema.json";
 import { call, type Job, runJob } from "./api";
 import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
 import ScenePlayer from "./ScenePlayer.svelte";
+import SchemaForm from "./SchemaForm.svelte";
+import { type SchemaField, setByPath } from "./schema-form";
 import { STATIC } from "./static";
 import { store, view } from "./store.svelte";
 
@@ -36,7 +39,9 @@ type Row = {
 };
 
 let ensemble = $state(true);
-let revolutions = $state(1.5);
+let scenarioOverrides = $state<Record<string, unknown>>({
+	run: { revolutions: 1.5 },
+});
 let busy = $state("");
 let error = $state("");
 let job = $state<Job | null>(null);
@@ -44,6 +49,10 @@ let current = $state<Run | null>(null);
 let history = $state<Run[]>([]);
 let chosen = $state<string[]>([]);
 let overlay = $state<{ id: string; s: Series }[]>([]);
+
+function updateScenarioField(field: SchemaField, val: unknown) {
+	scenarioOverrides = setByPath(scenarioOverrides, field.path, val);
+}
 
 async function guard(label: string, fn: () => Promise<void>) {
 	busy = label;
@@ -71,7 +80,7 @@ const simulate = () =>
 			{
 				design: currentDesign(),
 				ensemble,
-				overrides: { run: { revolutions } },
+				overrides: scenarioOverrides,
 			},
 			(j) => (job = j),
 		);
@@ -225,8 +234,13 @@ const sweepPlot = $derived.by(() => {
 	<div class="card">
 		<h2>{t("sim.title")}</h2>
 		<p class="muted">{t("design.current")}<b>{view.name}</b>{t("sim.intro.after")}</p>
+		<SchemaForm
+			schema={scenarioSchema as Record<string, unknown>}
+			sections={["run", "solver"]}
+			value={scenarioOverrides}
+			onchange={updateScenarioField}
+		/>
 		<div class="row center">
-			<label>{t("sim.revolutions")} <input type="number" min="0.5" max="6" step="0.5" bind:value={revolutions} /></label>
 			<label class="inline"><input type="checkbox" bind:checked={ensemble} /> {t("sim.ensemble")}</label>
 			<button class="btn primary" disabled={!!busy} onclick={simulate}>{t("sim.start")}</button>
 			{#if busy}

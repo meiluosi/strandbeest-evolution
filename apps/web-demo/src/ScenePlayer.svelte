@@ -81,9 +81,23 @@ $effect(() => {
 let revs = $state(1);
 let browserRun = $state<BrowserRun | null>(null);
 let progress = $state<{ phase: string; fraction: number } | null>(null);
+let tabHiddenDuringSim = $state(false);
+
+$effect(() => {
+	if (typeof document === "undefined") return;
+	const onVis = () => {
+		if (document.hidden && browserRun) {
+			tabHiddenDuringSim = true;
+		}
+	};
+	document.addEventListener("visibilitychange", onVis);
+	return () => document.removeEventListener("visibilitychange", onVis);
+});
+
 async function simulateHere() {
 	if (browserRun) return;
 	error = "";
+	tabHiddenDuringSim = false;
 	const run = simulateInBrowser(
 		currentDesign(),
 		key,
@@ -277,6 +291,9 @@ const rows = $derived(
 		<small>{STATIC ? t("scenes.recorded") : t("scenes.currentDesign", { name: view.name })}</small>
 		{#if previous}<label class="inline"><input type="checkbox" bind:checked={compare} /> {t("compare.toggle", { label: previous.label })}</label>{/if}
 	</div>
+	{#if tabHiddenDuringSim && browserRun}
+		<p class="notice">{t("scenes.browserBackgroundWarning")}</p>
+	{/if}
 	{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
 
 	{#if runs.length}

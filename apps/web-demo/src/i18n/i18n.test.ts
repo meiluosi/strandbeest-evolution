@@ -45,7 +45,17 @@ describe("catalogs", () => {
 			join(SRC, "../../../contracts/scenes.json"),
 			"utf8",
 		); // scene labels live in the shared presets file
-		const used = new Set<string>();
+		const schemaDir = join(SRC, "../../../schemas");
+		const schemas = readdirSync(schemaDir)
+			.filter((f) => f.endsWith(".schema.json"))
+			.map((f) => readFileSync(join(schemaDir, f), "utf8"))
+			.join("\n"); // x-group values are message keys, rendered by SchemaForm
+		const groups = [...schemas.matchAll(/"x-group":\s*"([\w.]+)"/g)].map(
+			(m) => m[1] as string,
+		);
+		for (const g of groups)
+			expect(zh, `missing group key ${g}`).toHaveProperty([g]);
+		const used = new Set<string>(groups);
 		for (const m of `${text}\n${extra}`.matchAll(
 			/"((?:[a-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9_]+)+)"/g,
 		))
