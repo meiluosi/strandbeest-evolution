@@ -1,0 +1,974 @@
+{
+ "seed": 1,
+ "n": 64,
+ "overrides": {},
+ "rows": [
+  {
+   "case": 0,
+   "legs": 4,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.6032483716138515,
+   "penetration_mm": 0.6372141153153498,
+   "energy_residual": 0.0010341869636090264,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 1,
+   "legs": 4,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 1.0131922931686521,
+   "penetration_mm": 0.6489901296320693,
+   "energy_residual": -0.00017323144196261216,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 2,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.5903214293283554,
+   "penetration_mm": 0.67562325286513,
+   "energy_residual": 0.002055174953323817,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 3,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.6831772967572647,
+   "penetration_mm": 0.6725432758135068,
+   "energy_residual": 0.0022729722686228447,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 4,
+   "legs": 6,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 64
+    }
+   },
+   "loop_open_mm": 4.174343935379632,
+   "penetration_mm": 0.7133794719134233,
+   "energy_residual": -0.0008982689329678789,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 5,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 4.348699608961226,
+   "penetration_mm": 0.7026749567938927,
+   "energy_residual": -0.01976205498080575,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 6,
+   "legs": 8,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 0.6839725945289032,
+   "penetration_mm": 0.7033208716122601,
+   "energy_residual": 0.00014715176261855233,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 7,
+   "legs": 4,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 5
+    }
+   },
+   "loop_open_mm": 1.6554643701907068,
+   "penetration_mm": 0.6343179700841455,
+   "energy_residual": 0.0003933627811110548,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 8,
+   "legs": 4,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.9222382800655182,
+   "penetration_mm": 0.6356349241040931,
+   "energy_residual": -0.00011101097634694286,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 9,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.6982345601920237,
+   "penetration_mm": 0.6632472755211931,
+   "energy_residual": 0.0012940433751534054,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 10,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.5504093091660972,
+   "penetration_mm": 0.6730540876889162,
+   "energy_residual": 0.0015946639517265123,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 11,
+   "legs": 6,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 76
+    }
+   },
+   "loop_open_mm": 2.1652865553143386,
+   "penetration_mm": 0.8468716355618227,
+   "energy_residual": null,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 12,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.9076597932242692,
+   "penetration_mm": 0.6739423767277968,
+   "energy_residual": 0.00010073883930766456,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 13,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.6587242823157535,
+   "penetration_mm": 0.6972623593608489,
+   "energy_residual": 0.002623750018009095,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 14,
+   "legs": 8,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 4
+   },
+   "loop_open_mm": 0.694215395130815,
+   "penetration_mm": 0.707647191425768,
+   "energy_residual": 4.152595787444492e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 15,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.706691140917648,
+   "penetration_mm": 0.6878337771161462,
+   "energy_residual": 0.00010548428232310964,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 16,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.7239062648363159,
+   "penetration_mm": 0.6820409958297312,
+   "energy_residual": 0.0022716999582376666,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 17,
+   "legs": 8,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 28
+    }
+   },
+   "loop_open_mm": 5.271774430104514,
+   "penetration_mm": 0.7378925827818249,
+   "energy_residual": -0.00224237734411509,
+   "stalled": false,
+   "findings": [
+    "loop_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 18,
+   "legs": 8,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 0.7255045303864449,
+   "penetration_mm": 0.707193329500309,
+   "energy_residual": 0.00011477149451318686,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 19,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 13.190819959248756,
+   "penetration_mm": 0.6227722659551109,
+   "energy_residual": -0.03286391980010915,
+   "stalled": false,
+   "findings": [
+    "energy_closure",
+    "loop_closure"
+   ],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 20,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 3.3338587381566143,
+   "penetration_mm": 0.7124480026058487,
+   "energy_residual": -0.0003260947508798206,
+   "stalled": false,
+   "findings": [
+    "stride_vs_kinematics"
+   ],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 21,
+   "legs": 4,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 37
+    }
+   },
+   "loop_open_mm": 1.6576366189777758,
+   "penetration_mm": 0.7512132658744046,
+   "energy_residual": -0.0002622410872850218,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 22,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.7078454996847228,
+   "penetration_mm": 0.6850927256022137,
+   "energy_residual": -3.9075933381317855e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 23,
+   "legs": 8,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 98
+    }
+   },
+   "loop_open_mm": 5.377353970584586,
+   "penetration_mm": 0.7531385062822509,
+   "energy_residual": -0.0010917777964275057,
+   "stalled": false,
+   "findings": [
+    "loop_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 24,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 4
+   },
+   "loop_open_mm": 0.9249811094398375,
+   "penetration_mm": 0.6778158247911485,
+   "energy_residual": 4.584081106000257e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 25,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 1.385330186808531,
+   "penetration_mm": 0.6898932736267415,
+   "energy_residual": -0.009518664641792967,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 26,
+   "legs": 4,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 0.5364591723306944,
+   "penetration_mm": 0.6408033876637003,
+   "energy_residual": 9.105701272943634e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 27,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.9788365587625469,
+   "penetration_mm": 0.6813070409467918,
+   "energy_residual": 0.0005289425102347467,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 28,
+   "legs": 4,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.7916817021094147,
+   "penetration_mm": 0.6307852355082587,
+   "energy_residual": -7.86434209977098e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 29,
+   "legs": 4,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 48
+    }
+   },
+   "loop_open_mm": 1.296419685091088,
+   "penetration_mm": 0.6453043031962157,
+   "energy_residual": 0.0001886491505446091,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 30,
+   "legs": 4,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 1.124972977648575,
+   "penetration_mm": 0.6422009702227848,
+   "energy_residual": -0.0002756692004968189,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 31,
+   "legs": 8,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 14
+    }
+   },
+   "loop_open_mm": 6.770471615319629,
+   "penetration_mm": 1.1822543266123957,
+   "energy_residual": -0.008851637417527284,
+   "stalled": false,
+   "findings": [
+    "loop_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 32,
+   "legs": 4,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 1.323525731963926,
+   "penetration_mm": 0.6538706659797149,
+   "energy_residual": -2.143802314275771e-06,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 33,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.8977561254148725,
+   "penetration_mm": 0.6962515597506834,
+   "energy_residual": 0.00037921978092879106,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 34,
+   "legs": 4,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 1.4201594141836082,
+   "penetration_mm": 0.6578114581388388,
+   "energy_residual": -3.684429761803272e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 35,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.8438252358373144,
+   "penetration_mm": 0.6822454582541531,
+   "energy_residual": 0.0014074199329809408,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 36,
+   "legs": 4,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.672007430321031,
+   "penetration_mm": 0.6398109419363234,
+   "energy_residual": -1.2031097353198716e-06,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 37,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 3.8905620032902988,
+   "penetration_mm": 0.7157312009766752,
+   "energy_residual": -0.003961458256676703,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 38,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.8132077836400242,
+   "penetration_mm": 0.6826622786080521,
+   "energy_residual": 0.0016928419786938981,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 39,
+   "legs": 4,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 55
+    }
+   },
+   "loop_open_mm": 1.663351806405089,
+   "penetration_mm": 0.6584386022439169,
+   "energy_residual": 0.000477423958459492,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 40,
+   "legs": 6,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 3
+    }
+   },
+   "loop_open_mm": 5.617602045424164,
+   "penetration_mm": 0.8247057463867651,
+   "energy_residual": -0.001037997882780824,
+   "stalled": false,
+   "findings": [
+    "loop_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 41,
+   "legs": 4,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 4
+   },
+   "loop_open_mm": 0.977897799327998,
+   "penetration_mm": 0.6337848250051857,
+   "energy_residual": 3.813556034938618e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 42,
+   "legs": 8,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 87
+    }
+   },
+   "loop_open_mm": 2.165425611151406,
+   "penetration_mm": 0.7000144095701387,
+   "energy_residual": 5.166751511215935e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 43,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 6
+   },
+   "loop_open_mm": 1.0566440592061355,
+   "penetration_mm": 0.6835260496907674,
+   "energy_residual": 2.7702005962199654e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 44,
+   "legs": 4,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 4
+   },
+   "loop_open_mm": 1.2773515151351944,
+   "penetration_mm": 0.6512900210354898,
+   "energy_residual": -2.9446188290928905e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 45,
+   "legs": 4,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 22
+    }
+   },
+   "loop_open_mm": 1.0322799974860075,
+   "penetration_mm": 0.6280893716649055,
+   "energy_residual": 0.0006477605508125628,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 46,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 4
+   },
+   "loop_open_mm": 0.8449663516283401,
+   "penetration_mm": 0.6740413564806074,
+   "energy_residual": 5.301015428731632e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 47,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.5618467933879573,
+   "penetration_mm": 0.5272760724663577,
+   "energy_residual": 0.0019158413642768757,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 48,
+   "legs": 6,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 21
+    }
+   },
+   "loop_open_mm": 1.635451886818018,
+   "penetration_mm": 0.6974219941393742,
+   "energy_residual": -0.009348301179281978,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 49,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 1.227573985426389,
+   "penetration_mm": 0.6613822796645001,
+   "energy_residual": 0.00034904423070690043,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 50,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.7168791760849835,
+   "penetration_mm": 0.7103426472443146,
+   "energy_residual": 0.0012961747179885499,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 51,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 6
+   },
+   "loop_open_mm": 2.1077074223860848,
+   "penetration_mm": 0.6560989697848972,
+   "energy_residual": -0.0003620798375778454,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 52,
+   "legs": 6,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 15
+    }
+   },
+   "loop_open_mm": 4.878830924330835,
+   "penetration_mm": 0.7411351115446069,
+   "energy_residual": -0.020589800138116822,
+   "stalled": false,
+   "findings": [
+    "energy_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 53,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 1.2686826269279194,
+   "penetration_mm": 0.7011124796581207,
+   "energy_residual": -0.00034141480910738684,
+   "stalled": false,
+   "findings": [
+    "stride_vs_kinematics"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 54,
+   "legs": 8,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 6
+   },
+   "loop_open_mm": 0.9666015651954574,
+   "penetration_mm": 0.7080119870946626,
+   "energy_residual": 4.532137589154966e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 55,
+   "legs": 8,
+   "terrain": {
+    "kind": "bumps",
+    "params": {
+     "count": 6,
+     "max_height": 0.004,
+     "start": 0.15,
+     "seed": 14
+    }
+   },
+   "loop_open_mm": 3.538692771998697,
+   "penetration_mm": 0.7620675067909063,
+   "energy_residual": -0.026781138700568682,
+   "stalled": false,
+   "findings": [
+    "energy_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 56,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.6180231002852199,
+   "penetration_mm": 0.7016601175948832,
+   "energy_residual": 0.0008034594237435172,
+   "stalled": false,
+   "findings": [
+    "stride_vs_kinematics"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 57,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 0.6463625817740848,
+   "penetration_mm": 0.6561179971601421,
+   "energy_residual": 0.0021492790033587218,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 58,
+   "legs": 8,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 9.266921786713844,
+   "penetration_mm": 0.7827816990084567,
+   "energy_residual": -0.029046730742774314,
+   "stalled": false,
+   "findings": [
+    "energy_closure",
+    "loop_closure"
+   ],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 59,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 0.6913737744866921,
+   "penetration_mm": 0.6710721736382079,
+   "energy_residual": 0.000126542644869568,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 60,
+   "legs": 8,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 2
+   },
+   "loop_open_mm": 0.8302457602695767,
+   "penetration_mm": 0.7144809871590645,
+   "energy_residual": 0.00010365417900170114,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 61,
+   "legs": 6,
+   "terrain": {
+    "kind": "flat"
+   },
+   "loop_open_mm": 2.8369184042622564,
+   "penetration_mm": 0.6772521467917052,
+   "energy_residual": -0.00027567579858161844,
+   "stalled": false,
+   "findings": [
+    "stride_vs_kinematics"
+   ],
+   "run_s": 7.198099999996563
+  },
+  {
+   "case": 62,
+   "legs": 6,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 6
+   },
+   "loop_open_mm": 1.3988573881871247,
+   "penetration_mm": 0.6552645028148878,
+   "energy_residual": 1.9873894913414726e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  },
+  {
+   "case": 63,
+   "legs": 8,
+   "terrain": {
+    "kind": "slope",
+    "slope_deg": 4
+   },
+   "loop_open_mm": 0.8277157648617361,
+   "penetration_mm": 0.7109638618146823,
+   "energy_residual": 7.46142712405608e-05,
+   "stalled": false,
+   "findings": [],
+   "run_s": 7.196099999996568
+  }
+ ]
+}

@@ -485,3 +485,41 @@ Section 16 left a known difference: for a leg that assembles at the 24 probe ang
 - `experiments/wind-objective-w6-s0.json` and `-s10.json` (section 4): seed 1 had found nothing better than Jansen's lengths, now it does (0.228 -> 0.286 m/s on flat ground).
 
 **What this does not change:** the qualitative reading of sections 1-4 (blind search finds the loop shape but not the lengths, most of the wind-objective gain is size) still holds; the numbers moved by a few percent to a few tenths. The size of the effect on the wind objective, where one seed changed from "no gain" to the best result, shows how much an unnoticed NaN can steer a GA. Model against model; nothing here is measured.
+
+## 27. The second loop-opening mechanism: a 64-walker audit and an exclusion list (S-07, 2026-10-21)
+
+Section 20 fixed the main cause (time step) on 16 walkers and left cases 4 and 5 at 4.2 and 4.4 mm. Model against model throughout: nothing here says anything about a printed linkage.
+
+**Larger sample.** `packages/sim/scripts/fuzz_audit.py experiments/fuzz-audit-64.json 64 1 6`: 64 random walkers from the section 20 generator (seed 1, so the first 16 are the walkers of section 20), default settings including the 0.1 ms time step.
+
+| | walkers | audit failures | median loop opening (mm) | worst (mm) |
+|---|---|---|---|---|
+| all | 64 | **12 (19 %)** | 1.00 | 13.19 |
+| flat | 30 | 5 | 0.81 | 9.27 |
+| bumps | 15 | 6 | 2.17 | 6.77 |
+| slope | 19 | 1 | 0.97 | 13.19 |
+| 4 legs | 16 | 0 | | |
+| 6 legs | 29 | 4 | | |
+| 8 legs | 19 | 8 | | |
+
+- Failures by check (one walker can fail two): loop closure 6, energy closure 4, stride vs kinematics 4. 12 walkers open a loop by more than 3 mm, 90th percentile 4.35 mm.
+- No walker stalled; deepest foot penetration median 0.68 mm, worst 1.18 mm. Largest energy residual 3.3 %, median 0.04 %.
+- **The "0 of 16" of section 20 does not carry over:** on 64 walkers the failure rate is 19 %. Section 20's sample was small, and walkers 17 onwards were new. 8-leg walkers fail 8 times out of 19 (42 %), 4-leg ones never; bumps fail 6 of 15. Leg count and terrain are confounded in this sample and I did not separate them.
+
+**Mechanism test.** `packages/sim/scripts/loop_mechanism.py`: the 12 failing walkers again, one setting changed at a time (loop opening in mm; the table counts walkers over 3 mm; raw rows in `experiments/fuzz-loop-mechanism.json`).
+
+| setting | over 3 mm (of 12) | median | worst |
+|---|---|---|---|
+| baseline | 9 | 5.08 | 13.19 |
+| time step 0.05 ms | 9 | 4.97 | 13.03 |
+| loop constraint time constant 0.5 ms (default 1 ms, `solver.solref_time`) | **1** | 2.29 | 4.63 |
+| motor torque cap 0.15 N·m (half) | 9 | 4.89 | 8.37 |
+| crank speed 1.0 rad/s (default 2.0) | **3** | 1.72 | 4.57 |
+
+**Reading**
+- **Excluded:** the time step (a second halving changes nothing: 9 of 12 either way), the solver iteration count and contact stiffness (section 20), and the motor torque cap as the direct cause (halving it leaves 9 of 12; it only lowers the worst case from 13.2 to 8.4 mm).
+- **Implicated:** how stiffly the loop constraint is held (time constant 0.5 ms: 9 of 12 -> 1 of 12) and how fast the crank is driven (half speed: 9 -> 3). Both fit a *dynamic* opening: the chain is pushed through its constraints faster than the soft constraint can follow. This is an inference from two knobs, not a measurement of the mechanism.
+- **Negative result inside the improvement:** the stiffer constraint is not better everywhere. Case 53 went from 1.3 to 2.6 mm and case 56 from 0.6 to 1.9 mm. The worst case after it (case 19, 4.63 mm) is still close to the 5 mm limit.
+- At the moment of the largest opening 10 of 12 walkers have 2 feet on the ground and 2 have 3. I have not measured how often 2 feet are down in normal steady walking, so this does **not** show that a thin support causes it (section 20 saw one foot down for its four walkers).
+
+**Not done, and why it matters.** The stiffer constraint was tried on the 12 failing walkers only. It has not been run on the 64 (it could create new failures among the 52 that pass), nor on the golden runs and the 16 of section 20. The defaults are therefore **unchanged**; this is a candidate, not a fix. S-07 is closed on its acceptance ("find the cause or an exclusion list; a sample of at least 64 with failure rate and largest opening"): the cause is narrowed, not found.
