@@ -8,6 +8,7 @@ backends = Registry("physics backend")
 
 
 def make_backend(name: str = "mujoco"):
+    from . import k2_backend  # noqa: F401
     from . import mujoco_backend  # noqa: F401  (registers "mujoco"; imported lazily so the engine is only loaded when used)
 
     return backends.get(name)()
