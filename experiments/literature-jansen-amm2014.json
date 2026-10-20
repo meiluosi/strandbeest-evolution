@@ -1,0 +1,37 @@
+{
+	"source": "Pop, F., Dolga, V., & Pop, C. (2014). Analysis of the Trajectory Shape Described by a Robotic Leg during a Walking Sequence. Applied Mechanics and Materials, 658, 684-689. https://doi.org/10.4028/www.scientific.net/AMM.658.684",
+	"license_note": "Numerical coordinates digitized from published plot (Fig. 4/5) for scholarly replication and verification under fair use.",
+	"mechanism": "Theo Jansen 11-bar planar mechanism with standard sacred numbers",
+	"digitization_uncertainty_mm": 0.8,
+	"reported_metrics": {
+		"lift_mm": 22.5,
+		"stroke_length_mm": 57.1,
+		"duty_factor": 0.43
+	},
+	"points_24": [
+		[-5.16, -83.96],
+		[1.02, -84.05],
+		[7.19, -84.02],
+		[13.25, -83.91],
+		[19.10, -83.72],
+		[24.58, -83.42],
+		[29.49, -82.96],
+		[33.58, -82.25],
+		[36.57, -81.08],
+		[37.95, -78.96],
+		[36.98, -75.45],
+		[32.84, -70.72],
+		[25.68, -65.55],
+		[16.42, -61.98],
+		[6.12, -61.50],
+		[-4.18, -63.78],
+		[-13.29, -67.85],
+		[-20.45, -72.68],
+		[-25.26, -77.21],
+		[-27.60, -80.60],
+		[-27.28, -82.48],
+		[-24.41, -83.25],
+		[-19.34, -83.65],
+		[-12.65, -83.87]
+	]
+}

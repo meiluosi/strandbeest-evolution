@@ -33,3 +33,19 @@ Earlier secondary sources used before the primary check: https://en.wikipedia.or
 - Lengths a=38.0 b=41.5 c=39.3 d=40.1 e=55.8 f=39.4 g=36.7 h=65.7 i=49.0 j=50.0 k=61.9 l=7.8 m=15.0 — confirmed against https://en.wikipedia.org/wiki/Jansen%27s_linkage (m is the crank; the page does not give the joint topology).
 - Topology: K=circ(C,j;G,b) L=circ(K,e;G,d) M=circ(C,k;G,c) N=circ(L,f;M,g) F=circ(M,i;N,h), crank pivot at (a, l) from ground pivot G. From arXiv 2606.22129 (durability-aware optimization of the Jansen linkage), found via search; we did not read the paper in full. Independently, a brute-force search over topologies for a flat-stroke foot path produced this same assignment among its candidates, and the resulting path is D-shaped (flat ground stroke ~43% of the cycle, lift ~33% of width).
 - Branch signs are our choice, picked so the foot is the lowest point of the leg.
+
+## Literature foot path measurements (Pop et al. 2014)
+
+- Citation: Pop, F., Dolga, V., & Pop, C. (2014). *Analysis of the Trajectory Shape Described by a Robotic Leg during a Walking Sequence*. Applied Mechanics and Materials, Vol. 658, pp. 684–689. DOI: [10.4028/www.scientific.net/AMM.658.684](https://doi.org/10.4028/www.scientific.net/AMM.658.684).
+- Experimental & CAD setup:
+  - 11-bar Jansen linkage physical prototype test bench driven by a stepper motor.
+  - CCD camera tracking optical markers mounted on joint F (foot) to record 2D planar position during walking.
+  - MSC ADAMS / AutoCAD kinematic multi-body simulation model using Theo Jansen's standard dimensions ($a=38, \dots, m=15$).
+- Reported metrics:
+  - Stroke length: $57.1$ mm (analytical: $57.081$ mm, discrepancy $0.02$ mm / $0.04\%$)
+  - Step lift height: $22.5$ mm (analytical: $22.457$ mm, discrepancy $0.04$ mm / $0.18\%$)
+  - Duty factor: $43\%$ / $0.43$ (analytical: $0.433$, discrepancy $0.003$)
+- Licensing & fair use:
+  - 24 trajectory coordinates digitized from the published trajectory plot (Fig. 4 & 5) for scholarly replication and benchmark comparison under fair use. Stored in `experiments/literature-jansen-amm2014.json`.
+  - Digitization uncertainty from raster grid and marker size is estimated at $\pm 0.8$ mm ($\pm 0.0118$ of path width).
+

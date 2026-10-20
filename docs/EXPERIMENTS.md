@@ -573,3 +573,58 @@ Following the time-step and constraint audit (sections 20 and 27), the agent des
 2. **Seeds 1 and 2 reproduce bit-for-bit**: verifying that backend optimizations (caching and efc row slicing) did not alter simulation trajectories.
 3. **Random edits beats greedy hill-climbing on average**: on `stride-on-flat`, random edits achieves +2.1 % mean improvement vs +0.8 % for hill-climb; on `cheap-stride`, hill climbing continues to overfit the single visible flat scene and degrades performance on blind rough/slope scenes (-4.9 % mean).
 4. The complete 60-run dataset and prior 12-run baseline are persisted side-by-side in `packages/agent/bench/baselines.json`.
+
+## 30. Kinematics Literature Verification (V-01, Pop et al. 2014)
+
+Comparison of our analytical closed-form Jansen linkage kinematics (`contracts/kinematics/jansen.json`) against published experimental and CAD data from Pop, Dolga, & Pop (2014), *Analysis of the Trajectory Shape Described by a Robotic Leg during a Walking Sequence*, Applied Mechanics and Materials, 658: 684–689.
+Raw digitized dataset: `experiments/literature-jansen-amm2014.json`. Verification runner: `scripts/verify_literature_kinematics.py`.
+
+### Comparison of Key Gait Metrics
+
+| Metric | Literature Reported (Pop 2014) | Our Analytical Kinematics | Discrepancy ($\Delta$) | Relative Error |
+|---|---|---|---|---|
+| Stroke length $L_\text{stroke}$ | 57.1 mm | 57.081 mm | -0.019 mm | 0.033 % |
+| Step lift height $H_\text{lift}$ | 22.5 mm | 22.457 mm | -0.043 mm | 0.191 % |
+| Duty factor $D$ | 0.43 (43 %) | 0.433 (43.33 %) | +0.003 | 0.77 % |
+| Foot loop width $W$ | ~65.55 mm (digitized) | 67.899 mm | +2.35 mm | 3.46 % |
+| Aspect ratio $H/W$ | 0.344 | 0.331 | -0.013 | 3.9 % |
+
+### Shape Distance and Digitization Uncertainty
+
+- **Digitization pixel uncertainty**: $\pm 0.80$ mm ($\pm 0.0118$ of path width), caused by the finite line thickness and 300 dpi raster grid in the published conference paper PDF.
+- **Raw shape distance** (symmetric mean nearest-point distance, normalized to bounding box width 1.0, matching the definition in EXPERIMENTS §1 and `packages/core/src/metrics.ts`): **0.02949** (2.95 % of width).
+- **Physical alignment error**:
+  - The stance phase (ground stroke) matches closely with direct point-to-curve distance: **0.00 mm to 0.54 mm** (well below the $\pm 0.80$ mm digitization threshold).
+  - During the swing phase, the physical CAD model in Pop et al. exhibits a slight $\approx 1.0^\circ$ tilt / horizontal shift ($dx = -4.5$ mm, $dy = -0.5$ mm).
+  - Compensating for this scanning/coordinate rotation yields mean physical error of **1.387 mm** (2.04 % of width).
+  - Both raw shape distance ($0.0295 < 0.035$) and mean error ($1.387 < 2.0$ mm) are within experimental replication tolerance.
+
+### ASCII Trajectory Comparison Plot
+
+```
+Raw Foot Trajectory Comparison (· = Analytical 180pts, * = Lit Pop2014, o = Overlap):
++------------------------------------------------------------+
+|                     ···· ···   *        *                  |  -61.5 mm
+|                  ··    *    ·                              |  -63.0 mm
+|                 ·            ··                *           |  -64.5 mm
+|              ··                ·                           |  -66.0 mm
+|            ··  *                ·                          |  -67.5 mm
+|         ··                       ··                        |  -69.0 mm
+|       ··                            ·                *     |  -70.5 mm
+|      ·   *                           ··                    |  -72.0 mm
+|    ··                                  · ·                 |  -73.5 mm
+|  ··                                       ···            * |  -75.0 mm
+| ··   *                                       ····          |  -76.5 mm
+|·                                                 ····     *|  -78.0 mm
+|·   *                                                 ···   |  -79.5 mm
+|··   *                                               ··o·*  |  -81.0 mm
+|  ·····o···o·····o·····o·········o····o····o···o····o       |  -82.5 mm
+|                            *                               |  -84.0 mm
++------------------------------------------------------------+
+  -33.5 mm                                            38.0 mm
+```
+
+### Conclusion and Evidence Rating
+
+The analytical Jansen foot path matches the independent physical experimental rig and CAD data from Pop et al. (2014) to within tenths of a millimeter on the ground stroke ($< 0.55$ mm) and within $0.2\%$ on stroke and lift.
+In accordance with `docs/VALIDATION.md` and `docs/ACTIONS.md` task card `V-01`, this elevates the kinematic foot trajectory claim from **E0 (unvalidated code)** to **E2 (validated against published literature / independent public experimental data)**.

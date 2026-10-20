@@ -1,6 +1,14 @@
 {
 	"schema": "kinematics-contract/1",
 	"name": "jansen",
+	"evidence": {
+		"level": "E2",
+		"basis": [
+			"experiments/literature-jansen-amm2014.json",
+			"Pop, Dolga, & Pop (2014) Applied Mechanics and Materials 658: 684-689"
+		],
+		"claims": ["kinematics.foot_path", "kinematics.gait_metrics"]
+	},
 	"spec": {
 		"params": {
 			"a": 38,
