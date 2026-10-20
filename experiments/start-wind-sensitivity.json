@@ -1,0 +1,1117 @@
+{
+  "baseline": {
+    "label": "baseline",
+    "overrides": {},
+    "lo": 0.4788016403492868,
+    "hi": 0.5,
+    "estimate": 0.48928603104385004,
+    "found": true,
+    "trusted": true,
+    "note": "",
+    "runs": [
+      {
+        "wind": 0.5,
+        "started": true,
+        "time_s": 37.19010000011105,
+        "distance_m": 0.2786579627761261,
+        "valid": true
+      },
+      {
+        "wind": 0.25,
+        "started": false,
+        "time_s": 10.000099999990033,
+        "distance_m": 0.001417059175237216,
+        "valid": true
+      },
+      {
+        "wind": 0.3535533905932738,
+        "started": false,
+        "time_s": 39.99810000020427,
+        "distance_m": 0.0046687746932415905,
+        "valid": true
+      },
+      {
+        "wind": 0.4204482076268573,
+        "started": false,
+        "time_s": 39.99810000020427,
+        "distance_m": 0.010969764520976599,
+        "valid": true
+      },
+      {
+        "wind": 0.4585020216023356,
+        "started": false,
+        "time_s": 39.99810000020427,
+        "distance_m": 0.1661983472520374,
+        "valid": true
+      },
+      {
+        "wind": 0.4788016403492868,
+        "started": false,
+        "time_s": 39.99810000020427,
+        "distance_m": 0.2428249777429652,
+        "valid": true
+      }
+    ]
+  },
+  "rows": [
+    {
+      "label": "crank_friction low",
+      "overrides": {
+        "drive": {
+          "crank_friction": 0.001
+        }
+      },
+      "lo": 0.46854190852757494,
+      "hi": 0.48928603104385004,
+      "estimate": 0.4788016403492868,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": true,
+          "time_s": 38.37810000015049,
+          "distance_m": 0.2785973250033811,
+          "valid": true
+        },
+        {
+          "wind": 0.24464301552192502,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.0013053709208136635,
+          "valid": true
+        },
+        {
+          "wind": 0.345977470490958,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.004324795028820156,
+          "valid": true
+        },
+        {
+          "wind": 0.4114388695384912,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.009112051956083998,
+          "valid": true
+        },
+        {
+          "wind": 0.44867726875077674,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.15293964816974,
+          "valid": true
+        },
+        {
+          "wind": 0.46854190852757494,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.212093904796484,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "crank_friction high",
+      "overrides": {
+        "drive": {
+          "crank_friction": 0.004
+        }
+      },
+      "lo": 0.48928603104385004,
+      "hi": 0.5109485743270583,
+      "estimate": 0.49999999999999994,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.25507121189630416,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 9.228099999991832,
+          "distance_m": 0.2784209859737209,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 15.844099999976413,
+          "distance_m": 0.2786048320583998,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": true,
+          "time_s": 22.936099999959886,
+          "distance_m": 0.2786193512267011,
+          "valid": true
+        },
+        {
+          "wind": 0.5335702003384117,
+          "started": true,
+          "time_s": 29.44809999994471,
+          "distance_m": 0.2786225477611349,
+          "valid": true
+        },
+        {
+          "wind": 0.5109485743270583,
+          "started": true,
+          "time_s": 34.438100000019695,
+          "distance_m": 0.27864108079506195,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "crank_damping low",
+      "overrides": {
+        "drive": {
+          "crank_damping": 0.0005
+        }
+      },
+      "lo": 0.46854190852757494,
+      "hi": 0.48928603104385004,
+      "estimate": 0.4788016403492868,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": true,
+          "time_s": 38.7941000001643,
+          "distance_m": 0.27862884248154807,
+          "valid": true
+        },
+        {
+          "wind": 0.24464301552192502,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.001305381272377537,
+          "valid": true
+        },
+        {
+          "wind": 0.345977470490958,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.004324877136638284,
+          "valid": true
+        },
+        {
+          "wind": 0.4114388695384912,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.009112139936353767,
+          "valid": true
+        },
+        {
+          "wind": 0.44867726875077674,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.1524701328723775,
+          "valid": true
+        },
+        {
+          "wind": 0.46854190852757494,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.20988861146617382,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "crank_damping high",
+      "overrides": {
+        "drive": {
+          "crank_damping": 0.002
+        }
+      },
+      "lo": 0.48928603104385004,
+      "hi": 0.5109485743270583,
+      "estimate": 0.49999999999999994,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.24446647868049215,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 9.680099999990778,
+          "distance_m": 0.2784828523779241,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 16.97009999997379,
+          "distance_m": 0.2786281420545552,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": true,
+          "time_s": 24.75409999995565,
+          "distance_m": 0.27863049833400344,
+          "valid": true
+        },
+        {
+          "wind": 0.5335702003384117,
+          "started": true,
+          "time_s": 31.88009999993904,
+          "distance_m": 0.2786984057738488,
+          "valid": true
+        },
+        {
+          "wind": 0.5109485743270583,
+          "started": true,
+          "time_s": 37.3241000001155,
+          "distance_m": 0.2786973617558705,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "sail_drag_coeff low",
+      "overrides": {
+        "drive": {
+          "sail_drag_coeff": 0.6
+        }
+      },
+      "lo": 0.6626183215798707,
+      "hi": 0.691954940981916,
+      "estimate": 0.6771277734684464,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.004325133573776686,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 12.316099999984635,
+          "distance_m": 0.278491843024387,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 32.40209999995211,
+          "distance_m": 0.27858359856494663,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.009112560302064601,
+          "valid": true
+        },
+        {
+          "wind": 0.6345254785958666,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.19232054725701975,
+          "valid": true
+        },
+        {
+          "wind": 0.6626183215798707,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.25494387272309316,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "sail_drag_coeff high",
+      "overrides": {
+        "drive": {
+          "sail_drag_coeff": 2.4
+        }
+      },
+      "lo": 0.36129520174426166,
+      "hi": 0.37729110689835565,
+      "estimate": 0.36920653648487484,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": true,
+          "time_s": 19.842099999967097,
+          "distance_m": 0.2786419393770821,
+          "valid": true
+        },
+        {
+          "wind": 0.24464301552192502,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.0043233271483415995,
+          "valid": true
+        },
+        {
+          "wind": 0.345977470490958,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.20255977488187163,
+          "valid": true
+        },
+        {
+          "wind": 0.4114388695384912,
+          "started": true,
+          "time_s": 28.83009999994615,
+          "distance_m": 0.278648192330035,
+          "valid": true
+        },
+        {
+          "wind": 0.37729110689835565,
+          "started": true,
+          "time_s": 37.172100000110454,
+          "distance_m": 0.27865578826126075,
+          "valid": true
+        },
+        {
+          "wind": 0.36129520174426166,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.24910929941087737,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "sail_area low",
+      "overrides": {
+        "drive": {
+          "sail_area": 0.015
+        }
+      },
+      "lo": 0.6626183215798707,
+      "hi": 0.691954940981916,
+      "estimate": 0.6771277734684464,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.004325133573776686,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 12.316099999984635,
+          "distance_m": 0.278491843024387,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 32.40209999995211,
+          "distance_m": 0.27858359856494663,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.009112560302064601,
+          "valid": true
+        },
+        {
+          "wind": 0.6345254785958666,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.19232054725701975,
+          "valid": true
+        },
+        {
+          "wind": 0.6626183215798707,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.25494387272309316,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "sail_area high",
+      "overrides": {
+        "drive": {
+          "sail_area": 0.06
+        }
+      },
+      "lo": 0.36129520174426166,
+      "hi": 0.37729110689835565,
+      "estimate": 0.36920653648487484,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": true,
+          "time_s": 19.842099999967097,
+          "distance_m": 0.2786419393770821,
+          "valid": true
+        },
+        {
+          "wind": 0.24464301552192502,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.0043233271483415995,
+          "valid": true
+        },
+        {
+          "wind": 0.345977470490958,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.20255977488187163,
+          "valid": true
+        },
+        {
+          "wind": 0.4114388695384912,
+          "started": true,
+          "time_s": 28.83009999994615,
+          "distance_m": 0.278648192330035,
+          "valid": true
+        },
+        {
+          "wind": 0.37729110689835565,
+          "started": true,
+          "time_s": 37.172100000110454,
+          "distance_m": 0.27865578826126075,
+          "valid": true
+        },
+        {
+          "wind": 0.36129520174426166,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.24910929941087737,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "sail_gear low",
+      "overrides": {
+        "drive": {
+          "sail_gear": 5.0
+        }
+      },
+      "lo": 0.6076236799902345,
+      "hi": 0.6345254785958666,
+      "estimate": 0.620928906036742,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.004325628312807806,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 7.712099999995365,
+          "distance_m": 0.2781180474017654,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 20.366099999965876,
+          "distance_m": 0.2784456843248971,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.009113497242617109,
+          "valid": true
+        },
+        {
+          "wind": 0.6345254785958666,
+          "started": true,
+          "time_s": 37.50010000012134,
+          "distance_m": 0.27850148771088634,
+          "valid": true
+        },
+        {
+          "wind": 0.6076236799902345,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.11388280964099058,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "sail_gear high",
+      "overrides": {
+        "drive": {
+          "sail_gear": 20.0
+        }
+      },
+      "lo": 0.42965482453061943,
+      "hi": 0.44867726875077674,
+      "estimate": 0.4390630400933248,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": true,
+          "time_s": 33.12809999997621,
+          "distance_m": 0.2786846060565141,
+          "valid": true
+        },
+        {
+          "wind": 0.24464301552192502,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.004279399212680718,
+          "valid": true
+        },
+        {
+          "wind": 0.345977470490958,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.11107226907851737,
+          "valid": true
+        },
+        {
+          "wind": 0.4114388695384912,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.21764988384082026,
+          "valid": true
+        },
+        {
+          "wind": 0.44867726875077674,
+          "started": true,
+          "time_s": 39.556100000189595,
+          "distance_m": 0.2786826035740186,
+          "valid": true
+        },
+        {
+          "wind": 0.42965482453061943,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2494639377623603,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "foot_friction low",
+      "overrides": {
+        "walker": {
+          "foot_friction": 0.75
+        }
+      },
+      "lo": 0.48928603104385004,
+      "hi": 0.5109485743270583,
+      "estimate": 0.49999999999999994,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.258317063393702,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 9.00609999999235,
+          "distance_m": 0.278401290173954,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 15.592099999977,
+          "distance_m": 0.27859053670932915,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": true,
+          "time_s": 22.606099999960655,
+          "distance_m": 0.27864832140787393,
+          "valid": true
+        },
+        {
+          "wind": 0.5335702003384117,
+          "started": true,
+          "time_s": 29.03609999994567,
+          "distance_m": 0.2786264885343689,
+          "valid": true
+        },
+        {
+          "wind": 0.5109485743270583,
+          "started": true,
+          "time_s": 33.966100000004026,
+          "distance_m": 0.27866465444711436,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "foot_friction high",
+      "overrides": {
+        "walker": {
+          "foot_friction": 3.0
+        }
+      },
+      "lo": 0.46854190852757494,
+      "hi": 0.48928603104385004,
+      "estimate": 0.4788016403492868,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": true,
+          "time_s": 33.906100000002034,
+          "distance_m": 0.26260223599930255,
+          "valid": true
+        },
+        {
+          "wind": 0.24464301552192502,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.01111531000089815,
+          "valid": true
+        },
+        {
+          "wind": 0.345977470490958,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.012747611804040875,
+          "valid": true
+        },
+        {
+          "wind": 0.4114388695384912,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.014587904712732788,
+          "valid": true
+        },
+        {
+          "wind": 0.44867726875077674,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.20265038904158117,
+          "valid": true
+        },
+        {
+          "wind": 0.46854190852757494,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.25768009766672767,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "contact_stiffness low",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 150000.0
+        }
+      },
+      "lo": 0.48928603104385004,
+      "hi": 0.5109485743270583,
+      "estimate": 0.49999999999999994,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.25516165639960947,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 9.008099999992345,
+          "distance_m": 0.2776955597852052,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 15.604099999976972,
+          "distance_m": 0.2778286769158497,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": true,
+          "time_s": 22.66809999996051,
+          "distance_m": 0.2779062625308209,
+          "valid": true
+        },
+        {
+          "wind": 0.5335702003384117,
+          "started": true,
+          "time_s": 29.18209999994533,
+          "distance_m": 0.2778917152914653,
+          "valid": true
+        },
+        {
+          "wind": 0.5109485743270583,
+          "started": true,
+          "time_s": 34.200100000011794,
+          "distance_m": 0.2779352720402503,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "contact_stiffness high",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 600000.0
+        }
+      },
+      "lo": 0.48928603104385004,
+      "hi": 0.5109485743270583,
+      "estimate": 0.49999999999999994,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2662612154644074,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 9.018099999992321,
+          "distance_m": 0.2791542775148352,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 15.570099999977051,
+          "distance_m": 0.27938087084746294,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": true,
+          "time_s": 22.456099999961005,
+          "distance_m": 0.27939539843979877,
+          "valid": true
+        },
+        {
+          "wind": 0.5335702003384117,
+          "started": true,
+          "time_s": 28.724099999946397,
+          "distance_m": 0.27941855551658173,
+          "valid": true
+        },
+        {
+          "wind": 0.5109485743270583,
+          "started": true,
+          "time_s": 33.50409999998869,
+          "distance_m": 0.27936017229327637,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "joint_friction low",
+      "overrides": {
+        "walker": {
+          "joint_friction": 0.0005
+        }
+      },
+      "lo": 1.0218971486541166,
+      "hi": 1.0671404006768235,
+      "estimate": 1.0442737824274138,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.015521146010264771,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2100404055435385,
+          "valid": true
+        },
+        {
+          "wind": 1.9571441241754002,
+          "started": true,
+          "time_s": 5.906099999999574,
+          "distance_m": 0.2781437523849872,
+          "valid": true
+        },
+        {
+          "wind": 1.383909881963832,
+          "started": true,
+          "time_s": 15.334099999977601,
+          "distance_m": 0.27895118779316813,
+          "valid": true
+        },
+        {
+          "wind": 1.1637248587775775,
+          "started": true,
+          "time_s": 29.106099999945506,
+          "distance_m": 0.27922302168017604,
+          "valid": true
+        },
+        {
+          "wind": 1.0671404006768235,
+          "started": true,
+          "time_s": 39.27210000018017,
+          "distance_m": 0.27934777516382814,
+          "valid": true
+        },
+        {
+          "wind": 1.0218971486541166,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.24479946257693705,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "joint_friction high",
+      "overrides": {
+        "walker": {
+          "joint_friction": 0.002
+        }
+      },
+      "lo": 1.2690509571917332,
+      "hi": 1.3252366431597413,
+      "estimate": 1.2968395546510096,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.015519992248208846,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.15747822134724854,
+          "valid": true
+        },
+        {
+          "wind": 1.9571441241754002,
+          "started": true,
+          "time_s": 15.544099999977112,
+          "distance_m": 0.2792393997279696,
+          "valid": true
+        },
+        {
+          "wind": 1.383909881963832,
+          "started": true,
+          "time_s": 33.63609999999307,
+          "distance_m": 0.27957964653870493,
+          "valid": true
+        },
+        {
+          "wind": 1.1637248587775775,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2277862636264201,
+          "valid": true
+        },
+        {
+          "wind": 1.2690509571917332,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2765597355921645,
+          "valid": true
+        },
+        {
+          "wind": 1.3252366431597413,
+          "started": true,
+          "time_s": 36.856100000099964,
+          "distance_m": 0.2796105562848867,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "joint_damping low",
+      "overrides": {
+        "walker": {
+          "joint_damping": 0.0002
+        }
+      },
+      "lo": 0.5335702003384117,
+      "hi": 0.5571933712979462,
+      "estimate": 0.5452538663326287,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.16676840753734973,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 12.500099999984206,
+          "distance_m": 0.27873265491690874,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": true,
+          "time_s": 22.770099999960273,
+          "distance_m": 0.2788728135224628,
+          "valid": true
+        },
+        {
+          "wind": 0.5818624293887887,
+          "started": true,
+          "time_s": 33.9081000000021,
+          "distance_m": 0.2788811635982793,
+          "valid": true
+        },
+        {
+          "wind": 0.5335702003384117,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2473064507834838,
+          "valid": true
+        },
+        {
+          "wind": 0.5571933712979462,
+          "started": true,
+          "time_s": 38.34010000014923,
+          "distance_m": 0.2788811663504317,
+          "valid": true
+        }
+      ]
+    },
+    {
+      "label": "joint_damping high",
+      "overrides": {
+        "walker": {
+          "joint_damping": 0.001
+        }
+      },
+      "lo": 0.7225904034885233,
+      "hi": 0.7545822137967113,
+      "estimate": 0.7384130729697497,
+      "found": true,
+      "trusted": true,
+      "note": "",
+      "runs": [
+        {
+          "wind": 0.48928603104385004,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.07032261409893391,
+          "valid": true
+        },
+        {
+          "wind": 0.9785720620877001,
+          "started": true,
+          "time_s": 23.408099999958786,
+          "distance_m": 0.2792891483683882,
+          "valid": true
+        },
+        {
+          "wind": 0.691954940981916,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2411035366910555,
+          "valid": true
+        },
+        {
+          "wind": 0.8228777390769824,
+          "started": true,
+          "time_s": 32.22809999994633,
+          "distance_m": 0.2793533844960607,
+          "valid": true
+        },
+        {
+          "wind": 0.7545822137967113,
+          "started": true,
+          "time_s": 38.30410000014803,
+          "distance_m": 0.27938333527287024,
+          "valid": true
+        },
+        {
+          "wind": 0.7225904034885233,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.2600520264445184,
+          "valid": true
+        }
+      ]
+    }
+  ],
+  "note": "start wind = lowest constant wind (m/s) at which the crank completes one revolution within 40 s; interval (lo, hi]"
+}

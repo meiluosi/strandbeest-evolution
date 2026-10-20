@@ -16,7 +16,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 from strandbeest_common import Design
 from strandbeest_common.schemas import schema_dir
-from strandbeest_sim import scenario_from_design
+from strandbeest_sim import scenario_from_design, sim_config
 from strandbeest_sim.startwind import find_start_wind, simulate_attempt
 
 # (name, section, field, low, high); None as the baseline means "read the default from the scenario"
@@ -50,7 +50,7 @@ def search(job: tuple[str, dict, float]) -> dict:
 def main() -> None:
     out_path = sys.argv[1]
     workers = int(sys.argv[2]) if len(sys.argv) > 2 else 4
-    sc = scenario_from_design(design())
+    sc = sim_config(scenario_from_design(design()))  # the flat configuration: the overrides below use its section names
     base = search(("baseline", {}, 0.5))
     guess = base["estimate"] if base["found"] else 0.5
     jobs: list[tuple[str, dict, float]] = []

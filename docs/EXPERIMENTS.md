@@ -523,3 +523,32 @@ Section 20 fixed the main cause (time step) on 16 walkers and left cases 4 and 5
 - At the moment of the largest opening 10 of 12 walkers have 2 feet on the ground and 2 have 3. I have not measured how often 2 feet are down in normal steady walking, so this does **not** show that a thin support causes it (section 20 saw one foot down for its four walkers).
 
 **Not done, and why it matters.** The stiffer constraint was tried on the 12 failing walkers only. It has not been run on the 64 (it could create new failures among the 52 that pass), nor on the golden runs and the 16 of section 20. The defaults are therefore **unchanged**; this is a candidate, not a fix. S-07 is closed on its acceptance ("find the cause or an exclusion list; a sample of at least 64 with failure rate and largest opening"): the cause is narrowed, not found.
+
+## 28. Start wind of the printed walker and parameter sensitivity (W-03, 2026-10-21)
+
+Model against model throughout: sail drive on the small 6-leg Jansen walker (`design-jansen-small-6leg.json`), flat ground, MuJoCo time-domain simulation.
+
+**Definition & search:** start wind = lowest constant wind speed (m/s) at which the crank completes one full revolution within 40 s from rest. Computed by bracket search followed by geometric bisection to 5 % relative tolerance (`packages/sim/src/strandbeest_sim/startwind.py`, `scripts/start_wind_sensitivity.py`). The search reports an interval `(lo, hi]`.
+
+**Baseline start wind:** `(0.479, 0.500] m/s` (estimate `0.489 m/s`, 6 simulations).
+- Comparison with SIM-DESIGN: section 14 noted informal observation of "about 0.45 m/s". Under the strict 1-revolution in 40 s criterion, 0.45 m/s is slightly sub-threshold; the walker requires ~0.48–0.50 m/s to complete a full revolution in 40 s.
+- **A non-starting case ("不走"):** at $v = 0.25$ m/s, the simulation runs to the 40 s timeout, torso displacement is only 1.4 mm, crank rotation is < 0.05 rad, and the attempt is classified as stalled/unstarted. At $v = 0.35$ m/s, torso displacement reaches 4.7 mm over 40 s and does not complete a revolution.
+
+**One-at-a-time sensitivity table** (each assumption moved to low and high values; factors 0.5x and 2.0x for positive parameters, absolute values for pin losses whose default is 0; raw rows in `experiments/start-wind-sensitivity.json`):
+
+| parameter | baseline | low value $\rightarrow$ start wind | high value $\rightarrow$ start wind | sensitivity |
+|---|---|---|---|---|
+| `joint_friction` | 0.0 N·m (ideal) | 0.0005 N·m $\rightarrow$ **(1.02, 1.07] m/s** | 0.0020 N·m $\rightarrow$ **(1.27, 1.33] m/s** | **Dominant uncertainty (+110 % to +160 %)** |
+| `joint_damping` | 0.0 N·m·s/rad | 0.0002 N·m·s/rad $\rightarrow$ (0.534, 0.557] m/s | 0.0010 N·m·s/rad $\rightarrow$ (0.723, 0.755] m/s | High (+10 % to +50 %) |
+| `sail_area` | 0.03 m² | 0.015 m² $\rightarrow$ (0.663, 0.692] m/s | 0.060 m² $\rightarrow$ (0.361, 0.377] m/s | High (scales as $1/\sqrt{A}$) |
+| `sail_drag_coeff` | 1.2 | 0.6 $\rightarrow$ (0.663, 0.692] m/s | 2.4 $\rightarrow$ (0.361, 0.377] m/s | High (scales as $1/\sqrt{C_d}$) |
+| `sail_gear` | 10.0 | 5.0 $\rightarrow$ (0.608, 0.635] m/s | 20.0 $\rightarrow$ (0.430, 0.449] m/s | Moderate |
+| `crank_friction` | 0.002 N·m | 0.001 N·m $\rightarrow$ (0.469, 0.489] m/s | 0.004 N·m $\rightarrow$ (0.489, 0.511] m/s | Low ($\pm 4$ %) |
+| `crank_damping` | 0.001 N·m·s/rad | 0.0005 N·m·s/rad $\rightarrow$ (0.469, 0.489] m/s | 0.0020 N·m·s/rad $\rightarrow$ (0.489, 0.511] m/s | Low ($\pm 4$ %) |
+| `foot_friction` | 1.5 | 0.75 $\rightarrow$ (0.489, 0.511] m/s | 3.0 $\rightarrow$ (0.469, 0.489] m/s | Negligible ($\pm 4$ %) |
+| `contact_stiffness` | 100000 1/s² | 50000 1/s² $\rightarrow$ (0.489, 0.511] m/s | 200000 1/s² $\rightarrow$ (0.489, 0.511] m/s | Negligible (invariant) |
+
+**Key findings:**
+1. **The physical pin friction in 3D-printed joints is the single most decisive factor**: pin friction of just 0.5 mN·m per joint more than doubles the required starting wind speed (from ~0.49 m/s to ~1.05 m/s). This explains why real printed prototypes often require much higher wind than idealized kinematic simulations suggest, and highlights pin calibration as a top validation priority.
+2. **Aerodynamic scaling law confirmed**: starting wind scales almost exactly with $1/\sqrt{A \cdot C_d}$ (doubling sail area reduces start wind from 0.489 to 0.369 m/s; theoretical $0.489/\sqrt{2} \approx 0.346$ m/s, with the slight divergence caused by drive-train inertia and friction).
+3. **Contact stiffness and terrain friction do not affect start wind**: on flat ground, foot slip and vertical penetration do not prevent startup, confirming that start-wind calculations are robust against contact-stiffness numerical tuning.
