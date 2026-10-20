@@ -552,3 +552,24 @@ Model against model throughout: sail drive on the small 6-leg Jansen walker (`de
 1. **The physical pin friction in 3D-printed joints is the single most decisive factor**: pin friction of just 0.5 mN·m per joint more than doubles the required starting wind speed (from ~0.49 m/s to ~1.05 m/s). This explains why real printed prototypes often require much higher wind than idealized kinematic simulations suggest, and highlights pin calibration as a top validation priority.
 2. **Aerodynamic scaling law confirmed**: starting wind scales almost exactly with $1/\sqrt{A \cdot C_d}$ (doubling sail area reduces start wind from 0.489 to 0.369 m/s; theoretical $0.489/\sqrt{2} \approx 0.346$ m/s, with the slight divergence caused by drive-train inertia and friction).
 3. **Contact stiffness and terrain friction do not affect start wind**: on flat ground, foot slip and vertical penetration do not prevent startup, confirming that start-wind calculations are robust against contact-stiffness numerical tuning.
+
+## 29. Agent design benchmark baselines: 10-seed statistical baseline (Q-05, 2026-10-21)
+
+Following the time-step and constraint audit (sections 20 and 27), the agent design benchmark (`packages/agent/bench/`) was re-run with 10 random seeds per cell (previously 2 seeds in section 18). Both tasks (`stride-on-flat`, `cheap-stride`) and all three baseline agents (`random-edits`, `hill-climb`, `cmaes-proxy`) were evaluated under identical tool budgets (6 simulations and 40 operations; visible scene `flat`, scored on blind scenes).
+
+**Baselines comparison (old 2 seeds vs new 10 seeds, scores as relative % improvement):**
+
+| task | agent | old seeds 1 / 2 | new mean $\pm$ std (10 seeds) | new min / max | disqualified |
+|---|---|---|---|---|---|
+| `stride-on-flat` | `random-edits` | +4.8 % / +3.5 % | **+2.1 % $\pm$ 1.6 %** | 0.0 % / +4.8 % | 0 / 10 (0 %) |
+| `stride-on-flat` | `hill-climb` | 0.0 % / 0.0 % | **+0.8 % $\pm$ 1.6 %** | 0.0 % / +4.0 % | 0 / 10 (0 %) |
+| `stride-on-flat` | `cmaes-proxy` | 0.0 % / +4.0 % | **-1.9 % $\pm$ 4.1 %** | -12.3 % / +4.0 % | 0 / 10 (0 %) |
+| `cheap-stride` | `random-edits` | 0.0 % / +6.3 % | **-3.1 % $\pm$ 5.9 %** | -12.3 % / +6.3 % | 0 / 10 (0 %) |
+| `cheap-stride` | `hill-climb` | -13.4 % / -12.6 % | **-4.9 % $\pm$ 6.1 %** | -13.4 % / +2.6 % | 0 / 10 (0 %) |
+| `cheap-stride` | `cmaes-proxy` | 0.0 % / 0.0 % | **-2.8 % $\pm$ 4.3 %** | -10.6 % / 0.0 % | 0 / 10 (0 %) |
+
+**Reading and findings:**
+1. **Skeptic disqualification rate is 0 / 60 (0 %)**: with the 0.1 ms time-step, zero runs were rejected due to numerical loop openings or bad energy closure on blind scenes. This confirms the baseline environment is numerically stable for benchmark scoring.
+2. **Seeds 1 and 2 reproduce bit-for-bit**: verifying that backend optimizations (caching and efc row slicing) did not alter simulation trajectories.
+3. **Random edits beats greedy hill-climbing on average**: on `stride-on-flat`, random edits achieves +2.1 % mean improvement vs +0.8 % for hill-climb; on `cheap-stride`, hill climbing continues to overfit the single visible flat scene and degrades performance on blind rough/slope scenes (-4.9 % mean).
+4. The complete 60-run dataset and prior 12-run baseline are persisted side-by-side in `packages/agent/bench/baselines.json`.
