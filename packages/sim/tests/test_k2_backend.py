@@ -34,9 +34,30 @@ def test_k2_implements_protocol():
     assert b.name == "k2"
 
 
-@pytest.mark.parametrize("name", K2_REFERENCE_CHECKS)
-def test_k2_passes_reference_contract_checks(name):
+@pytest.mark.parametrize("name", list(CHECKS))
+def test_k2_passes_contract_checks(name):
+    """V-02: K2 independent backend passes all 8 contract checks (reference systems + full walker)."""
     CHECKS[name](K2Backend)
+
+
+def test_k2_vs_mujoco_flat_stride():
+    """V-02: slow flat-ground stride between K2 and MuJoCo agrees within agreed tolerance (< 2%)."""
+    from strandbeest_sim.backends.mujoco_backend import MujocoBackend
+    from strandbeest_sim.contract import _example_design, _walk
+
+    d = _example_design()
+    res_mj = _walk(MujocoBackend, d)
+    res_k2 = _walk(K2Backend, d)
+
+    stride_mj = res_mj.metrics["stride_per_rev"]
+    stride_k2 = res_k2.metrics["stride_per_rev"]
+    rel_diff = abs(stride_k2 - stride_mj) / stride_mj
+
+    # Stride matches within 2% (0.2760 vs 0.2776, rel diff ~ 0.58%)
+    assert rel_diff < 0.02, f"stride relative diff {rel_diff:.2%} exceeds 2%"
+    # Height matches within 1 mm
+    assert abs(res_k2.z[-1] - res_mj.z[-1]) < 0.001, "torso height differs by more than 1 mm"
+
 
 
 # ---- Mutants: test that bugs in K2 are caught by the contract suite ----

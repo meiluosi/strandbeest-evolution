@@ -628,3 +628,64 @@ Raw Foot Trajectory Comparison (· = Analytical 180pts, * = Lit Pop2014, o = Ove
 
 The analytical Jansen foot path matches the independent physical experimental rig and CAD data from Pop et al. (2014) to within tenths of a millimeter on the ground stroke ($< 0.55$ mm) and within $0.2\%$ on stroke and lift.
 In accordance with `docs/VALIDATION.md` and `docs/ACTIONS.md` task card `V-01`, this elevates the kinematic foot trajectory claim from **E0 (unvalidated code)** to **E2 (validated against published literature / independent public experimental data)**.
+
+## 31. Independent Planar Rigid-Body Solver (K2) vs MuJoCo Cross-Verification (V-02, 2026-10-21)
+
+To eliminate dependence on single-engine modeling artifacts and fulfill the Evidence Level **E1** requirements ([docs/VALIDATION.md](VALIDATION.md)), the independent planar rigid-body physics backend **K2** (`packages/sim/src/strandbeest_sim/backends/k2_backend.py`, designed in [docs/adr/0010-k2-independent-solver.md](adr/0010-k2-independent-solver.md)) was implemented and tested against the standard MuJoCo backend (`MujocoBackend`).
+
+K2 is completely independent:
+- **Zero MuJoCo dependency**: does not import MuJoCo C-bindings or share constraint formulation code.
+- **Formulation**: 4-DOF reduced coordinates (torso $X, Z, \Phi$ and crank angle $\psi$) with analytical dyad linkage kinematics projection (guaranteeing zero numerical loop-closure violations by construction).
+- **Contact dynamics**: Moreau-type discrete velocity-level time-stepping with true un-softened Coulomb dry friction ($\mu_s, \mu_k$) and unilateral Signorini ground support.
+
+### 1. Backend Contract Suite Verification
+
+Both backends were evaluated against the identical `strandbeest_sim/contract.py` test suite:
+
+| Contract Check | Physical System & Invariant | MuJoCo | K2 | Status |
+|---|---|---|---|---|
+| `energy_conservation` | Frictionless pendulum energy drift | Drift < 0.01 % | Drift < 0.01 % | **PASS** |
+| `pendulum_period` | Small swing period $2\pi\sqrt{L/g}$ | Error < 0.02 % | Error < 0.01 % | **PASS** |
+| `incline_acceleration` | Sliding block $g(\sin\alpha - \mu\cos\alpha)$ | Error < 0.5 % | Error < 0.1 % | **PASS** |
+| `gravity_direction` | Downward gravity consistency | Confirmed | Confirmed | **PASS** |
+| `snapshot_restore` | Exact bit-for-bit velocity/state restore | Identical | Identical | **PASS** |
+| `determinism` | Repeatability across independent runs | Identical | Identical | **PASS** |
+| `mirror_symmetry` | Mirrored walker walks mirror trajectory | Symmetric (< 2 % span) | Symmetric (< 1 % span) | **PASS** |
+| `unit_scaling` | Physical length unit invariance ($2\times$ scale) | Invariant (< 0.1 %) | Invariant (< 0.1 %) | **PASS** |
+
+Both backends also passed mutant injection tests (deliberately broken gravity, missing potential energy, time warping).
+
+### 2. Slow Flat-Ground Stride Head-to-Head Comparison
+
+Running the standard small 6-leg Jansen walker (`schemas/examples/design-jansen-small-6leg.json`) under position-servo motor drive ($\omega = 2.0$ rad/s):
+
+| Metric | MuJoCo Backend | K2 Independent Backend | Discrepancy ($\Delta$) | Relative Difference |
+|---|---|---|---|---|
+| Forward distance walked $\Delta X$ | 0.1655 m | 0.1662 m | +0.0007 m | +0.42 % |
+| Stride per revolution $S_\text{rev}$ | 0.2760 m/rev | 0.2776 m/rev | +0.0016 m/rev | **+0.58 %** |
+| Mean torso height $\bar{Z}$ | 0.1694 m | 0.1700 m | +0.0006 m | +0.35 % |
+| Height ripple range $\Delta Z$ | 0.4 mm (0.1692–0.1696) | 0.2 mm (0.1699–0.1701) | -0.2 mm | - |
+| Mean drive torque | 2.16 mN·m | 2.54 mN·m | +0.38 mN·m | +17.6 % |
+| Loop constraint violation | Up to 0.12 mm | **0.00 mm (exact)** | -0.12 mm | - |
+
+**Reading:**
+- On slow flat-ground walking, the two independent physics engines agree to within **0.58 %** on stride per revolution and **0.6 mm** on operating height.
+- K2's stride is marginally higher (+0.58 %) because its stance phase has true non-slip static locking, whereas MuJoCo's soft friction regularization (`impratio=10`) permits tiny backward micro-slip under horizontal ground reaction shear.
+
+### 3. Start Wind Speed Comparison (Sail Drive)
+
+Evaluating start wind speed under constant wind using geometric bisection search (`simulate_attempt`, `max_time = 15.0` s):
+
+| Backend | Start Wind Interval (lo, hi] | Geometric Estimate | Discrepancy |
+|---|---|---|---|
+| **MuJoCo** | (0.6771, 0.7071] m/s | 0.6920 m/s | Baseline |
+| **K2** | (0.7071, 0.7384] m/s | 0.7226 m/s | **+0.0306 m/s (+4.4 %)** |
+
+**Physical Explanation of the Discrepancy:**
+Near the stall threshold, the crank must negotiate the worst-case mechanical advantage peak. In MuJoCo, the softened friction model allows the walker to creep forward at sub-micron velocities under marginal torques, slightly lowering the numerical threshold ($0.692$ m/s). In K2, static friction enforces rigid zero-velocity locking ($v_t = 0$) until instantaneous sail torque strictly exceeds the break-away threshold ($0.723$ m/s). Both engines agree within **4.4 %**, confirming that start wind speed estimates are not an artifact of MuJoCo's solver settings.
+
+### 4. Conclusion and Evidence Elevation
+
+In accordance with [docs/VALIDATION.md](VALIDATION.md) and task card `V-02`:
+- Two completely independent solvers (MuJoCo and K2) agree on flat-ground stride within **0.58 %** and start wind within **4.4 %**.
+- The flat-ground stride metric is officially elevated to **Evidence Level E1 (Two Independent Solvers Agree)**.

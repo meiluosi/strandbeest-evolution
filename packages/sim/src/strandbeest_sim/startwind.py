@@ -107,16 +107,24 @@ def find_start_wind(
     return done("" if hi / lo <= 1 + rel_tol else f"stopped after {len(runs)} simulations with hi/lo = {hi / lo:.3f}", lo, hi)
 
 
-def simulate_attempt(design: Design, overrides: dict[str, Any] | None = None, *, max_time: float = MAX_TIME_S, give_up: float = GIVE_UP_S) -> Attempt:
-    """The real attempt: MuJoCo, sail drive, constant wind. `overrides` are scenario sections as for `scenario_from_design`
-    (e.g. {"drive": {"crank_friction": 0.004}, "walker": {"joint_friction": 0.001}}); drive kind, the wind and the run window are fixed here."""
+def simulate_attempt(
+    design: Design,
+    overrides: dict[str, Any] | None = None,
+    *,
+    backend: str = "mujoco",
+    max_time: float = MAX_TIME_S,
+    give_up: float = GIVE_UP_S,
+) -> Attempt:
+    """The attempt: sail drive, constant wind. `backend` selects the physics backend ("mujoco" or "k2").
+    `overrides` are scenario sections as for `scenario_from_design` (e.g. {"drive": {"crank_friction": 0.004}}).
+    """
 
     def attempt(wind: float) -> dict[str, Any]:
         ov = {k: dict(v) for k, v in (overrides or {}).items()}
         ov.setdefault("drive", {})["kind"] = "sail"
         ov["wind"] = {**ov.get("wind", {}), "kind": "constant", "speed": wind}
         ov["run"] = {**ov.get("run", {}), "revolutions": 1.0, "settle": 0.5, "give_up_after": give_up, "max_time": max_time, "frame_rate": 0}
-        r = run(scenario_from_design(design, ov))
+        r = run(scenario_from_design(design, ov), backend=backend)
         return {
             "started": not r.stalled,
             "time_s": float(r.t[-1]),
