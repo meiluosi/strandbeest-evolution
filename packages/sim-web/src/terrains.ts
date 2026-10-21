@@ -74,6 +74,25 @@ export function terrainPlan(sc: SimConfig): TerrainPlan {
 			return plan({
 				softness: [num(p.stiffness, 4000.0), num(p.damping, 120.0)],
 			});
+		case "ramp": {
+			const start = num(p.start, 0.3);
+			const height = num(p.height, 0.03);
+			const length = num(p.length, 0.25);
+			const angle = num(p.angle_deg, 20.0);
+			const mid = start + length / 2;
+			const z = height / 2 + (length / 2) * Math.sin((angle * Math.PI) / 180);
+			return plan({
+				obstacles: [
+					{
+						name: "ramp",
+						pos: [mid, 0, z],
+						size: [length / 2, 5, height / 2],
+						friction: t.friction,
+						intSlots: true,
+					},
+				],
+			});
+		}
 		default:
 			throw new Error(`unknown terrain '${t.kind}'`);
 	}

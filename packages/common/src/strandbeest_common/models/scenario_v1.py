@@ -68,10 +68,10 @@ class Wind(_Strict):
 class Terrain(_Strict):
     """Terrain"""
 
-    kind: str = Field(default='flat', description='Terrain kind: flat, slope, step, bumps, ...')
+    kind: str = Field(default='flat', description='Terrain kind: flat, slope, step, bumps, ramp, ...')
     friction: float = Field(default=1.5, gt=0, description='Ground friction coefficient')
     slope_deg: float = Field(default=0.0, description='Slope angle (implemented by tilting gravity)')
-    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters')
+    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg)')
 
 
 class Drive(_Strict):

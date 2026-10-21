@@ -99,3 +99,36 @@ def test_every_scene_has_a_time_limit_so_a_blocked_walker_ends_as_stalled():
     for name in presets():
         run_ov = scene_overrides(name)["run"]
         assert 0 < run_ov["max_time"] <= 60, name
+
+
+def test_ramp_plan_matches_its_assumptions():
+    """The ramp terrain of docs/EXTENDING.md: a tilted box starting at `start` metres."""
+    import math
+
+    from strandbeest_sim.config import sim_config
+    from strandbeest_sim.registry import terrains
+
+    cfg = sim_config(sc(terrain={"kind": "ramp"}))
+    plan = terrains.get("ramp")(cfg)
+    assert len(plan.obstacles) == 1
+    box = plan.obstacles[0]
+    assert box.name == "ramp"
+    # defaults: start 0.3 m, height 0.03 m, length 0.25 m, angle 20 deg
+    assert box.size[0] == pytest.approx(0.25 / 2)
+    assert box.size[2] == pytest.approx(0.03 / 2)
+    assert box.pos[0] == pytest.approx(0.3 + 0.25 / 2)
+    assert box.pos[2] == pytest.approx(0.03 / 2 + (0.25 / 2) * math.sin(math.radians(20.0)))
+    # the friction comes from the scenario
+    assert box.friction == cfg.terrain.friction
+
+
+def test_ramp_params_override_the_defaults():
+    from strandbeest_sim.config import sim_config
+    from strandbeest_sim.registry import terrains
+
+    cfg = sim_config(sc(terrain={"kind": "ramp", "params": {"start": 0.2, "length": 0.4, "angle_deg": 90.0}}))
+    box = terrains.get("ramp")(cfg).obstacles[0]
+    assert box.size[0] == pytest.approx(0.2)
+    assert box.pos[0] == pytest.approx(0.4)
+    # a 90 degree ramp stands upright: its centre rises by the half length
+    assert box.pos[2] == pytest.approx(0.03 / 2 + 0.2, abs=1e-12)

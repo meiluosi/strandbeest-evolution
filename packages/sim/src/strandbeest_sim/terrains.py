@@ -50,3 +50,20 @@ def soft(sc: SimConfig) -> TerrainPlan:
     The softness must apply to both the terrain and the feet: for two geoms with direct solref MuJoCo uses the stiffer one
     (until 2026-10-06 only the feet were softened and "soft" ground behaved exactly like flat ground; docs/EXPERIMENTS.md section 13)."""
     return TerrainPlan(softness=(float(sc.terrain.params.get("stiffness", 4000.0)), float(sc.terrain.params.get("damping", 120.0))))
+
+
+@terrains.register("ramp")
+def ramp(sc: SimConfig) -> TerrainPlan:
+    """A short inclined platform the feet must climb (not a vertical step).
+
+    The ramp is a single box tilted about the y axis, starting at `start` metres.  The angle and the height are assumptions:
+    a printed ramp is not a wedge unless you model it.  The tilt is geometric only; `TerrainPlan.slope_deg` is the other
+    mechanism (tilted gravity), and a ramp is not the same thing as the "slope" terrain."""
+    p = sc.terrain.params
+    start = float(p.get("start", 0.3))
+    height = float(p.get("height", 0.03))
+    length = float(p.get("length", 0.25))
+    angle = float(p.get("angle_deg", 20.0))
+    mid = start + length / 2
+    z = height / 2 + (length / 2) * math.sin(math.radians(angle))
+    return TerrainPlan(obstacles=(Box("ramp", (mid, 0, z), (length / 2, 5, height / 2), sc.terrain.friction),))

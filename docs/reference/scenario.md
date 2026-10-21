@@ -22,10 +22,10 @@
 | `world.wind.speed` | `number` | `0.0` | `m/s` | ≥ 0 | `group.wind`<br>affects: `sim` | 平均风速（风推动帆，不直接推机身）<br>Mean wind speed (the wind pushes the sail drive, not the body) |
 | `world.wind.params` | `object` | `{}` | – | – | `group.wind`<br>affects: `sim` | 随类型而定的参数，如阵风 {amplitude, period}<br>Kind-specific parameters, e.g. gusts {amplitude, period} |
 | `world.terrain` | `Terrain` | `{}` | – | – | `group.terrain` | 地形<br>Terrain |
-| `world.terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps……<br>Terrain kind: flat, slope, step, bumps, ... |
+| `world.terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps、ramp……<br>Terrain kind: flat, slope, step, bumps, ramp, ... |
 | `world.terrain.friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.terrain`<br>affects: `sim` | 地面摩擦系数<br>Ground friction coefficient<br>*Source*: Smooth-floor guess; a calibration target |
 | `world.terrain.slope_deg` | `number` | `0.0` | `deg` | – | `group.terrain`<br>affects: `sim` | 坡度（用倾斜重力实现）<br>Slope angle (implemented by tilting gravity) |
-| `world.terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数<br>Kind-specific parameters |
+| `world.terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg) |
 | `entities` | array<`Entity`> | *(required)* | – | – | – | 放进世界里的实体<br>The entities placed in the world |
 | `entities[].name` | `string` | *(required)* | – | – | – | 实体名（命名空间，如 walker）<br>Entity name (the namespace, e.g. walker) |
 | `entities[].kind` | enum `"walker"` | *(required)* | – | – | – | 实体种类；walker 需要 linkage、body、drive 三个组件<br>Entity kind; a walker needs the linkage, body and drive components |

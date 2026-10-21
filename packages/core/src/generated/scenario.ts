@@ -64,13 +64,13 @@ export interface ScenarioWind {
 
 /** Terrain */
 export interface ScenarioTerrain {
-	/** Terrain kind: flat, slope, step, bumps, ... (default: "flat") */
+	/** Terrain kind: flat, slope, step, bumps, ramp, ... (default: "flat") */
 	kind?: string;
 	/** Ground friction coefficient (unit: 1; default: 1.5; assumption) */
 	friction?: number;
 	/** Slope angle (implemented by tilting gravity) (unit: deg; default: 0.0) */
 	slope_deg?: number;
-	/** Kind-specific parameters */
+	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg) */
 	params?: Record<string, unknown>;
 }
 

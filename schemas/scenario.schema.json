@@ -402,8 +402,8 @@
 					"x-group": "group.terrain",
 					"x-affects": ["sim"],
 					"x-doc": {
-						"zh": "地形类型：flat、slope、step、bumps……",
-						"en": "Terrain kind: flat, slope, step, bumps, ..."
+						"zh": "地形类型：flat、slope、step、bumps、ramp……",
+						"en": "Terrain kind: flat, slope, step, bumps, ramp, ..."
 					}
 				},
 				"friction": {
@@ -438,8 +438,8 @@
 					"default": {},
 					"x-group": "group.terrain",
 					"x-doc": {
-						"zh": "随类型而定的参数",
-						"en": "Kind-specific parameters"
+						"zh": "随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）",
+						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg)"
 					},
 					"x-affects": ["sim"]
 				}

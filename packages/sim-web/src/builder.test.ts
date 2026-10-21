@@ -77,3 +77,38 @@ describe("MJCF builder matches the Python builder", () => {
 		});
 	}
 });
+
+describe("the ramp terrain matches its assumptions (docs/EXTENDING.md)", () => {
+	const rampCfg = (params?: Record<string, number>) =>
+		scenarioFromDesign(corpus.designs.base as Design, {
+			terrain: { kind: "ramp", ...(params ? { params } : {}) },
+		});
+	const rampBox = (params?: Record<string, number>) => {
+		const plan = terrainPlan(rampCfg(params));
+		expect(plan.obstacles.length).toBe(1);
+		const box = plan.obstacles[0];
+		if (!box) throw new Error("the ramp terrain produced no obstacle");
+		return box;
+	};
+
+	it("puts a tilted box of the default size at the default start", () => {
+		const box = rampBox();
+		expect(box.name).toBe("ramp");
+		// defaults: start 0.3 m, height 0.03 m, length 0.25 m, angle 20 deg
+		expect(box.size[0]).toBeCloseTo(0.25 / 2, 12);
+		expect(box.size[2]).toBeCloseTo(0.03 / 2, 12);
+		expect(box.pos[0]).toBeCloseTo(0.3 + 0.25 / 2, 12);
+		expect(box.pos[2]).toBeCloseTo(
+			0.03 / 2 + (0.25 / 2) * Math.sin((20 * Math.PI) / 180),
+			12,
+		);
+	});
+
+	it("lets the scenario parameters override the defaults", () => {
+		const box = rampBox({ start: 0.2, length: 0.4, angle_deg: 90.0 });
+		expect(box.size[0]).toBeCloseTo(0.2, 12);
+		expect(box.pos[0]).toBeCloseTo(0.4, 12);
+		// a 90 degree ramp stands upright: its centre rises by the half length
+		expect(box.pos[2]).toBeCloseTo(0.03 / 2 + 0.2, 12);
+	});
+});

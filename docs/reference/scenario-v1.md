@@ -42,10 +42,10 @@
 | `wind.speed` | `number` | `0.0` | `m/s` | ≥ 0 | `group.wind`<br>affects: `sim` | 平均风速（风推动帆，不直接推机身）<br>Mean wind speed (the wind pushes the sail drive, not the body) |
 | `wind.params` | `object` | `{}` | – | – | `group.wind`<br>affects: `sim` | 随类型而定的参数，如阵风 {amplitude, period}<br>Kind-specific parameters, e.g. gusts {amplitude, period} |
 | `terrain` | `Terrain` | `{}` | – | – | `group.terrain` | 地形<br>Terrain |
-| `terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps……<br>Terrain kind: flat, slope, step, bumps, ... |
+| `terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps、ramp……<br>Terrain kind: flat, slope, step, bumps, ramp, ... |
 | `terrain.friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.terrain`<br>affects: `sim` | 地面摩擦系数<br>Ground friction coefficient<br>*Source*: Smooth-floor guess; a calibration target |
 | `terrain.slope_deg` | `number` | `0.0` | `deg` | – | `group.terrain`<br>affects: `sim` | 坡度（用倾斜重力实现）<br>Slope angle (implemented by tilting gravity) |
-| `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数<br>Kind-specific parameters |
+| `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg) |
 | `drive` | `Drive` | `{}` | – | – | `group.drive` | 驱动<br>Drive |
 | `drive.kind` | `string` | `"motor"` | – | – | `group.drive`<br>affects: `sim` | 驱动类型：motor（位置伺服）或 sail（风帆）<br>Drive kind: motor (position servo) or sail |
 | `drive.omega` | `number` | `0.3` | `rad/s` | – | `group.drive`<br>affects: `sim` | 沿行走方向的曲柄转速（电机驱动）<br>Crank speed in the walking direction (motor drive) |
