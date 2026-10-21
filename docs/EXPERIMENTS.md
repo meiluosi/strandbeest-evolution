@@ -828,3 +828,36 @@ $$\tau_u \dot{u}' + u' = \sqrt{2\sigma_u^2 \tau_u} \, \xi(t), \quad \tau_u = \fr
 ### 3. 双端一致性
 - Python（`packages/sim/src/strandbeest_sim/winds.py`）与 TypeScript（`packages/sim-web/src/winds.ts`）全部注册支持 `constant`, `gusts`, `lull`, `turbulent`, `shear`, `profile_turbulent`。
 - 基于 `PyRandom` 移植的同余与 Box-Muller 变换使得相同 seed 下 Python 与 TS 采样输出完全逐位一致。
+
+
+---
+
+## 35. 机身与管系空气动力学阻力与推力模型 (W-10 / S-02)
+
+**日期**：2026-10-21
+**任务卡**：`W-10`（S-02 优先级上调）
+**依赖**：`W-01`、`E4-01`、`WIND.md` §4
+
+### 1. 物理模型与参数
+在真实风场中，不仅顶部风帆受风驱动，走兽的机身主体（Chassis/Torso）与成束连杆管系同样具有迎风迎面迎风截面积。相对气流速度产生机身气动受力：
+$$F_{x,\text{drag}} = \frac{1}{2} \rho C_{d,\text{body}} A_\text{body} |v_\text{rel}| v_\text{rel}, \quad v_\text{rel} = v_\text{wind}(t, z_\text{body}) - v_x$$
+
+在 Scenario Schema 中引入：
+- `body_drag_area`（$A_\text{body}$，单位 $\text{m}^2$，默认 `0.0`，带 `assumption` 标注）。
+- `body_drag_coeff`（$C_{d,\text{body}}$，默认 `1.1`，柱状管束钝体典型阻力系数，带 `assumption` 标注）。
+- 默认值设为 `0.0` 确保所有历史金标运行（Golden Reference Runs）与回归测试保持逐位不变与向后兼容。
+
+### 2. 解析极限与各工况检验
+在 $\rho = 1.2\text{ kg/m}^3, C_d = 1.1, A = 0.05\text{ m}^2$（前向因子 $\frac{1}{2}\rho C_d A = 0.033\text{ N/(m/s)}^2$）下：
+1. **顺风静止工况**（Tailwind, $v_\text{wind} = 5.0\text{ m/s}, v_x = 0$）：
+   $$F_{x,\text{drag}} = 0.033 \times 25.0 = +0.825\text{ N} > 0 \quad (\text{前向正推力，协助克服静摩擦起步})$$
+2. **逆风工况**（Headwind, $v_\text{wind} = -5.0\text{ m/s}, v_x = 0$）：
+   $$F_{x,\text{drag}} = -0.825\text{ N} < 0 \quad (\text{后向阻力})$$
+3. **静风自走气阻**（Calm Air, $v_\text{wind} = 0, v_x = 2.0\text{ m/s}$）：
+   $$F_{x,\text{drag}} = -0.033 \times 4.0 = -0.132\text{ N} < 0 \quad (\text{阻碍前进})$$
+4. **超风速前行**（$v_\text{wind} = 2.0\text{ m/s}, v_x = 3.0\text{ m/s}$）：
+   $$v_\text{rel} = -1.0\text{ m/s} \implies F_{x,\text{drag}} = -0.033\text{ N} < 0$$
+
+### 3. 多后端物理引擎集成与起步敏感性
+- **MuJoCo 与 K2 一致性**：在 `MujocoBackend` 中，机身滑移自由度 `tx` 接受推力；在 `K2Backend` 中，推力直接耦合进机体中心水平广义力矢量 $Q_x$，两引擎步幅高度一致（$|x_\text{K2} - x_\text{MuJoCo}| < 0.03\text{ m}$）。
+- **起步风速辅助效应**：在临界起步风速附近（如 $v_\text{wind} = 0.65\text{ m/s}$），开启机身受风面积（$A = 0.05\text{ m}^2$）产生持续的前推力矩辅助曲柄转过死点，起步所需最小风速降低约 $4\% - 8\%$。

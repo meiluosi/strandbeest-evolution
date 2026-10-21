@@ -3,9 +3,9 @@
 
 > The flat scenario of schema version 1 (one walker, its environment, drive and solver in one object). The simulator still runs on this shape internally; scenarios are written as schema version 2 (World + Entities) and migrated with strandbeest_common.migrate.
 
-- **Fields documented**: 66
-- **Assumed parameters (`x-assumption: true`)**: 19
-- **Calibratable parameters (`x-calibratable: true`)**: 8
+- **Fields documented**: 68
+- **Assumed parameters (`x-assumption: true`)**: 21
+- **Calibratable parameters (`x-calibratable: true`)**: 10
 
 ## Field Table / 字段总表
 
@@ -32,6 +32,8 @@
 | `walker.foot_friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 脚与地面的摩擦系数<br>Foot friction coefficient<br>*Source*: Rubber-ish pad guess; a calibration target |
 | `walker.joint_friction` | `number` | `0.0` | `N·m` | range `[0.0, 0.005]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 连杆销轴处的库仑摩擦扭矩（每个销轴）；0 表示理想无摩擦<br>Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins<br>*Source*: Unknown for printed pin joints (fit and surface finish decide it); 0 keeps the earlier ideal behaviour. A calibration target, and the sail start wind is sensitive to it (docs/WIND.md) |
 | `walker.joint_damping` | `number` | `0.0` | `N·m·s/rad` | range `[0.0, 0.002]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 连杆销轴处的粘性阻尼（每个销轴）；0 表示无阻尼<br>Viscous damping at every linkage pin; 0 means undamped<br>*Source*: Unknown for printed pin joints; 0 keeps the earlier ideal behaviour. A calibration target |
+| `walker.body_drag_area` | `number` | `0.0` | `m²` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.walker`<br>affects: `sim` | 机身与暴露连杆的有效迎风面积；0 表示忽略机体风阻<br>Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag<br>*Source*: Chassis frontal silhouette and tube projected area guess (docs/WIND.md W-10); 0 keeps legacy ideal behavior |
+| `walker.body_drag_coeff` | `number` | `1.1` | `1` | range `[0.5, 2.0]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.walker`<br>affects: `sim` | 机身与管束的迎风阻力系数（圆柱管束约为 1.0–1.2）<br>Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays)<br>*Source*: Cross-flow cylinder array bluff body aerodynamics standard literature estimate (docs/WIND.md W-10) |
 | `environment` | `Environment` | `{}` | – | – | `group.environment` | 环境<br>Environment |
 | `environment.gravity` | `number` | `9.81` | `m/s²` | ≥ 0 | `group.environment`<br>affects: `sim` | 重力加速度<br>Gravitational acceleration |
 | `environment.air_density` | `number` | `1.2` | `kg/m³` | ≥ 0 | `group.environment`<br>affects: `sim` | 空气密度；决定帆的扭矩<br>Air density; scales the sail torque |

@@ -9,16 +9,16 @@
 | Schema | Reference | Fields | Assumptions (`x-assumption`) | Calibratable (`x-calibratable`) |
 | :--- | :--- | ---: | ---: | ---: |
 | `schemas/design.schema.json` | [design.md](design.md) | 55 | 14 | 4 |
-| `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 71 | 19 | 8 |
+| `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 73 | 21 | 10 |
 | `schemas/run.schema.json` | [run.md](run.md) | 41 | 0 | 0 |
 | `schemas/measurement.schema.json` | [measurement.md](measurement.md) | 31 | 0 | 0 |
 | `schemas/profile.schema.json` | [profile.md](profile.md) | 12 | 0 | 0 |
 | `schemas/ops.schema.json` | [ops.md](ops.md) | 4 | 0 | 0 |
-| `schemas/scenario-v1.schema.json` | [scenario-v1.md](scenario-v1.md) | 66 | 19 | 8 |
+| `schemas/scenario-v1.schema.json` | [scenario-v1.md](scenario-v1.md) | 68 | 21 | 10 |
 
 ## 2. Assumptions Inventory / 我们到底猜了哪些参数（`x-assumption: true`）
 
-Total assumed parameters in `Design` and `Scenario`: **33**. Every physical guess is a named field with a documented source and is saved with every `Run`.
+Total assumed parameters in `Design` and `Scenario`: **35**. Every physical guess is a named field with a documented source and is saved with every `Run`.
 
 | Schema | Field Path | Default | Unit | Calibratable | Source / Justification (`x-source`) | 说明 (zh) / Description (en) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -44,6 +44,8 @@ Total assumed parameters in `Design` and `Scenario`: **33**. Every physical gues
 | `scenario` | `entities[].components.body.foot_friction` | `1.5` | `1` | yes (`calibratable`) | Rubber-ish pad guess; a calibration target | 脚与地面的摩擦系数<br>Foot friction coefficient |
 | `scenario` | `entities[].components.body.joint_friction` | `0.0` | `N·m` | yes (`calibratable`) | Unknown for printed pin joints (fit and surface finish decide it); 0 keeps the earlier ideal behaviour. A calibration target, and the sail start wind is sensitive to it (docs/WIND.md) | 连杆销轴处的库仑摩擦扭矩（每个销轴）；0 表示理想无摩擦<br>Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins |
 | `scenario` | `entities[].components.body.joint_damping` | `0.0` | `N·m·s/rad` | yes (`calibratable`) | Unknown for printed pin joints; 0 keeps the earlier ideal behaviour. A calibration target | 连杆销轴处的粘性阻尼（每个销轴）；0 表示无阻尼<br>Viscous damping at every linkage pin; 0 means undamped |
+| `scenario` | `entities[].components.body.body_drag_area` | `0.0` | `m²` | yes (`calibratable`) | Chassis frontal silhouette and tube projected area guess (docs/WIND.md W-10); 0 keeps legacy ideal behavior | 机身与暴露连杆的有效迎风面积；0 表示忽略机体风阻<br>Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag |
+| `scenario` | `entities[].components.body.body_drag_coeff` | `1.1` | `1` | yes (`calibratable`) | Cross-flow cylinder array bluff body aerodynamics standard literature estimate (docs/WIND.md W-10) | 机身与管束的迎风阻力系数（圆柱管束约为 1.0–1.2）<br>Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays) |
 | `scenario` | `entities[].components.drive.kp` | `5000.0` | `N·m/rad` | no | Numerical knob: stiff enough to track the commanded angle | 位置伺服刚度<br>Position-servo stiffness |
 | `scenario` | `entities[].components.drive.max_torque` | `null` | `N·m` | yes (`calibratable`) | Stall torque of N20-class gear motors is of this order; measure yours | 电机扭矩上限；null 表示不限（只适合理想的强制运动）。不设限时，脚被挡住会把连杆撑开<br>Motor torque limit; null = unlimited, only sensible for ideal prescribed motion. Without a limit a blocked foot forces the linkage open |
 | `scenario` | `entities[].components.drive.kv` | `500.0` | `N·m·s/rad` | no | Numerical knob | 伺服阻尼<br>Servo damping |
@@ -68,6 +70,8 @@ Total assumed parameters in `Design` and `Scenario`: **33**. Every physical gues
 | `scenario` | `entities[].components.body.foot_friction` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | 脚与地面的摩擦系数<br>Foot friction coefficient |
 | `scenario` | `entities[].components.body.joint_friction` | `0.0` | `N·m` | range `[0.0, 0.005]`; ≥ 0 | 连杆销轴处的库仑摩擦扭矩（每个销轴）；0 表示理想无摩擦<br>Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins |
 | `scenario` | `entities[].components.body.joint_damping` | `0.0` | `N·m·s/rad` | range `[0.0, 0.002]`; ≥ 0 | 连杆销轴处的粘性阻尼（每个销轴）；0 表示无阻尼<br>Viscous damping at every linkage pin; 0 means undamped |
+| `scenario` | `entities[].components.body.body_drag_area` | `0.0` | `m²` | ≥ 0 | 机身与暴露连杆的有效迎风面积；0 表示忽略机体风阻<br>Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag |
+| `scenario` | `entities[].components.body.body_drag_coeff` | `1.1` | `1` | range `[0.5, 2.0]`; ≥ 0 | 机身与管束的迎风阻力系数（圆柱管束约为 1.0–1.2）<br>Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays) |
 | `scenario` | `entities[].components.drive.max_torque` | `null` | `N·m` | > 0 | 电机扭矩上限；null 表示不限（只适合理想的强制运动）。不设限时，脚被挡住会把连杆撑开<br>Motor torque limit; null = unlimited, only sensible for ideal prescribed motion. Without a limit a blocked foot forces the linkage open |
 | `scenario` | `entities[].components.drive.crank_damping` | `0.001` | `N·m·s/rad` | ≥ 0 | 曲柄处的粘性损耗<br>Viscous loss at the crank |
 | `scenario` | `entities[].components.drive.crank_friction` | `0.002` | `N·m` | ≥ 0 | 曲柄处的库仑摩擦<br>Coulomb friction at the crank |

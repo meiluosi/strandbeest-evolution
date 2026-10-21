@@ -46,6 +46,8 @@ class Body(_Strict):
     foot_friction: float = Field(default=1.5, gt=0, description='Foot friction coefficient')
     joint_friction: float = Field(default=0.0, ge=0, description='Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins')
     joint_damping: float = Field(default=0.0, ge=0, description='Viscous damping at every linkage pin; 0 means undamped')
+    body_drag_area: float = Field(default=0.0, ge=0, description='Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag')
+    body_drag_coeff: float = Field(default=1.1, ge=0, description='Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays)')
 
 
 class Atmosphere(_Strict):

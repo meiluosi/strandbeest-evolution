@@ -145,6 +145,7 @@ class K2Backend:
         self._actuator_target = self._q0
         self._actuator_released = False
         self._applied_joint_torque = 0.0
+        self._applied_tx_force = 0.0
 
         # Pin friction and damping
         self._joint_friction = getattr(w, "joint_friction", 0.0)
@@ -284,7 +285,7 @@ class K2Backend:
 
             # 2. Generalized Forces (Torso X, Torso Z, Torso Pitch, Crank psi)
             f_ext = np.array([
-                self._m_total * gx,
+                self._m_total * gx + self._applied_tx_force,
                 self._m_total * gz,
                 -tau_crank if not self._pitch_locked else 0.0,
                 tau_crank,
@@ -457,15 +458,25 @@ class K2Backend:
     def joint_position(self, name: str) -> float:
         if self._kind == "pendulum" and name == "hinge":
             return float(self._state["theta"])
-        elif self._kind == "walker" and name == "crank0":
-            return float(self._q0 - self._direction * self._q[3])
+        elif self._kind == "walker":
+            if name == "crank0":
+                return float(self._q0 - self._direction * self._q[3])
+            elif name == "tx":
+                return float(self._q[0])
+            elif name == "tz":
+                return float(self._q[1])
         raise KeyError(f"unknown joint '{name}' for reference '{self._kind}'")
 
     def joint_velocity(self, name: str) -> float:
         if self._kind == "pendulum" and name == "hinge":
             return float(self._state["omega"])
-        elif self._kind == "walker" and name == "crank0":
-            return float(-self._direction * self._v[3])
+        elif self._kind == "walker":
+            if name == "crank0":
+                return float(-self._direction * self._v[3])
+            elif name == "tx":
+                return float(self._v[0])
+            elif name == "tz":
+                return float(self._v[1])
         raise KeyError(f"unknown joint '{name}' for reference '{self._kind}'")
 
     def body_position(self, name: str) -> Vec3:
@@ -544,7 +555,10 @@ class K2Backend:
         self._actuator_released = True
 
     def apply_joint_torque(self, name: str, torque: float) -> None:
-        self._applied_joint_torque = float(torque)
+        if name == "tx":
+            self._applied_tx_force = float(torque)
+        else:
+            self._applied_joint_torque = float(torque)
 
     def configure_joint(self, name: str, *, armature: float, damping: float, frictionloss: float) -> None:
         self._armature = float(armature)

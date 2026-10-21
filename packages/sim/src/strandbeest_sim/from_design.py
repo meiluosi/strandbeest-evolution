@@ -35,6 +35,8 @@ def scenario_from_design(design: Design, overrides: dict[str, Any] | None = None
             "bar_radius": m["bar_width_mm"] / 2000.0,
             "foot_radius": max(m["bar_width_mm"] / 2000.0 * 0.4, 0.001),
             "pitch": "locked",
+            "body_drag_area": w.get("body_drag_area", 0.0),
+            "body_drag_coeff": w.get("body_drag_coeff", 1.1),
         },
         "drive": {
             "kind": "motor",

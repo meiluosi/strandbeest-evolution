@@ -40,6 +40,10 @@ export interface ScenarioBody {
 	joint_friction?: number;
 	/** Viscous damping at every linkage pin; 0 means undamped (unit: N·m·s/rad; default: 0.0; assumption) */
 	joint_damping?: number;
+	/** Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag (unit: m²; default: 0.0; assumption) */
+	body_drag_area?: number;
+	/** Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays) (unit: 1; default: 1.1; assumption) */
+	body_drag_coeff?: number;
 }
 
 /** Atmosphere */

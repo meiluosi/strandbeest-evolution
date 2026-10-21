@@ -287,6 +287,37 @@
 					"x-source": "Unknown for printed pin joints; 0 keeps the earlier ideal behaviour. A calibration target",
 					"x-calibratable": true,
 					"x-affects": ["sim"]
+				},
+				"body_drag_area": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0,
+					"x-unit": "m²",
+					"x-group": "group.body",
+					"x-doc": {
+						"zh": "机身与暴露连杆的有效迎风面积；0 表示忽略机体风阻",
+						"en": "Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag"
+					},
+					"x-assumption": true,
+					"x-source": "Chassis frontal silhouette and tube projected area guess (docs/WIND.md W-10); 0 keeps legacy ideal behavior",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"body_drag_coeff": {
+					"type": "number",
+					"minimum": 0,
+					"default": 1.1,
+					"x-unit": "1",
+					"x-range": [0.5, 2.0],
+					"x-group": "group.body",
+					"x-doc": {
+						"zh": "机身与管束的迎风阻力系数（圆柱管束约为 1.0–1.2）",
+						"en": "Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays)"
+					},
+					"x-assumption": true,
+					"x-source": "Cross-flow cylinder array bluff body aerodynamics standard literature estimate (docs/WIND.md W-10)",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
 				}
 			},
 			"x-doc": {

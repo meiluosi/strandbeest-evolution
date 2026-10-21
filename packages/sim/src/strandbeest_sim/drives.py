@@ -61,6 +61,17 @@ class SailDrive:
         self.tau = d.sail_gear * 0.5 * sc.environment.air_density * d.sail_drag_coeff * d.sail_area * d.sail_radius * rel * rel if rel > 0 else 0.0
         b.apply_joint_torque(self.joint, -sc.walker.direction * self.tau)
 
+        # Body and exposed linkage aerodynamic drag / thrust (W-10, WIND.md §4)
+        body_drag_area = float(getattr(sc.walker, "body_drag_area", 0.0) or 0.0)
+        if body_drag_area > 0.0:
+            body_drag_coeff = float(getattr(sc.walker, "body_drag_coeff", 1.1) or 1.1)
+            torso_pos = b.body_position("torso")
+            v_wind = self.wind(t, torso_pos[2])
+            vx = b.joint_velocity("tx")
+            v_rel = v_wind - vx
+            f_drag = 0.5 * sc.environment.air_density * body_drag_coeff * body_drag_area * abs(v_rel) * v_rel
+            b.apply_joint_torque("tx", f_drag)
+
     def torque(self, sim) -> float:
         return self.tau
 

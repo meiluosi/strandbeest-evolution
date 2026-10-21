@@ -3,9 +3,9 @@
 
 > One document that fully determines a simulation run: a World (gravity, atmosphere, wind, terrain) with the entities placed in it (a walker is an entity with a linkage, a body and a drive), plus solver and run settings. Defaults marked x-assumption are guesses, not measurements.
 
-- **Fields documented**: 71
-- **Assumed parameters (`x-assumption: true`)**: 19
-- **Calibratable parameters (`x-calibratable: true`)**: 8
+- **Fields documented**: 73
+- **Assumed parameters (`x-assumption: true`)**: 21
+- **Calibratable parameters (`x-calibratable: true`)**: 10
 
 ## Field Table / 字段总表
 
@@ -49,6 +49,8 @@
 | `entities[].components.body.foot_friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 脚与地面的摩擦系数<br>Foot friction coefficient<br>*Source*: Rubber-ish pad guess; a calibration target |
 | `entities[].components.body.joint_friction` | `number` | `0.0` | `N·m` | range `[0.0, 0.005]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 连杆销轴处的库仑摩擦扭矩（每个销轴）；0 表示理想无摩擦<br>Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins<br>*Source*: Unknown for printed pin joints (fit and surface finish decide it); 0 keeps the earlier ideal behaviour. A calibration target, and the sail start wind is sensitive to it (docs/WIND.md) |
 | `entities[].components.body.joint_damping` | `number` | `0.0` | `N·m·s/rad` | range `[0.0, 0.002]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 连杆销轴处的粘性阻尼（每个销轴）；0 表示无阻尼<br>Viscous damping at every linkage pin; 0 means undamped<br>*Source*: Unknown for printed pin joints; 0 keeps the earlier ideal behaviour. A calibration target |
+| `entities[].components.body.body_drag_area` | `number` | `0.0` | `m²` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.body`<br>affects: `sim` | 机身与暴露连杆的有效迎风面积；0 表示忽略机体风阻<br>Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag<br>*Source*: Chassis frontal silhouette and tube projected area guess (docs/WIND.md W-10); 0 keeps legacy ideal behavior |
+| `entities[].components.body.body_drag_coeff` | `number` | `1.1` | `1` | range `[0.5, 2.0]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.body`<br>affects: `sim` | 机身与管束的迎风阻力系数（圆柱管束约为 1.0–1.2）<br>Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays)<br>*Source*: Cross-flow cylinder array bluff body aerodynamics standard literature estimate (docs/WIND.md W-10) |
 | `entities[].components.drive` | `Drive` | – | – | – | `group.drive` | 驱动<br>Drive |
 | `entities[].components.drive.kind` | `string` | `"motor"` | – | – | `group.drive`<br>affects: `sim` | 驱动类型：motor（位置伺服）或 sail（风帆）<br>Drive kind: motor (position servo) or sail |
 | `entities[].components.drive.omega` | `number` | `0.3` | `rad/s` | – | `group.drive`<br>affects: `sim` | 沿行走方向的曲柄转速（电机驱动）<br>Crank speed in the walking direction (motor drive) |

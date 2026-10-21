@@ -258,6 +258,29 @@ export async function runPreview(
 						rel
 					: 0.0;
 			qfrcApplied[dofadr] = -dir * sailTau;
+
+			// Body and exposed linkage aerodynamic drag / thrust (W-10)
+			const bodyDragArea = Number(
+				(sc.walker as unknown as Record<string, unknown>).body_drag_area ?? 0.0,
+			);
+			if (bodyDragArea > 0) {
+				const bodyDragCoeff = Number(
+					(sc.walker as unknown as Record<string, unknown>).body_drag_coeff ??
+						1.1,
+				);
+				const txDof = 0;
+				const vx = qvel[txDof] as number;
+				const vWind = (wind as (t: number) => number)(t);
+				const vRel = vWind - vx;
+				const fDrag =
+					0.5 *
+					sc.environment.air_density *
+					bodyDragCoeff *
+					bodyDragArea *
+					Math.abs(vRel) *
+					vRel;
+				qfrcApplied[txDof] = fDrag;
+			}
 		};
 		const tau = () => (sail ? sailTau : -dir * (aforce[act] as number));
 
