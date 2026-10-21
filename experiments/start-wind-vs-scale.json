@@ -39,7 +39,8 @@
     ],
     "mass_exponents": [
       1.0,
-      3.0
+      3.0,
+      2.0
     ],
     "friction_scales": [
       0.1,
@@ -601,6 +602,67 @@
       "predicted_m_s": 0.6581327264503252
     },
     {
+      "key": "mujoco|L=0.35|p=2|jf=0",
+      "scale": 0.35,
+      "mass_exponent": 2.0,
+      "joint_friction_nm": 0.0,
+      "backend": "mujoco",
+      "lo_m_s": 0.5760354756083259,
+      "hi_m_s": 0.6015387449258808,
+      "estimate_m_s": 0.5886490100477663,
+      "found": true,
+      "trusted": true,
+      "does_not_start": false,
+      "simulations": 6,
+      "note": "",
+      "max_wind_tried_m_s": 0.8146371820133307,
+      "runs": [
+        {
+          "wind": 0.40731859100666534,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.002206739958659358,
+          "valid": true
+        },
+        {
+          "wind": 0.8146371820133307,
+          "started": true,
+          "time_s": 18.530099999970155,
+          "distance_m": 0.09571314934343582,
+          "valid": true
+        },
+        {
+          "wind": 0.5760354756083259,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.0880525950520191,
+          "valid": true
+        },
+        {
+          "wind": 0.6850254860873976,
+          "started": true,
+          "time_s": 26.824099999950825,
+          "distance_m": 0.09574991370843061,
+          "valid": true
+        },
+        {
+          "wind": 0.6281711404403888,
+          "started": true,
+          "time_s": 33.12609999997614,
+          "distance_m": 0.09575838314391424,
+          "valid": true
+        },
+        {
+          "wind": 0.6015387449258808,
+          "started": true,
+          "time_s": 37.21810000011198,
+          "distance_m": 0.09576355235952137,
+          "valid": true
+        }
+      ],
+      "predicted_m_s": 0.40731859100666534
+    },
+    {
       "key": "mujoco|L=0.35|p=3|jf=0",
       "scale": 0.35,
       "mass_exponent": 3.0,
@@ -866,6 +928,67 @@
       "predicted_m_s": 0.5444633620790195
     },
     {
+      "key": "mujoco|L=0.6|p=2|jf=0",
+      "scale": 0.6,
+      "mass_exponent": 2.0,
+      "joint_friction_nm": 0.0,
+      "backend": "mujoco",
+      "lo_m_s": 0.47844338396732644,
+      "hi_m_s": 0.49962588225293153,
+      "estimate_m_s": 0.48891992986863764,
+      "found": true,
+      "trusted": true,
+      "does_not_start": false,
+      "simulations": 6,
+      "note": "",
+      "max_wind_tried_m_s": 0.8774690350851266,
+      "runs": [
+        {
+          "wind": 0.4387345175425633,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.06088494605216238,
+          "valid": true
+        },
+        {
+          "wind": 0.8774690350851266,
+          "started": true,
+          "time_s": 9.102099999992125,
+          "distance_m": 0.16561898339108716,
+          "valid": true
+        },
+        {
+          "wind": 0.6204643049899097,
+          "started": true,
+          "time_s": 17.654099999972196,
+          "distance_m": 0.16567957410313122,
+          "valid": true
+        },
+        {
+          "wind": 0.5217462098589025,
+          "started": true,
+          "time_s": 29.63609999994427,
+          "distance_m": 0.1656354234538341,
+          "valid": true
+        },
+        {
+          "wind": 0.47844338396732644,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.14467714527936845,
+          "valid": true
+        },
+        {
+          "wind": 0.49962588225293153,
+          "started": true,
+          "time_s": 35.768100000063846,
+          "distance_m": 0.16562387894955624,
+          "valid": true
+        }
+      ],
+      "predicted_m_s": 0.4387345175425633
+    },
+    {
       "key": "mujoco|L=0.6|p=3|jf=0",
       "scale": 0.6,
       "mass_exponent": 3.0,
@@ -1115,6 +1238,67 @@
         }
       ],
       "predicted_m_s": 0.492294517009531
+    },
+    {
+      "key": "mujoco|L=1.7|p=2|jf=0",
+      "scale": 1.7,
+      "mass_exponent": 2.0,
+      "joint_friction_nm": 0.0,
+      "backend": "mujoco",
+      "lo_m_s": 0.4851674590756161,
+      "hi_m_s": 0.5066476575995911,
+      "estimate_m_s": 0.4957912430491349,
+      "found": true,
+      "trusted": true,
+      "does_not_start": false,
+      "simulations": 6,
+      "note": "",
+      "max_wind_tried_m_s": 0.5769645943005142,
+      "runs": [
+        {
+          "wind": 0.5769645943005142,
+          "started": true,
+          "time_s": 25.030099999955006,
+          "distance_m": 0.4767294222128716,
+          "valid": true
+        },
+        {
+          "wind": 0.2884822971502571,
+          "started": false,
+          "time_s": 10.000099999990033,
+          "distance_m": 0.007611012915940518,
+          "valid": true
+        },
+        {
+          "wind": 0.4079755771344388,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.0166024920705423,
+          "valid": true
+        },
+        {
+          "wind": 0.4851674590756161,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.4303359902279588,
+          "valid": true
+        },
+        {
+          "wind": 0.5290788657595142,
+          "started": true,
+          "time_s": 31.890099999939018,
+          "distance_m": 0.47675192966648483,
+          "valid": true
+        },
+        {
+          "wind": 0.5066476575995911,
+          "started": true,
+          "time_s": 36.784100000097574,
+          "distance_m": 0.47667710797255497,
+          "valid": true
+        }
+      ],
+      "predicted_m_s": 0.5769645943005142
     },
     {
       "key": "mujoco|L=1.7|p=3|jf=0",
@@ -1375,6 +1559,67 @@
       "predicted_m_s": 0.489
     },
     {
+      "key": "mujoco|L=1|p=2|jf=0",
+      "scale": 1.0,
+      "mass_exponent": 2.0,
+      "joint_friction_nm": 0.0,
+      "backend": "mujoco",
+      "lo_m_s": 0.489,
+      "hi_m_s": 0.5106498796070054,
+      "estimate_m_s": 0.49970770569186307,
+      "found": true,
+      "trusted": true,
+      "does_not_start": false,
+      "simulations": 6,
+      "note": "",
+      "max_wind_tried_m_s": 0.978,
+      "runs": [
+        {
+          "wind": 0.489,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.25752376593005105,
+          "valid": true
+        },
+        {
+          "wind": 0.978,
+          "started": true,
+          "time_s": 9.012099999992335,
+          "distance_m": 0.2783302143743186,
+          "valid": true
+        },
+        {
+          "wind": 0.6915504320004435,
+          "started": true,
+          "time_s": 15.608099999976963,
+          "distance_m": 0.278556273460577,
+          "valid": true
+        },
+        {
+          "wind": 0.5815222792363306,
+          "started": true,
+          "time_s": 22.63809999996058,
+          "distance_m": 0.2785841797989558,
+          "valid": true
+        },
+        {
+          "wind": 0.533258281273311,
+          "started": true,
+          "time_s": 29.09209999994554,
+          "distance_m": 0.27861128505974053,
+          "valid": true
+        },
+        {
+          "wind": 0.5106498796070054,
+          "started": true,
+          "time_s": 34.044100000006615,
+          "distance_m": 0.27862702739804945,
+          "valid": true
+        }
+      ],
+      "predicted_m_s": 0.489
+    },
+    {
       "key": "mujoco|L=1|p=3|jf=0",
       "scale": 1.0,
       "mass_exponent": 3.0,
@@ -1620,6 +1865,67 @@
       "predicted_m_s": 0.5867634254951335
     },
     {
+      "key": "mujoco|L=3|p=2|jf=0",
+      "scale": 3.0,
+      "mass_exponent": 2.0,
+      "joint_friction_nm": 0.0,
+      "backend": "mujoco",
+      "lo_m_s": 0.5234905335265564,
+      "hi_m_s": 0.5466674395107219,
+      "estimate_m_s": 0.5349534835582103,
+      "found": true,
+      "trusted": true,
+      "does_not_start": false,
+      "simulations": 6,
+      "note": "",
+      "max_wind_tried_m_s": 0.7403274122871835,
+      "runs": [
+        {
+          "wind": 0.7403274122871835,
+          "started": true,
+          "time_s": 23.374099999958865,
+          "distance_m": 0.847282874431196,
+          "valid": true
+        },
+        {
+          "wind": 0.37016370614359173,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.024640374473243336,
+          "valid": true
+        },
+        {
+          "wind": 0.5234905335265564,
+          "started": false,
+          "time_s": 39.99810000020427,
+          "distance_m": 0.7755996216965039,
+          "valid": true
+        },
+        {
+          "wind": 0.6225386671063513,
+          "started": true,
+          "time_s": 29.94609999994355,
+          "distance_m": 0.8473397459455518,
+          "valid": true
+        },
+        {
+          "wind": 0.5708704747877711,
+          "started": true,
+          "time_s": 35.06610000004054,
+          "distance_m": 0.8473387084483867,
+          "valid": true
+        },
+        {
+          "wind": 0.5466674395107219,
+          "started": true,
+          "time_s": 38.49610000015441,
+          "distance_m": 0.8473488104216685,
+          "valid": true
+        }
+      ],
+      "predicted_m_s": 0.7403274122871835
+    },
+    {
       "key": "mujoco|L=3|p=3|jf=0",
       "scale": 3.0,
       "mass_exponent": 3.0,
@@ -1776,6 +2082,53 @@
           "simulations": 6,
           "predicted_m_s": 1.00630803962385
         }
+      ],
+      "p=2": [
+        {
+          "scale": 0.35,
+          "lo_m_s": 0.5760354756083259,
+          "hi_m_s": 0.6015387449258808,
+          "estimate_m_s": 0.5886490100477663,
+          "found": true,
+          "simulations": 6,
+          "predicted_m_s": 0.40731859100666534
+        },
+        {
+          "scale": 0.6,
+          "lo_m_s": 0.47844338396732644,
+          "hi_m_s": 0.49962588225293153,
+          "estimate_m_s": 0.48891992986863764,
+          "found": true,
+          "simulations": 6,
+          "predicted_m_s": 0.4387345175425633
+        },
+        {
+          "scale": 1.0,
+          "lo_m_s": 0.489,
+          "hi_m_s": 0.5106498796070054,
+          "estimate_m_s": 0.49970770569186307,
+          "found": true,
+          "simulations": 6,
+          "predicted_m_s": 0.489
+        },
+        {
+          "scale": 1.7,
+          "lo_m_s": 0.4851674590756161,
+          "hi_m_s": 0.5066476575995911,
+          "estimate_m_s": 0.4957912430491349,
+          "found": true,
+          "simulations": 6,
+          "predicted_m_s": 0.5769645943005142
+        },
+        {
+          "scale": 3.0,
+          "lo_m_s": 0.5234905335265564,
+          "hi_m_s": 0.5466674395107219,
+          "estimate_m_s": 0.5349534835582103,
+          "found": true,
+          "simulations": 6,
+          "predicted_m_s": 0.7403274122871835
+        }
       ]
     },
     "slopes": {
@@ -1789,6 +2142,12 @@
         "measured": 0.2595453645440149,
         "predicted_lift": 0.5,
         "predicted_pin_friction_weight": 0.5,
+        "predicted_pin_friction_absolute": -1.5
+      },
+      "p=2": {
+        "measured": -0.03258629420975114,
+        "predicted_lift": 0.0,
+        "predicted_pin_friction_weight": 0.0,
         "predicted_pin_friction_absolute": -1.5
       }
     },
@@ -1813,8 +2172,8 @@
     ]
   },
   "timing": {
-    "wall_time_s": 3.2901763916015625e-05,
-    "total_cell_wall_time_s": 15541.804987192154,
+    "wall_time_s": 9.298324584960938e-05,
+    "total_cell_wall_time_s": 18080.256385326385,
     "per_cell_wall_time_s": {
       "mujoco|L=1|p=1|jf=0": 1014.7414619922638,
       "mujoco|L=0.1|p=1|jf=0.002": 209.08373188972473,
@@ -1839,7 +2198,12 @@
       "mujoco|L=3|p=1|jf=0.0005": 1764.5163600444794,
       "mujoco|L=3|p=1|jf=0.002": 702.1155161857605,
       "mujoco|L=0.02|p=1|jf=0.002": 511.8825349807739,
-      "mujoco|L=0.03|p=1|jf=0.002": 704.9709360599518
+      "mujoco|L=0.03|p=1|jf=0.002": 704.9709360599518,
+      "mujoco|L=1|p=2|jf=0": 398.8138360977173,
+      "mujoco|L=0.35|p=2|jf=0": 521.7103869915009,
+      "mujoco|L=0.6|p=2|jf=0": 462.8167040348053,
+      "mujoco|L=1.7|p=2|jf=0": 488.0535111427307,
+      "mujoco|L=3|p=2|jf=0": 667.0569598674774
     }
   }
 }
