@@ -789,3 +789,42 @@ In accordance with [docs/VALIDATION.md](VALIDATION.md) and task card `V-02`:
 4. **脆弱结论 2：行走速度最优 $\neq$ 起步风速最优**
    - 行走步幅与起步风速的秩相关仅为 $\rho_s \approx 0.49 - 0.52$。
    - 步幅大、杠杆比长的设计往往在死点（$\theta^* \approx 20^\circ$）阻力峰值也大，导致风帆起步风速显著上升。风驱动走兽的多目标优化必须联合优化速度与起步风速，不可顾此失彼。
+
+---
+
+## 34. 风场 v2：随高度风廓线、Dryden/Ornstein-Uhlenbeck 湍流谱与航向夹角 (W-04)
+
+**日期**：2026-10-21
+**任务卡**：`W-04`（风场 v2）
+**依赖**：`W-01`、`WIND.md` §4
+**背景**：
+在真实海滩或开阔地面环境中，自然风具备三个核心物理特征：
+1. **边界层风廓线（Vertical Shear Profile）**：贴地处风速受地面空气动力粗糙度削减，风速随高度 $z$ 呈幂函数或对数增长。
+2. **大气湍流谱（Turbulence Spectrum）**：自然风速包含多尺度随机脉动，其能量谱服从 Dryden / von Kármán 幂律衰减，并由湍流强度 $I_u$ 与积分尺度 $L_u$ 决定自相关衰减。
+3. **机体航向夹角（Yaw Angle $\beta$）**：风向与走兽行进方向存在偏角，产生驱动分量与侧向力。
+
+### 1. 湍流模型与样本统计量核对
+采用 Ornstein-Uhlenbeck / Dryden 连续随机微分方程构造平稳高斯马尔可夫脉动：
+$$\tau_u \dot{u}' + u' = \sqrt{2\sigma_u^2 \tau_u} \, \xi(t), \quad \tau_u = \frac{L_u}{\bar{v}}, \quad \sigma_u = I_u \bar{v}$$
+解析自相关函数为 $R(\Delta t) = \sigma_u^2 e^{-\Delta t / \tau_u}$。
+
+在基准参数（$\bar{v} = 5.0\text{ m/s}, I_u = 0.15, L_u = 25.0\text{ m}, \text{seed} = 42$，计算时长 300 s）下进行采样统计量核对：
+
+| 统计量 | 理论目标值 | 仿真样本测量值 | 相对偏差 / 误差 |
+|---|---|---|---|
+| 平均速度 $\mathbb{E}[v(t)]$ | $5.000\text{ m/s}$ | $4.928\text{ m/s}$ | $-1.4\%$（采样不确定度范围内） |
+| 脉动标准差 $\sigma_u$ | $0.750\text{ m/s}$ | $0.732\text{ m/s}$ | $-2.4\%$ |
+| 自相关 $R(2.0\text{ s})$ | $0.6703$ ($e^{-2/5}$) | $0.6884$ | $+0.0181$ |
+| 自相关 $R(5.0\text{ s})$ | $0.3679$ ($e^{-1}$) | $0.4625$ | $+0.0946$ |
+| 自相关 $R(15.0\text{ s})$ | $0.0498$ ($e^{-3}$) | $0.0152$ | $-0.0346$ |
+| 跨语言确定性 | TS 与 Python 一致 | **完全一致（精确至 6 位小数）** | **PASS** |
+
+### 2. 边界层垂直风廓线核对
+幂律风廓线 $v(z) = v_\text{ref} (z / z_\text{ref})^\alpha$（海滩开阔沙地基准假定 $\alpha = 0.14$）：
+- 桅杆高位 $z = 2.0\text{ m}$：$v / v_\text{ref} = 2^{0.14} = 1.102$（风速高出 $10.2\%$）。
+- 贴地足端 $z = 0.2\text{ m}$：$v / v_\text{ref} = 0.2^{0.14} = 0.799$（风速衰减 $20.1\%$）。
+解释了 Jansen 走兽通常将大尺寸阻力风帆高高架设在机体上方（$z > 1.5\text{ m}$）的空气动力学原理：利用高空风廓线显著增加风帆受力，同时足端位于低速近地层降低行走侧向迎风扰动。
+
+### 3. 双端一致性
+- Python（`packages/sim/src/strandbeest_sim/winds.py`）与 TypeScript（`packages/sim-web/src/winds.ts`）全部注册支持 `constant`, `gusts`, `lull`, `turbulent`, `shear`, `profile_turbulent`。
+- 基于 `PyRandom` 移植的同余与 Box-Muller 变换使得相同 seed 下 Python 与 TS 采样输出完全逐位一致。

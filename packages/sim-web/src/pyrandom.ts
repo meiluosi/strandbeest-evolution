@@ -74,6 +74,8 @@ export class PyRandom {
 		return y >>> 0;
 	}
 
+	private gaussNext: number | null = null;
+
 	/** float in [0, 1) with 53 random bits, like `random.random()` */
 	random(): number {
 		const a = this.next32() >>> 5;
@@ -84,5 +86,18 @@ export class PyRandom {
 	/** `random.uniform(a, b)` */
 	uniform(a: number, b: number): number {
 		return a + (b - a) * this.random();
+	}
+
+	/** `random.gauss(mu, sigma)` using Python's exact Box-Muller generator */
+	gauss(mu = 0.0, sigma = 1.0): number {
+		let z = this.gaussNext;
+		this.gaussNext = null;
+		if (z === null) {
+			const x2pi = this.random() * (2.0 * Math.PI);
+			const g2rad = Math.sqrt(-2.0 * Math.log(1.0 - this.random()));
+			z = Math.cos(x2pi) * g2rad;
+			this.gaussNext = Math.sin(x2pi) * g2rad;
+		}
+		return mu + z * sigma;
 	}
 }
