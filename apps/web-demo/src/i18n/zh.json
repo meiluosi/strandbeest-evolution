@@ -417,5 +417,15 @@
 	"evidence.e2.desc": "E2：与文献或公开实验数据对比核对",
 	"evidence.e3.desc": "E3：经实物测试台实测验证",
 	"evidence.basis": "依据：{basis}",
-	"evidence.downgradeReason": "降级原因：{reason}"
+	"evidence.downgradeReason": "降级原因：{reason}",
+	"dynamometer.title": "虚拟测力计（负载转矩与风帆转矩叠加）",
+	"dynamometer.desc": "以极慢恒速转动曲柄，测量走兽克服重力与地面的负载扭矩曲线 T(θ)，并与当前风速下的风帆转矩叠加。",
+	"dynamometer.loadTorque": "负载扭矩 T(θ)",
+	"dynamometer.sailTorque": "风帆可用转矩",
+	"dynamometer.stallPoint": "危险失速角 θ* = {angle}° (峰值负载 {peak} mN·m)",
+	"dynamometer.stalls": "起步失速：当前风速下风帆转矩不足以克服 θ* = {angle}° 处的阻力峰值（需至少 {minWind} m/s 才能起步）。",
+	"dynamometer.starts": "顺利起步：风帆转矩在全周期均高于阻力曲线（最小富余度 {margin} mN·m）。",
+	"dynamometer.minStartWind": "起步风速：{minWind} m/s",
+	"dynamometer.peakTorque": "峰值阻力：{peak} mN·m",
+	"dynamometer.windSpeed": "测试风速：{wind} m/s"
 }

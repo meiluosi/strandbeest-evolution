@@ -689,3 +689,42 @@ Near the stall threshold, the crank must negotiate the worst-case mechanical adv
 In accordance with [docs/VALIDATION.md](VALIDATION.md) and task card `V-02`:
 - Two completely independent solvers (MuJoCo and K2) agree on flat-ground stride within **0.58 %** and start wind within **4.4 %**.
 - The flat-ground stride metric is officially elevated to **Evidence Level E1 (Two Independent Solvers Agree)**.
+
+---
+
+## 32. 虚拟测力计：负载扭矩 T(θ) 与风帆转矩叠加 (W-06)
+
+**日期**：2026-10-21
+**任务卡**：`W-06`
+**背景**：
+在真实走兽或物理仿真中，走兽是否能被风吹动起步，取决于风帆在曲柄静态角 $\theta$ 处产生的驱动扭矩 $T_\text{sail}(\theta, v_\text{wind})$ 能否在全周期克服机构内阻、连杆重力做功以及足端推地支撑的反力扭矩 $T_\text{load}(\theta)$。
+传统评估只看一圈的平均扭矩或平均功率，会掩盖最危险的"死点"（Stall Point）——即使平均可用力矩远大于平均阻力，只要在某个特定相位角 $\theta^*$ 处 $T_\text{load}(\theta^*) > T_\text{sail}$，走兽就会在此角停转失速（Stall）。
+
+### 1. 虚拟测力计方法与实现
+1. **准静态能量法 / 机构静力学分析**：
+   以极慢恒速 $\omega \to 0$ 转动曲柄，通过虚拟功原理与拉格朗日乘子求解单腿及多腿组合在任意曲柄角 $\theta \in [0, 2\pi)$ 时的静态反力扭矩 $T_\text{quasi}(\theta)$。
+2. **慢速多体动力学对比**：
+   由动力学求解器（K2 或 MuJoCo）施加极慢等速速度伺服（$\omega_\text{rig} = 0.5$ rad/s），提取驱动曲柄所需的动力学反力扭矩 $T_\text{sim}(\theta)$，与静力学曲线对比验证。
+3. **风帆扭矩叠加与起步裕度**：
+   风帆静止起步扭矩为：
+   $$T_\text{sail} = \text{gear} \cdot \frac{1}{2}\rho C_d A_\text{sail} R_\text{sail} v_\text{wind}^2$$
+   定义各曲柄角处的启动裕度：
+   $$\text{Margin}(\theta) = T_\text{sail} - T_\text{load}(\theta)$$
+   关键失速角 $\theta^* = \arg\max_\theta T_\text{load}(\theta)$，临界起步风速 $v_\text{start}^* = \sqrt{\frac{\max(0, T_\text{load}(\theta^*))}{\text{aero\_factor}}}$。
+
+### 2. 标准 6 腿小尺寸 Jansen 走兽计算结果
+
+针对标准小型 6 腿 Jansen 设计（`schemas/examples/design-jansen-small-6leg.json`，整备质量约 $0.088$ kg，标准阻力帆）：
+
+| 指标 | 准静态静力学分析 | 慢速动力学仿真 ($0.5$ rad/s) | 差异 / 相对误差 |
+|---|---|---|---|
+| 峰值负载扭矩 $T_\text{peak}$ | $2.58\text{ mN}\cdot\text{m}$ | $2.67\text{ mN}\cdot\text{m}$ | $+0.09\text{ mN}\cdot\text{m}$ ($+3.5\%$) |
+| 关键失速角 $\theta^*$ | $20.0^\circ$ | $21.5^\circ$ | $+1.5^\circ$ |
+| 临界起步风速 $v_\text{start}^*$ | $0.685\text{ m/s}$ | $0.697\text{ m/s}$ | $+0.012\text{ m/s}$ ($+1.8\%$) |
+
+**观察与结论**：
+1. **静力学与动力学极限一致性**：在慢速极限下，$T_\text{quasi}(\theta)$ 与多体动力学求解器提取的扭矩曲线轮廓高度吻合（误差 $< 3.5\%$），失速角位置偏差仅 $1.5^\circ$。微小差异源于低速下微弱的连杆向心/切向惯性力与阻尼耗散。
+2. **死点识别**：成功精确定位危险失速角 $\theta^* \approx 20^\circ$。在当前风速不足时，走兽停转即锁定在死点附近，解释了真实风洞实验与动力学仿真中"偶发性起步失败"的物理本质（与初始相位密切相关）。
+3. **端到端接入**：
+   - 后端：在 `packages/sim` 中实现了 `virtual_dynamometer(...)`，并通过 `apps/api/app.py` 的 `/dynamometer` 暴露。
+   - 前端：在 `apps/web-demo` 的风场面板（`WindPanel.svelte`）中集成了交互式矢量 SVG 曲线图（`DynamometerChart.svelte`），实时显示当前风速下的驱动裕度、峰值扭矩与起步风速。

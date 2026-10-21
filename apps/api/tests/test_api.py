@@ -33,6 +33,17 @@ def test_validate_reports_errors_and_accepts_good_designs(client):
     assert r["ok"] is False and any("extra" in e for e in r["errors"])
 
 
+def test_dynamometer_endpoint(client):
+    res = client.post("/dynamometer", json={"design": DESIGN, "samples": 60, "wind_speed": 1.0}).json()
+    assert len(res["theta"]) == 60
+    assert len(res["torque_quasi"]) == 60
+    assert len(res["torque_sail"]) == 60
+    assert res["peak_torque"] > 0
+    assert 0 <= res["stall_angle_deg"] < 360
+    assert "stall_margin" in res
+
+
+
 def test_save_and_list_designs(client):
     assert client.post("/designs", json=DESIGN).status_code == 200
     assert DESIGN["name"] in client.get("/designs").json()

@@ -24,6 +24,7 @@ from strandbeest_common.ops import GuardError, OpError, apply_op, replay
 from strandbeest_fab import export as fab_export
 from strandbeest_fab import printable_problems
 from strandbeest_rig import Calibration, convert_raw
+from strandbeest_sim import virtual_dynamometer
 
 from .jobs import JobContext, JobStore, Workers
 from .pipeline import evaluate, simulate, simulate_ensemble
@@ -172,6 +173,23 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.post("/evaluate")
     def evaluate_design(doc: dict = Body(...)):
         return evaluate(parse(doc))
+
+    @app.post("/dynamometer")
+    def run_dynamometer(body: dict = Body(...)):
+        d = parse(body["design"] if "design" in body else body)
+        wind_speed = body.get("wind_speed")
+        samples = int(body.get("samples", 180))
+        slope_deg = float(body.get("slope_deg", 0.0))
+        with_simulation = bool(body.get("with_simulation", False))
+        backend = str(body.get("backend", "k2"))
+        return virtual_dynamometer(
+            d,
+            wind_speed=wind_speed,
+            samples=samples,
+            slope_deg=slope_deg,
+            with_simulation=with_simulation,
+            backend=backend,
+        )
 
     # -- jobs ----------------------------------------------------------------
     @app.post("/runs")

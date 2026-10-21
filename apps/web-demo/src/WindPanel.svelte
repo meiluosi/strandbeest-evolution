@@ -6,6 +6,7 @@ import {
 	type LinkageSpec,
 	windWalk,
 } from "strandbeest-core";
+import DynamometerChart from "./DynamometerChart.svelte";
 import { t } from "./i18n/index.svelte";
 
 let { spec }: { spec: LinkageSpec } = $props();
@@ -46,6 +47,7 @@ const result = $derived(summary ? windWalk(DEFAULT_SAIL, summary, wind) : null);
 				{t("wind.tooWeak", { minStartWind: result.minStartWind.toFixed(1) })}
 			{/if}
 		</p>
+		<DynamometerChart {spec} {wind} {mass} {legs} {slopeDeg} {rolling} />
 		<small>{t("wind.caveat")}</small>
 	{:else}
 		<p>{t("wind.cannotClose")}</p>

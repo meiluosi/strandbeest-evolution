@@ -417,5 +417,15 @@
 	"evidence.e2.desc": "E2: Verified against published literature / data",
 	"evidence.e3.desc": "E3: Verified by traceable physical measurements",
 	"evidence.basis": "Basis: {basis}",
-	"evidence.downgradeReason": "Downgrade reason: {reason}"
+	"evidence.downgradeReason": "Downgrade reason: {reason}",
+	"dynamometer.title": "Virtual Dynamometer (Load vs Sail Torque Overlay)",
+	"dynamometer.desc": "Rotates the crank at quasi-static speed to extract mechanical load torque T(θ), overlaid with aerodynamic sail torque to locate stall points.",
+	"dynamometer.loadTorque": "Load Torque T(θ)",
+	"dynamometer.sailTorque": "Available Sail Torque",
+	"dynamometer.stallPoint": "Critical Stall Angle θ* = {angle}° (Peak load {peak} mN·m)",
+	"dynamometer.stalls": "Stall Warning: Sail torque at current wind cannot overcome peak resistance at θ* = {angle}° (needs at least {minWind} m/s to start).",
+	"dynamometer.starts": "Starting Cleared: Sail torque exceeds load torque across the entire revolution (margin: {margin} mN·m).",
+	"dynamometer.minStartWind": "Start Wind: {minWind} m/s",
+	"dynamometer.peakTorque": "Peak Load: {peak} mN·m",
+	"dynamometer.windSpeed": "Wind Speed: {wind} m/s"
 }
