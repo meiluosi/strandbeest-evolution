@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 贡献指南 (Contributing guide)
+    url: https://github.com/meiluosi/strandbeest-evolution/blob/main/CONTRIBUTING.md
+    about: 装环境、跑检查、写测试、提设计/数据/缺陷之前请先读。
+  - name: 怎么测一只走兽 (How to measure a Strandbeest)
+    url: https://github.com/meiluosi/strandbeest-evolution/blob/main/docs/HOW-TO-MEASURE.md
+    about: 想贡献实测数据？这里有能测什么、怎么测、误差怎么估。
+  - name: 扩展指南 (Extending)
+    url: https://github.com/meiluosi/strandbeest-evolution/blob/main/docs/EXTENDING.md
+    about: 想加一个地形、风、驱动或指标？照着做，测试会全绿。
+  - name: 实验记录 (Experiments, including negative results)
+    url: https://github.com/meiluosi/strandbeest-evolution/blob/main/docs/EXPERIMENTS.md
+    about: 这个项目已经知道的东西和已经踩过的坑。提 Issue 前扫一眼。

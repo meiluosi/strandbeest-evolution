@@ -1,0 +1,102 @@
+name: 数据贡献 (Data contribution)
+description: 我有一只真的走兽，测了点东西。
+title: "[数据] "
+labels: ["data"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **这个项目的 E3（实测）证据层现在是空的。** 缺的东西很具体：扭矩、起步风速。
+
+        你的一份带出处和误差估计的测量，能把本项目最重要的几个数字从 E0 提到 E3。
+
+        先读 [docs/HOW-TO-MEASURE.md](../blob/main/docs/HOW-TO-MEASURE.md)：
+        能测什么、怎么测、误差怎么估、提交成什么格式。
+        提交前请用 `scripts/validate_community_measurement.py` 自查。
+
+  - type: dropdown
+    id: quantity
+    attributes:
+      label: 你测的是什么？
+      options:
+        - 曲柄负载扭矩 / 电流
+        - 起步风速
+        - 曲柄转速
+        - 步幅 / 行进速度
+        - 质量 / 几何
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: how
+    attributes:
+      label: 怎么测的？
+      description: |
+        仪器型号、怎么固定的、采样率、标定方式、测了几次。
+        这一栏决定你的数据能不能算 E3。
+      placeholder: |
+        仪器：电流探头 + 舵机（test rig，非风驱动）
+        固定：曲柄轴直连
+        采样：100 Hz，5 次重复
+        标定：先用已知砝码标过
+    validations:
+      required: true
+
+  - type: textarea
+    id: numbers
+    attributes:
+      label: 数字
+      description: 给出测量值、重复次数、误差估计（标准差？半极差？）。
+      placeholder: |
+        峰值负载扭矩 0.42 mN·m ± 0.05（5 次重复，半极差）
+        起步风速 2.1 m/s ± 0.3（目视判定曲柄转过死点）
+    validations:
+      required: true
+
+  - type: textarea
+    id: raw
+    attributes:
+      label: 原始数据
+      description: |
+        请附原始文件（CSV / JSON），不要只给整理后的数字。
+        评审会做质量检查（`packages/rig` 的质量报告）。
+      placeholder: "见附件 measurements/2026-10-21-leg-torque.csv"
+
+  - type: textarea
+    id: machine
+    attributes:
+      label: 走兽本身
+      description: 设计文档或参数、腿数、材料、打印方式、质量。
+      placeholder: |
+        设计：jansen-small-6leg（见附件设计 JSON）
+        6 腿，FDM PLA，填充 60 %，实测质量 0.38 kg
+
+  - type: input
+    id: licence
+    attributes:
+      label: 数据的许可意向
+      description: |
+        设计与数据的许可方案**尚未定案**（见 docs/LICENSING.md）。
+        请说明你愿意授予什么，例如"CC0，随你用"或"CC BY 4.0，署名我"。
+      placeholder: "CC0 / CC BY 4.0，署名写 XXX"
+    validations:
+      required: true
+
+  - type: textarea
+    id: credit
+    attributes:
+      label: 希望被引用时如何称呼
+      description: 可选。即使数据按 CC0 提交，我们也会记录来源。
+      placeholder: "张三（某大学实验室）"
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 自检
+      options:
+        - label: 我记录了仪器、标定、日期、单位、原始数据和不确定度
+          required: true
+        - label: 我知道我的测量是"机器"而不是"产品结论"（电机驱动属于测试台，不是风驱动）
+        - label: 我读过 docs/HOW-TO-MEASURE.md
+          required: true

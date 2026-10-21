@@ -1,0 +1,75 @@
+name: 设计请求 (Design request)
+description: 想看某种连杆几何能不能走，或想改进已有设计。
+title: "[设计] "
+labels: ["design"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        谢谢你对这个项目的兴趣。设计请求的评审标准是"能不能装配 + 你测了什么"，
+        不是"好不好看"。
+
+        先读 [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) 的第 6.1 节。
+
+  - type: input
+    id: intent
+    attributes:
+      label: 你想解决什么问题？
+      description: 一句话。例如"想找一条在 3 m/s 风里起步更容易的腿"。
+      placeholder: 起步更快 / 步幅更长 / 更轻 / 能爬坡 …
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 这属于哪一类？
+      options:
+        - 全新几何
+        - 在 Jansen 基础上改参数
+        - 非 Jansen 拓扑（加/减二元组）
+        - 只想复现一个已有结果
+    validations:
+      required: true
+
+  - type: textarea
+    id: design
+    attributes:
+      label: 设计文档或参数
+      description: |
+        可以贴一份 Design 文档（JSON），或者直接给 13 个连杆长度。
+        范例见 `schemas/examples/design-jansen-small-6leg.json`。
+      placeholder: |
+        {"linkage": {"params": {"a": 38, "b": 41.5, ...}}, "walker": {...}}
+    validations:
+      required: true
+
+  - type: textarea
+    id: measured
+    attributes:
+      label: 你测了什么？数字是多少？
+      description: |
+        这是最重要的一栏。请给出步幅、抬脚高、占空比、起步风速…以及**用什么方法测的**。
+        如果只是"跑出来看起来不错"，请直接说明这是模型内结果（E0）。
+      placeholder: |
+        步幅 0.276 m/rev（MuJoCo 慢速平地，模型内）
+        起步风速 (0.48, 0.50] m/s（模型内）
+    validations:
+      required: true
+
+  - type: textarea
+    id: tooling
+    attributes:
+      label: 用了什么工具？
+      description: 演化脚本、仿真器、还是纸面计算？
+      placeholder: "pnpm wind-objective 6 0 5 / MuJoCo / 手算"
+
+  - type: checkboxes
+    id: assemble
+    attributes:
+      label: 自检
+      options:
+        - label: 我确认这个设计在全周期内可以装配（没有分支翻转）
+          required: true
+        - label: 我知道本文提到的数字是"模型内"结果，不是实测
+          required: true

@@ -1,0 +1,74 @@
+name: 模型缺陷 (Model defect)
+description: 仿真器在某个条件下给出你信不过的结果。**这是我们最想要的一类报告。**
+title: "[缺陷] "
+labels: ["defect"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这类报告的价值最高。模型错了不可怕，模型错了没人知道才可怕。
+
+        复现要尽量**完整**：设计 + 场景覆盖 + 你看到的数字 + 你预期的数字 + 你认为哪里不对。
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 出问题的环节
+      options:
+        - 运动学 / 连杆解算
+        - 接触与摩擦（打滑、陷入）
+        - 环约束张开（模型"散架"）
+        - 能量账不闭合
+        - 驱动（风帆 / 电机）
+        - 地形
+        - 事件与诊断
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 场景覆盖（scenario overrides）写全，命令也贴上。
+      placeholder: |
+        .venv/bin/python packages/sim/scripts/crosscheck.py '{"walker": {"mass": 0.4}}' mytag
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 你看到的 vs 你预期的
+      description: 数字尽量精确，并说明你凭什么预期是这个数（解析解？另一个求解器？文献？）。
+      placeholder: |
+        看到：步幅 0.276 m/rev，能量账残差 4 %
+        预期：步幅应在 0.27–0.28 之间（同一条腿在 K2 上是 0.2776）
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 你认为原因是什么？
+      description: 哪怕是猜的也请写下来，并说明你排除了哪些可能。
+    validations:
+      required: true
+
+  - type: textarea
+    id: excluded
+    attributes:
+      label: 你已经排除的可能
+      description: 例如"不是时间步"、"不是设计本身的问题（换一条腿也复现）"。
+      placeholder: 换时间步不复现；K2 上不复现
+
+  - type: checkboxes
+    id: contract
+    attributes:
+      label: 自检
+      options:
+        - label: 我知道这是模型内的问题（没有实物数据），不是"走兽在真实世界这样"
+          required: true
+        - label: 我读过 docs/EXPERIMENTS.md 的更正记录（§9）与环张开调查（§20）
+          required: true
