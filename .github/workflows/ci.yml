@@ -22,6 +22,7 @@ jobs:
         with: { python-version: "3.12" }
       - run: ./scripts/setup-python.sh
       - run: ./scripts/test-python.sh
+      - run: .venv/bin/python scripts/check_doc_refs.py
   python-slow:
     # the simulator skeptic and the other long checks (golden-adjacent, fuzzing, bug injections)
     runs-on: ubuntu-latest

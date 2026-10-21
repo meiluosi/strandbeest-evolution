@@ -113,7 +113,7 @@ Reading:
 
 > **Superseded by section 9.** The numbers in this section and in section 8 were produced with a simulator bug (each foot had two coincident collision spheres that collided with each other) and, for section 8, with a mislabelled contact-stiffness unit. They are kept for the record; use section 9.
 
-`packages/sim`, `python scripts/crosscheck.py '<overrides>' <tag>`. Planar model, 12 legs on one crankshaft, torso pitch locked, 50 kg total, tube 0.12 kg/m (assumption), crank driven at 0.6 rad/s (slow, so inertia should matter little) for 3 revolutions on flat ground, no drag. The reduced-order reference gets a leg-gravity term because MuJoCo's legs have mass. Reference stride: 2.665 m per revolution.
+`packages/sim`, `python packages/sim/scripts/crosscheck.py '<overrides>' <tag>`. Planar model, 12 legs on one crankshaft, torso pitch locked, 50 kg total, tube 0.12 kg/m (assumption), crank driven at 0.6 rad/s (slow, so inertia should matter little) for 3 revolutions on flat ground, no drag. The reduced-order reference gets a leg-gravity term because MuJoCo's legs have mass. Reference stride: 2.665 m per revolution.
 
 | contact setting | stride (m/rev) | mean crank torque (N·m) | torque peak-to-peak (N·m) | curve correlation with reference |
 |---|---|---|---|---|
@@ -275,7 +275,7 @@ Before refactoring the simulator I recorded ten golden runs (`contracts/sim-gold
 
 ## 14. The energy account and foot loads inside every run (G-01, 2026-10-06)
 
-Every run now records, at each sample, the normal and tangential load and the sliding speed of each foot, the kinetic and potential energy, and the cumulative energy account since the start of driving (input work by the drive, dissipation at the contacts, in the loop closures, and in joint friction/damping); `energy_*` metrics summarise the same whole-revolution window as the gait metrics. `scripts/energy_account.py` is superseded by this. Small 6-leg walker (docs/EXPERIMENTS.md section 8 settings), model against model:
+Every run now records, at each sample, the normal and tangential load and the sliding speed of each foot, the kinetic and potential energy, and the cumulative energy account since the start of driving (input work by the drive, dissipation at the contacts, in the loop closures, and in joint friction/damping); `energy_*` metrics summarise the same whole-revolution window as the gait metrics. `packages/sim/scripts/energy_account.py` is superseded by this. Small 6-leg walker (docs/EXPERIMENTS.md section 8 settings), model against model:
 
 | run (2 steady revolutions) | input per rev | contact | loops | joint friction + damping | residual (input - dissipation - change of K+U) |
 |---|---|---|---|---|---|
@@ -528,7 +528,7 @@ Section 20 fixed the main cause (time step) on 16 walkers and left cases 4 and 5
 
 Model against model throughout: sail drive on the small 6-leg Jansen walker (`design-jansen-small-6leg.json`), flat ground, MuJoCo time-domain simulation.
 
-**Definition & search:** start wind = lowest constant wind speed (m/s) at which the crank completes one full revolution within 40 s from rest. Computed by bracket search followed by geometric bisection to 5 % relative tolerance (`packages/sim/src/strandbeest_sim/startwind.py`, `scripts/start_wind_sensitivity.py`). The search reports an interval `(lo, hi]`.
+**Definition & search:** start wind = lowest constant wind speed (m/s) at which the crank completes one full revolution within 40 s from rest. Computed by bracket search followed by geometric bisection to 5 % relative tolerance (`packages/sim/src/strandbeest_sim/startwind.py`, `packages/sim/scripts/start_wind_sensitivity.py`). The search reports an interval `(lo, hi]`.
 
 **Baseline start wind:** `(0.479, 0.500] m/s` (estimate `0.489 m/s`, 6 simulations).
 - Comparison with SIM-DESIGN: section 14 noted informal observation of "about 0.45 m/s". Under the strict 1-revolution in 40 s criterion, 0.45 m/s is slightly sub-threshold; the walker requires ~0.48–0.50 m/s to complete a full revolution in 40 s.
@@ -726,7 +726,7 @@ In accordance with [docs/VALIDATION.md](VALIDATION.md) and task card `V-02`:
 1. **静力学与动力学极限一致性**：在慢速极限下，$T_\text{quasi}(\theta)$ 与多体动力学求解器提取的扭矩曲线轮廓高度吻合（误差 $< 3.5\%$），失速角位置偏差仅 $1.5^\circ$。微小差异源于低速下微弱的连杆向心/切向惯性力与阻尼耗散。
 2. **死点识别**：成功精确定位危险失速角 $\theta^* \approx 20^\circ$。在当前风速不足时，走兽停转即锁定在死点附近，解释了真实风洞实验与动力学仿真中"偶发性起步失败"的物理本质（与初始相位密切相关）。
 3. **端到端接入**：
-   - 后端：在 `packages/sim` 中实现了 `virtual_dynamometer(...)`，并通过 `apps/api/app.py` 的 `/dynamometer` 暴露。
+   - 后端：在 `packages/sim` 中实现了 `virtual_dynamometer(...)`，并通过 `apps/api/src/strandbeest_api/app.py` 的 `/dynamometer` 暴露。
    - 前端：在 `apps/web-demo` 的风场面板（`WindPanel.svelte`）中集成了交互式矢量 SVG 曲线图（`DynamometerChart.svelte`），实时显示当前风速下的驱动裕度、峰值扭矩与起步风速。
 
 ---

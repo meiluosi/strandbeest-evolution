@@ -9,3 +9,5 @@ __pycache__
 .pytest_cache
 /data
 MUJOCO_LOG.TXT
+# Staging area for EXPERIMENTS.md sections under construction; the merged sections live in docs/EXPERIMENTS.md
+/docs/_drafts
