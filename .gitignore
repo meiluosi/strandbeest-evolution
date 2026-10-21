@@ -7,6 +7,8 @@ dist
 __pycache__
 *.egg-info
 .pytest_cache
+# pytest's tmp_path base, when it lands inside a package directory
+pytest-of-*
 /data
 MUJOCO_LOG.TXT
 # Staging area for EXPERIMENTS.md sections under construction; the merged sections live in docs/EXPERIMENTS.md
