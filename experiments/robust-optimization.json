@@ -1,0 +1,2419 @@
+{
+ "card": "O-07",
+ "generated_by": "packages/opt/scripts/robust_run.py",
+ "seed": 1,
+ "alpha": 0.1,
+ "scenario_space": {
+  "name": "o07-wind-terrain-friction-v1",
+  "notes": "the declared scenario space of O-07; the sampled set is written to the output file so that every number below can be traced back to the scenarios that produced it",
+  "axes": [
+   {
+    "name": "wind_speed_m_s",
+    "kind": "continuous",
+    "unit": "m/s",
+    "assumption": "assumption: the reference walker's critical start wind is ~0.69 m/s (W-06, one model, E0); the range spans 'below the start threshold' to '2.8x the nominal breeze'. Not a measurement.",
+    "low": 0.1,
+    "high": 14.0
+   },
+   {
+    "name": "wind_kind",
+    "kind": "categorical",
+    "unit": "",
+    "assumption": "assumption: the three wind models registered in strandbeest_sim.winds (W-04). Which of them occurs on a given day is not known.",
+    "values": [
+     "constant",
+     "gusts",
+     "profile_turbulent"
+    ]
+   },
+   {
+    "name": "gust_amplitude_m_s",
+    "kind": "continuous",
+    "unit": "m/s",
+    "assumption": "assumption: the gust peak deviation; the winds registry default is 1.0 m/s (not measured).",
+    "low": 0.5,
+    "high": 6.0
+   },
+   {
+    "name": "gust_period_s",
+    "kind": "continuous",
+    "unit": "s",
+    "assumption": "assumption: the winds registry default is 6 s (not measured).",
+    "low": 2.0,
+    "high": 15.0
+   },
+   {
+    "name": "turbulence_intensity",
+    "kind": "continuous",
+    "unit": "-",
+    "assumption": "assumption: the Dryden turbulence intensity I_u; the winds registry default is 0.15 (W-04).",
+    "low": 0.05,
+    "high": 0.3
+   },
+   {
+    "name": "turbulence_seed",
+    "kind": "integer",
+    "unit": "",
+    "assumption": "assumption: which turbulence realisation is drawn; only the index is defined.",
+    "low": 1,
+    "high": 8
+   },
+   {
+    "name": "yaw_deg",
+    "kind": "continuous",
+    "unit": "deg",
+    "assumption": "assumption: the wind direction stays within 60 deg of the walking direction. A head wind is excluded on purpose: the wind model gives it no drive component at all, so it would be a trivial failure for every design and would hide the differences between them.",
+    "low": 0.0,
+    "high": 60.0
+   },
+   {
+    "name": "terrain_kind",
+    "kind": "categorical",
+    "unit": "",
+    "assumption": "assumption: the three terrain plans of strandbeest_sim.terrains that a walking beach can have.",
+    "values": [
+     "flat",
+     "slope",
+     "bumps"
+    ]
+   },
+   {
+    "name": "slope_deg",
+    "kind": "continuous",
+    "unit": "deg",
+    "assumption": "assumption: an uphill slope of up to 8 deg; the terrain registry models it by tilting gravity.",
+    "low": 0.0,
+    "high": 8.0
+   },
+   {
+    "name": "friction",
+    "kind": "continuous",
+    "unit": "-",
+    "assumption": "assumption: the ground friction coefficient; V-04 used 0.5 / 1.5 / 2.5.",
+    "low": 0.3,
+    "high": 2.5
+   },
+   {
+    "name": "bump_count",
+    "kind": "integer",
+    "unit": "",
+    "assumption": "assumption: the number of random bumps of the 'bumps' terrain.",
+    "low": 4,
+    "high": 16
+   },
+   {
+    "name": "bump_max_height_m",
+    "kind": "continuous",
+    "unit": "m",
+    "assumption": "assumption: the bump height; the terrain registry default is 0.015 m.",
+    "low": 0.005,
+    "high": 0.03
+   },
+   {
+    "name": "bump_seed",
+    "kind": "integer",
+    "unit": "",
+    "assumption": "assumption: the placement seed of the bumps.",
+    "low": 1,
+    "high": 8
+   }
+  ],
+  "nominal": {
+   "label": "nominal: constant 5.0 m/s, flat ground, mu=1.5, yaw 0 deg",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 5.0,
+    "params": {
+     "yaw_deg": 0.0
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  }
+ },
+ "sampled_scenarios": [
+  {
+   "label": "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 1.967662993162377,
+    "params": {
+     "yaw_deg": 47.32340106813079
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 2.2652974936267976,
+    "slope_deg": 3.9028532521931805,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 9.772076848081364,
+    "params": {
+     "yaw_deg": 1.8353989820132122,
+     "amplitude": 4.468470177874304,
+     "period": 4.9739088765158845
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 0.32025086481964693,
+    "slope_deg": 5.196369084203987,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 10.189351160106561,
+    "params": {
+     "yaw_deg": 20.742024882525147,
+     "intensity": 0.17395306034546265,
+     "seed": 4,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 1.311127624623014,
+    "slope_deg": 1.7502482987015089,
+    "params": {
+     "count": 8,
+     "max_height": 0.028162665594646648,
+     "seed": 7
+    }
+   }
+  },
+  {
+   "label": "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 11.742333861709763,
+    "params": {
+     "yaw_deg": 7.253397588348385,
+     "intensity": 0.20733822620016223,
+     "seed": 5,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "slope",
+    "friction": 2.441154965494736,
+    "slope_deg": 7.164603157131934,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 7.157269782107294,
+    "params": {
+     "yaw_deg": 50.771845105698766,
+     "intensity": 0.2933628512220066,
+     "seed": 8,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 2.177233490913785,
+    "slope_deg": 3.1468289845587165,
+    "params": {
+     "count": 11,
+     "max_height": 0.01106849933857669,
+     "seed": 7
+    }
+   }
+  },
+  {
+   "label": "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 5.858964590280762,
+    "params": {
+     "yaw_deg": 5.188055383694898
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 2.012573753000321,
+    "slope_deg": 4.067411905999855,
+    "params": {
+     "count": 12,
+     "max_height": 0.025998788511986858,
+     "seed": 6
+    }
+   }
+  },
+  {
+   "label": "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 6.9067399344253895,
+    "params": {
+     "yaw_deg": 38.82936991915816
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 2.4605686025847753,
+    "slope_deg": 4.017908467467865,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 5.721922670613423,
+    "params": {
+     "yaw_deg": 39.55288881718947,
+     "amplitude": 5.738570635475482,
+     "period": 9.511332501415641
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 0.31256008479086445,
+    "slope_deg": 7.656930251681815,
+    "params": {
+     "count": 16,
+     "max_height": 0.02642372817182651,
+     "seed": 3
+    }
+   }
+  },
+  {
+   "label": "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 7.309628140969728,
+    "params": {
+     "yaw_deg": 34.199960032582815,
+     "intensity": 0.17027545435356006,
+     "seed": 6,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.2094800939175132,
+    "slope_deg": 7.528108090443639,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 7.5848552607560356,
+    "params": {
+     "yaw_deg": 38.12226541811731,
+     "intensity": 0.1999637961908709,
+     "seed": 4,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 2.1942194938773145,
+    "slope_deg": 4.675686966227531,
+    "params": {
+     "count": 16,
+     "max_height": 0.01877572841888248,
+     "seed": 5
+    }
+   }
+  },
+  {
+   "label": "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 0.5511819235999366,
+    "params": {
+     "yaw_deg": 14.97355353920537,
+     "intensity": 0.1632496968182921,
+     "seed": 5,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 0.7061424028704337,
+    "slope_deg": 6.378301717329149,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 3.64750404231688,
+    "params": {
+     "yaw_deg": 29.789619359569702
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.1504256304752338,
+    "slope_deg": 0.1890766210558965,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 1.6117875249912454,
+    "params": {
+     "yaw_deg": 13.522440799116124,
+     "intensity": 0.20141216000850415,
+     "seed": 1,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "slope",
+    "friction": 1.8814380400759378,
+    "slope_deg": 1.171693923194768,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 7.671360073746771,
+    "params": {
+     "yaw_deg": 13.391746814800245
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 1.784785670540192,
+    "slope_deg": 0.2456022140322922,
+    "params": {
+     "count": 16,
+     "max_height": 0.013031145233628132,
+     "seed": 7
+    }
+   }
+  },
+  {
+   "label": "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 0.917113115270229,
+    "params": {
+     "yaw_deg": 51.51086438139356,
+     "amplitude": 1.1912582727034997,
+     "period": 4.757712009414622
+    }
+   },
+   "terrain": {
+    "kind": "slope",
+    "friction": 0.9553355726335395,
+    "slope_deg": 7.337410505967642,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 1.9124366850992702,
+    "params": {
+     "yaw_deg": 10.291025710663117,
+     "intensity": 0.2548535276531993,
+     "seed": 8,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 0.38233142518648083,
+    "slope_deg": 4.983702511124238,
+    "params": {
+     "count": 7,
+     "max_height": 0.013673272114065542,
+     "seed": 4
+    }
+   }
+  },
+  {
+   "label": "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 8.070019572010091,
+    "params": {
+     "yaw_deg": 17.764360384989093,
+     "amplitude": 3.7527512167964314,
+     "period": 8.400559755843243
+    }
+   },
+   "terrain": {
+    "kind": "slope",
+    "friction": 1.6466823944268176,
+    "slope_deg": 0.13760157378588023,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 2.2818175933648406,
+    "params": {
+     "yaw_deg": 12.781787782848825,
+     "amplitude": 4.961264840727846,
+     "period": 9.323426963203437
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 1.13431416191766,
+    "slope_deg": 0.7712408207476775,
+    "params": {
+     "count": 12,
+     "max_height": 0.013596245369770495,
+     "seed": 8
+    }
+   }
+  },
+  {
+   "label": "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 10.77452144249204,
+    "params": {
+     "yaw_deg": 9.993153025651475,
+     "intensity": 0.07117005760412105,
+     "seed": 3,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 1.9700556019761686,
+    "slope_deg": 1.7037455599313933,
+    "params": {
+     "count": 13,
+     "max_height": 0.01764721208086837,
+     "seed": 5
+    }
+   }
+  },
+  {
+   "label": "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 5.216701191738522,
+    "params": {
+     "yaw_deg": 8.120758643727177,
+     "amplitude": 1.1265210181600158,
+     "period": 5.057463647994828
+    }
+   },
+   "terrain": {
+    "kind": "bumps",
+    "friction": 1.0055971017934617,
+    "slope_deg": 6.1620252790614956,
+    "params": {
+     "count": 10,
+     "max_height": 0.0068298354708087134,
+     "seed": 3
+    }
+   }
+  }
+ ],
+ "design_space": {
+  "topology": "Jansen (contracts/kinematics/jansen.json topology of the reference design)",
+  "searched_params": [
+   "m",
+   "a",
+   "h"
+  ],
+  "frozen_params": [
+   "b",
+   "c",
+   "d",
+   "e",
+   "f",
+   "g",
+   "i",
+   "j",
+   "k",
+   "l"
+  ],
+  "bounds": {
+   "m": [
+    12.0,
+    18.0
+   ],
+   "a": [
+    36.0,
+    40.0
+   ],
+   "h": [
+    60.0,
+    70.0
+   ]
+  },
+  "assumptions": {
+   "m": "assumption: the crank length of the reference design is 15 units; the search range is a declared box around it, not an optimum found anywhere",
+   "a": "assumption: the hip offset of the reference design is 38 units; the search range is a declared box around it",
+   "h": "assumption: the thigh length of the reference design is 65.7 units; the search range is a declared box around it"
+  },
+  "x0": [
+   15.0,
+   38.0,
+   65.7
+  ],
+  "sigma0": 1.0,
+  "note": "a declared 3-parameter subspace around the reference design: with a few dozen physics evaluations a CMA-ES over all 13 linkage lengths would move nothing, so the subspace is stated instead of being hidden"
+ },
+ "physics": {
+  "backend": "k2",
+  "timestep_s": 0.001,
+  "drive": "sail (wind driven)",
+  "run": {
+   "revolutions": 10.0,
+   "settle": 0.2,
+   "max_time": 2.5,
+   "frame_rate": 0,
+   "give_up_after": 1.5
+  },
+  "outcome": "forward distance of the torso over the driving window (m, higher is better)",
+  "timestep_check": [
+   {
+    "timestep": 0.0005,
+    "nominal_distance_m": 0.5830659930922937
+   },
+   {
+    "timestep": 0.001,
+    "nominal_distance_m": 0.5858332951796206
+   },
+   {
+    "timestep": 0.002,
+    "nominal_distance_m": 0.5722226851495679
+   }
+  ],
+  "mujoco_cross_check": {
+   "reference": {
+    "nominal_m": 0.5803849629961816,
+    "adversarial_failure_of_nominal_optimum_m": -0.7295166727926098,
+    "hardest_survivable_of_nominal_optimum_m": -0.02612176234239827
+   },
+   "nominal_optimum": {
+    "nominal_m": 0.4998007379222298,
+    "adversarial_failure_of_nominal_optimum_m": -0.30833799088336283,
+    "hardest_survivable_of_nominal_optimum_m": -0.02144831385533279
+   },
+   "cvar_optimum": {
+    "nominal_m": 0.5030365967227654,
+    "adversarial_failure_of_nominal_optimum_m": -0.5791850664117354,
+    "hardest_survivable_of_nominal_optimum_m": -0.013426037813844207
+   },
+   "worst_case_optimum": {
+    "nominal_m": 0.4642357389457502,
+    "adversarial_failure_of_nominal_optimum_m": -0.34523557049870046,
+    "hardest_survivable_of_nominal_optimum_m": -0.054051691322842696
+   }
+  }
+ },
+ "optimisation": {
+  "nominal": {
+   "objective": "nominal",
+   "genome": [
+    16.01434677934557,
+    38.09708446991088,
+    65.10030199514168
+   ],
+   "value": 0.6635151356190355,
+   "candidate_evaluations": 132,
+   "scenario_evaluations": 132,
+   "wall_time_s": 36.77504301071167,
+   "history": [
+    0.6160177529253922,
+    0.6590216725684126,
+    0.6595982670671913,
+    0.6595982670671913,
+    0.6595982670671913,
+    0.6595982670671913,
+    0.6595982670671913,
+    0.6606560538049063,
+    0.6633613211722088,
+    0.6633613211722088,
+    0.6635151356190355
+   ]
+  },
+  "cvar": {
+   "objective": "cvar",
+   "genome": [
+    14.04633928017221,
+    39.366682432558655,
+    65.9261364641462
+   ],
+   "value": 0.010809434632503145,
+   "candidate_evaluations": 132,
+   "scenario_evaluations": 2640,
+   "wall_time_s": 230.6171681880951,
+   "history": [
+    0.006580915167537914,
+    0.006580915167537914,
+    0.006580915167537914,
+    0.010809434632503145,
+    0.010809434632503145,
+    0.010809434632503145,
+    0.010809434632503145,
+    0.010809434632503145,
+    0.010809434632503145,
+    0.010809434632503145,
+    0.010809434632503145
+   ]
+  },
+  "worst_case": {
+   "objective": "worst_case",
+   "genome": [
+    17.391753191840692,
+    39.59323498691025,
+    69.76750217084034
+   ],
+   "value": 0.009468064251506036,
+   "candidate_evaluations": 132,
+   "scenario_evaluations": 2640,
+   "wall_time_s": 240.83548998832703,
+   "history": [
+    0.0027922465283292753,
+    0.0056718463570363375,
+    0.005866780694441924,
+    0.006470001497952231,
+    0.0075645664097833175,
+    0.0075645664097833175,
+    0.0075645664097833175,
+    0.007645885568668587,
+    0.008277759921730448,
+    0.009468064251506036,
+    0.009468064251506036
+   ]
+  }
+ },
+ "adversarial": {
+  "reference": {
+   "scenario": {
+    "label": "constant@0.10m/s yaw=52deg / slope slope=8.0deg mu=0.96",
+    "wind": {
+     "kind": "constant",
+     "speed_m_s": 0.1,
+     "params": {
+      "yaw_deg": 51.51086438139356
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 0.9553355726335395,
+     "slope_deg": 8.0,
+     "params": {}
+    }
+   },
+   "value": -0.5019654249072029,
+   "random_pool_value": -0.12179505869470338,
+   "evaluations": 140,
+   "refinement_improved": true
+  },
+  "nominal_optimum": {
+   "scenario": {
+    "label": "constant@0.10m/s yaw=60deg / slope slope=8.0deg mu=0.96",
+    "wind": {
+     "kind": "constant",
+     "speed_m_s": 0.1,
+     "params": {
+      "yaw_deg": 60.0
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 0.9553355726335395,
+     "slope_deg": 8.0,
+     "params": {}
+    }
+   },
+   "value": -0.6261449048216614,
+   "random_pool_value": -0.2277605023400627,
+   "evaluations": 139,
+   "refinement_improved": true
+  },
+  "cvar_optimum": {
+   "scenario": {
+    "label": "constant@0.10m/s yaw=60deg / slope slope=8.0deg mu=0.96",
+    "wind": {
+     "kind": "constant",
+     "speed_m_s": 0.1,
+     "params": {
+      "yaw_deg": 60.0
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 0.9553355726335395,
+     "slope_deg": 8.0,
+     "params": {}
+    }
+   },
+   "value": -0.35336448548268623,
+   "random_pool_value": 0.002797779823007543,
+   "evaluations": 139,
+   "refinement_improved": true
+  },
+  "worst_case_optimum": {
+   "scenario": {
+    "label": "profile_turbulent@0.10m/s yaw=60deg / slope slope=8.0deg mu=0.96",
+    "wind": {
+     "kind": "profile_turbulent",
+     "speed_m_s": 0.1,
+     "params": {
+      "yaw_deg": 60.0,
+      "intensity": 0.06186004338112962,
+      "seed": 2,
+      "integral_length": 25.0,
+      "dt": 0.05
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 0.9553355726335395,
+     "slope_deg": 8.0,
+     "params": {}
+    }
+   },
+   "value": -0.34749529265928414,
+   "random_pool_value": 0.009468064251506036,
+   "evaluations": 140,
+   "refinement_improved": true
+  }
+ },
+ "adversarial_hardest_survivable": {
+  "nominal_optimum": {
+   "scenario": {
+    "label": "profile_turbulent@1.97m/s yaw=47deg / slope slope=3.9deg mu=2.27",
+    "wind": {
+     "kind": "profile_turbulent",
+     "speed_m_s": 1.967662993162377,
+     "params": {
+      "yaw_deg": 47.32340106813079,
+      "intensity": 0.3,
+      "seed": 7,
+      "integral_length": 25.0,
+      "dt": 0.05
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 2.2652974936267976,
+     "slope_deg": 3.9028532521931805,
+     "params": {}
+    }
+   },
+   "value": 0.021926920473141983,
+   "random_pool_value": 0.13602383311065497,
+   "evaluations": 141,
+   "refinement_improved": true
+  },
+  "cvar_optimum": {
+   "scenario": {
+    "label": "profile_turbulent@0.55m/s yaw=30deg / flat slope=6.4deg mu=0.71",
+    "wind": {
+     "kind": "profile_turbulent",
+     "speed_m_s": 0.5511819235999366,
+     "params": {
+      "yaw_deg": 29.97355353920537,
+      "intensity": 0.1632496968182921,
+      "seed": 5,
+      "integral_length": 25.0,
+      "dt": 0.05
+     }
+    },
+    "terrain": {
+     "kind": "flat",
+     "friction": 0.7061424028704337,
+     "slope_deg": 6.378301717329149,
+     "params": {}
+    }
+   },
+   "value": 0.012877800897830836,
+   "random_pool_value": 0.018821089441998746,
+   "evaluations": 146,
+   "refinement_improved": true
+  },
+  "worst_case_optimum": {
+   "scenario": {
+    "label": "profile_turbulent@1.97m/s yaw=60deg / flat slope=3.9deg mu=2.27",
+    "wind": {
+     "kind": "profile_turbulent",
+     "speed_m_s": 1.967662993162377,
+     "params": {
+      "yaw_deg": 60.0,
+      "intensity": 0.22487276619718455,
+      "seed": 7,
+      "integral_length": 25.0,
+      "dt": 0.05
+     }
+    },
+    "terrain": {
+     "kind": "flat",
+     "friction": 2.2652974936267976,
+     "slope_deg": 3.9028532521931805,
+     "params": {}
+    }
+   },
+   "value": 0.020587024050269256,
+   "random_pool_value": 0.10340437867944316,
+   "evaluations": 137,
+   "refinement_improved": true
+  }
+ },
+ "comparison": [
+  {
+   "name": "reference",
+   "genome": [
+    15.0,
+    38.0,
+    65.7
+   ],
+   "nominal": 0.5858332951796206,
+   "cvar": -0.059814159293385384,
+   "worst_case": -0.12179505869470338,
+   "mean": 0.6933442750840418,
+   "failures": 2,
+   "scenario_values": {
+    "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.11656619076481543,
+    "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.5807015947438579,
+    "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 1.1866175584002845,
+    "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 1.1195564571270205,
+    "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.7953614356262009,
+    "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.6950998753759066,
+    "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.6358993544002259,
+    "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.8702466767432413,
+    "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.7450676135245372,
+    "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.7231932757970907,
+    "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": 0.0021667401079326102,
+    "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.3486895816262193,
+    "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.17195343696402138,
+    "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 0.9065336805053693,
+    "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": -0.12179505869470338,
+    "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.2552457150680302,
+    "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.2464510294994344,
+    "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.6236689856706881,
+    "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.2636098715958626,
+    "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.7020514868348017
+   },
+   "extra_values": {
+    "adversarial_failure_of_nominal_optimum": -0.5016197441882853,
+    "hardest_survivable_of_nominal_optimum": 0.025369011005385612
+   }
+  },
+  {
+   "name": "nominal_optimum",
+   "genome": [
+    16.01434677934557,
+    38.09708446991088,
+    65.10030199514168
+   ],
+   "nominal": 0.6635151356190355,
+   "cvar": -0.11990566062334762,
+   "worst_case": -0.2277605023400627,
+   "mean": 0.7792029279849095,
+   "failures": 2,
+   "scenario_values": {
+    "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.13602383311065497,
+    "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.7947203060095318,
+    "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 1.344357360668505,
+    "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 1.2562133896583656,
+    "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.8986267401172012,
+    "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.7855604714697515,
+    "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.7194600038461092,
+    "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.9826711682472394,
+    "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.8428243771840358,
+    "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.818238513420149,
+    "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": -0.012050818906632543,
+    "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.39703964768366706,
+    "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.19499486362274435,
+    "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 1.025684696873692,
+    "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": -0.2277605023400627,
+    "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.2901349667023272,
+    "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.4082583334794152,
+    "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.7034349835164762,
+    "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.4321250295707018,
+    "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.7935011957643193
+   },
+   "extra_values": {
+    "adversarial_failure_of_nominal_optimum": -0.6261449048216614,
+    "hardest_survivable_of_nominal_optimum": 0.021926920473141983
+   }
+  },
+  {
+   "name": "cvar_optimum",
+   "genome": [
+    14.04633928017221,
+    39.366682432558655,
+    65.9261364641462
+   ],
+   "nominal": 0.499510113056684,
+   "cvar": 0.010809434632503145,
+   "worst_case": 0.002797779823007543,
+   "mean": 0.595125338316658,
+   "failures": 1,
+   "scenario_values": {
+    "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.10452614366748851,
+    "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.331430226633838,
+    "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 1.0038605725834646,
+    "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 0.9569558524309761,
+    "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.6751342855706206,
+    "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.58920723548955,
+    "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.5408088145535196,
+    "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.7405398006137849,
+    "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.6315636397014102,
+    "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.6136378883340451,
+    "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": 0.018821089441998746,
+    "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.2993375481168709,
+    "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.1521934385788683,
+    "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 0.7698010891921917,
+    "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": 0.002797779823007543,
+    "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.21999957365155795,
+    "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.0549794002792567,
+    "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.53250124133357,
+    "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.0690916765792706,
+    "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.5953194697578714
+   },
+   "extra_values": {
+    "adversarial_failure_of_nominal_optimum": -0.35336448548268623,
+    "hardest_survivable_of_nominal_optimum": 0.029746113760224856
+   }
+  },
+  {
+   "name": "worst_case_optimum",
+   "genome": [
+    17.391753191840692,
+    39.59323498691025,
+    69.76750217084034
+   ],
+   "nominal": 0.491618278548653,
+   "cvar": 0.009492035613321959,
+   "worst_case": 0.009468064251506036,
+   "mean": 0.586579272194192,
+   "failures": 2,
+   "scenario_values": {
+    "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.10340437867944316,
+    "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.3183516211578785,
+    "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 0.9861236123040295,
+    "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 0.9451083681822003,
+    "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.6646569502463654,
+    "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.5809341232846654,
+    "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.53232975481897,
+    "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.7296411853806932,
+    "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.6213453140956429,
+    "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.6016917517102578,
+    "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": 0.009516006975137879,
+    "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.2976869331916914,
+    "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.15020742974464915,
+    "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 0.7558646070525201,
+    "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": 0.009468064251506036,
+    "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.22094221620656837,
+    "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.0405648005890797,
+    "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.5259436359117642,
+    "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.051400008980386,
+    "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.5864046811203919
+   },
+   "extra_values": {
+    "adversarial_failure_of_nominal_optimum": -0.3473083035774105,
+    "hardest_survivable_of_nominal_optimum": 0.009486373066675007
+   }
+  }
+ ],
+ "comparison_cvar_alpha_0p3": {
+  "reference": 0.1288044343060526,
+  "nominal_optimum": 0.12973033164544973,
+  "cvar_optimum": 0.13294592887996534,
+  "worst_case_optimum": 0.13187083817483267
+ },
+ "sensitivity": {
+  "friction": [
+   {
+    "friction": 0.5,
+    "table": [
+     {
+      "name": "reference",
+      "genome": [
+       15.0,
+       38.0,
+       65.7
+      ],
+      "nominal": 0.5858332951796206,
+      "cvar": -0.059814159293385384,
+      "worst_case": -0.12179505869470338,
+      "mean": 0.6933442750840418,
+      "failures": 2,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=0.50": 0.11656619076481543,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.50": 1.5807015947438579,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=0.50": 1.1866175584002845,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=0.50": 1.1195564571270205,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=0.50": 0.7953614356262009,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=0.50": 0.6950998753759066,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=0.50": 0.6358993544002259,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.50": 0.8702466767432413,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=0.50": 0.7450676135245372,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=0.50": 0.7231932757970907,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.50": 0.0021667401079326102,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=0.50": 0.3486895816262193,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=0.50": 0.17195343696402138,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=0.50": 0.9065336805053693,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.50": -0.12179505869470338,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.50": 0.2552457150680302,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=0.50": 1.2464510294994344,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=0.50": 0.6236689856706881,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=0.50": 1.2636098715958626,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=0.50": 0.7020514868348017
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.5016197441882853,
+       "hardest_survivable_of_nominal_optimum": 0.025369011005385612
+      }
+     },
+     {
+      "name": "nominal_optimum",
+      "genome": [
+       16.01434677934557,
+       38.09708446991088,
+       65.10030199514168
+      ],
+      "nominal": 0.6635151356190355,
+      "cvar": -0.11990566062334762,
+      "worst_case": -0.2277605023400627,
+      "mean": 0.7792029279849095,
+      "failures": 2,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=0.50": 0.13602383311065497,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.50": 1.7947203060095318,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=0.50": 1.344357360668505,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=0.50": 1.2562133896583656,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=0.50": 0.8986267401172012,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=0.50": 0.7855604714697515,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=0.50": 0.7194600038461092,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.50": 0.9826711682472394,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=0.50": 0.8428243771840358,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=0.50": 0.818238513420149,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.50": -0.012050818906632543,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=0.50": 0.39703964768366706,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=0.50": 0.19499486362274435,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=0.50": 1.025684696873692,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.50": -0.2277605023400627,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.50": 0.2901349667023272,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=0.50": 1.4082583334794152,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=0.50": 0.7034349835164762,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=0.50": 1.4321250295707018,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=0.50": 0.7935011957643193
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.6261449048216614,
+       "hardest_survivable_of_nominal_optimum": 0.021926920473141983
+      }
+     },
+     {
+      "name": "cvar_optimum",
+      "genome": [
+       14.04633928017221,
+       39.366682432558655,
+       65.9261364641462
+      ],
+      "nominal": 0.499510113056684,
+      "cvar": 0.010809434632503145,
+      "worst_case": 0.002797779823007543,
+      "mean": 0.595125338316658,
+      "failures": 1,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=0.50": 0.10452614366748851,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.50": 1.331430226633838,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=0.50": 1.0038605725834646,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=0.50": 0.9569558524309761,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=0.50": 0.6751342855706206,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=0.50": 0.58920723548955,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=0.50": 0.5408088145535196,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.50": 0.7405398006137849,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=0.50": 0.6315636397014102,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=0.50": 0.6136378883340451,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.50": 0.018821089441998746,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=0.50": 0.2993375481168709,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=0.50": 0.1521934385788683,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=0.50": 0.7698010891921917,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.50": 0.002797779823007543,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.50": 0.21999957365155795,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=0.50": 1.0549794002792567,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=0.50": 0.53250124133357,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=0.50": 1.0690916765792706,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=0.50": 0.5953194697578714
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.35336448548268623,
+       "hardest_survivable_of_nominal_optimum": 0.029746113760224856
+      }
+     },
+     {
+      "name": "worst_case_optimum",
+      "genome": [
+       17.391753191840692,
+       39.59323498691025,
+       69.76750217084034
+      ],
+      "nominal": 0.491618278548653,
+      "cvar": 0.009492035613321959,
+      "worst_case": 0.009468064251506036,
+      "mean": 0.586579272194192,
+      "failures": 2,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=0.50": 0.10340437867944316,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.50": 1.3183516211578785,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=0.50": 0.9861236123040295,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=0.50": 0.9451083681822003,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=0.50": 0.6646569502463654,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=0.50": 0.5809341232846654,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=0.50": 0.53232975481897,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.50": 0.7296411853806932,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=0.50": 0.6213453140956429,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=0.50": 0.6016917517102578,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.50": 0.009516006975137879,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=0.50": 0.2976869331916914,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=0.50": 0.15020742974464915,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=0.50": 0.7558646070525201,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.50": 0.009468064251506036,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.50": 0.22094221620656837,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=0.50": 1.0405648005890797,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=0.50": 0.5259436359117642,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=0.50": 1.051400008980386,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=0.50": 0.5864046811203919
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.3473083035774105,
+       "hardest_survivable_of_nominal_optimum": 0.009486373066675007
+      }
+     }
+    ],
+    "headline_in_set": {
+     "scenario": "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.50",
+     "nominal_optimum_m": -0.2277605023400627,
+     "cvar_optimum_m": 0.002797779823007543,
+     "worst_case_optimum_m": 0.009468064251506036,
+     "cvar_minus_nominal_m": 0.23055828216307026,
+     "worst_case_minus_nominal_m": 0.23722856659156874,
+     "cvar_beats_nominal": true,
+     "worst_case_beats_nominal": true
+    },
+    "headline_at_adversarial_failure": {
+     "scenario": "adversarial_failure_of_nominal_optimum",
+     "nominal_optimum_m": -0.6261449048216614,
+     "cvar_optimum_m": -0.35336448548268623,
+     "worst_case_optimum_m": -0.3473083035774105,
+     "cvar_minus_nominal_m": 0.2727804193389752,
+     "worst_case_minus_nominal_m": 0.2788366012442509,
+     "cvar_beats_nominal": true,
+     "worst_case_beats_nominal": true
+    },
+    "headline_at_hardest_survivable": {
+     "scenario": "hardest_survivable_of_nominal_optimum",
+     "nominal_optimum_m": 0.021926920473141983,
+     "cvar_optimum_m": 0.029746113760224856,
+     "worst_case_optimum_m": 0.009486373066675007,
+     "cvar_minus_nominal_m": 0.007819193287082873,
+     "worst_case_minus_nominal_m": -0.012440547406466976,
+     "cvar_beats_nominal": true,
+     "worst_case_beats_nominal": false
+    }
+   },
+   {
+    "friction": 2.5,
+    "table": [
+     {
+      "name": "reference",
+      "genome": [
+       15.0,
+       38.0,
+       65.7
+      ],
+      "nominal": 0.5858332951796206,
+      "cvar": -0.059814159293385384,
+      "worst_case": -0.12179505869470338,
+      "mean": 0.6933442750840418,
+      "failures": 2,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.50": 0.11656619076481543,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=2.50": 1.5807015947438579,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=2.50": 1.1866175584002845,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.50": 1.1195564571270205,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.50": 0.7953614356262009,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.50": 0.6950998753759066,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.50": 0.6358993544002259,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=2.50": 0.8702466767432413,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=2.50": 0.7450676135245372,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.50": 0.7231932757970907,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=2.50": 0.0021667401079326102,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=2.50": 0.3486895816262193,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=2.50": 0.17195343696402138,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=2.50": 0.9065336805053693,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=2.50": -0.12179505869470338,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=2.50": 0.2552457150680302,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=2.50": 1.2464510294994344,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=2.50": 0.6236689856706881,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=2.50": 1.2636098715958626,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=2.50": 0.7020514868348017
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.5016197441882853,
+       "hardest_survivable_of_nominal_optimum": 0.025369011005385612
+      }
+     },
+     {
+      "name": "nominal_optimum",
+      "genome": [
+       16.01434677934557,
+       38.09708446991088,
+       65.10030199514168
+      ],
+      "nominal": 0.6635151356190355,
+      "cvar": -0.11990566062334762,
+      "worst_case": -0.2277605023400627,
+      "mean": 0.7792029279849095,
+      "failures": 2,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.50": 0.13602383311065497,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=2.50": 1.7947203060095318,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=2.50": 1.344357360668505,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.50": 1.2562133896583656,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.50": 0.8986267401172012,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.50": 0.7855604714697515,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.50": 0.7194600038461092,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=2.50": 0.9826711682472394,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=2.50": 0.8428243771840358,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.50": 0.818238513420149,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=2.50": -0.012050818906632543,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=2.50": 0.39703964768366706,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=2.50": 0.19499486362274435,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=2.50": 1.025684696873692,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=2.50": -0.2277605023400627,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=2.50": 0.2901349667023272,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=2.50": 1.4082583334794152,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=2.50": 0.7034349835164762,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=2.50": 1.4321250295707018,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=2.50": 0.7935011957643193
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.6261449048216614,
+       "hardest_survivable_of_nominal_optimum": 0.021926920473141983
+      }
+     },
+     {
+      "name": "cvar_optimum",
+      "genome": [
+       14.04633928017221,
+       39.366682432558655,
+       65.9261364641462
+      ],
+      "nominal": 0.499510113056684,
+      "cvar": 0.010809434632503145,
+      "worst_case": 0.002797779823007543,
+      "mean": 0.595125338316658,
+      "failures": 1,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.50": 0.10452614366748851,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=2.50": 1.331430226633838,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=2.50": 1.0038605725834646,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.50": 0.9569558524309761,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.50": 0.6751342855706206,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.50": 0.58920723548955,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.50": 0.5408088145535196,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=2.50": 0.7405398006137849,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=2.50": 0.6315636397014102,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.50": 0.6136378883340451,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=2.50": 0.018821089441998746,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=2.50": 0.2993375481168709,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=2.50": 0.1521934385788683,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=2.50": 0.7698010891921917,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=2.50": 0.002797779823007543,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=2.50": 0.21999957365155795,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=2.50": 1.0549794002792567,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=2.50": 0.53250124133357,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=2.50": 1.0690916765792706,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=2.50": 0.5953194697578714
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.35336448548268623,
+       "hardest_survivable_of_nominal_optimum": 0.029746113760224856
+      }
+     },
+     {
+      "name": "worst_case_optimum",
+      "genome": [
+       17.391753191840692,
+       39.59323498691025,
+       69.76750217084034
+      ],
+      "nominal": 0.491618278548653,
+      "cvar": 0.009492035613321959,
+      "worst_case": 0.009468064251506036,
+      "mean": 0.586579272194192,
+      "failures": 2,
+      "scenario_values": {
+       "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.50": 0.10340437867944316,
+       "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=2.50": 1.3183516211578785,
+       "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=2.50": 0.9861236123040295,
+       "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.50": 0.9451083681822003,
+       "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.50": 0.6646569502463654,
+       "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.50": 0.5809341232846654,
+       "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.50": 0.53232975481897,
+       "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=2.50": 0.7296411853806932,
+       "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=2.50": 0.6213453140956429,
+       "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.50": 0.6016917517102578,
+       "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=2.50": 0.009516006975137879,
+       "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=2.50": 0.2976869331916914,
+       "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=2.50": 0.15020742974464915,
+       "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=2.50": 0.7558646070525201,
+       "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=2.50": 0.009468064251506036,
+       "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=2.50": 0.22094221620656837,
+       "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=2.50": 1.0405648005890797,
+       "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=2.50": 0.5259436359117642,
+       "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=2.50": 1.051400008980386,
+       "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=2.50": 0.5864046811203919
+      },
+      "extra_values": {
+       "adversarial_failure_of_nominal_optimum": -0.3473083035774105,
+       "hardest_survivable_of_nominal_optimum": 0.009486373066675007
+      }
+     }
+    ],
+    "headline_in_set": {
+     "scenario": "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=2.50",
+     "nominal_optimum_m": -0.2277605023400627,
+     "cvar_optimum_m": 0.002797779823007543,
+     "worst_case_optimum_m": 0.009468064251506036,
+     "cvar_minus_nominal_m": 0.23055828216307026,
+     "worst_case_minus_nominal_m": 0.23722856659156874,
+     "cvar_beats_nominal": true,
+     "worst_case_beats_nominal": true
+    },
+    "headline_at_adversarial_failure": {
+     "scenario": "adversarial_failure_of_nominal_optimum",
+     "nominal_optimum_m": -0.6261449048216614,
+     "cvar_optimum_m": -0.35336448548268623,
+     "worst_case_optimum_m": -0.3473083035774105,
+     "cvar_minus_nominal_m": 0.2727804193389752,
+     "worst_case_minus_nominal_m": 0.2788366012442509,
+     "cvar_beats_nominal": true,
+     "worst_case_beats_nominal": true
+    },
+    "headline_at_hardest_survivable": {
+     "scenario": "hardest_survivable_of_nominal_optimum",
+     "nominal_optimum_m": 0.021926920473141983,
+     "cvar_optimum_m": 0.029746113760224856,
+     "worst_case_optimum_m": 0.009486373066675007,
+     "cvar_minus_nominal_m": 0.007819193287082873,
+     "worst_case_minus_nominal_m": -0.012440547406466976,
+     "cvar_beats_nominal": true,
+     "worst_case_beats_nominal": false
+    }
+   }
+  ],
+  "cma_es_seed": {
+   "seed": 2,
+   "optimisation": {
+    "nominal": {
+     "objective": "nominal",
+     "genome": [
+      16.094532265807995,
+      38.19043500629713,
+      65.08755096262658
+     ],
+     "value": 0.6637727648913198,
+     "candidate_evaluations": 132,
+     "scenario_evaluations": 132,
+     "wall_time_s": 52.23903799057007,
+     "history": [
+      0.6257155248019467,
+      0.6302103255790059,
+      0.6362404955225005,
+      0.6441657614245507,
+      0.6473630869023187,
+      0.6473630869023187,
+      0.6473630869023187,
+      0.6583628326531548,
+      0.6637727648913198,
+      0.6637727648913198,
+      0.6637727648913198
+     ]
+    },
+    "cvar": {
+     "objective": "cvar",
+     "genome": [
+      16.799816735008132,
+      39.70178577784446,
+      69.94934201052625
+     ],
+     "value": 0.009016202639315138,
+     "candidate_evaluations": 132,
+     "scenario_evaluations": 2640,
+     "wall_time_s": 224.02264404296875,
+     "history": [
+      0.0014464304793170464,
+      0.00596006495740899,
+      0.006142444666863431,
+      0.008776709603556946,
+      0.008776709603556946,
+      0.008776709603556946,
+      0.008776709603556946,
+      0.008776709603556946,
+      0.008776709603556946,
+      0.008776709603556946,
+      0.009016202639315138
+     ]
+    },
+    "worst_case": {
+     "objective": "worst_case",
+     "genome": [
+      17.202564506290468,
+      39.412954461498764,
+      69.69182476254981
+     ],
+     "value": 0.008687925572701002,
+     "candidate_evaluations": 132,
+     "scenario_evaluations": 2640,
+     "wall_time_s": 283.5621271133423,
+     "history": [
+      0.0014408146193999143,
+      0.0032593289050094113,
+      0.006615844096377956,
+      0.006615844096377956,
+      0.007189700073568484,
+      0.007189700073568484,
+      0.007855384608305855,
+      0.007855384608305855,
+      0.007855384608305855,
+      0.008594275947784802,
+      0.008687925572701002
+     ]
+    }
+   },
+   "table": [
+    {
+     "name": "nominal_optimum",
+     "genome": [
+      16.094532265807995,
+      38.19043500629713,
+      65.08755096262658
+     ],
+     "nominal": 0.6637727648913198,
+     "cvar": -0.12123816372190818,
+     "worst_case": -0.22865207388798797,
+     "mean": 0.7791702342935893,
+     "failures": 2,
+     "scenario_values": {
+      "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.13838382668702537,
+      "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.793773948874467,
+      "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 1.344127502266064,
+      "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 1.2559957327189304,
+      "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.8985918923775622,
+      "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.7855753182041281,
+      "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.7194881135632935,
+      "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.982806834945474,
+      "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.8427357900437816,
+      "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.8184022010415438,
+      "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": -0.0138242535558284,
+      "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.3974614492345277,
+      "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.1958033956390611,
+      "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 1.0255603496150425,
+      "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": -0.22865207388798797,
+      "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.29063500333366665,
+      "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.4080415507669533,
+      "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.7036221490322301,
+      "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.4313971148209146,
+      "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.7934788401509385
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.6250300770422426,
+      "hardest_survivable_of_nominal_optimum": 0.03225940488418688
+     }
+    },
+    {
+     "name": "cvar_optimum",
+     "genome": [
+      16.799816735008132,
+      39.70178577784446,
+      69.94934201052625
+     ],
+     "nominal": 0.4780049705335375,
+     "cvar": 0.009016202639315138,
+     "worst_case": 0.00900907746670417,
+     "mean": 0.5705873720288642,
+     "failures": 2,
+     "scenario_values": {
+      "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.10090874866154206,
+      "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.282467957592569,
+      "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 0.9591111500390223,
+      "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 0.9202261205681737,
+      "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.6464889528709405,
+      "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.5650424918586117,
+      "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.5175735974668637,
+      "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.7095555690672027,
+      "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.6044934676154606,
+      "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.5853606277578568,
+      "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": 0.009023327811926106,
+      "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.2892056275345104,
+      "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.14696182810131486,
+      "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 0.7352430266608898,
+      "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": 0.00900907746670417,
+      "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.2144258966032678,
+      "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.0118181659169383,
+      "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.5113937371182141,
+      "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.0230247752726467,
+      "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.5704132945926296
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.33253768565344033,
+      "hardest_survivable_of_nominal_optimum": 0.008987965324398484
+     }
+    },
+    {
+     "name": "worst_case_optimum",
+     "genome": [
+      17.202564506290468,
+      39.412954461498764,
+      69.69182476254981
+     ],
+     "nominal": 0.4985459300536528,
+     "cvar": 0.008689510824699025,
+     "worst_case": 0.008687925572701002,
+     "mean": 0.5947486441018139,
+     "failures": 2,
+     "scenario_values": {
+      "constant@1.97m/s yaw=47deg / flat slope=3.9deg mu=2.27": 0.10440748528109155,
+      "gusts@9.77m/s yaw=2deg / flat slope=5.2deg mu=0.32": 1.3375787281160683,
+      "profile_turbulent@10.19m/s yaw=21deg / bumps slope=1.8deg mu=1.31": 1.0001627352388298,
+      "profile_turbulent@11.74m/s yaw=7deg / slope slope=7.2deg mu=2.44": 0.9581461337995326,
+      "profile_turbulent@7.16m/s yaw=51deg / bumps slope=3.1deg mu=2.18": 0.6740850725393219,
+      "constant@5.86m/s yaw=5deg / bumps slope=4.1deg mu=2.01": 0.5892282671832131,
+      "constant@6.91m/s yaw=39deg / flat slope=4.0deg mu=2.46": 0.5398859323587895,
+      "gusts@5.72m/s yaw=40deg / bumps slope=7.7deg mu=0.31": 0.7397086920665904,
+      "profile_turbulent@7.31m/s yaw=34deg / flat slope=7.5deg mu=1.21": 0.6303990159969814,
+      "profile_turbulent@7.58m/s yaw=38deg / bumps slope=4.7deg mu=2.19": 0.6107151276517198,
+      "profile_turbulent@0.55m/s yaw=15deg / flat slope=6.4deg mu=0.71": 0.008687925572701002,
+      "constant@3.65m/s yaw=30deg / flat slope=0.2deg mu=1.15": 0.30131176401937637,
+      "profile_turbulent@1.61m/s yaw=14deg / slope slope=1.2deg mu=1.88": 0.15207094183712835,
+      "constant@7.67m/s yaw=13deg / bumps slope=0.2deg mu=1.78": 0.7668870010367963,
+      "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96": 0.008691096076697047,
+      "profile_turbulent@1.91m/s yaw=10deg / bumps slope=5.0deg mu=0.38": 0.22349185063082963,
+      "gusts@8.07m/s yaw=18deg / slope slope=0.1deg mu=1.65": 1.055472367207829,
+      "gusts@2.28m/s yaw=13deg / bumps slope=0.8deg mu=1.13": 0.5328368016194093,
+      "profile_turbulent@10.77m/s yaw=10deg / bumps slope=1.7deg mu=1.97": 1.0665113522320637,
+      "gusts@5.22m/s yaw=8deg / bumps slope=6.2deg mu=1.01": 0.5946945915713113
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.3497734983586245,
+      "hardest_survivable_of_nominal_optimum": 0.008689450076269072
+     }
+    }
+   ],
+   "headline_in_set": {
+    "scenario": "gusts@0.92m/s yaw=52deg / slope slope=7.3deg mu=0.96",
+    "nominal_optimum_m": -0.22865207388798797,
+    "cvar_optimum_m": 0.00900907746670417,
+    "worst_case_optimum_m": 0.008691096076697047,
+    "cvar_minus_nominal_m": 0.23766115135469215,
+    "worst_case_minus_nominal_m": 0.23734316996468502,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": true
+   },
+   "headline_at_adversarial_failure": {
+    "scenario": "adversarial_failure_of_nominal_optimum",
+    "nominal_optimum_m": -0.6250300770422426,
+    "cvar_optimum_m": -0.33253768565344033,
+    "worst_case_optimum_m": -0.3497734983586245,
+    "cvar_minus_nominal_m": 0.29249239138880223,
+    "worst_case_minus_nominal_m": 0.2752565786836181,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": true
+   },
+   "headline_at_hardest_survivable": {
+    "scenario": "hardest_survivable_of_nominal_optimum",
+    "nominal_optimum_m": 0.03225940488418688,
+    "cvar_optimum_m": 0.008987965324398484,
+    "worst_case_optimum_m": 0.008689450076269072,
+    "cvar_minus_nominal_m": -0.023271439559788398,
+    "worst_case_minus_nominal_m": -0.02356995480791781,
+    "cvar_beats_nominal": false,
+    "worst_case_beats_nominal": false
+   }
+  },
+  "scenario_set_seed": {
+   "seed": 2,
+   "scenarios": [
+    {
+     "label": "constant@13.39m/s yaw=15deg / flat slope=4.9deg mu=1.58",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 13.388876379260566,
+      "params": {
+       "yaw_deg": 15.09499785569794
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.578648837646407,
+      "slope_deg": 4.854413869126703,
+      "params": {}
+     }
+    },
+    {
+     "label": "profile_turbulent@11.27m/s yaw=54deg / flat slope=2.9deg mu=2.35",
+     "wind": {
+      "kind": "profile_turbulent",
+      "speed_m_s": 11.271005259825795,
+      "params": {
+       "yaw_deg": 54.07246784981682,
+       "intensity": 0.1612135471814634,
+       "seed": 5,
+       "integral_length": 25.0,
+       "dt": 0.05
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 2.3500624187337102,
+      "slope_deg": 2.912115422778955,
+      "params": {}
+     }
+    },
+    {
+     "label": "constant@7.89m/s yaw=60deg / bumps slope=4.5deg mu=2.49",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 7.891094018268334,
+      "params": {
+       "yaw_deg": 59.92101409155312
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 2.4893908751447302,
+      "slope_deg": 4.47912253033182,
+      "params": {
+       "count": 11,
+       "max_height": 0.024918998035540988,
+       "seed": 6
+      }
+     }
+    },
+    {
+     "label": "gusts@11.08m/s yaw=43deg / slope slope=5.2deg mu=0.85",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 11.077492160718508,
+      "params": {
+       "yaw_deg": 42.90905389424721,
+       "amplitude": 2.4903751007867685,
+       "period": 13.166568655555785
+      }
+     },
+     "terrain": {
+      "kind": "slope",
+      "friction": 0.8497838890405789,
+      "slope_deg": 5.2392878252479855,
+      "params": {}
+     }
+    },
+    {
+     "label": "gusts@9.30m/s yaw=29deg / flat slope=7.5deg mu=2.09",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 9.297429840055315,
+      "params": {
+       "yaw_deg": 29.196513291695105,
+       "amplitude": 5.448353238161442,
+       "period": 7.993158143461289
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 2.0923040489782214,
+      "slope_deg": 7.524772126952841,
+      "params": {}
+     }
+    },
+    {
+     "label": "gusts@10.84m/s yaw=19deg / flat slope=3.9deg mu=1.11",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 10.844478392363726,
+      "params": {
+       "yaw_deg": 18.710659473060012,
+       "amplitude": 2.202597187222034,
+       "period": 14.445702250230054
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.1065161455805568,
+      "slope_deg": 3.911251635068157,
+      "params": {}
+     }
+    },
+    {
+     "label": "gusts@11.00m/s yaw=4deg / bumps slope=0.4deg mu=1.60",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 11.001489939567147,
+      "params": {
+       "yaw_deg": 3.5255337839193435,
+       "amplitude": 4.49272108112514,
+       "period": 13.79949707236717
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 1.6017406977605548,
+      "slope_deg": 0.3912810249984098,
+      "params": {
+       "count": 14,
+       "max_height": 0.026887279286205944,
+       "seed": 2
+      }
+     }
+    },
+    {
+     "label": "constant@10.59m/s yaw=25deg / bumps slope=6.1deg mu=0.42",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 10.585740001952955,
+      "params": {
+       "yaw_deg": 25.375058903381763
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 0.4249521061568348,
+      "slope_deg": 6.0752725620194115,
+      "params": {
+       "count": 9,
+       "max_height": 0.00929702480314331,
+       "seed": 1
+      }
+     }
+    },
+    {
+     "label": "constant@1.25m/s yaw=8deg / flat slope=5.9deg mu=1.45",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 1.2523541659236,
+      "params": {
+       "yaw_deg": 7.667228049049246
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.4508011037207391,
+      "slope_deg": 5.878296267017054,
+      "params": {}
+     }
+    },
+    {
+     "label": "constant@11.14m/s yaw=17deg / slope slope=0.2deg mu=1.29",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 11.138795118488531,
+      "params": {
+       "yaw_deg": 17.161598207301097
+      }
+     },
+     "terrain": {
+      "kind": "slope",
+      "friction": 1.287037177483047,
+      "slope_deg": 0.24648686101350847,
+      "params": {}
+     }
+    },
+    {
+     "label": "gusts@12.64m/s yaw=6deg / bumps slope=2.5deg mu=0.52",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 12.638080201065511,
+      "params": {
+       "yaw_deg": 5.60721903778396,
+       "amplitude": 5.2434517697898535,
+       "period": 11.169486820659952
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 0.5245080311093361,
+      "slope_deg": 2.5304474138260735,
+      "params": {
+       "count": 11,
+       "max_height": 0.024710233411707548,
+       "seed": 3
+      }
+     }
+    },
+    {
+     "label": "gusts@7.30m/s yaw=16deg / bumps slope=7.8deg mu=1.74",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 7.304176871708662,
+      "params": {
+       "yaw_deg": 15.54578539513233,
+       "amplitude": 3.178069523210934,
+       "period": 6.26349056415098
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 1.7372921812509974,
+      "slope_deg": 7.765468920454713,
+      "params": {
+       "count": 15,
+       "max_height": 0.018948753095976996,
+       "seed": 3
+      }
+     }
+    },
+    {
+     "label": "gusts@9.42m/s yaw=30deg / bumps slope=7.5deg mu=2.49",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 9.420801954636394,
+      "params": {
+       "yaw_deg": 30.49555104213862,
+       "amplitude": 0.6845593543675582,
+       "period": 4.095145197356044
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 2.487955513170907,
+      "slope_deg": 7.473042549574454,
+      "params": {
+       "count": 7,
+       "max_height": 0.02284668684838292,
+       "seed": 2
+      }
+     }
+    },
+    {
+     "label": "profile_turbulent@3.59m/s yaw=15deg / slope slope=2.2deg mu=1.95",
+     "wind": {
+      "kind": "profile_turbulent",
+      "speed_m_s": 3.5858525895920845,
+      "params": {
+       "yaw_deg": 15.3965573092821,
+       "intensity": 0.2059773715389861,
+       "seed": 6,
+       "integral_length": 25.0,
+       "dt": 0.05
+      }
+     },
+     "terrain": {
+      "kind": "slope",
+      "friction": 1.9514911473588237,
+      "slope_deg": 2.229897053610679,
+      "params": {}
+     }
+    },
+    {
+     "label": "profile_turbulent@2.33m/s yaw=45deg / flat slope=1.7deg mu=1.45",
+     "wind": {
+      "kind": "profile_turbulent",
+      "speed_m_s": 2.3272769044736914,
+      "params": {
+       "yaw_deg": 45.03511156060938,
+       "intensity": 0.07494327168874775,
+       "seed": 3,
+       "integral_length": 25.0,
+       "dt": 0.05
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.4456200009053746,
+      "slope_deg": 1.7388290777468738,
+      "params": {}
+     }
+    },
+    {
+     "label": "constant@3.05m/s yaw=53deg / bumps slope=4.7deg mu=2.33",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 3.0530514137234075,
+      "params": {
+       "yaw_deg": 52.88622263879316
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 2.325355924713097,
+      "slope_deg": 4.650728057695928,
+      "params": {
+       "count": 14,
+       "max_height": 0.025066380217634653,
+       "seed": 6
+      }
+     }
+    },
+    {
+     "label": "constant@0.37m/s yaw=18deg / bumps slope=3.3deg mu=0.53",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 0.3708120973185792,
+      "params": {
+       "yaw_deg": 18.496470906908108
+      }
+     },
+     "terrain": {
+      "kind": "bumps",
+      "friction": 0.5310363372640996,
+      "slope_deg": 3.2980343759752433,
+      "params": {
+       "count": 7,
+       "max_height": 0.02601529217797102,
+       "seed": 1
+      }
+     }
+    },
+    {
+     "label": "constant@11.39m/s yaw=0deg / flat slope=3.0deg mu=2.36",
+     "wind": {
+      "kind": "constant",
+      "speed_m_s": 11.38763961847712,
+      "params": {
+       "yaw_deg": 0.31969485477776116
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 2.3575949549067245,
+      "slope_deg": 2.9832168403757438,
+      "params": {}
+     }
+    },
+    {
+     "label": "profile_turbulent@2.77m/s yaw=24deg / flat slope=2.0deg mu=0.57",
+     "wind": {
+      "kind": "profile_turbulent",
+      "speed_m_s": 2.773791878738852,
+      "params": {
+       "yaw_deg": 23.70255360947177,
+       "intensity": 0.08491632780727092,
+       "seed": 6,
+       "integral_length": 25.0,
+       "dt": 0.05
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 0.5705087749445703,
+      "slope_deg": 2.0332982016664802,
+      "params": {}
+     }
+    },
+    {
+     "label": "profile_turbulent@13.44m/s yaw=43deg / slope slope=2.3deg mu=2.41",
+     "wind": {
+      "kind": "profile_turbulent",
+      "speed_m_s": 13.439393031201789,
+      "params": {
+       "yaw_deg": 43.41109679898778,
+       "intensity": 0.16759362142013745,
+       "seed": 1,
+       "integral_length": 25.0,
+       "dt": 0.05
+      }
+     },
+     "terrain": {
+      "kind": "slope",
+      "friction": 2.4111190438678753,
+      "slope_deg": 2.3260227654924757,
+      "params": {}
+     }
+    }
+   ],
+   "table": [
+    {
+     "name": "reference",
+     "genome": [
+      15.0,
+      38.0,
+      65.7
+     ],
+     "nominal": 0.5858332951796206,
+     "cvar": 0.05294679090257348,
+     "worst_case": 5.662216079133285e-05,
+     "mean": 0.939151073285859,
+     "failures": 1,
+     "scenario_values": {
+      "constant@13.39m/s yaw=15deg / flat slope=4.9deg mu=1.58": 1.6139189245622703,
+      "profile_turbulent@11.27m/s yaw=54deg / flat slope=2.9deg mu=2.35": 0.6783690185812058,
+      "constant@7.89m/s yaw=60deg / bumps slope=4.5deg mu=2.49": 0.44923533782717856,
+      "gusts@11.08m/s yaw=43deg / slope slope=5.2deg mu=0.85": 1.0500641298347924,
+      "gusts@9.30m/s yaw=29deg / flat slope=7.5deg mu=2.09": 1.4166692707548678,
+      "gusts@10.84m/s yaw=19deg / flat slope=3.9deg mu=1.11": 1.3997923963396368,
+      "gusts@11.00m/s yaw=4deg / bumps slope=0.4deg mu=1.60": 1.6500825514030615,
+      "constant@10.59m/s yaw=25deg / bumps slope=6.1deg mu=0.42": 1.1797870647544666,
+      "constant@1.25m/s yaw=8deg / flat slope=5.9deg mu=1.45": 0.10583695964435563,
+      "constant@11.14m/s yaw=17deg / slope slope=0.2deg mu=1.29": 1.3158742371646814,
+      "gusts@12.64m/s yaw=6deg / bumps slope=2.5deg mu=0.52": 1.9620080739291312,
+      "gusts@7.30m/s yaw=16deg / bumps slope=7.8deg mu=1.74": 1.133419618467119,
+      "gusts@9.42m/s yaw=30deg / bumps slope=7.5deg mu=2.49": 1.0295776499998037,
+      "profile_turbulent@3.59m/s yaw=15deg / slope slope=2.2deg mu=1.95": 0.3700061076583605,
+      "profile_turbulent@2.33m/s yaw=45deg / flat slope=1.7deg mu=1.45": 0.15346912659472559,
+      "constant@3.05m/s yaw=53deg / bumps slope=4.7deg mu=2.33": 0.18065362114988015,
+      "constant@0.37m/s yaw=18deg / bumps slope=3.3deg mu=0.53": 5.662216079133285e-05,
+      "constant@11.39m/s yaw=0deg / flat slope=3.0deg mu=2.36": 1.415286123741847,
+      "profile_turbulent@2.77m/s yaw=24deg / flat slope=2.0deg mu=0.57": 0.277639453502843,
+      "profile_turbulent@13.44m/s yaw=43deg / slope slope=2.3deg mu=2.41": 1.401275177646161
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.5016197441882853,
+      "hardest_survivable_of_nominal_optimum": 0.025369011005385612
+     }
+    },
+    {
+     "name": "nominal_optimum",
+     "genome": [
+      16.01434677934557,
+      38.09708446991088,
+      65.10030199514168
+     ],
+     "nominal": 0.6635151356190355,
+     "cvar": 0.05321528272116164,
+     "worst_case": -0.012913747140292142,
+     "mean": 1.062590203884507,
+     "failures": 1,
+     "scenario_values": {
+      "constant@13.39m/s yaw=15deg / flat slope=4.9deg mu=1.58": 1.8296327689311433,
+      "profile_turbulent@11.27m/s yaw=54deg / flat slope=2.9deg mu=2.35": 0.767308228712073,
+      "constant@7.89m/s yaw=60deg / bumps slope=4.5deg mu=2.49": 0.5115670059488532,
+      "gusts@11.08m/s yaw=43deg / slope slope=5.2deg mu=0.85": 1.1799587364303088,
+      "gusts@9.30m/s yaw=29deg / flat slope=7.5deg mu=2.09": 1.6024558346796451,
+      "gusts@10.84m/s yaw=19deg / flat slope=3.9deg mu=1.11": 1.5844972085214895,
+      "gusts@11.00m/s yaw=4deg / bumps slope=0.4deg mu=1.60": 1.8693631868120089,
+      "constant@10.59m/s yaw=25deg / bumps slope=6.1deg mu=0.42": 1.3352395428086727,
+      "constant@1.25m/s yaw=8deg / flat slope=5.9deg mu=1.45": 0.11934431258261542,
+      "constant@11.14m/s yaw=17deg / slope slope=0.2deg mu=1.29": 1.4900008151255182,
+      "gusts@12.64m/s yaw=6deg / bumps slope=2.5deg mu=0.52": 2.223855919350234,
+      "gusts@7.30m/s yaw=16deg / bumps slope=7.8deg mu=1.74": 1.2823099045886253,
+      "gusts@9.42m/s yaw=30deg / bumps slope=7.5deg mu=2.49": 1.1649007389954769,
+      "profile_turbulent@3.59m/s yaw=15deg / slope slope=2.2deg mu=1.95": 0.41575940657596744,
+      "profile_turbulent@2.33m/s yaw=45deg / flat slope=1.7deg mu=1.45": 0.17527153679308188,
+      "constant@3.05m/s yaw=53deg / bumps slope=4.7deg mu=2.33": 0.20929737717448285,
+      "constant@0.37m/s yaw=18deg / bumps slope=3.3deg mu=0.53": -0.012913747140292142,
+      "constant@11.39m/s yaw=0deg / flat slope=3.0deg mu=2.36": 1.6042684714285251,
+      "profile_turbulent@2.77m/s yaw=24deg / flat slope=2.0deg mu=0.57": 0.3166003148410726,
+      "profile_turbulent@13.44m/s yaw=43deg / slope slope=2.3deg mu=2.41": 1.5830865145306376
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.6261449048216614,
+      "hardest_survivable_of_nominal_optimum": 0.021926920473141983
+     }
+    },
+    {
+     "name": "cvar_optimum",
+     "genome": [
+      14.04633928017221,
+      39.366682432558655,
+      65.9261364641462
+     ],
+     "nominal": 0.499510113056684,
+     "cvar": 0.05051567029211719,
+     "worst_case": 0.006536540287812835,
+     "mean": 0.7958270255898416,
+     "failures": 1,
+     "scenario_values": {
+      "constant@13.39m/s yaw=15deg / flat slope=4.9deg mu=1.58": 1.3624035630984437,
+      "profile_turbulent@11.27m/s yaw=54deg / flat slope=2.9deg mu=2.35": 0.5779030939930728,
+      "constant@7.89m/s yaw=60deg / bumps slope=4.5deg mu=2.49": 0.3848264063112864,
+      "gusts@11.08m/s yaw=43deg / slope slope=5.2deg mu=0.85": 0.8970522291162717,
+      "gusts@9.30m/s yaw=29deg / flat slope=7.5deg mu=2.09": 1.1979418629481393,
+      "gusts@10.84m/s yaw=19deg / flat slope=3.9deg mu=1.11": 1.1829069189780375,
+      "gusts@11.00m/s yaw=4deg / bumps slope=0.4deg mu=1.60": 1.3931475536269546,
+      "constant@10.59m/s yaw=25deg / bumps slope=6.1deg mu=0.42": 0.9996976262632854,
+      "constant@1.25m/s yaw=8deg / flat slope=5.9deg mu=1.45": 0.09449480029642154,
+      "constant@11.14m/s yaw=17deg / slope slope=0.2deg mu=1.29": 1.1139246248959294,
+      "gusts@12.64m/s yaw=6deg / bumps slope=2.5deg mu=0.52": 1.6409991364038088,
+      "gusts@7.30m/s yaw=16deg / bumps slope=7.8deg mu=1.74": 0.9614958660090914,
+      "gusts@9.42m/s yaw=30deg / bumps slope=7.5deg mu=2.49": 0.8722783618323289,
+      "profile_turbulent@3.59m/s yaw=15deg / slope slope=2.2deg mu=1.95": 0.3198189351044469,
+      "profile_turbulent@2.33m/s yaw=45deg / flat slope=1.7deg mu=1.45": 0.1345096159244793,
+      "constant@3.05m/s yaw=53deg / bumps slope=4.7deg mu=2.33": 0.1557604734276868,
+      "constant@0.37m/s yaw=18deg / bumps slope=3.3deg mu=0.53": 0.006536540287812835,
+      "constant@11.39m/s yaw=0deg / flat slope=3.0deg mu=2.36": 1.196441433567555,
+      "profile_turbulent@2.77m/s yaw=24deg / flat slope=2.0deg mu=0.57": 0.2367649505108634,
+      "profile_turbulent@13.44m/s yaw=43deg / slope slope=2.3deg mu=2.41": 1.1876365192009182
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.35336448548268623,
+      "hardest_survivable_of_nominal_optimum": 0.029746113760224856
+     }
+    },
+    {
+     "name": "worst_case_optimum",
+     "genome": [
+      17.391753191840692,
+      39.59323498691025,
+      69.76750217084034
+     ],
+     "nominal": 0.491618278548653,
+     "cvar": 0.05006073967347864,
+     "worst_case": 0.009436119851581356,
+     "mean": 0.7884086054443341,
+     "failures": 1,
+     "scenario_values": {
+      "constant@13.39m/s yaw=15deg / flat slope=4.9deg mu=1.58": 1.347802046026113,
+      "profile_turbulent@11.27m/s yaw=54deg / flat slope=2.9deg mu=2.35": 0.5695106631677657,
+      "constant@7.89m/s yaw=60deg / bumps slope=4.5deg mu=2.49": 0.3804995110592039,
+      "gusts@11.08m/s yaw=43deg / slope slope=5.2deg mu=0.85": 0.8858908563526716,
+      "gusts@9.30m/s yaw=29deg / flat slope=7.5deg mu=2.09": 1.182180056599645,
+      "gusts@10.84m/s yaw=19deg / flat slope=3.9deg mu=1.11": 1.1679102937506474,
+      "gusts@11.00m/s yaw=4deg / bumps slope=0.4deg mu=1.60": 1.3816681240911968,
+      "constant@10.59m/s yaw=25deg / bumps slope=6.1deg mu=0.42": 0.9829902194075358,
+      "constant@1.25m/s yaw=8deg / flat slope=5.9deg mu=1.45": 0.09068535949537593,
+      "constant@11.14m/s yaw=17deg / slope slope=0.2deg mu=1.29": 1.096944665873467,
+      "gusts@12.64m/s yaw=6deg / bumps slope=2.5deg mu=0.52": 1.6638827754319025,
+      "gusts@7.30m/s yaw=16deg / bumps slope=7.8deg mu=1.74": 0.9452315005327931,
+      "gusts@9.42m/s yaw=30deg / bumps slope=7.5deg mu=2.49": 0.8576948475400725,
+      "profile_turbulent@3.59m/s yaw=15deg / slope slope=2.2deg mu=1.95": 0.3176367179695812,
+      "profile_turbulent@2.33m/s yaw=45deg / flat slope=1.7deg mu=1.45": 0.13943594578276802,
+      "constant@3.05m/s yaw=53deg / bumps slope=4.7deg mu=2.33": 0.1579366714989583,
+      "constant@0.37m/s yaw=18deg / bumps slope=3.3deg mu=0.53": 0.009436119851581356,
+      "constant@11.39m/s yaw=0deg / flat slope=3.0deg mu=2.36": 1.1799699913720703,
+      "profile_turbulent@2.77m/s yaw=24deg / flat slope=2.0deg mu=0.57": 0.23757640393501583,
+      "profile_turbulent@13.44m/s yaw=43deg / slope slope=2.3deg mu=2.41": 1.1732893391483172
+     },
+     "extra_values": {
+      "adversarial_failure_of_nominal_optimum": -0.3473083035774105,
+      "hardest_survivable_of_nominal_optimum": 0.009486373066675007
+     }
+    }
+   ],
+   "headline_in_set": {
+    "scenario": "constant@0.37m/s yaw=18deg / bumps slope=3.3deg mu=0.53",
+    "nominal_optimum_m": -0.012913747140292142,
+    "cvar_optimum_m": 0.006536540287812835,
+    "worst_case_optimum_m": 0.009436119851581356,
+    "cvar_minus_nominal_m": 0.01945028742810498,
+    "worst_case_minus_nominal_m": 0.022349866991873496,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": true
+   },
+   "headline_at_adversarial_failure": {
+    "scenario": "adversarial_failure_of_nominal_optimum",
+    "nominal_optimum_m": -0.6261449048216614,
+    "cvar_optimum_m": -0.35336448548268623,
+    "worst_case_optimum_m": -0.3473083035774105,
+    "cvar_minus_nominal_m": 0.2727804193389752,
+    "worst_case_minus_nominal_m": 0.2788366012442509,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": true
+   },
+   "headline_at_hardest_survivable": {
+    "scenario": "hardest_survivable_of_nominal_optimum",
+    "nominal_optimum_m": 0.021926920473141983,
+    "cvar_optimum_m": 0.029746113760224856,
+    "worst_case_optimum_m": 0.009486373066675007,
+    "cvar_minus_nominal_m": 0.007819193287082873,
+    "worst_case_minus_nominal_m": -0.012440547406466976,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": false
+   }
+  },
+  "mujoco_headline": {
+   "nominal_m": {
+    "nominal_optimum_m": 0.4998007379222298,
+    "cvar_optimum_m": 0.5030365967227654,
+    "worst_case_optimum_m": 0.4642357389457502,
+    "cvar_minus_nominal_m": 0.0032358588005355626,
+    "worst_case_minus_nominal_m": -0.03556499897647958,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": false
+   },
+   "adversarial_failure_of_nominal_optimum_m": {
+    "nominal_optimum_m": -0.30833799088336283,
+    "cvar_optimum_m": -0.5791850664117354,
+    "worst_case_optimum_m": -0.34523557049870046,
+    "cvar_minus_nominal_m": -0.27084707552837256,
+    "worst_case_minus_nominal_m": -0.03689757961533763,
+    "cvar_beats_nominal": false,
+    "worst_case_beats_nominal": false
+   },
+   "hardest_survivable_of_nominal_optimum_m": {
+    "nominal_optimum_m": -0.02144831385533279,
+    "cvar_optimum_m": -0.013426037813844207,
+    "worst_case_optimum_m": -0.054051691322842696,
+    "cvar_minus_nominal_m": 0.008022276041488583,
+    "worst_case_minus_nominal_m": -0.03260337746750991,
+    "cvar_beats_nominal": true,
+    "worst_case_beats_nominal": false
+   },
+   "adversarial_search_under_mujoco": {
+    "reference": {
+     "scenario": {
+      "label": "constant@0.10m/s yaw=47deg / slope slope=3.9deg mu=2.27",
+      "wind": {
+       "kind": "constant",
+       "speed_m_s": 0.1,
+       "params": {
+        "yaw_deg": 47.32340106813079
+       }
+      },
+      "terrain": {
+       "kind": "slope",
+       "friction": 2.2652974936267976,
+       "slope_deg": 3.9028532521931805,
+       "params": {}
+      }
+     },
+     "value": -0.308027323561061,
+     "random_pool_value": 0.11493775682991367,
+     "evaluations": 58,
+     "refinement_improved": true
+    },
+    "nominal_optimum": {
+     "scenario": {
+      "label": "constant@0.10m/s yaw=47deg / slope slope=3.9deg mu=2.27",
+      "wind": {
+       "kind": "constant",
+       "speed_m_s": 0.1,
+       "params": {
+        "yaw_deg": 47.32340106813079
+       }
+      },
+      "terrain": {
+       "kind": "slope",
+       "friction": 2.2652974936267976,
+       "slope_deg": 3.9028532521931805,
+       "params": {}
+      }
+     },
+     "value": -0.1941742081592734,
+     "random_pool_value": 0.12586968230659945,
+     "evaluations": 58,
+     "refinement_improved": true
+    },
+    "cvar_optimum": {
+     "scenario": {
+      "label": "constant@0.10m/s yaw=47deg / slope slope=3.9deg mu=2.27",
+      "wind": {
+       "kind": "constant",
+       "speed_m_s": 0.1,
+       "params": {
+        "yaw_deg": 47.32340106813079
+       }
+      },
+      "terrain": {
+       "kind": "slope",
+       "friction": 2.2652974936267976,
+       "slope_deg": 3.9028532521931805,
+       "params": {}
+      }
+     },
+     "value": -0.2502994483507303,
+     "random_pool_value": 0.10010634564311974,
+     "evaluations": 58,
+     "refinement_improved": true
+    }
+   }
+  }
+ },
+ "budget": {
+  "candidate_evaluations_per_run": 128,
+  "popsize": 12,
+  "scenario_set_size": 20,
+  "physics_evaluations_total": 12243,
+  "wall_time_s": 2045.8625078201294,
+  "note": "the search is budget-limited; no convergence is claimed and the designs are not shown to be optimal"
+ },
+ "verdict": {
+  "criterion": "the robust design beats the nominal-optimal design in the worst scenario",
+  "level_a_failure_scenario": {
+   "scenario": {
+    "label": "constant@0.10m/s yaw=60deg / slope slope=8.0deg mu=0.96",
+    "wind": {
+     "kind": "constant",
+     "speed_m_s": 0.1,
+     "params": {
+      "yaw_deg": 60.0
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 0.9553355726335395,
+     "slope_deg": 8.0,
+     "params": {}
+    }
+   },
+   "nominal_optimum_m": -0.6261449048216614,
+   "cvar_optimum_m": -0.35336448548268623,
+   "worst_case_optimum_m": -0.3473083035774105,
+   "cvar_beats_nominal": true,
+   "worst_case_beats_nominal": true
+  },
+  "level_b_hardest_survivable_scenario": {
+   "scenario": {
+    "label": "profile_turbulent@1.97m/s yaw=47deg / slope slope=3.9deg mu=2.27",
+    "wind": {
+     "kind": "profile_turbulent",
+     "speed_m_s": 1.967662993162377,
+     "params": {
+      "yaw_deg": 47.32340106813079,
+      "intensity": 0.3,
+      "seed": 7,
+      "integral_length": 25.0,
+      "dt": 0.05
+     }
+    },
+    "terrain": {
+     "kind": "slope",
+     "friction": 2.2652974936267976,
+     "slope_deg": 3.9028532521931805,
+     "params": {}
+    }
+   },
+   "nominal_optimum_m": 0.021926920473141983,
+   "cvar_optimum_m": 0.029746113760224856,
+   "worst_case_optimum_m": 0.009486373066675007,
+   "cvar_beats_nominal": true,
+   "worst_case_beats_nominal": false
+  },
+  "note": "level A is the strict reading (the worst scenario of the whole space, where the nominal-optimal design fails); level B is the hardest scenario the nominal-optimal design still walks in, which is where the designs can be told apart. Both are reported, whatever they say.",
+  "verdict": "demonstrated in level A, level B",
+  "sensitivity_cvar_beats_nominal_at_adversarial_failure": {
+   "friction_0.5": true,
+   "friction_2.5": true,
+   "cma_es_seed": true,
+   "scenario_set_seed": true,
+   "mujoco": false
+  }
+ }
+}
