@@ -175,7 +175,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | R-01 | npm 发布 `strandbeest-core` | 包可安装；README 示例可运行 | **你 `npm login`** | S | ⬜（等你） |
 | R-02 | GitHub Pages：静态查看器 + 预算好的示例画廊 | 页面可打开，不需要后端 | **你启用 Pages** | S | ✅ 2026-10-12 已上线 https://meiluosi.github.io/strandbeest-evolution/ （`pages.yml` 手动触发；除预录回放外，访客还能在浏览器里仿真自己的设计，见 DEPLOY.md） |
 | R-03 | 博客草稿复核与发布（`draft: false`） | 所有数字与 EXPERIMENTS 一致；链接可用 | **你确认** | M | ⬜（等你） |
-| R-04 | PLATFORM、ENGINE、VISION 的英文版 | 与中文版结构一致 | – | M | ⬜ |
+| R-04 | PLATFORM、ENGINE、VISION 的英文版 | 与中文版结构一致 | – | M | ✅ 2026-10-21（证据：`docs/PLATFORM.en.md`、`docs/ENGINE.en.md`、`docs/VISION.en.md`。与中文版**逐行结构对应**：标题数 21/20/39 一致，每份 5 张表、行列形状一致，每一行的结构类型在同一个行号上对应，数字字面量全部保留，零处中文残留，12 个 arXiv 链接逐字节相同。ASCII 图按英文重排了对齐（中文原版因双宽字符参差不齐）。顺带修正了中文 ENGINE.md 里两处过期事实：页眉还写"0001–0008 已接受"（ADR-0010 已于 2026-10-21 接受），单向门表里还写 ADR-0009"待写"（已接受）——中英文都已改正） |
 | R-05 | `CONTRIBUTING.md`、Issue 模板、扩展指南、"如何带来真实数据" | 一个陌生人能按文档加一个地形插件并过测试 | E7（扩展 API） | M | ✅ 2026-10-21（证据：交付 `CONTRIBUTING.md`（中英双语）、`docs/EXTENDING.md`（中英双语扩展指南）、`.github/ISSUE_TEMPLATE/` 三种 Issue 模板（设计请求 / 模型缺陷 / 数据贡献）+ config。**验收按字面执行过**：照着扩展指南真的加了一个 `ramp` 地形（Python 注册表 + TS 平行实现 + schema 注解 + 重新生成模型与参考文档 + 进 MJCF 字节级契约语料库 + 两端各写测试），测试全绿（sim-web 90 个测试，比原来多 4 个），两套实现逐字节一致。指南里记的坑都是本仓库真踩过的：`soft` 地形曾"什么也没发生"（MuJoCo 对两个 `solref` geom 取更硬的那个）、MJCF 差一个 `.0` 就失败、地形参数拼错会静默走默认值。**未做**：E7 的版本化插件 API 本身仍不存在，指南覆盖的是现有注册表扩展点，不是完整的插件市场） |
 | R-06 | 设计与数据的许可证决定（建议 CC BY 4.0 / CC0） | 写入 LICENSE 与项目清单 | **你决定** | S | ⬜（等你）2026-10-21：提案已写好，见 `docs/LICENSING.md`（三个方案 A/B/C、取舍、与 V-06/R-05/R-01 的耦合、三条待你回答的问题）。`LICENSE` **未改动**（代码仍是 MIT）。V-06 的提交表单已经改成让贡献者自己声明许可意向，因此这个决定不再阻塞收数据 |
 
