@@ -1,0 +1,422 @@
+{
+  "condition_names": [
+    "K2_Nominal",
+    "MuJoCo_Nominal",
+    "K2_Low_Friction",
+    "K2_High_Friction",
+    "Kinematic_Stroke",
+    "Kinematic_Duty",
+    "Start_Wind_Speed"
+  ],
+  "n_designs": 12,
+  "top_k": 5,
+  "spearman_matrix": {
+    "K2_Nominal": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.8461538461538461,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.5944055944055944,
+      "Kinematic_Duty": 0.46853146853146854,
+      "Start_Wind_Speed": 0.5244755244755245
+    },
+    "MuJoCo_Nominal": {
+      "K2_Nominal": 0.8461538461538461,
+      "MuJoCo_Nominal": 1.0,
+      "K2_Low_Friction": 0.8461538461538461,
+      "K2_High_Friction": 0.8461538461538461,
+      "Kinematic_Stroke": 0.42657342657342656,
+      "Kinematic_Duty": 0.24475524475524477,
+      "Start_Wind_Speed": 0.48951048951048953
+    },
+    "K2_Low_Friction": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.8461538461538461,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.5944055944055944,
+      "Kinematic_Duty": 0.46853146853146854,
+      "Start_Wind_Speed": 0.5244755244755245
+    },
+    "K2_High_Friction": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.8461538461538461,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.5944055944055944,
+      "Kinematic_Duty": 0.46853146853146854,
+      "Start_Wind_Speed": 0.5244755244755245
+    },
+    "Kinematic_Stroke": {
+      "K2_Nominal": 0.5944055944055944,
+      "MuJoCo_Nominal": 0.42657342657342656,
+      "K2_Low_Friction": 0.5944055944055944,
+      "K2_High_Friction": 0.5944055944055944,
+      "Kinematic_Stroke": 1.0,
+      "Kinematic_Duty": 0.958041958041958,
+      "Start_Wind_Speed": 0.34965034965034963
+    },
+    "Kinematic_Duty": {
+      "K2_Nominal": 0.46853146853146854,
+      "MuJoCo_Nominal": 0.24475524475524477,
+      "K2_Low_Friction": 0.46853146853146854,
+      "K2_High_Friction": 0.46853146853146854,
+      "Kinematic_Stroke": 0.958041958041958,
+      "Kinematic_Duty": 1.0,
+      "Start_Wind_Speed": 0.36363636363636365
+    },
+    "Start_Wind_Speed": {
+      "K2_Nominal": 0.5244755244755245,
+      "MuJoCo_Nominal": 0.48951048951048953,
+      "K2_Low_Friction": 0.5244755244755245,
+      "K2_High_Friction": 0.5244755244755245,
+      "Kinematic_Stroke": 0.34965034965034963,
+      "Kinematic_Duty": 0.36363636363636365,
+      "Start_Wind_Speed": 1.0
+    }
+  },
+  "top_k_jaccard_matrix": {
+    "K2_Nominal": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.6666666666666666,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.6666666666666666,
+      "Kinematic_Duty": 0.6666666666666666,
+      "Start_Wind_Speed": 0.6666666666666666
+    },
+    "MuJoCo_Nominal": {
+      "K2_Nominal": 0.6666666666666666,
+      "MuJoCo_Nominal": 1.0,
+      "K2_Low_Friction": 0.6666666666666666,
+      "K2_High_Friction": 0.6666666666666666,
+      "Kinematic_Stroke": 0.42857142857142855,
+      "Kinematic_Duty": 0.42857142857142855,
+      "Start_Wind_Speed": 0.6666666666666666
+    },
+    "K2_Low_Friction": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.6666666666666666,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.6666666666666666,
+      "Kinematic_Duty": 0.6666666666666666,
+      "Start_Wind_Speed": 0.6666666666666666
+    },
+    "K2_High_Friction": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.6666666666666666,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.6666666666666666,
+      "Kinematic_Duty": 0.6666666666666666,
+      "Start_Wind_Speed": 0.6666666666666666
+    },
+    "Kinematic_Stroke": {
+      "K2_Nominal": 0.6666666666666666,
+      "MuJoCo_Nominal": 0.42857142857142855,
+      "K2_Low_Friction": 0.6666666666666666,
+      "K2_High_Friction": 0.6666666666666666,
+      "Kinematic_Stroke": 1.0,
+      "Kinematic_Duty": 1.0,
+      "Start_Wind_Speed": 0.42857142857142855
+    },
+    "Kinematic_Duty": {
+      "K2_Nominal": 0.6666666666666666,
+      "MuJoCo_Nominal": 0.42857142857142855,
+      "K2_Low_Friction": 0.6666666666666666,
+      "K2_High_Friction": 0.6666666666666666,
+      "Kinematic_Stroke": 1.0,
+      "Kinematic_Duty": 1.0,
+      "Start_Wind_Speed": 0.42857142857142855
+    },
+    "Start_Wind_Speed": {
+      "K2_Nominal": 0.6666666666666666,
+      "MuJoCo_Nominal": 0.6666666666666666,
+      "K2_Low_Friction": 0.6666666666666666,
+      "K2_High_Friction": 0.6666666666666666,
+      "Kinematic_Stroke": 0.42857142857142855,
+      "Kinematic_Duty": 0.42857142857142855,
+      "Start_Wind_Speed": 1.0
+    }
+  },
+  "top_k_overlap_matrix": {
+    "K2_Nominal": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.8,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.8,
+      "Kinematic_Duty": 0.8,
+      "Start_Wind_Speed": 0.8
+    },
+    "MuJoCo_Nominal": {
+      "K2_Nominal": 0.8,
+      "MuJoCo_Nominal": 1.0,
+      "K2_Low_Friction": 0.8,
+      "K2_High_Friction": 0.8,
+      "Kinematic_Stroke": 0.6,
+      "Kinematic_Duty": 0.6,
+      "Start_Wind_Speed": 0.8
+    },
+    "K2_Low_Friction": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.8,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.8,
+      "Kinematic_Duty": 0.8,
+      "Start_Wind_Speed": 0.8
+    },
+    "K2_High_Friction": {
+      "K2_Nominal": 1.0,
+      "MuJoCo_Nominal": 0.8,
+      "K2_Low_Friction": 1.0,
+      "K2_High_Friction": 1.0,
+      "Kinematic_Stroke": 0.8,
+      "Kinematic_Duty": 0.8,
+      "Start_Wind_Speed": 0.8
+    },
+    "Kinematic_Stroke": {
+      "K2_Nominal": 0.8,
+      "MuJoCo_Nominal": 0.6,
+      "K2_Low_Friction": 0.8,
+      "K2_High_Friction": 0.8,
+      "Kinematic_Stroke": 1.0,
+      "Kinematic_Duty": 1.0,
+      "Start_Wind_Speed": 0.6
+    },
+    "Kinematic_Duty": {
+      "K2_Nominal": 0.8,
+      "MuJoCo_Nominal": 0.6,
+      "K2_Low_Friction": 0.8,
+      "K2_High_Friction": 0.8,
+      "Kinematic_Stroke": 1.0,
+      "Kinematic_Duty": 1.0,
+      "Start_Wind_Speed": 0.6
+    },
+    "Start_Wind_Speed": {
+      "K2_Nominal": 0.8,
+      "MuJoCo_Nominal": 0.8,
+      "K2_Low_Friction": 0.8,
+      "K2_High_Friction": 0.8,
+      "Kinematic_Stroke": 0.6,
+      "Kinematic_Duty": 0.6,
+      "Start_Wind_Speed": 1.0
+    }
+  },
+  "scores": {
+    "K2_Nominal": [
+      0.2789837175098489,
+      0.27020173055963537,
+      0.2766692238683382,
+      0.29701461983788185,
+      0.2524473412221036,
+      0.2772353130610767,
+      0.2865879970684275,
+      0.23402704222232104,
+      0.2746352938148075,
+      0.25585394101291925,
+      0.298872403086347,
+      0.249518211058521
+    ],
+    "MuJoCo_Nominal": [
+      0.27367235427941194,
+      0.27342558103738035,
+      0.2607158806205196,
+      0.2844261534468763,
+      0.24632400383834388,
+      0.24941612706897157,
+      0.28033067192454597,
+      0.22701460329366172,
+      0.2661784679681432,
+      0.24696911635048588,
+      0.2770867646400036,
+      0.2603908666507093
+    ],
+    "K2_Low_Friction": [
+      0.2789837175098489,
+      0.27020173055963537,
+      0.2766692238683382,
+      0.29701461983788185,
+      0.2524473412221036,
+      0.2772353130610767,
+      0.2865879970684275,
+      0.23402704222232104,
+      0.2746352938148075,
+      0.25585394101291925,
+      0.298872403086347,
+      0.249518211058521
+    ],
+    "K2_High_Friction": [
+      0.2789837175098489,
+      0.27020173055963537,
+      0.2766692238683382,
+      0.29701461983788185,
+      0.2524473412221036,
+      0.2772353130610767,
+      0.2865879970684275,
+      0.23402704222232104,
+      0.2746352938148075,
+      0.25585394101291925,
+      0.298872403086347,
+      0.249518211058521
+    ],
+    "Kinematic_Stroke": [
+      56.61457820451972,
+      53.34597497348068,
+      57.66632674322891,
+      58.95874464138909,
+      49.2788465793819,
+      62.25138861420037,
+      51.283887605462084,
+      41.7771316573162,
+      37.74765194300514,
+      37.350404222207075,
+      56.900567582016095,
+      56.04505876650539
+    ],
+    "Kinematic_Duty": [
+      0.4808538810315902,
+      0.4146174824326854,
+      0.5446386052741592,
+      0.5007548081073492,
+      0.42473803064611093,
+      0.5885914572845051,
+      0.39249290753669264,
+      0.277690837422196,
+      0.2145770330924606,
+      0.2343097072053972,
+      0.47754516308097134,
+      0.43007140970786945
+    ],
+    "Start_Wind_Speed": [
+      -3.9112894947256307,
+      -5.286467835083464,
+      -6.886486913882541,
+      -4.963357278230506,
+      -3.0543587784669195,
+      -6.7550980175982,
+      -3.0957751993986125,
+      -8.465148481407674,
+      -8.463354729917056,
+      -8.947154187201942,
+      -4.0647864245351695,
+      -7.463606977457712
+    ]
+  },
+  "stable_pairs": [
+    [
+      "K2_Nominal",
+      "K2_Low_Friction",
+      1.0,
+      1.0
+    ],
+    [
+      "K2_Nominal",
+      "K2_High_Friction",
+      1.0,
+      1.0
+    ],
+    [
+      "K2_Low_Friction",
+      "K2_High_Friction",
+      1.0,
+      1.0
+    ],
+    [
+      "Kinematic_Stroke",
+      "Kinematic_Duty",
+      0.958041958041958,
+      1.0
+    ]
+  ],
+  "unstable_pairs": [
+    [
+      "K2_Nominal",
+      "Kinematic_Stroke",
+      0.5944055944055944,
+      0.8
+    ],
+    [
+      "K2_Nominal",
+      "Kinematic_Duty",
+      0.46853146853146854,
+      0.8
+    ],
+    [
+      "K2_Nominal",
+      "Start_Wind_Speed",
+      0.5244755244755245,
+      0.8
+    ],
+    [
+      "MuJoCo_Nominal",
+      "Kinematic_Stroke",
+      0.42657342657342656,
+      0.6
+    ],
+    [
+      "MuJoCo_Nominal",
+      "Kinematic_Duty",
+      0.24475524475524477,
+      0.6
+    ],
+    [
+      "MuJoCo_Nominal",
+      "Start_Wind_Speed",
+      0.48951048951048953,
+      0.8
+    ],
+    [
+      "K2_Low_Friction",
+      "Kinematic_Stroke",
+      0.5944055944055944,
+      0.8
+    ],
+    [
+      "K2_Low_Friction",
+      "Kinematic_Duty",
+      0.46853146853146854,
+      0.8
+    ],
+    [
+      "K2_Low_Friction",
+      "Start_Wind_Speed",
+      0.5244755244755245,
+      0.8
+    ],
+    [
+      "K2_High_Friction",
+      "Kinematic_Stroke",
+      0.5944055944055944,
+      0.8
+    ],
+    [
+      "K2_High_Friction",
+      "Kinematic_Duty",
+      0.46853146853146854,
+      0.8
+    ],
+    [
+      "K2_High_Friction",
+      "Start_Wind_Speed",
+      0.5244755244755245,
+      0.8
+    ],
+    [
+      "Kinematic_Stroke",
+      "Start_Wind_Speed",
+      0.34965034965034963,
+      0.6
+    ],
+    [
+      "Kinematic_Duty",
+      "Start_Wind_Speed",
+      0.36363636363636365,
+      0.6
+    ]
+  ],
+  "is_stable": false,
+  "verdict": "Ranking flips observed in 14 condition pairs (K2_Nominal<->Kinematic_Stroke, K2_Nominal<->Kinematic_Duty, K2_Nominal<->Start_Wind_Speed)."
+}
