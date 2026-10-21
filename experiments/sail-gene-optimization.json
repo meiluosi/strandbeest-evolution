@@ -1,0 +1,1733 @@
+{
+ "card": "W-08",
+ "generated_by": "packages/opt/scripts/sail_gene_run.py",
+ "seed": 1,
+ "alpha": 0.1,
+ "gene_space": {
+  "fixed_sail": {
+   "names": [
+    "m",
+    "a",
+    "h"
+   ],
+   "dimension": 3,
+   "link_genes": [
+    {
+     "name": "m",
+     "low": 12.0,
+     "high": 18.0,
+     "unit": "length units (1 unit = 2 mm)",
+     "reference": 15.0,
+     "assumption": "assumption: the crank length of the reference design is 15 units; the searched range is a declared box around it, not an optimum found anywhere. Same box as O-07 (EXPERIMENTS section 38)."
+    },
+    {
+     "name": "a",
+     "low": 36.0,
+     "high": 40.0,
+     "unit": "length units (1 unit = 2 mm)",
+     "reference": 38.0,
+     "assumption": "assumption: the hip offset of the reference design is 38 units; the searched range is a declared box around it. Same box as O-07."
+    },
+    {
+     "name": "h",
+     "low": 60.0,
+     "high": 70.0,
+     "unit": "length units (1 unit = 2 mm)",
+     "reference": 65.7,
+     "assumption": "assumption: the thigh length of the reference design is 65.7 units; the searched range is a declared box around it. Same box as O-07."
+    }
+   ],
+   "sail_genes": [],
+   "reference_genome": [
+    15.0,
+    38.0,
+    65.7
+   ],
+   "fixed_sail": true
+  },
+  "free_sail": {
+   "names": [
+    "m",
+    "a",
+    "h",
+    "sail_area_m2",
+    "sail_gear"
+   ],
+   "dimension": 5,
+   "link_genes": [
+    {
+     "name": "m",
+     "low": 12.0,
+     "high": 18.0,
+     "unit": "length units (1 unit = 2 mm)",
+     "reference": 15.0,
+     "assumption": "assumption: the crank length of the reference design is 15 units; the searched range is a declared box around it, not an optimum found anywhere. Same box as O-07 (EXPERIMENTS section 38)."
+    },
+    {
+     "name": "a",
+     "low": 36.0,
+     "high": 40.0,
+     "unit": "length units (1 unit = 2 mm)",
+     "reference": 38.0,
+     "assumption": "assumption: the hip offset of the reference design is 38 units; the searched range is a declared box around it. Same box as O-07."
+    },
+    {
+     "name": "h",
+     "low": 60.0,
+     "high": 70.0,
+     "unit": "length units (1 unit = 2 mm)",
+     "reference": 65.7,
+     "assumption": "assumption: the thigh length of the reference design is 65.7 units; the searched range is a declared box around it. Same box as O-07."
+    }
+   ],
+   "sail_genes": [
+    {
+     "name": "sail_area_m2",
+     "low": 0.01,
+     "high": 0.08,
+     "unit": "m2",
+     "reference": 0.03,
+     "assumption": "assumption: a printed sail panel on the reference walker (a 0.25 m long, 0.35 kg torso with six legs). The lower bound 0.010 m2 is a 10 cm x 10 cm panel, the upper bound 0.080 m2 is 800 cm2, a panel of about 0.28 m x 0.28 m that is longer than the torso itself and that the machine would have to carry. The reference sail is 0.03 m2 (300 cm2) and W-03's sensitivity table already exercised 0.015 m2 and 0.060 m2, so the searched range brackets the values this repository has ever run. No printed sail of this walker exists (E3 is empty), so the range is a declared plausibility box, not a measurement."
+    },
+    {
+     "name": "sail_gear",
+     "low": 4.0,
+     "high": 24.0,
+     "unit": "1 (sail turns per crank turn)",
+     "reference": 10.0,
+     "assumption": "assumption: the sail-to-crank reduction ratio of the reference design is 10. The searched range 4-24 brackets the 5 and 20 that W-03's sensitivity table already exercised and is meant to cover the reduction ratios a hobbyist can realise with a worm or belt reducer between a rotor of about 0.08 m radius and a 15 mm crank. No catalogue of small gearboxes was consulted and no gear train of this walker has ever been built: the range is a declared box, not an optimum found anywhere [unverified]."
+    }
+   ],
+   "reference_genome": [
+    15.0,
+    38.0,
+    65.7,
+    0.03,
+    10.0
+   ],
+   "fixed_sail": false
+  },
+  "link_genes": [
+   {
+    "name": "m",
+    "low": 12.0,
+    "high": 18.0,
+    "unit": "length units (1 unit = 2 mm)",
+    "reference": 15.0,
+    "assumption": "assumption: the crank length of the reference design is 15 units; the searched range is a declared box around it, not an optimum found anywhere. Same box as O-07 (EXPERIMENTS section 38)."
+   },
+   {
+    "name": "a",
+    "low": 36.0,
+    "high": 40.0,
+    "unit": "length units (1 unit = 2 mm)",
+    "reference": 38.0,
+    "assumption": "assumption: the hip offset of the reference design is 38 units; the searched range is a declared box around it. Same box as O-07."
+   },
+   {
+    "name": "h",
+    "low": 60.0,
+    "high": 70.0,
+    "unit": "length units (1 unit = 2 mm)",
+    "reference": 65.7,
+    "assumption": "assumption: the thigh length of the reference design is 65.7 units; the searched range is a declared box around it. Same box as O-07."
+   }
+  ],
+  "sail_genes": [
+   {
+    "name": "sail_area_m2",
+    "low": 0.01,
+    "high": 0.08,
+    "unit": "m2",
+    "reference": 0.03,
+    "assumption": "assumption: a printed sail panel on the reference walker (a 0.25 m long, 0.35 kg torso with six legs). The lower bound 0.010 m2 is a 10 cm x 10 cm panel, the upper bound 0.080 m2 is 800 cm2, a panel of about 0.28 m x 0.28 m that is longer than the torso itself and that the machine would have to carry. The reference sail is 0.03 m2 (300 cm2) and W-03's sensitivity table already exercised 0.015 m2 and 0.060 m2, so the searched range brackets the values this repository has ever run. No printed sail of this walker exists (E3 is empty), so the range is a declared plausibility box, not a measurement."
+   },
+   {
+    "name": "sail_gear",
+    "low": 4.0,
+    "high": 24.0,
+    "unit": "1 (sail turns per crank turn)",
+    "reference": 10.0,
+    "assumption": "assumption: the sail-to-crank reduction ratio of the reference design is 10. The searched range 4-24 brackets the 5 and 20 that W-03's sensitivity table already exercised and is meant to cover the reduction ratios a hobbyist can realise with a worm or belt reducer between a rotor of about 0.08 m radius and a 15 mm crank. No catalogue of small gearboxes was consulted and no gear train of this walker has ever been built: the range is a declared box, not an optimum found anywhere [unverified]."
+   }
+  ],
+  "note": "the genome is [link values..., sail values...]; the optimiser works on the unit cube so that one sigma means the same thing for a 0.08 m2 sail and a 70 mm link"
+ },
+ "scenario_space": {
+  "name": "w08-wind-only-v1",
+  "notes": "the declared scenario space of W-08; the sampled set is written to the output file so that every number below can be traced back to the scenarios that produced it",
+  "axes": [
+   {
+    "name": "wind_speed_m_s",
+    "kind": "continuous",
+    "unit": "m/s",
+    "assumption": "assumption: the range starts at the reference start wind (about 0.55 m/s under K2, EXPERIMENTS section 28 gives 0.49 m/s under MuJoCo) and reaches 8 m/s. Below the start wind every design fails for a reason that is not a design, so those scenarios would make the CVaR degenerate. The start-wind objective answers the 'not enough wind' question on its own. Not a measurement.",
+    "low": 0.5,
+    "high": 8.0
+   },
+   {
+    "name": "wind_kind",
+    "kind": "categorical",
+    "unit": "",
+    "assumption": "assumption: the three wind models registered in strandbeest_sim.winds (W-04). Which of them occurs on a given day is not known.",
+    "values": [
+     "constant",
+     "gusts",
+     "profile_turbulent"
+    ]
+   },
+   {
+    "name": "gust_amplitude_m_s",
+    "kind": "continuous",
+    "unit": "m/s",
+    "assumption": "assumption: the gust peak deviation; the winds registry default is 1.0 m/s (not measured).",
+    "low": 0.5,
+    "high": 6.0
+   },
+   {
+    "name": "gust_period_s",
+    "kind": "continuous",
+    "unit": "s",
+    "assumption": "assumption: the winds registry default is 6 s (not measured).",
+    "low": 2.0,
+    "high": 15.0
+   },
+   {
+    "name": "turbulence_intensity",
+    "kind": "continuous",
+    "unit": "-",
+    "assumption": "assumption: the Dryden turbulence intensity I_u; the winds registry default is 0.15 (W-04, not measured).",
+    "low": 0.05,
+    "high": 0.3
+   },
+   {
+    "name": "turbulence_seed",
+    "kind": "integer",
+    "unit": "",
+    "assumption": "assumption: which turbulence realisation is drawn; only the index is defined.",
+    "low": 1,
+    "high": 8
+   },
+   {
+    "name": "yaw_deg",
+    "kind": "continuous",
+    "unit": "deg",
+    "assumption": "assumption: the wind direction stays within 45 deg of the walking direction. Beyond that the drive component falls like cos(yaw) and the machine fails for a reason that is the same for every design, which would hide the differences between them. A head wind is excluded on purpose (it has no drive component at all).",
+    "low": 0.0,
+    "high": 45.0
+   }
+  ],
+  "nominal": {
+   "label": "nominal: constant 5.0 m/s, flat ground, mu=1.5, yaw 0 deg",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 5.0,
+    "params": {
+     "yaw_deg": 0.0
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  }
+ },
+ "sampled_scenarios": [
+  {
+   "label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 1.5077318308430092,
+    "params": {
+     "yaw_deg": 35.49255080109809,
+     "amplitude": 1.9028796415668192,
+     "period": 8.440656132195233
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 1.2039469008067618,
+    "params": {
+     "yaw_deg": 31.312479004579956,
+     "amplitude": 5.413243734066993,
+     "period": 7.067514491274743
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 2.497479203429447,
+    "params": {
+     "yaw_deg": 1.1450637447057361,
+     "amplitude": 3.7513438925071716,
+     "period": 3.328953055430627
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 4.560593545951225,
+    "params": {
+     "yaw_deg": 34.366544780917025,
+     "amplitude": 4.275661197984938,
+     "period": 14.597528453823292
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 7.543752642114399,
+    "params": {
+     "yaw_deg": 42.851000488103715,
+     "amplitude": 1.7819644764166496,
+     "period": 5.001265040032796
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 7.448799678393995,
+    "params": {
+     "yaw_deg": 28.320880716029205,
+     "amplitude": 5.106678866144151,
+     "period": 9.233906194481634
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 5.927292577546827,
+    "params": {
+     "yaw_deg": 22.847276273009225,
+     "amplitude": 1.1648947789319353,
+     "period": 6.325037409681678
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 7.32638794204065,
+    "params": {
+     "yaw_deg": 26.505101609214826,
+     "amplitude": 2.1685268101310466,
+     "period": 9.638547879866273
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 0.7589437261350619,
+    "params": {
+     "yaw_deg": 24.695944262466885
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 5.772805715492236,
+    "params": {
+     "yaw_deg": 35.02991767500656
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 4.407038132098589,
+    "params": {
+     "yaw_deg": 31.65219398717262
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 7.873907879822554,
+    "params": {
+     "yaw_deg": 44.19344868923404
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 6.2789235487310044,
+    "params": {
+     "yaw_deg": 42.861032472072125
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "constant",
+    "speed_m_s": 4.833461058509023,
+    "params": {
+     "yaw_deg": 17.266033480051796
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 6.927118451547953,
+    "params": {
+     "yaw_deg": 19.17408058596676,
+     "intensity": 0.2443492955739756,
+     "seed": 4,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 0.9209247314055531,
+    "params": {
+     "yaw_deg": 36.60081782233379,
+     "intensity": 0.17618011685721585,
+     "seed": 8,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 3.60818389129329,
+    "params": {
+     "yaw_deg": 26.99348331435676,
+     "intensity": 0.2031131161956814,
+     "seed": 8,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 6.534271133855266,
+    "params": {
+     "yaw_deg": 1.460660903740802,
+     "intensity": 0.2652522152133312,
+     "seed": 5,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 7.5767769034829096,
+    "params": {
+     "yaw_deg": 11.230165154404027,
+     "intensity": 0.05363999373120308,
+     "seed": 5,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  {
+   "label": "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "profile_turbulent",
+    "speed_m_s": 1.3211647047076953,
+    "params": {
+     "yaw_deg": 23.732117957160575,
+     "intensity": 0.09186757683684214,
+     "seed": 5,
+     "integral_length": 25.0,
+     "dt": 0.05
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  }
+ ],
+ "anchors": {
+  "start_wind_m_s": 0.38751452156615834,
+  "cvar_m": 0.038024251644521466,
+  "distance_m": 0.5722226851495679
+ },
+ "physics": {
+  "backend": "k2",
+  "timestep_s": 0.001,
+  "drive": "sail (wind driven: the product layer, docs/WIND.md section 2)",
+  "run": {
+   "revolutions": 10.0,
+   "settle": 0.2,
+   "max_time": 2.5,
+   "frame_rate": 0,
+   "give_up_after": 1.5
+  },
+  "start_wind_protocol": {
+   "max_time_s": 40.0,
+   "give_up_after_s": 10.0,
+   "rel_tol": 0.05,
+   "guess_m_s": 0.5,
+   "definition": "the lowest constant wind at which the crank completes one revolution from rest (W-03); the result is the interval (lo, hi]"
+  },
+  "outcome": "the forward distance of the torso over the driving window (m, higher is better)",
+  "start_wind_proxy": {
+   "formula": "v* = sqrt(max(0, peak_load_torque) / (gear * 0.5 * rho * Cd * A * r))",
+   "source": "the virtual dynamometer of EXPERIMENTS section 32, with the peak load torque rescaled to the design's torso mass (the dynamometer weighs the machine with the scenario's walker.mass, which is the schema default of 50 kg for a design that declares a torso mass)",
+   "cost": "0.56 s per candidate (measured on this machine, the 180-sample torque sweep); cheap enough to sit inside the optimisation loop, and about 700 times cheaper than the real start-wind search (about 390 s per design)"
+  }
+ },
+ "optimisation": {
+  "optimizer": "CmaEs (ask/tell), the same one for every run",
+  "seed": 1,
+  "sigma0": 0.15,
+  "popsize": 12,
+  "max_evals": 24,
+  "runs": {
+   "free_sail_nominal": {
+    "objective": {
+     "start": 1.0,
+     "robust": 0.0
+    },
+    "genome": [
+     14.658179320690234,
+     37.38176293493157,
+     64.89352996053395,
+     0.049883022765473344,
+     16.727204391186532
+    ],
+    "score": 0.5107203165082329,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.061598400296168414,
+     0.5107203165082329
+    ],
+    "space": "free",
+    "name": "free_sail_nominal",
+    "wall_time_s": 304.29786109924316
+   },
+   "free_sail_w25": {
+    "objective": {
+     "start": 0.75,
+     "robust": 0.25
+    },
+    "genome": [
+     14.658179320690234,
+     37.38176293493157,
+     64.89352996053395,
+     0.049883022765473344,
+     16.727204391186532
+    ],
+    "score": 0.38556181581933063,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.053076504371902006,
+     0.38556181581933063
+    ],
+    "space": "free",
+    "name": "free_sail_w25",
+    "wall_time_s": 263.2939569950104
+   },
+   "free_sail_robust": {
+    "objective": {
+     "start": 0.5,
+     "robust": 0.5
+    },
+    "genome": [
+     14.658179320690234,
+     37.38176293493157,
+     64.89352996053395,
+     0.049883022765473344,
+     16.727204391186532
+    ],
+    "score": 0.26040331513042847,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.044554608447635605,
+     0.26040331513042847
+    ],
+    "space": "free",
+    "name": "free_sail_robust",
+    "wall_time_s": 266.6211440563202
+   },
+   "free_sail_w75": {
+    "objective": {
+     "start": 0.25,
+     "robust": 0.75
+    },
+    "genome": [
+     14.737617296165569,
+     37.45260044089799,
+     64.86937700394421,
+     0.05144708645415988,
+     16.550495861837376
+    ],
+    "score": 0.1289032146015752,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.036032712523369204,
+     0.1289032146015752
+    ],
+    "space": "free",
+    "name": "free_sail_w75",
+    "wall_time_s": 223.29734110832214
+   },
+   "free_sail_robust_only": {
+    "objective": {
+     "start": 0.0,
+     "robust": 1.0
+    },
+    "genome": [
+     14.827348002874547,
+     37.46741729574868,
+     64.57924014440079,
+     0.047771306441987585,
+     10.1524293613806
+    ],
+    "score": 0.03634203344029425,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.03634203344029425,
+     0.03634203344029425
+    ],
+    "space": "free",
+    "name": "free_sail_robust_only",
+    "wall_time_s": 222.45522570610046
+   },
+   "fixed_sail_nominal": {
+    "objective": {
+     "start": 1.0,
+     "robust": 0.0
+    },
+    "genome": [
+     14.239314922651152,
+     37.597245608980664,
+     65.68100246838115
+    ],
+    "score": 0.22641602094045063,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.22641602094045063,
+     0.22641602094045063
+    ],
+    "space": "fixed",
+    "name": "fixed_sail_nominal",
+    "wall_time_s": 218.65474390983582
+   },
+   "fixed_sail_robust": {
+    "objective": {
+     "start": 0.5,
+     "robust": 0.5
+    },
+    "genome": [
+     14.239314922651152,
+     37.597245608980664,
+     65.68100246838115
+    ],
+    "score": 0.12149193092789692,
+    "candidate_evaluations": 24,
+    "generations": 2,
+    "history": [
+     0.12149193092789692,
+     0.12149193092789692
+    ],
+    "space": "fixed",
+    "name": "fixed_sail_robust",
+    "wall_time_s": 215.08831882476807
+   }
+  }
+ },
+ "table": [
+  {
+   "name": "reference",
+   "space": "fixed",
+   "sail": {
+    "area_m2": 0.03,
+    "gear": 10.0
+   },
+   "genome": [
+    15.0,
+    38.0,
+    65.7
+   ],
+   "start_wind_proxy_m_s": 0.38751452156615834,
+   "peak_load_torque_nm": 0.0025948944764579273,
+   "aero_factor": 0.017279999999999997,
+   "cvar_m": 0.042885195735534,
+   "worst_case_m": 0.028599079893626044,
+   "mean_m": 0.5528232967784086,
+   "nominal_distance_m": 0.5858332951796206,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.23207283750141486,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.49256961198309257,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.5132747229749924,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.6366497666937412,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.7643358798255661,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 1.164024279537287,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.7448194856461298,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.9463650639330972,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.028599079893626044,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.5502938046607082,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.4244129311132911,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.6702713129194448,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5338946956230688,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.5355371355917822,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.8020811323918078,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.057171311577441965,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.4674304883097071,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.5580362809838771,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.8519008611492418,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.0827252532588537
+   },
+   "start_wind_measured_m_s": 0.5571933712979462,
+   "start_wind_measured_interval": [
+    0.5452538663326288,
+    0.5693943173783458
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "free_sail_nominal",
+   "space": "free",
+   "sail": {
+    "area_m2": 0.049883022765473344,
+    "gear": 16.727204391186532
+   },
+   "genome": [
+    14.658179320690234,
+    37.38176293493157,
+    64.89352996053395,
+    0.049883022765473344,
+    16.727204391186532
+   ],
+   "start_wind_proxy_m_s": 0.2325331990839212,
+   "peak_load_torque_nm": 0.0025987741762056138,
+   "aero_factor": 0.048061642605021125,
+   "cvar_m": 0.04392002139768603,
+   "worst_case_m": 0.03347067079384684,
+   "mean_m": 0.3885258831319469,
+   "nominal_distance_m": 0.41079550515527846,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.1744855992139285,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.351448366085577,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.35593147438684475,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.44841153008778367,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5289915691624111,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 0.7986252067066968,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.516617606252101,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.6515892369297441,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.03347067079384684,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.38764862429521685,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.30357145853275835,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.46644421523957336,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.37668329415225404,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.37785210192886814,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.5528669395247684,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.0543693720015252,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.3337347348745874,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.3983627378337221,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.5878147387068017,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.07159818592992888
+   },
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "start_wind_measured_interval": [
+    0.5,
+    0.5221368912137069
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "free_sail_w25",
+   "space": "free",
+   "sail": {
+    "area_m2": 0.049883022765473344,
+    "gear": 16.727204391186532
+   },
+   "genome": [
+    14.658179320690234,
+    37.38176293493157,
+    64.89352996053395,
+    0.049883022765473344,
+    16.727204391186532
+   ],
+   "start_wind_proxy_m_s": 0.2325331990839212,
+   "peak_load_torque_nm": 0.0025987741762056138,
+   "aero_factor": 0.048061642605021125,
+   "cvar_m": 0.04392002139768603,
+   "worst_case_m": 0.03347067079384684,
+   "mean_m": 0.3885258831319469,
+   "nominal_distance_m": 0.41079550515527846,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.1744855992139285,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.351448366085577,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.35593147438684475,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.44841153008778367,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5289915691624111,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 0.7986252067066968,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.516617606252101,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.6515892369297441,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.03347067079384684,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.38764862429521685,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.30357145853275835,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.46644421523957336,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.37668329415225404,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.37785210192886814,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.5528669395247684,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.0543693720015252,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.3337347348745874,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.3983627378337221,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.5878147387068017,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.07159818592992888
+   },
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "start_wind_measured_interval": [
+    0.5,
+    0.5221368912137069
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "free_sail_robust",
+   "space": "free",
+   "sail": {
+    "area_m2": 0.049883022765473344,
+    "gear": 16.727204391186532
+   },
+   "genome": [
+    14.658179320690234,
+    37.38176293493157,
+    64.89352996053395,
+    0.049883022765473344,
+    16.727204391186532
+   ],
+   "start_wind_proxy_m_s": 0.2325331990839212,
+   "peak_load_torque_nm": 0.0025987741762056138,
+   "aero_factor": 0.048061642605021125,
+   "cvar_m": 0.04392002139768603,
+   "worst_case_m": 0.03347067079384684,
+   "mean_m": 0.3885258831319469,
+   "nominal_distance_m": 0.41079550515527846,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.1744855992139285,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.351448366085577,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.35593147438684475,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.44841153008778367,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5289915691624111,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 0.7986252067066968,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.516617606252101,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.6515892369297441,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.03347067079384684,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.38764862429521685,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.30357145853275835,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.46644421523957336,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.37668329415225404,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.37785210192886814,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.5528669395247684,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.0543693720015252,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.3337347348745874,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.3983627378337221,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.5878147387068017,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.07159818592992888
+   },
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "start_wind_measured_interval": [
+    0.5,
+    0.5221368912137069
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "free_sail_w75",
+   "space": "free",
+   "sail": {
+    "area_m2": 0.05144708645415988,
+    "gear": 16.550495861837376
+   },
+   "genome": [
+    14.737617296165569,
+    37.45260044089799,
+    64.86937700394421,
+    0.05144708645415988,
+    16.550495861837376
+   ],
+   "start_wind_proxy_m_s": 0.24361737518361276,
+   "peak_load_torque_nm": 0.0029107894863576057,
+   "aero_factor": 0.04904494798827818,
+   "cvar_m": 0.048025756015050186,
+   "worst_case_m": 0.0400544885475348,
+   "mean_m": 0.39447619079059,
+   "nominal_distance_m": 0.4166315184867072,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.17773683979669158,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.3565021885381955,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.360639736364246,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.4545950706509132,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5365125705560881,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 0.8094375079385571,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.5239235550493454,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.6604684847411788,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.0400544885475348,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.39330716747746486,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.30789673136586837,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.47310916317575175,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.3822757162771648,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.3834264352207626,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.5605418576777361,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.055997023482565564,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.3388124747483933,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.40386311223575444,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.5957753751614056,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.07464831680618227
+   },
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "start_wind_measured_interval": [
+    0.5,
+    0.5221368912137069
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "free_sail_robust_only",
+   "space": "free",
+   "sail": {
+    "area_m2": 0.047771306441987585,
+    "gear": 10.1524293613806
+   },
+   "genome": [
+    14.827348002874547,
+    37.46741729574868,
+    64.57924014440079,
+    0.047771306441987585,
+    10.1524293613806
+   ],
+   "start_wind_proxy_m_s": 0.38390608114404556,
+   "peak_load_torque_nm": 0.0041172720233686524,
+   "aero_factor": 0.027935701295221146,
+   "cvar_m": 0.0598049825747501,
+   "worst_case_m": 0.04836326429537686,
+   "mean_m": 0.6097760794063563,
+   "nominal_distance_m": 0.644691420415726,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.2645990260894922,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.545853780414848,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.575705459341186,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.7004164971210559,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.8358616468981781,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 1.2663751203356481,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.8144084574258518,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 1.0313790452127791,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.04836326429537686,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.6065146902424025,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.47161088707517235,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.734724740404524,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.589780378736018,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.5914412515944496,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.8753363044445114,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.07124670085412334,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.5187973044891881,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.6183067428363129,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.9293323707005403,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.10546791961546735
+   },
+   "start_wind_measured_m_s": 0.6345254785958666,
+   "start_wind_measured_interval": [
+    0.620928906036742,
+    0.6484197773255048
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "fixed_sail_nominal",
+   "space": "fixed",
+   "sail": {
+    "area_m2": 0.03,
+    "gear": 10.0
+   },
+   "genome": [
+    14.239314922651152,
+    37.597245608980664,
+    65.68100246838115
+   ],
+   "start_wind_proxy_m_s": 0.3089987718085459,
+   "peak_load_torque_nm": 0.0016498985641204,
+   "aero_factor": 0.017279999999999997,
+   "cvar_m": 0.0498181858961595,
+   "worst_case_m": 0.04030760866764641,
+   "mean_m": 0.5502146163462917,
+   "nominal_distance_m": 0.5814800557998213,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.23173147939485053,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.49018652058293805,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.5137782260396393,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.6320384580280505,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.7583448902468202,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 1.1567467826334001,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.73885040904499,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.9389815162992388,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.04030760866764641,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.5467222609076887,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.42201202767639623,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.6644726529446564,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5308208337449284,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.5324918732949123,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.796503554449396,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.05932876312467259,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.4654056814202315,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.5538170430805506,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.8451531592676883,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.08659858607713902
+   },
+   "start_wind_measured_m_s": 0.48928603104385004,
+   "start_wind_measured_interval": [
+    0.4788016403492868,
+    0.5
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  },
+  {
+   "name": "fixed_sail_robust",
+   "space": "fixed",
+   "sail": {
+    "area_m2": 0.03,
+    "gear": 10.0
+   },
+   "genome": [
+    14.239314922651152,
+    37.597245608980664,
+    65.68100246838115
+   ],
+   "start_wind_proxy_m_s": 0.3089987718085459,
+   "peak_load_torque_nm": 0.0016498985641204,
+   "aero_factor": 0.017279999999999997,
+   "cvar_m": 0.0498181858961595,
+   "worst_case_m": 0.04030760866764641,
+   "mean_m": 0.5502146163462917,
+   "nominal_distance_m": 0.5814800557998213,
+   "scenario_values": {
+    "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.23173147939485053,
+    "gusts@1.20m/s yaw=31deg / flat slope=0.0deg mu=1.50": 0.49018652058293805,
+    "gusts@2.50m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.5137782260396393,
+    "gusts@4.56m/s yaw=34deg / flat slope=0.0deg mu=1.50": 0.6320384580280505,
+    "gusts@7.54m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.7583448902468202,
+    "gusts@7.45m/s yaw=28deg / flat slope=0.0deg mu=1.50": 1.1567467826334001,
+    "gusts@5.93m/s yaw=23deg / flat slope=0.0deg mu=1.50": 0.73885040904499,
+    "gusts@7.33m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.9389815162992388,
+    "constant@0.76m/s yaw=25deg / flat slope=0.0deg mu=1.50": 0.04030760866764641,
+    "constant@5.77m/s yaw=35deg / flat slope=0.0deg mu=1.50": 0.5467222609076887,
+    "constant@4.41m/s yaw=32deg / flat slope=0.0deg mu=1.50": 0.42201202767639623,
+    "constant@7.87m/s yaw=44deg / flat slope=0.0deg mu=1.50": 0.6644726529446564,
+    "constant@6.28m/s yaw=43deg / flat slope=0.0deg mu=1.50": 0.5308208337449284,
+    "constant@4.83m/s yaw=17deg / flat slope=0.0deg mu=1.50": 0.5324918732949123,
+    "profile_turbulent@6.93m/s yaw=19deg / flat slope=0.0deg mu=1.50": 0.796503554449396,
+    "profile_turbulent@0.92m/s yaw=37deg / flat slope=0.0deg mu=1.50": 0.05932876312467259,
+    "profile_turbulent@3.61m/s yaw=27deg / flat slope=0.0deg mu=1.50": 0.4654056814202315,
+    "profile_turbulent@6.53m/s yaw=1deg / flat slope=0.0deg mu=1.50": 0.5538170430805506,
+    "profile_turbulent@7.58m/s yaw=11deg / flat slope=0.0deg mu=1.50": 0.8451531592676883,
+    "profile_turbulent@1.32m/s yaw=24deg / flat slope=0.0deg mu=1.50": 0.08659858607713902
+   },
+   "start_wind_measured_m_s": 0.48928603104385004,
+   "start_wind_measured_interval": [
+    0.4788016403492868,
+    0.5
+   ],
+   "start_wind_search_simulations": 6,
+   "start_wind_trusted": true
+  }
+ ],
+ "weighting_sensitivity": [
+  {
+   "name": "fixed_sail_nominal",
+   "space": "fixed",
+   "w_robust": 0.0,
+   "w_start": 1.0,
+   "start_wind_proxy_m_s": 0.3089987718085459,
+   "start_wind_measured_m_s": 0.48928603104385004,
+   "cvar_m": 0.0498181858961595,
+   "nominal_distance_m": 0.5814800557998213,
+   "sail": {
+    "area_m2": 0.03,
+    "gear": 10.0
+   },
+   "score": 0.22641602094045063
+  },
+  {
+   "name": "fixed_sail_robust",
+   "space": "fixed",
+   "w_robust": 0.5,
+   "w_start": 0.5,
+   "start_wind_proxy_m_s": 0.3089987718085459,
+   "start_wind_measured_m_s": 0.48928603104385004,
+   "cvar_m": 0.0498181858961595,
+   "nominal_distance_m": 0.5814800557998213,
+   "sail": {
+    "area_m2": 0.03,
+    "gear": 10.0
+   },
+   "score": 0.12149193092789692
+  },
+  {
+   "name": "free_sail_nominal",
+   "space": "free",
+   "w_robust": 0.0,
+   "w_start": 1.0,
+   "start_wind_proxy_m_s": 0.2325331990839212,
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "cvar_m": 0.04392002139768603,
+   "nominal_distance_m": 0.41079550515527846,
+   "sail": {
+    "area_m2": 0.049883022765473344,
+    "gear": 16.727204391186532
+   },
+   "score": 0.5107203165082329
+  },
+  {
+   "name": "free_sail_w25",
+   "space": "free",
+   "w_robust": 0.25,
+   "w_start": 0.75,
+   "start_wind_proxy_m_s": 0.2325331990839212,
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "cvar_m": 0.04392002139768603,
+   "nominal_distance_m": 0.41079550515527846,
+   "sail": {
+    "area_m2": 0.049883022765473344,
+    "gear": 16.727204391186532
+   },
+   "score": 0.38556181581933063
+  },
+  {
+   "name": "free_sail_robust",
+   "space": "free",
+   "w_robust": 0.5,
+   "w_start": 0.5,
+   "start_wind_proxy_m_s": 0.2325331990839212,
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "cvar_m": 0.04392002139768603,
+   "nominal_distance_m": 0.41079550515527846,
+   "sail": {
+    "area_m2": 0.049883022765473344,
+    "gear": 16.727204391186532
+   },
+   "score": 0.26040331513042847
+  },
+  {
+   "name": "free_sail_w75",
+   "space": "free",
+   "w_robust": 0.75,
+   "w_start": 0.25,
+   "start_wind_proxy_m_s": 0.24361737518361276,
+   "start_wind_measured_m_s": 0.5109485743270583,
+   "cvar_m": 0.048025756015050186,
+   "nominal_distance_m": 0.4166315184867072,
+   "sail": {
+    "area_m2": 0.05144708645415988,
+    "gear": 16.550495861837376
+   },
+   "score": 0.1289032146015752
+  },
+  {
+   "name": "free_sail_robust_only",
+   "space": "free",
+   "w_robust": 1.0,
+   "w_start": 0.0,
+   "start_wind_proxy_m_s": 0.38390608114404556,
+   "start_wind_measured_m_s": 0.6345254785958666,
+   "cvar_m": 0.0598049825747501,
+   "nominal_distance_m": 0.644691420415726,
+   "sail": {
+    "area_m2": 0.047771306441987585,
+    "gear": 10.1524293613806
+   },
+   "score": 0.03634203344029425
+  }
+ ],
+ "proxy_check": {
+  "designs": [
+   {
+    "name": "reference",
+    "proxy_m_s": 0.38751452156615834,
+    "measured_m_s": 0.5571933712979462,
+    "measured_over_proxy": 1.4378644935576161,
+    "proxy_over_measured": 0.6954758285502718
+   },
+   {
+    "name": "free_sail_nominal",
+    "proxy_m_s": 0.2325331990839212,
+    "measured_m_s": 0.5109485743270583,
+    "measured_over_proxy": 2.197314518270817,
+    "proxy_over_measured": 0.455100984262805
+   },
+   {
+    "name": "free_sail_w25",
+    "proxy_m_s": 0.2325331990839212,
+    "measured_m_s": 0.5109485743270583,
+    "measured_over_proxy": 2.197314518270817,
+    "proxy_over_measured": 0.455100984262805
+   },
+   {
+    "name": "free_sail_robust",
+    "proxy_m_s": 0.2325331990839212,
+    "measured_m_s": 0.5109485743270583,
+    "measured_over_proxy": 2.197314518270817,
+    "proxy_over_measured": 0.455100984262805
+   },
+   {
+    "name": "free_sail_w75",
+    "proxy_m_s": 0.24361737518361276,
+    "measured_m_s": 0.5109485743270583,
+    "measured_over_proxy": 2.0973404460250826,
+    "proxy_over_measured": 0.4767943143876417
+   },
+   {
+    "name": "free_sail_robust_only",
+    "proxy_m_s": 0.38390608114404556,
+    "measured_m_s": 0.6345254785958666,
+    "measured_over_proxy": 1.6528143464280942,
+    "proxy_over_measured": 0.6050286302034498
+   },
+   {
+    "name": "fixed_sail_nominal",
+    "proxy_m_s": 0.3089987718085459,
+    "measured_m_s": 0.48928603104385004,
+    "measured_over_proxy": 1.5834562324636332,
+    "proxy_over_measured": 0.6315299276975542
+   },
+   {
+    "name": "fixed_sail_robust",
+    "proxy_m_s": 0.3089987718085459,
+    "measured_m_s": 0.48928603104385004,
+    "measured_over_proxy": 1.5834562324636332,
+    "proxy_over_measured": 0.6315299276975542
+   }
+  ],
+  "spearman_rho_proxy_vs_measured": 0.30286763082799717,
+  "mean_measured_over_proxy": 1.8683594132188137,
+  "note": "the proxy is the quasi-static threshold of the virtual dynamometer (EXPERIMENTS section 32); the measured column is the W-03 search. A rho near 1 means the cheap tier ranks the designs the same way as the expensive one; it is a check, not a validation"
+ },
+ "worst_gust_sequence": {
+  "scenario": {
+   "label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 1.5077318308430092,
+    "params": {
+     "yaw_deg": 35.49255080109809,
+     "amplitude": 1.9028796415668192,
+     "period": 8.440656132195233
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  "scenario_label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+  "how": "the gust scenario of the sampled set in which the nominally optimal design walks least far",
+  "free_sail_nominal_m": 0.1744855992139285,
+  "free_sail_robust_m": 0.1744855992139285,
+  "fixed_sail_robust_m": 0.23173147939485053,
+  "robust_minus_nominal_m": 0.0,
+  "robust_beats_nominal": true
+ },
+ "adversarial_gust_search": {
+  "free_sail_nominal": {
+   "scenario": {
+    "label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+    "wind": {
+     "kind": "gusts",
+     "speed_m_s": 0.5,
+     "params": {
+      "yaw_deg": 43.253629636287585,
+      "amplitude": 0.5,
+      "period": 11.37929729858249
+     }
+    },
+    "terrain": {
+     "kind": "flat",
+     "friction": 1.5,
+     "slope_deg": 0.0,
+     "params": {}
+    }
+   },
+   "value": 0.001251170975698486,
+   "random_pool_value": 0.1784278670574609,
+   "evaluations": 40,
+   "refinement_improved": true
+  },
+  "free_sail_robust": {
+   "scenario": {
+    "label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+    "wind": {
+     "kind": "gusts",
+     "speed_m_s": 0.5,
+     "params": {
+      "yaw_deg": 43.253629636287585,
+      "amplitude": 0.5,
+      "period": 11.37929729858249
+     }
+    },
+    "terrain": {
+     "kind": "flat",
+     "friction": 1.5,
+     "slope_deg": 0.0,
+     "params": {}
+    }
+   },
+   "value": 0.001251170975698486,
+   "random_pool_value": 0.1784278670574609,
+   "evaluations": 40,
+   "refinement_improved": true
+  }
+ },
+ "adversarial_gust_comparison": {
+  "scenario": {
+   "label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+   "wind": {
+    "kind": "gusts",
+    "speed_m_s": 0.5,
+    "params": {
+     "yaw_deg": 43.253629636287585,
+     "amplitude": 0.5,
+     "period": 11.37929729858249
+    }
+   },
+   "terrain": {
+    "kind": "flat",
+    "friction": 1.5,
+    "slope_deg": 0.0,
+    "params": {}
+   }
+  },
+  "scenario_label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+  "how": "the worst gust sequence the adversarial search found for the nominally optimal design",
+  "free_sail_nominal_m": 0.001251170975698486,
+  "free_sail_robust_m": 0.001251170975698486,
+  "fixed_sail_robust_m": 0.022280134705626623,
+  "robust_minus_nominal_m": 0.0,
+  "robust_beats_nominal": true
+ },
+ "mujoco_cross_check": null,
+ "budget": {
+  "candidate_evaluations_per_run": 24,
+  "popsize": 12,
+  "runs": 7,
+  "scenario_set_size": 20,
+  "physics_evaluations_k2": 21,
+  "start_wind_searches": 8,
+  "wall_time_s": 3158.9512178897858,
+  "note": "the search is budget-limited; no convergence is claimed and the designs are not shown to be optimal"
+ },
+ "verdict": {
+  "criterion_1_side_by_side": {
+   "question": "the free sail (the area and the gear as genes) against the fixed sail, same optimiser, same budget, same seed, same evaluation count",
+   "fixed_sail": {
+    "start_wind_measured_m_s": 0.48928603104385004,
+    "start_wind_proxy_m_s": 0.3089987718085459,
+    "cvar_m": 0.0498181858961595,
+    "nominal_distance_m": 0.5814800557998213,
+    "sail": {
+     "area_m2": 0.03,
+     "gear": 10.0
+    }
+   },
+   "free_sail": {
+    "start_wind_measured_m_s": 0.5109485743270583,
+    "start_wind_proxy_m_s": 0.2325331990839212,
+    "cvar_m": 0.04392002139768603,
+    "nominal_distance_m": 0.41079550515527846,
+    "sail": {
+     "area_m2": 0.049883022765473344,
+     "gear": 16.727204391186532
+    }
+   },
+   "start_wind_ratio_free_over_fixed": 1.0442737824274138,
+   "cvar_difference_m": -0.005898164498473475,
+   "nominal_distance_difference_m": -0.17068455064454285
+  },
+  "criterion_2_worst_gust_sequence": {
+   "question": "in the worst gust sequence, does the design of the robust objective do no worse than the nominally optimal design?",
+   "in_the_sampled_set": {
+    "scenario": {
+     "label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 1.5077318308430092,
+      "params": {
+       "yaw_deg": 35.49255080109809,
+       "amplitude": 1.9028796415668192,
+       "period": 8.440656132195233
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.5,
+      "slope_deg": 0.0,
+      "params": {}
+     }
+    },
+    "scenario_label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+    "how": "the gust scenario of the sampled set in which the nominally optimal design walks least far",
+    "free_sail_nominal_m": 0.1744855992139285,
+    "free_sail_robust_m": 0.1744855992139285,
+    "fixed_sail_robust_m": 0.23173147939485053,
+    "robust_minus_nominal_m": 0.0,
+    "robust_beats_nominal": true
+   },
+   "in_the_adversarial_search": {
+    "scenario": {
+     "label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 0.5,
+      "params": {
+       "yaw_deg": 43.253629636287585,
+       "amplitude": 0.5,
+       "period": 11.37929729858249
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.5,
+      "slope_deg": 0.0,
+      "params": {}
+     }
+    },
+    "scenario_label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+    "how": "the worst gust sequence the adversarial search found for the nominally optimal design",
+    "free_sail_nominal_m": 0.001251170975698486,
+    "free_sail_robust_m": 0.001251170975698486,
+    "fixed_sail_robust_m": 0.022280134705626623,
+    "robust_minus_nominal_m": 0.0,
+    "robust_beats_nominal": true
+   }
+  },
+  "proxy_check": {
+   "designs": [
+    {
+     "name": "reference",
+     "proxy_m_s": 0.38751452156615834,
+     "measured_m_s": 0.5571933712979462,
+     "measured_over_proxy": 1.4378644935576161,
+     "proxy_over_measured": 0.6954758285502718
+    },
+    {
+     "name": "free_sail_nominal",
+     "proxy_m_s": 0.2325331990839212,
+     "measured_m_s": 0.5109485743270583,
+     "measured_over_proxy": 2.197314518270817,
+     "proxy_over_measured": 0.455100984262805
+    },
+    {
+     "name": "free_sail_w25",
+     "proxy_m_s": 0.2325331990839212,
+     "measured_m_s": 0.5109485743270583,
+     "measured_over_proxy": 2.197314518270817,
+     "proxy_over_measured": 0.455100984262805
+    },
+    {
+     "name": "free_sail_robust",
+     "proxy_m_s": 0.2325331990839212,
+     "measured_m_s": 0.5109485743270583,
+     "measured_over_proxy": 2.197314518270817,
+     "proxy_over_measured": 0.455100984262805
+    },
+    {
+     "name": "free_sail_w75",
+     "proxy_m_s": 0.24361737518361276,
+     "measured_m_s": 0.5109485743270583,
+     "measured_over_proxy": 2.0973404460250826,
+     "proxy_over_measured": 0.4767943143876417
+    },
+    {
+     "name": "free_sail_robust_only",
+     "proxy_m_s": 0.38390608114404556,
+     "measured_m_s": 0.6345254785958666,
+     "measured_over_proxy": 1.6528143464280942,
+     "proxy_over_measured": 0.6050286302034498
+    },
+    {
+     "name": "fixed_sail_nominal",
+     "proxy_m_s": 0.3089987718085459,
+     "measured_m_s": 0.48928603104385004,
+     "measured_over_proxy": 1.5834562324636332,
+     "proxy_over_measured": 0.6315299276975542
+    },
+    {
+     "name": "fixed_sail_robust",
+     "proxy_m_s": 0.3089987718085459,
+     "measured_m_s": 0.48928603104385004,
+     "measured_over_proxy": 1.5834562324636332,
+     "proxy_over_measured": 0.6315299276975542
+    }
+   ],
+   "spearman_rho_proxy_vs_measured": 0.30286763082799717,
+   "mean_measured_over_proxy": 1.8683594132188137,
+   "note": "the proxy is the quasi-static threshold of the virtual dynamometer (EXPERIMENTS section 32); the measured column is the W-03 search. A rho near 1 means the cheap tier ranks the designs the same way as the expensive one; it is a check, not a validation"
+  },
+  "note": "all the numbers are model output (K2, or MuJoCo for the cross-check), not a prediction and not a measurement; the search is budget-limited and no convergence is claimed"
+ },
+ "worst_gust_all_designs": {
+  "how": "every design of the final table on the two worst-gust sequences of the main run (the gust scenario of the sampled set in which the nominally optimal design walks least far, and the worst sequence the adversarial search found for it); no re-search, the designs are the ones of the main run",
+  "physics": {
+   "backend": "k2",
+   "timestep_s": 0.001,
+   "window_s": 2.5,
+   "drive": "sail"
+  },
+  "sequences": {
+   "sampled_set": {
+    "scenario": {
+     "label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 1.5077318308430092,
+      "params": {
+       "yaw_deg": 35.49255080109809,
+       "amplitude": 1.9028796415668192,
+       "period": 8.440656132195233
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.5,
+      "slope_deg": 0.0,
+      "params": {}
+     }
+    },
+    "scenario_label": "gusts@1.51m/s yaw=35deg / flat slope=0.0deg mu=1.50",
+    "distances_m": {
+     "reference": 0.23207283750141486,
+     "free_sail_nominal": 0.1744855992139285,
+     "free_sail_w25": 0.1744855992139285,
+     "free_sail_robust": 0.1744855992139285,
+     "free_sail_w75": 0.17773683979669158,
+     "free_sail_robust_only": 0.2645990260894922,
+     "fixed_sail_nominal": 0.23173147939485053,
+     "fixed_sail_robust": 0.23173147939485053
+    },
+    "minus_free_sail_nominal_m": {
+     "reference": 0.05758723828748635,
+     "free_sail_nominal": 0.0,
+     "free_sail_w25": 0.0,
+     "free_sail_robust": 0.0,
+     "free_sail_w75": 0.0032512405827630764,
+     "free_sail_robust_only": 0.0901134268755637,
+     "fixed_sail_nominal": 0.057245880180922026,
+     "fixed_sail_robust": 0.057245880180922026
+    },
+    "free_sail_robust_minus_nominal_m": 0.0,
+    "free_sail_robust_only_minus_nominal_m": 0.0901134268755637,
+    "fixed_sail_robust_minus_nominal_m": 0.057245880180922026
+   },
+   "adversarial": {
+    "scenario": {
+     "label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+     "wind": {
+      "kind": "gusts",
+      "speed_m_s": 0.5,
+      "params": {
+       "yaw_deg": 43.253629636287585,
+       "amplitude": 0.5,
+       "period": 11.37929729858249
+      }
+     },
+     "terrain": {
+      "kind": "flat",
+      "friction": 1.5,
+      "slope_deg": 0.0,
+      "params": {}
+     }
+    },
+    "scenario_label": "gusts@0.50m/s yaw=43deg / flat slope=0.0deg mu=1.50",
+    "distances_m": {
+     "reference": 0.015802542007706172,
+     "free_sail_nominal": 0.001251170975698486,
+     "free_sail_w25": 0.001251170975698486,
+     "free_sail_robust": 0.001251170975698486,
+     "free_sail_w75": 0.0016375057108599593,
+     "free_sail_robust_only": -0.007763867465634788,
+     "fixed_sail_nominal": 0.022280134705626623,
+     "fixed_sail_robust": 0.022280134705626623
+    },
+    "minus_free_sail_nominal_m": {
+     "reference": 0.014551371032007685,
+     "free_sail_nominal": 0.0,
+     "free_sail_w25": 0.0,
+     "free_sail_robust": 0.0,
+     "free_sail_w75": 0.00038633473516147326,
+     "free_sail_robust_only": -0.009015038441333275,
+     "fixed_sail_nominal": 0.021028963729928137,
+     "fixed_sail_robust": 0.021028963729928137
+    },
+    "free_sail_robust_minus_nominal_m": 0.0,
+    "free_sail_robust_only_minus_nominal_m": -0.009015038441333275,
+    "fixed_sail_robust_minus_nominal_m": 0.021028963729928137
+   }
+  },
+  "wall_time_s": 31.07665205001831
+ }
+}
