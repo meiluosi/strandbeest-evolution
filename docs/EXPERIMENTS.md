@@ -1340,7 +1340,7 @@ $$\mathrm{CVaR}_\alpha = \frac{1}{m}\Big[\sum_{i=1}^{k} x_{(i)} + (m-k)\,x_{(k+1
     --random-pool 16 --refine-budget 112 --out experiments/robust-optimization.json
 ```
 
-固定种子下脚本是确定性的（场景抽样、CMA-ES、对抗搜索全部用显式种子）。单元测试：`packages/opt/tests/test_robust.py`（**18 个快速测试通过**；1 个标记 `slow` 的仿真器测试单独跑也通过，耗时 37 s；`opt` 包整体 173 通过 / 2 跳过）。原始数据：`experiments/robust-optimization.json`（86 KB，含抽样场景、每个场景的逐设计结果、三个敏感性检查和 MuJoCo 核对）。
+固定种子下脚本是确定性的：同一条命令跑两次（缩小预算：`--scenarios 3 --evals 6 --popsize 3 --random-pool 3 --refine-budget 3 --no-cross-check`），除墙钟字段外两次的 JSON **逐字段相同**（已核对）。场景抽样、CMA-ES、对抗搜索全部用显式种子。单元测试：`packages/opt/tests/test_robust.py`（**18 个快速测试通过**；1 个标记 `slow` 的仿真器测试单独跑也通过，耗时 33 s；`opt` 包整体 173 通过 / 2 跳过）。原始数据：`experiments/robust-optimization.json`（86 KB，含抽样场景、每个场景的逐设计结果、三个敏感性检查和 MuJoCo 核对）。
 
 **本次对仓库代码的改动**（都属于本卡的机制文件）：`robust.py` 增加 `Scenario.with_friction()`（摩擦敏感性检查用）、`compare_designs()` 走批量协议（同一候选的场景并行跑）并统计"走不起来的场景数"；`robust_run.py` 增加摩擦 / 优化器种子 / 场景集种子三个敏感性检查与 MuJoCo 对抗搜索；`test_robust.py` 修好了两个原有的坏测试（`evaluate` 的参数个数与闭包变量遮蔽），并为新行为补了测试。
 
