@@ -27,7 +27,7 @@
 
 **为什么答案不显然**：风对帆的力正比于面积（L²），重量正比于体积（L³），销轴摩擦随法向力增长。**指数的符号决定一切**：大机体可以更有利，也可以更不利，所以这个问题不能靠直觉回答，只能靠仿真；而仿真的结论又会落在几个"没人测过"的假设参数上。
 
-**做法**：一个证据分级的仿真平台。声明式连杆规格 → 解析运动学 → `PhysicsBackend` 边界下的两个物理后端（MuJoCo，以及一个**不共享任何接触或约束代码**的独立平面刚体求解器 K2）→ 场景文件（世界 + 实体）→ E0–E3 证据等级 → 每次运行留一份原始 JSON 的实验日志。旗舰实验在看到数据**之前**先写死了尺度的预测公式和指数符号（[EXPERIMENTS.md](EXPERIMENTS.md) §36 §3），之后跑了 25 个格子，并留了一条带日期的更正记录。
+**做法**：一个证据分级的仿真平台。声明式连杆规格 → 解析运动学 → `PhysicsBackend` 边界下的两个物理后端（MuJoCo，以及一个**不共享任何接触或约束代码**的独立平面刚体求解器 K2）→ 场景文件（世界 + 实体）→ E0–E3 证据等级 → 每次运行留一份原始 JSON 的实验日志。旗舰实验在看到数据**之前**先写死了尺度的预测公式和指数符号（[EXPERIMENTS.md](EXPERIMENTS.md) §36 §3），之后跑了 30 个格子（含临界情形 p = 2，实测斜率 −0.033 对预注册的 0.000），并留了一条带日期的更正记录。
 
 **头条答案（每条带证据等级）**
 
@@ -36,6 +36,7 @@
 3. **旗舰结论是负面的（E0，§36）**：在同一台机器上，只把"每个销轴的摩擦"这个**没人测过的假设**从 0 改到 0.002 N·m，起步风速就变 **2.59 倍**（L = 1：0.50 → 1.30 m/s）。"低于某个尺寸走不动"这条边界**真实存在**，但它是**摩擦假设划出来的，不是尺度划出来的**：在该假设下最小可行尺度是 **L ∈ (0.03, 0.1]**（上下界都有），而在理想销轴下测到的最小尺度只要 0.80 m/s 就起步。
 4. **尺度曲线是非单调的（E0，§36）**：质量指数 p = 3（实心体）时曲线是**非单调的 V 形**，最小值在 L ≈ 0.6（0.415 m/s）；p = 1（薄壁）时是"越大越省风"（L = 0.35 要 0.80 m/s，L = 3 只要 0.39 m/s）。这**否证**了 [WIND.md](WIND.md) §3 里"大机体对风更有利"的说法。
 5. **E3 层是空的（§36 §11、§39 §7）**：扭矩、电流、起步风速，**一条实测都没有**。社区数据入口（提交格式 + 校验器 + 指南）已经开门，**数据未到**。
+6. **让帆参与优化没有带来好处（E0，§40）**：把帆面积与传动比做成基因之后，在同权重、同预算下**固定帆在起步风速、阵风稳健性、名义距离三项上全赢**自由帆（低 4.4 %、高 11.8 %、高 29.4 %）。而且这条排名只有一个求解器、一个种子、2 代预算，优化循环里用的廉价代理**把排名弄反了**（ρ = 0.303）——所以它连"排名结论"都算不上，只能算机制演示。
 
 **一句话**：我们的运动学可以被已发表数据支持，我们的步幅可以被两个独立求解器支持；但**每一个关于"风要多大""走不走得动"的结论，目前都由我们自己设定的假设参数决定，而不是由现实决定**。这份报告的价值不在于结论有多漂亮，而在于它把每一个结论的承重墙标了出来。
 
@@ -43,7 +44,7 @@
 
 **Question.** A Strandbeest that walks on wind alone — sail for energy, gravity for help, no electricity and no pre-tensioned springs — how much wind does it need to start, and below what size does it stop working? The answer is not obvious: the force on a sail scales with area (L²) while weight scales with volume (L³), and pin friction grows with the normal load, so the *sign* of the exponent decides everything.
 
-**Approach.** An evidence-graded simulation platform. A declarative linkage spec feeds an analytic kinematics layer, which feeds two physics backends behind a `PhysicsBackend` boundary: MuJoCo, and K2, an independent planar rigid-body solver that shares no contact or constraint code with it. A scenario file (world + entities) drives the run; every result carries an E0–E3 evidence level; every run leaves a raw JSON file. The flagship experiment wrote down its scale prediction — formula and exponent sign — *before* looking at any data, then ran 25 cells and kept one dated correction in the record.
+**Approach.** An evidence-graded simulation platform. A declarative linkage spec feeds an analytic kinematics layer, which feeds two physics backends behind a `PhysicsBackend` boundary: MuJoCo, and K2, an independent planar rigid-body solver that shares no contact or constraint code with it. A scenario file (world + entities) drives the run; every result carries an E0–E3 evidence level; every run leaves a raw JSON file. The flagship experiment wrote down its scale prediction — formula and exponent sign — *before* looking at any data, then ran 30 cells (including the critical case p = 2, whose measured slope of −0.033 matches the pre-registered 0.000) and kept one dated correction in the record.
 
 **Answers, with their evidence levels.**
 
@@ -52,6 +53,7 @@
 3. *The flagship result is a negative one (E0, §36).* On the same machine, changing one **untested** assumption — the Coulomb friction of each printed pin — from 0 to 0.002 N·m changes the start wind by a factor of **2.59** (L = 1: 0.50 → 1.30 m/s). A "below this size it cannot walk" boundary does exist, but it is drawn by that friction assumption, not by scale: under it the minimum viable scale is **L ∈ (0.03, 0.1]** (bounded on both sides), while with ideal pins the smallest scale tested starts at 0.80 m/s.
 4. *The scale curve is not monotonic (E0, §36).* At mass exponent p = 3 (solid body) the curve is a **non-monotonic V**, minimised near L ≈ 0.6; at p = 1 (thin-walled) bigger is cheaper in wind (0.80 m/s at L = 0.35, 0.39 m/s at L = 3). This **refutes** the "big bodies are more favourable to the wind" claim in [WIND.md](WIND.md) §3.
 5. *The E3 tier is empty (§36 §11, §39 §7).* Torque, current, start wind: **no measurement exists**. The community data intake (format, validator, guide) is open; the data has not arrived.
+6. *Letting the sail into the optimisation bought nothing (E0, §40).* With the sail area and gear ratio turned into genes, the **fixed** sail beat the free one on all three measures at the same weight and budget (start wind 4.4 % lower, gust robustness 11.8 % higher, nominal distance 29.4 % higher). And that ranking rests on one solver, one seed and two generations, with a cheap proxy inside the search loop that **got the ranking backwards** (ρ = 0.303) — so it is not even a ranking conclusion, only a mechanism demonstration.
 
 **In one sentence.** Our kinematics is supported by published data and our stride by two independent solvers, but every statement about *how much wind* and *whether it walks at all* currently rests on assumption parameters we set ourselves rather than on reality. The value of this report is not that the conclusions look impressive; it is that it names the load-bearing wall under each one.
 
@@ -384,6 +386,9 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 - **"粗糙地面"永远不结束**（§21）：只有帆场景设了 `run.max_time`，其它场景继承了 schema 默认的 600 仿真秒；被障碍卡住的走兽曲柄停住，`psi` 永远到不了目标，于是跑到 600 s（0.1 ms 下是 600 万步）——现场跑了 23 分钟以上。修法是给所有非帆场景加 40 s 上限。**同一类 bug 还留在别处**：从"仿真"页直接提交的模拟（不是场景）对非帆驱动仍用 600 s 默认值。
 - **已提交的实验文件有过期**（§12）：`experiments/flat-seed1.json` 与 `highstep-seed1.json` 在 HEAD 上**不能复现**（fitness 0.7129 提交 vs 0.7446 现在），它们早于引入分级不可行惩罚的提交，从没重生成过。已重生成。
 - **贝叶斯校准是诚实的，但不准确**（§19）：真值落在每个后验区间内，但点估计差得很远（接触刚度 8.9e5 vs 真值 2e5，摩擦 2.6 vs 1.2）——**点估计不可用，区间才是结果**。而且"不可辨识"部分意味着"用这个代理模型不可辨识"（腿质量在 K = 32 与 64 之间翻转），因为 RBF 代理的留一误差 1.7 mN·m 比数据噪声 0.007 mN·m 大三个数量级。
+- **把帆放进基因空间，没有带来好处**（§40）：在同权重、同优化器、种子、预算与场景集下，**固定帆在三项上全赢**自由帆（起步风速低 4.4 %、CVaR 高 11.8 %、名义距离高 29.4 %）。稳健性确实有可测收益，但只在权重全压稳健、且接受起步风速变差 24 % 的前提下；而"稳健设计在最坏阵风序列上不输"这条验收条件在默认权重下**因为两个设计重合而根本无法检验**（差 +0.000000 m），换成真正不同的稳健设计后它在对抗搜出的最坏序列上**输了 0.009 m**。
+- **便宜的代理跟不上昂贵的测量**（§40）：优化循环里用的测力计代理与真实起步风速搜索只有 ρ = 0.303，实测值是代理的 1.87 倍，**在要比较的那一对上把排名弄反了**。所以最终排名只能由真实搜索给出；代理不得当作排名引用。这与 §37 的教训是同一条：**粗筛只能淘汰，不能排序**。
+- **两个求解器本来就有分歧**（§40、§31）：同一个参考设计，MuJoCo 给 (0.479, 0.500] m/s、K2 给 (0.545, 0.569] m/s，**区间不重叠**（K2 高 13.9 %）。这不是新引入的问题，但它说明**起步风速这个量对求解器敏感**——而 §40 没有预算做第二个求解器的交叉核对，所以那条排名不通过排名稳定性检查，只能当机制演示。
 
 ---
 
@@ -398,6 +403,7 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 | "低于 L = 0.1 的走兽走不动" | 这个边界**只在** jf = 0.002 N·m 的假设下成立；理想销轴下 L = 0.35 只要 0.80 m/s（§36 §8、§9） | 销轴摩擦实测（E3） |
 | "Jansen 的走兽以约 15 km/h 前进" | 这是**艺术家的陈述，不是测量**，且**机体尺寸和重量未知**（[WIND.md](WIND.md) §6 规则 4、[VALIDATION.md](VALIDATION.md) §3）。本报告里 4.17 m/s 这个上限只作**数量级检查** | 公开视频测量（任务卡 V-05）或实测 |
 | "CVaR 设计比名义最优设计更稳健" | 换求解器就翻面（§38 §7.4，−0.270847 m），换种子 level B 也翻 | 跨求解器通过排名稳定性检查 |
+| "把帆参数做成基因能让走兽更好" | §40：固定帆在起步风速、CVaR、名义距离三项上**全赢**自由帆；而且那条排名只有一个求解器、一个种子、2 代预算，**不通过排名稳定性检查** | 跨求解器通过排名稳定性检查 |
 | "运动学粗筛可以挑出最好的设计" | 在它自己筛出的集合内部，粗筛顺序与动力学顺序**强负相关**（ρ_s = −0.80，§37 §5） | 无——这条是**永久的操作准则**：只准淘汰 |
 | "曲柄需要 8.9 N·m 的扭矩" | 摩擦正则化一变就差 2.0–2.4 倍（§9） | 扭矩实测（E3）；在此之前报区间 |
 | "腿质量越高平均扭矩越高" | 数字确实如此（4.8 → 12.4 N·m，§9），但**原因不明**（任务卡 S-01 开放） | 干预实验（只改腿质量/只改质心/只改惯量） |
@@ -420,12 +426,12 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 | 1 | **把曲柄摩擦（`crank_friction`）当受控变量单独扫一遍**，同时记录 MuJoCo `frictionloss` 的正则化宽度 | p = 3 的小尺度段（实测斜率 −0.450，与所有预注册模型都不符）被归因于"与尺度无关的地板"，但地板**只是假设**。扫完才能说这条曲线的形状是物理还是数值 | §36 §11 第 1 条、§36 §10 |
 | 2 | **把 40 s 判据的时间参数扫一遍** | 判据项 ∝ L 的强度完全由 T 决定；本卡只测了一个 T。T 变了，"越大越省风"的转折点就移动 | §36 §11 第 2 条 |
 | 3 | **把 K2 交叉验证扩到整条曲线** | K2 每格只要 0.7–0.8 min（MuJoCo 3.5–31.9 min），**这是最划算的一步**。现在"量级 E1"只建立在两个尺度点上；铺开后要么升到 E1（区间也重叠）要么降级 | §36 §11 第 4 条、§36 §4 |
-| 4 | **补 p = 2 的列** | p = 2 是"v 与尺度无关"的临界情形，协议留着但没跑。缺它不影响 p = 1 / p = 3 两条曲线，但确实是个缺口 | §36 §4 削减说明第 2 条 |
+| 4 | **给 p = 2 补摩擦带与"走不动"探针** | p = 2 的列已经补上（实测斜率 −0.033，预注册 0.000），但**它没有摩擦带、也没有探针**，所以它的边界未知 | §36 §4、§40 |
 | 5 | **用 K2（真库仑静摩擦）重测摩擦带的上沿** | 带的**上沿是求解器相关的**（§36 §6 第 3 条），K2 是唯一能查"销轴真有 0.002 N·m 摩擦时起步风速是多少"的通道 | §36 §6 |
 | 6 | **在 64 个走兽 + 金标运行 + §20 的 16 个上验证环路约束刚化** | 现在它只是候选（12 例上试过），默认设置未改。验证失败就说明还有第三个机制 | §27 §"未做" |
 | 7 | **解释腿质量为什么抬高平均扭矩**（干预实验：只改腿质量/只改质心/只改惯量） | 这条开放问题卡在任务卡 S-01；不解决，扭矩的物理部分就说不清 | §9、任务卡 S-01 |
 | 8 | **公开视频测量（V-05）与社区实测（V-06 的实际数据）** | 这是把任何东西从 E0 抬到 E3 的唯一途径；社区入口已就位，**等数据** | 任务卡 V-05、V-06、§39 |
-| 9 | **把帆参数（面积、传动比）做成基因（W-08）** | 现在优化目标里没有帆；[WIND.md](WIND.md) §3 说传动比应成为可优化基因 | 任务卡 W-08 |
+| 9 | **给帆基因的优化做第二个求解器的交叉核对，并把廉价代理换成可信的** | W-08 已经把帆做成基因，结论是**没好处**；但那条排名只有一个求解器、一个种子、2 代预算，而且循环里用的测力计代理**把排名弄反了**（ρ = 0.303）。换求解器后结论可能变——就像 §38 那样 | §40 §7.3 |
 
 **明确不在计划里的**：沙地/气动储能/3D/柔性（阶段 E 的条件项），要等有 E3 数据再校准（[ROADMAP.md](ROADMAP.md) 阶段表）。
 
@@ -527,6 +533,15 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 | 0.046 m/s | L = 1 处两个 5 % 区间之间的空隙 | §36 | E0 | 模型内 |
 | 4.17 m/s | 15 km/h 的现实上限 | §36 | – | **艺术家的陈述**，只作数量级检查 |
 | 0.79 ms / 4.2–26.6 s | 粗筛层 / 复核层的单次代价 | §37 | – | 墙钟（机器负载高，只信量级） |
+| −0.033（p = 2 全局） | p = 2 的 log-log 斜率（预注册 0.000） | §36 | E0 | 模型内 |
+| 0.4893 / 0.5109 m/s | 固定帆 / 自由帆设计的起步风速（同一权重下） | §40 | E0 | 模型内 |
+| +0.0498 / +0.0439 m | 固定帆 / 自由帆的 CVaR（阵风稳健性） | §40 | E0 | 模型内 |
+| +0.5815 / +0.4108 m | 固定帆 / 自由帆的名义前进距离 | §40 | E0 | 模型内 |
+| −4.4 % / +11.8 % / +29.4 % | 固定帆相对自由帆的三项优势 | §40 | E0 | 模型内 |
+| +0.000000 m | 最坏阵风序列上"稳健 vs 名义"的差（默认权重下两者是**同一个基因组**） | §40 | E0 | 模型内 |
+| +0.090113 m / −0.009015 m | w = 1 的稳健设计在采样最坏 / 对抗最坏阵风序列上的差 | §40 | E0 | 模型内 |
+| ρ = 0.303 / 1.87× | 测力计代理与真实起步风速搜索的一致性（实测 = 代理 × 1.87） | §40 | E0 | 模型内（核对，非验证） |
+| 0.5572 m/s | K2 给参考设计的起步风速（与 §28 的 MuJoCo 区间不重叠） | §40 | E0 | 模型内（单解） |
 | 4.928 m/s / 0.732 m/s / 0.6884 | 湍流样本的平均风速 / 标准差 / R(2 s) | §34 | E0 | 模型内（核对，非验证） |
 | 10.2 % / −20.1 % | 风廓线在 z = 2.0 m / z = 0.2 m 的风速偏差（**假设** α = 0.14） | §34 | E0 | 模型内 |
 | +0.825 N / −0.825 N | 顺风 / 逆风时的机体气动力 | §35 | E0 | 模型内 |
