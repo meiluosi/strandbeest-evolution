@@ -31,7 +31,9 @@
 			"!packages/fab",
 			"!packages/calib",
 			"!packages/rig",
-			"!hardware"
+			"!hardware",
+			"!**/pytest-of-*",
+			"!**/.pytest_cache"
 		]
 	}
 }
