@@ -21,10 +21,34 @@ const allTabs = [
 const tabs = STATIC
 	? allTabs.filter(([id]) => id === "design" || id === "sim")
 	: allTabs;
-let tab = $state<(typeof tabs)[number][0]>("design");
+
+function initialTab(): (typeof tabs)[number][0] {
+	if (typeof window !== "undefined") {
+		const qTab = new URLSearchParams(window.location.search).get("tab");
+		if (qTab && tabs.some(([id]) => id === qTab)) {
+			return qTab as (typeof tabs)[number][0];
+		}
+	}
+	return "design";
+}
+
+let tab = $state<(typeof tabs)[number][0]>(initialTab());
 let online = $state<"unknown" | "up" | "down">("unknown");
 let paletteOpen = $state(false);
 let editMessage = $state("");
+
+$effect(() => {
+	if (typeof window !== "undefined") {
+		const qLang = new URLSearchParams(window.location.search).get("lang");
+		if (qLang && (LOCALES as readonly string[]).includes(qLang)) {
+			setLocale(qLang as any);
+		}
+		const qScroll = new URLSearchParams(window.location.search).get("scroll");
+		if (qScroll === "glassbox") {
+			setTimeout(() => window.scrollTo(0, 560), 300);
+		}
+	}
+});
 
 function typing(e: KeyboardEvent): boolean {
 	const el = e.target as HTMLElement | null;

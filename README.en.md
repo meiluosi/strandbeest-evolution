@@ -57,13 +57,13 @@ pnpm dynamics                                # dynamics comparison
 
 ## What it does
 
-**Design.** Drag the 13 link lengths and watch the foot path. Every change is an edit operation with an actor, a time and an exact inverse (people and AI agents use the same ones); ⌘K opens the command palette.
+**Design.** Directly drag joints on the 2D sketch or fine-tune the 13 link lengths while watching the foot path update in real time. Every change is an edit operation with an actor, a time and an exact inverse (people and AI agents use the same ones); ⌘K opens the command palette.
 
 ![Foot path of the Jansen linkage](docs/assets/jansen-leg.gif)
 
 ![Design tab: foot path, length sliders, edit history](docs/assets/screens/design-en.png)
 
-**Simulate, and see the process.** Pick a scene (flat ground, slope, step, rough ground, wind, and the gravity and atmosphere of Mars, Titan, Venus, the Moon), run a full MuJoCo simulation and replay it in 3D. The replay is more than an animation: contact-force arrows, slip markers, centre of mass and support polygon, a footfall chart, an event timeline, an energy-flow (Sankey) diagram and an invariant audit (loop opening, penetration, energy residual). Rule-based diagnosis says why the run went the way it did, and says so plainly when the model has come apart and later numbers can't be trusted.
+**Simulate, and see the process.** Pick a scene (flat ground, slope, step, rough ground, wind, and the gravity and atmosphere of Mars, Titan, Venus, the Moon), run a full MuJoCo simulation and replay it in 3D. The replay is more than an animation: contact-force arrows, slip markers, centre of mass and support polygon, dynamometer curves (torque / RPM / power), wind and sail responses, a footfall chart, an event timeline, an energy-flow (Sankey) diagram and an invariant audit (loop opening, penetration, energy residual). Rule-based diagnosis says why the run went the way it did, and says so plainly when the model has come apart and later numbers can't be trusted.
 
 ![Replay: a six-legged walker in MuJoCo, feet turn green on contact, with contact-force arrows and the support polygon](docs/assets/screens/sim-replay-en.png)
 
