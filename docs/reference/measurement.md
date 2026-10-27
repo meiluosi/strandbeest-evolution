@@ -20,10 +20,10 @@
 | `build_note` | `string` | – | – | – | – | – |
 | `conditions` | `object` | *(required)* | – | – | – | – |
 | `conditions.kind` | enum `"motor_no_wind"` \| `"fan"` | *(required)* | – | – | – | – |
-| `conditions.omega_rad_s` | `number` | – | – | – | – | – |
-| `conditions.wind_m_s` | `number` | – | – | ≥ 0 | – | – |
+| `conditions.omega_rad_s` | `number` | – | `rad/s` | – | – | – |
+| `conditions.wind_m_s` | `number` | – | `m/s` | ≥ 0 | – | – |
 | `conditions.surface` | `string` | – | – | – | – | – |
-| `conditions.slope_deg` | `number` | – | – | – | – | – |
+| `conditions.slope_deg` | `number` | – | `deg` | – | – | – |
 | `channels` | `object` | *(required)* | – | – | – | equal-length arrays; t (s) is required. psi = crank rotation in the walking direction (rad), torque in N·m, x = body forward position (m). |
 | `channels.t` | array<`number`> | *(required)* | – | – | – | – |
 | `provenance` | `object` | – | – | – | – | Where the numbers came from: the test rig (with its calibration) or another source. |
@@ -33,12 +33,12 @@
 | `provenance.raw_file` | `string` | – | – | – | – | – |
 | `provenance.notes` | `string` | – | – | – | – | – |
 | `quality` | `object` | – | – | – | – | Automatic checks computed when the raw data were converted. Warnings are for a human to read before trusting a fit. |
-| `quality.sample_rate_hz` | `number` | – | – | – | – | – |
-| `quality.duration_s` | `number` | – | – | – | – | – |
-| `quality.revolutions` | `number` | – | – | – | – | – |
-| `quality.speed_mean_rad_s` | `number` | – | – | – | – | – |
-| `quality.speed_cv` | `number` | – | – | – | – | std/mean of crank speed over 0.1 s windows |
-| `quality.dropouts` | `integer` | – | – | – | – | – |
-| `quality.time_offset_s` | `number` \| `null` | – | – | – | – | offset applied when aligning video tracking to the encoder clock |
+| `quality.sample_rate_hz` | `number` | – | `Hz` | – | – | – |
+| `quality.duration_s` | `number` | – | `s` | – | – | – |
+| `quality.revolutions` | `number` | – | `1` | – | – | – |
+| `quality.speed_mean_rad_s` | `number` | – | `rad/s` | – | – | – |
+| `quality.speed_cv` | `number` | – | `1` | – | – | std/mean of crank speed over 0.1 s windows |
+| `quality.dropouts` | `integer` | – | `count` | – | – | – |
+| `quality.time_offset_s` | `number` \| `null` | – | `s` | – | – | offset applied when aligning video tracking to the encoder clock |
 | `quality.warnings` | array<`string`> | – | – | – | – | – |
 | `aliases` | array<`string`> | – | – | – | – | 旧名字或旧 ID；指向它们的引用都解析到这个资产<br>Former names or ids; a reference to any of them resolves to this asset |

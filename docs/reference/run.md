@@ -16,7 +16,7 @@
 | `design_id` | `Ulid` (`string`) | *(required)* | – | – | – | 稳定的资产 ID（ULID，26 个字符，按创建时间可排序）<br>Stable asset id (ULID: 26 characters, sortable by creation time) |
 | `design_name` | `string` | – | – | – | – | 运行时设计的名字（只是显示用的快照）<br>The design's name at run time (a display snapshot only) |
 | `scenario` | `object` | *(required)* | – | – | – | the fully resolved scenario that was run |
-| `metrics` | map<string, `number` \| `boolean` \| `null`> | *(required)* | – | – | – | – |
+| `metrics` | map<string, `number` \| `boolean` \| `null`> | *(required)* | `1` | – | – | – |
 | `stalled` | `boolean` | – | – | – | – | – |
 | `arrays_file` | `string` | – | – | – | – | – |
 | `provenance` | `object` | *(required)* | – | – | – | – |
@@ -30,7 +30,7 @@
 | `ensemble.variants[].overrides` | `object` | – | – | – | – | – |
 | `ensemble.variants[].valid` | `boolean` | *(required)* | – | – | – | – |
 | `ensemble.variants[].reason` | `string` | – | – | – | – | – |
-| `ensemble.variants[].metrics` | map<string, `number` \| `boolean` \| `null`> | *(required)* | – | – | – | – |
+| `ensemble.variants[].metrics` | map<string, `number` \| `boolean` \| `null`> | *(required)* | `1` | – | – | – |
 | `ensemble.ranges` | map<string, array<`number`>> | *(required)* | – | – | – | – |
 | `ensemble.note` | `string` | *(required)* | – | – | – | – |
 | `frames_file` | `string` | – | – | – | – | recorded body poses for replay (npz) |

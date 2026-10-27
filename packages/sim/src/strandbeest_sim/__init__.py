@@ -4,8 +4,9 @@ from .config import Scenario, SimConfig, load_scenario, sim_config
 from .dynamometer import virtual_dynamometer
 from .from_design import scenario_from_design
 from .runner import Result, run
+from .startwind import find_start_wind, work_energy_start_wind_proxy
 
-__all__ = ["Scenario", "SimConfig", "load_scenario", "sim_config", "Result", "run", "scenario_from_design", "virtual_dynamometer"]
+__all__ = ["Scenario", "SimConfig", "load_scenario", "sim_config", "Result", "run", "scenario_from_design", "virtual_dynamometer", "find_start_wind", "work_energy_start_wind_proxy"]
 
 # importing these modules registers the built-in extensions
 from . import drives as _drives  # noqa: E402,F401

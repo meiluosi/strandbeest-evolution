@@ -278,3 +278,39 @@ def test_the_real_two_stage_screen_runs_and_the_fine_tier_is_the_expensive_one()
     assert report.fine_timing.n_evaluations == 1
     assert report.fine_timing.seconds > report.coarse_timing.seconds  # the physics is the expensive tier
     assert math.isfinite(report.spearman)
+
+
+def test_adaptive_screening_discards_bottom_quarter():
+    from strandbeest_opt.multifidelity import adaptive_screening
+
+    # 12 candidates, coarse scores [12..1], fine scores reversed
+    coarse = list(range(12, 0, -1))
+    fine = list(range(1, 13))
+    c_eval, f_eval = _fake_tiers(coarse, fine)
+    candidates = list(range(12))
+
+    # Discard 25% (3 of 12), retaining top 9
+    report = adaptive_screening(candidates, c_eval, f_eval, discard_fraction=0.25)
+    assert report.n_candidates == 12
+    assert len(report.survivors) == 9
+    assert report.n_discarded == 3
+    assert report.discard_ratio == pytest.approx(0.25)
+
+
+def test_select_survivors_with_keep_and_discard_fractions():
+    scores = [10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0]  # 10 items
+    # Discard 20% -> keep 8
+    surv_d20, _ = select_survivors(scores, discard_fraction=0.2)
+    assert len(surv_d20) == 8
+    assert surv_d20 == list(range(8))
+
+    # Keep 50% -> keep 5
+    surv_k50, _ = select_survivors(scores, keep_fraction=0.5)
+    assert len(surv_k50) == 5
+    assert surv_k50 == list(range(5))
+
+    with pytest.raises(ValueError, match="discard_fraction"):
+        select_survivors(scores, discard_fraction=1.5)
+    with pytest.raises(ValueError, match="keep_fraction"):
+        select_survivors(scores, keep_fraction=0.0)
+

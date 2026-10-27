@@ -22,3 +22,4 @@ packages = ["src/strandbeest_api"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: long-running simulator tests"]

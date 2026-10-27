@@ -57,3 +57,33 @@ def test_a_run_that_broke_the_simulator_makes_the_result_untrusted():
     assert not find_start_wind(attempt).trusted
     attempt, _ = fake(0.45, valid=True)
     assert find_start_wind(attempt).trusted
+
+
+def test_work_energy_start_wind_proxy():
+    import json
+    from pathlib import Path
+    from strandbeest_common import Design
+    from strandbeest_sim.startwind import work_energy_start_wind_proxy
+
+    design_path = Path(__file__).resolve().parents[3] / "schemas/examples/design-jansen-small-6leg.json"
+    doc = json.loads(design_path.read_text())
+    v_base = work_energy_start_wind_proxy(Design(doc))
+    assert 0.1 < v_base < 1.0
+
+    # Test gear ratio non-monotonicity: very high gear should increase required wind due to sail back-EMF
+    doc_g20 = json.loads(json.dumps(doc))
+    doc_g20.setdefault("drive", {}).setdefault("sail", {})["gear"] = 20.0
+    v_g20 = work_energy_start_wind_proxy(Design(doc_g20))
+
+    doc_g30 = json.loads(json.dumps(doc))
+    doc_g30.setdefault("drive", {}).setdefault("sail", {})["gear"] = 30.0
+    v_g30 = work_energy_start_wind_proxy(Design(doc_g30))
+
+    # Overly large gear ratio should penalize dynamic start wind
+    assert v_g30 > v_g20
+
+    # Motor drive (no sail) returns inf
+    doc_motor = json.loads(json.dumps(doc))
+    doc_motor["drive"] = {"kind": "motor", "motor_omega_rad_s": 2.0}
+    assert math.isinf(work_energy_start_wind_proxy(Design(doc_motor)))
+

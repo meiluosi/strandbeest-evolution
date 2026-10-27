@@ -37,7 +37,8 @@
 		"metrics": {
 			"type": "object",
 			"additionalProperties": {
-				"type": ["number", "boolean", "null"]
+				"type": ["number", "boolean", "null"],
+				"x-unit": "1"
 			}
 		},
 		"stalled": {
@@ -93,7 +94,8 @@
 							"metrics": {
 								"type": "object",
 								"additionalProperties": {
-									"type": ["number", "boolean", "null"]
+									"type": ["number", "boolean", "null"],
+									"x-unit": "1"
 								}
 							}
 						}
@@ -104,7 +106,8 @@
 					"additionalProperties": {
 						"type": "array",
 						"items": {
-							"type": "number"
+							"type": "number",
+							"x-unit": "1"
 						},
 						"minItems": 2,
 						"maxItems": 2

@@ -378,12 +378,20 @@ def _proxy_start_wind(design_doc: dict[str, Any]) -> dict[str, Any]:
                 "peak_load_torque_as_reported_nm": 0.0, "aero_factor": 0.0, "mass_used_kg": mass_used,
                 "mass_reference_kg": mass_reference, "sail_parameters": {}}
     peak = float(result["peak_torque"]) * (mass_reference / mass_used)
-    aero = float(result["sail_parameters"]["aero_factor"])
-    threshold = math.sqrt(max(0.0, peak) / aero) if aero > 0 else float("inf")
+    mean = float(result["mean_torque"]) * (mass_reference / mass_used)
+    sail = result["sail_parameters"]
+    gear = float(sail["gear"])
+    r = float(sail["radius_m"])
+    aero = float(sail["aero_factor"])
+    v_peak = math.sqrt(max(0.0, peak) / aero) if aero > 0 else float("inf")
+    omega_req = (2.0 * math.pi) / 40.0  # W-03 max_time = 40 s
+    v_dyn = (math.sqrt(max(0.0, mean) / aero) + omega_req * gear * r) if aero > 0 else float("inf")
+    threshold = max(v_peak, v_dyn)
     return {
         "threshold_m_s": float(threshold),
         "assembles": True,
         "peak_load_torque_nm": float(peak),
+        "mean_load_torque_nm": float(mean),
         "peak_load_torque_as_reported_nm": float(result["peak_torque"]),
         "aero_factor": float(aero),
         "mass_used_kg": mass_used,

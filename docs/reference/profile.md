@@ -14,12 +14,12 @@
 | `schema_version` | const `2` | *(required)* | – | – | – | – |
 | `id` | `Ulid` (`string`) | *(required)* | – | – | – | 稳定的资产 ID（ULID，26 个字符，按创建时间可排序）<br>Stable asset id (ULID: 26 characters, sortable by creation time) |
 | `name` | `string` | *(required)* | – | – | – | – |
-| `parameters` | map<string, `number`> | *(required)* | – | – | – | – |
+| `parameters` | map<string, `number`> | *(required)* | `1` | – | – | – |
 | `provenance` | `object` | *(required)* | – | – | – | – |
 | `provenance.measurement_ids` | array<`Ulid` (`string`)> | *(required)* | – | – | – | – |
 | `provenance.synthetic` | `boolean` | – | – | – | – | – |
 | `provenance.method` | `string` | *(required)* | – | – | – | – |
-| `provenance.residual` | `number` | *(required)* | – | – | – | fit error in the units of the compared quantity |
+| `provenance.residual` | `number` | *(required)* | `1` | – | – | fit error in the units of the compared quantity |
 | `provenance.code_version` | `string` | – | – | – | – | – |
 | `aliases` | array<`string`> | – | – | – | – | 旧名字或旧 ID；指向它们的引用都解析到这个资产<br>Former names or ids; a reference to any of them resolves to this asset |
 | `uncertainty` | map<string, `object`> | – | – | – | – | Per parameter: 95 % intervals from the posterior and from the profile likelihood, the share of the prior range the data cannot exclude, and whether the parameter is identifiable from this data |

@@ -21,7 +21,8 @@
 			"type": "object",
 			"minProperties": 1,
 			"additionalProperties": {
-				"type": "number"
+				"type": "number",
+				"x-unit": "1"
 			}
 		},
 		"provenance": {
@@ -44,7 +45,8 @@
 				},
 				"residual": {
 					"type": "number",
-					"description": "fit error in the units of the compared quantity"
+					"description": "fit error in the units of the compared quantity",
+					"x-unit": "1"
 				},
 				"code_version": {
 					"type": "string"
@@ -72,7 +74,8 @@
 					"ci95": {
 						"type": "array",
 						"items": {
-							"type": "number"
+							"type": "number",
+							"x-unit": "1"
 						},
 						"minItems": 2,
 						"maxItems": 2
@@ -80,7 +83,8 @@
 					"profile_ci95": {
 						"type": "array",
 						"items": {
-							"type": "number"
+							"type": "number",
+							"x-unit": "1"
 						},
 						"minItems": 2,
 						"maxItems": 2
@@ -91,7 +95,8 @@
 					"profile_share_of_prior": {
 						"type": "number",
 						"minimum": 0,
-						"maximum": 1
+						"maximum": 1,
+						"x-unit": "1"
 					}
 				}
 			}

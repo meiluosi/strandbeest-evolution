@@ -55,17 +55,20 @@
 					"enum": ["motor_no_wind", "fan"]
 				},
 				"omega_rad_s": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "rad/s"
 				},
 				"wind_m_s": {
 					"type": "number",
-					"minimum": 0
+					"minimum": 0,
+					"x-unit": "m/s"
 				},
 				"surface": {
 					"type": "string"
 				},
 				"slope_deg": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "deg"
 				}
 			}
 		},
@@ -76,14 +79,16 @@
 			"additionalProperties": {
 				"type": "array",
 				"items": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "1"
 				}
 			},
 			"properties": {
 				"t": {
 					"type": "array",
 					"items": {
-						"type": "number"
+						"type": "number",
+						"x-unit": "s"
 					},
 					"minItems": 2
 				}
@@ -117,27 +122,34 @@
 			"description": "Automatic checks computed when the raw data were converted. Warnings are for a human to read before trusting a fit.",
 			"properties": {
 				"sample_rate_hz": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "Hz"
 				},
 				"duration_s": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "s"
 				},
 				"revolutions": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "1"
 				},
 				"speed_mean_rad_s": {
-					"type": "number"
+					"type": "number",
+					"x-unit": "rad/s"
 				},
 				"speed_cv": {
 					"type": "number",
-					"description": "std/mean of crank speed over 0.1 s windows"
+					"description": "std/mean of crank speed over 0.1 s windows",
+					"x-unit": "1"
 				},
 				"dropouts": {
-					"type": "integer"
+					"type": "integer",
+					"x-unit": "count"
 				},
 				"time_offset_s": {
 					"type": ["number", "null"],
-					"description": "offset applied when aligning video tracking to the encoder clock"
+					"description": "offset applied when aligning video tracking to the encoder clock",
+					"x-unit": "s"
 				},
 				"warnings": {
 					"type": "array",

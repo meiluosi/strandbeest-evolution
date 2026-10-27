@@ -269,13 +269,22 @@ class MultiFidelityReport:
 
 
 def select_survivors(
-    coarse_scores: Sequence[float], keep: int, min_keep: int = 1, seed: int = 0
+    coarse_scores: Sequence[float],
+    keep: int | None = 5,
+    min_keep: int = 1,
+    seed: int = 0,
+    *,
+    discard_fraction: float | None = None,
+    keep_fraction: float | None = None,
 ) -> tuple[list[int], list[int]]:
     """Pick the candidates the coarse tier promotes: (survivors, full coarse order).
 
     The order is by descending coarse score; equal scores are broken by a seeded tie-break, so the selection is
     reproducible for a fixed seed. `min_keep` is a floor: even a degenerate (all-equal, all-failing) coarse filter
     promotes at least that many candidates, so the fine tier always has something to re-evaluate.
+
+    If `discard_fraction` (e.g. 0.25 for O-03 bottom 25% elimination) or `keep_fraction` is given, it determines
+    the number of survivors dynamically as a fraction of the candidate pool.
     """
     n = len(coarse_scores)
     if n == 0:
@@ -285,7 +294,20 @@ def select_survivors(
     rng = random.Random(seed)
     tiebreak = [rng.random() for _ in range(n)]
     order = sorted(range(n), key=lambda i: (-coarse_scores[i], tiebreak[i]))
-    n_keep = min(n, max(min_keep, min(keep, n)))
+
+    if discard_fraction is not None:
+        if not (0.0 <= discard_fraction < 1.0):
+            raise ValueError(f"discard_fraction must be in [0.0, 1.0), got {discard_fraction}")
+        fraction = 1.0 - discard_fraction
+        n_keep = min(n, max(min_keep, int(math.ceil(n * fraction))))
+    elif keep_fraction is not None:
+        if not (0.0 < keep_fraction <= 1.0):
+            raise ValueError(f"keep_fraction must be in (0.0, 1.0], got {keep_fraction}")
+        n_keep = min(n, max(min_keep, int(math.ceil(n * keep_fraction))))
+    else:
+        k = keep if keep is not None else 5
+        n_keep = min(n, max(min_keep, min(k, n)))
+
     return order[:n_keep], order
 
 
@@ -296,6 +318,8 @@ def screen_two_stage(
     *,
     keep: int = 5,
     min_keep: int = 1,
+    discard_fraction: float | None = None,
+    keep_fraction: float | None = None,
     top_k: int = 5,
     seed: int = 0,
     ids: Sequence[str] | None = None,
@@ -338,7 +362,14 @@ def screen_two_stage(
         notes.append(f"{coarse_failures}/{n} coarse evaluations failed and scored -inf")
 
     # --- promotion -------------------------------------------------------------------
-    survivors, coarse_order = select_survivors(coarse_scores, keep=keep, min_keep=min_keep, seed=seed)
+    survivors, coarse_order = select_survivors(
+        coarse_scores,
+        keep=keep,
+        min_keep=min_keep,
+        seed=seed,
+        discard_fraction=discard_fraction,
+        keep_fraction=keep_fraction,
+    )
     if not survivors:  # unreachable with min_keep >= 1, but the floor must hold by construction
         notes.append("coarse filter produced no survivor; the min_keep floor kept the first candidate")
         survivors = [0]
@@ -487,3 +518,32 @@ def design_variants(base: dict[str, Any], variants: Sequence[tuple[str, dict[str
         design["linkage"]["params"].update(overrides)
         out.append(design)
     return out
+
+
+def adaptive_screening(
+    candidates: Sequence[Any],
+    coarse_evaluator: CoarseEvaluator,
+    fine_evaluator: FineEvaluator,
+    *,
+    discard_fraction: float = 0.25,
+    min_keep: int = 1,
+    top_k: int = 5,
+    seed: int = 0,
+    ids: Sequence[str] | None = None,
+) -> MultiFidelityReport:
+    """O-03 Adaptive multi-fidelity screening pipeline (EXPERIMENTS section 37).
+
+    Eliminates the worst `discard_fraction` (default 25%) of candidates using the cheap kinematic coarse tier,
+    and runs high-fidelity physics evaluation only on the surviving 75% to produce the final trusted ranking.
+    """
+    return screen_two_stage(
+        candidates,
+        coarse_evaluator,
+        fine_evaluator,
+        discard_fraction=discard_fraction,
+        min_keep=min_keep,
+        top_k=top_k,
+        seed=seed,
+        ids=ids,
+    )
+

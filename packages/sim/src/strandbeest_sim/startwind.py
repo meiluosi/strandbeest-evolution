@@ -133,3 +133,50 @@ def simulate_attempt(
         }
 
     return attempt
+
+
+def work_energy_start_wind_proxy(
+    design: Design,
+    *,
+    max_time_s: float = MAX_TIME_S,
+    slope_deg: float = 0.0,
+    samples: int = 180,
+) -> float:
+    """Fast analytic Work-Energy Balance start-wind proxy (resolves W-08 proxy reversal).
+
+    Considers both static stall torque crossing and dynamic finite-time completion of 1 revolution
+    against aerodynamic sail back-EMF:
+        v_start = max( v_peak, v_dynamic )
+        v_peak = sqrt( max(0, peak_torque) / aero_factor )
+        v_dynamic = sqrt( max(0, mean_torque) / aero_factor ) + (2*pi / max_time_s) * gear * radius
+    """
+    from .config import sim_config
+    from .dynamometer import virtual_dynamometer
+
+    d_drive = design.doc.get("drive", {})
+    if d_drive.get("kind") == "motor" and "sail" not in d_drive:
+        return float("inf")
+
+    walker = sim_config(scenario_from_design(design)).walker
+    mass_used = float(walker.mass)
+    mass_reference = float(walker.body_mass) if walker.body_mass is not None else mass_used
+
+    dyn = virtual_dynamometer(design, samples=samples, slope_deg=slope_deg)
+    scale = mass_reference / mass_used
+    peak_torque = float(dyn["peak_torque"]) * scale
+    mean_torque = float(dyn["mean_torque"]) * scale
+
+    sail = dyn["sail_parameters"]
+    gear = float(sail["gear"])
+    r = float(sail["radius_m"])
+    aero_factor = float(sail["aero_factor"])
+
+    if aero_factor <= 0.0:
+        return float("inf")
+
+    v_peak = math.sqrt(max(0.0, peak_torque) / aero_factor)
+    omega_req = (2.0 * math.pi) / max_time_s
+    v_dynamic = math.sqrt(max(0.0, mean_torque) / aero_factor) + omega_req * gear * r
+
+    return max(v_peak, v_dynamic)
+

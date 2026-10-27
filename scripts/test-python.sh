@@ -8,8 +8,7 @@ for p in packages/common packages/sim packages/fab packages/calib packages/rig p
 done
 echo "== repository checks (i18n literals, schema annotations, generated models up to date, duplicated-module trigger, documentation references)"
 .venv/bin/python scripts/check_no_hardcoded_cjk.py
-.venv/bin/python scripts/check_schema_annotations.py
-.venv/bin/python scripts/check_schema_annotations.py --strict schemas/design.schema.json schemas/scenario.schema.json
+.venv/bin/python scripts/check_schema_annotations.py --strict
 .venv/bin/python scripts/gen_models.py --check
 .venv/bin/python scripts/gen_reference_docs.py --check
 .venv/bin/python scripts/check_duplication_trigger.py
