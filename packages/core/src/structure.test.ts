@@ -7,7 +7,12 @@ import { runGA } from "./ga";
 import { genomeSpace, JANSEN_SPACE } from "./genome";
 import { jansenSpec } from "./jansen";
 import { type LinkageSpec, trace } from "./linkage";
-import { lengthHandles, linkSegments, withLength } from "./structure";
+import {
+	lengthHandles,
+	linkSegments,
+	linkTriangles,
+	withLength,
+} from "./structure";
 import { structureErrors } from "./validity";
 
 const dir = join(import.meta.dirname, "../../../contracts/kinematics");
@@ -62,6 +67,30 @@ describe("structure derived from the spec", () => {
 		).toEqual(["a", "l", "m"]);
 		for (const [name, role] of Object.entries(OLD_JANSEN_ROLES))
 			expect(handles.find((h) => h.key === name)?.uses).toEqual([role]);
+		expect(linkTriangles(jansenSpec())).toEqual([
+			["G", "K", "L"],
+			["M", "N", "F"],
+		]);
+	});
+
+	it("preserves rigid triangle side lengths across the full crank revolution", () => {
+		const spec = jansenSpec();
+		const tris = linkTriangles(spec);
+		const path = trace(spec, 36);
+		expect(path.assembled).toBe(true);
+		const dist = (
+			pose: Record<string, { x: number; y: number }>,
+			a: string,
+			b: string,
+		) => Math.hypot(pose[a]!.x - pose[b]!.x, pose[a]!.y - pose[b]!.y);
+		const ref = path.poses[0]!;
+		for (const pose of path.poses) {
+			for (const [u, v, w] of tris) {
+				expect(dist(pose, u, v)).toBeCloseTo(dist(ref, u, v), 9);
+				expect(dist(pose, v, w)).toBeCloseTo(dist(ref, v, w), 9);
+				expect(dist(pose, u, w)).toBeCloseTo(dist(ref, u, w), 9);
+			}
+		}
 	});
 
 	it("handles any dyad chain in the corpus: one bar pair per joint, one slider per length", () => {

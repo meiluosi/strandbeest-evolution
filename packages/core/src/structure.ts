@@ -16,6 +16,9 @@ export interface LinkSegment {
 	kind: "crank" | "link";
 }
 
+/** A closed triangle of three bars in the linkage (a rigid ternary link when all three vertices are connected). */
+export type LinkTriangle = [string, string, string];
+
 /** Bars to draw: the crank (pivot P to tip C) and, for every joint, one bar from each circle centre to the joint. */
 export function linkSegments(spec: LinkageSpec): LinkSegment[] {
 	const segs: LinkSegment[] = [{ a: CRANK_PIVOT, b: CRANK_TIP, kind: "crank" }];
@@ -23,6 +26,26 @@ export function linkSegments(spec: LinkageSpec): LinkSegment[] {
 		for (const c of j.centers) segs.push({ a: c, b: j.id, kind: "link" });
 	}
 	return segs;
+}
+
+/**
+ * Closed bar triangles in `spec`: whenever a joint's two circle centres are themselves connected by a bar,
+ * those three vertices form a rigid triangle (e.g. G–K–L and M–N–F in Jansen's leg).
+ */
+export function linkTriangles(spec: LinkageSpec): LinkTriangle[] {
+	const edgeSet = new Set<string>();
+	const keyOf = (u: string, v: string) => (u < v ? `${u}:${v}` : `${v}:${u}`);
+	for (const s of linkSegments(spec)) {
+		if (s.kind === "link") edgeSet.add(keyOf(s.a, s.b));
+	}
+	const out: LinkTriangle[] = [];
+	for (const j of spec.joints) {
+		const [c0, c1] = j.centers;
+		if (edgeSet.has(keyOf(c0, c1))) {
+			out.push([c0, c1, j.id]);
+		}
+	}
+	return out;
 }
 
 /** What a handle edits: a named length shared by every place that uses it, or a number written inline in the spec. */

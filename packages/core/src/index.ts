@@ -17,6 +17,7 @@ export * from "./linkage";
 export * from "./metrics";
 export * from "./multileg";
 export * from "./ops";
+export * from "./ops-evolution";
 export * from "./rng";
 export * from "./schema-lite";
 export * from "./structure";
