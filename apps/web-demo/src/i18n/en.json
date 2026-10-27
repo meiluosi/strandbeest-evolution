@@ -427,5 +427,20 @@
 	"dynamometer.starts": "Starting Cleared: Sail torque exceeds load torque across the entire revolution (margin: {margin} mN·m).",
 	"dynamometer.minStartWind": "Start Wind: {minWind} m/s",
 	"dynamometer.peakTorque": "Peak Load: {peak} mN·m",
-	"dynamometer.windSpeed": "Wind Speed: {wind} m/s"
+	"dynamometer.windSpeed": "Wind Speed: {wind} m/s",
+	"dynamometer.jumpStall": "Lock to Stall Point",
+	"viewer.stalledBadge": "Stalled (wind too weak)",
+	"viewer.multiLegs": "Multi-leg phasing",
+	"viewer.truss": "Rigid triangles",
+	"viewer.legend.stance": "■ Stance stroke",
+	"wind.driveViewer": "Drive 2D viewer with live wind speed",
+	"wind.gustImpulse": "Gust impulse",
+	"overlay.wind": "Wind streamlines",
+	"overlay.trails": "Footprint trails",
+	"overlay.pvc": "Beach PVC style",
+	"viewport.cam.iso": "Iso",
+	"viewport.cam.side": "Side",
+	"viewport.cam.top": "Top",
+	"viewer3d.pvcStyle": "PVC style",
+	"viewer3d.layerColors": "Layer colours"
 }

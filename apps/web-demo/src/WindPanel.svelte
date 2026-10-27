@@ -9,7 +9,23 @@ import {
 import DynamometerChart from "./DynamometerChart.svelte";
 import { t } from "./i18n/index.svelte";
 
-let { spec }: { spec: LinkageSpec } = $props();
+let {
+	spec,
+	theta = $bindable(0),
+	windDrive = $bindable(false),
+	windOmega = $bindable<number | null>(null),
+	windSpeed = $bindable(6),
+	stalledAt = $bindable<number | null>(null),
+	ongust,
+}: {
+	spec: LinkageSpec;
+	theta?: number;
+	windDrive?: boolean;
+	windOmega?: number | null;
+	windSpeed?: number;
+	stalledAt?: number | null;
+	ongust?: () => void;
+} = $props();
 
 let wind = $state(6);
 let mass = $state(50);
@@ -26,9 +42,43 @@ const summary = $derived(
 	),
 );
 const result = $derived(summary ? windWalk(DEFAULT_SAIL, summary, wind) : null);
+
+$effect(() => {
+	windSpeed = windDrive ? wind : 0;
+	if (!windDrive || !summary || !result) {
+		windOmega = null;
+		stalledAt = null;
+		return;
+	}
+	windOmega = result.runs ? result.omega : 0;
+	if (!result.runs) {
+		const peakIdx = summary.samples.findIndex(
+			(s) => s.torque === summary.peakTorque,
+		);
+		stalledAt =
+			peakIdx >= 0 ? (2 * Math.PI * peakIdx) / summary.samples.length : 0;
+	} else {
+		stalledAt = null;
+	}
+});
 </script>
 
 <div class="wind stack">
+	<div class="row center wind-toolbar">
+		<label class="inline">
+			<input type="checkbox" bind:checked={windDrive} />
+			<b>{t("wind.driveViewer")}</b>
+		</label>
+		<button
+			class="btn small"
+			onclick={() => {
+				windDrive = true;
+				ongust?.();
+			}}
+		>
+			{t("wind.gustImpulse")}
+		</button>
+	</div>
 	<div class="grid">
 		<label>{t("wind.speed", { wind: wind })} <input type="range" min="0" max="15" step="0.5" bind:value={wind} /></label>
 		<label>{t("wind.mass", { mass: mass })} <input type="range" min="10" max="200" step="5" bind:value={mass} /></label>
@@ -47,7 +97,16 @@ const result = $derived(summary ? windWalk(DEFAULT_SAIL, summary, wind) : null);
 				{t("wind.tooWeak", { minStartWind: result.minStartWind.toFixed(1) })}
 			{/if}
 		</p>
-		<DynamometerChart {spec} {wind} {mass} {legs} {slopeDeg} {rolling} />
+		<DynamometerChart
+			{spec}
+			{wind}
+			{mass}
+			{legs}
+			{slopeDeg}
+			{rolling}
+			{theta}
+			onseektheta={(th) => (theta = th)}
+		/>
 		<small>{t("wind.caveat")}</small>
 	{:else}
 		<p>{t("wind.cannotClose")}</p>
@@ -57,6 +116,7 @@ const result = $derived(summary ? windWalk(DEFAULT_SAIL, summary, wind) : null);
 
 <style>
 	.wind { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+	.wind-toolbar { margin: 2px 0 4px; justify-content: space-between; }
 	.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px 14px; }
 	.grid label { display: flex; flex-direction: column; }
 	.big { font-size: 16px; }

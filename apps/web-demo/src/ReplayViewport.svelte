@@ -1,5 +1,6 @@
 <script lang="ts">
 import type * as T from "three";
+import { t } from "./i18n/index.svelte";
 import {
 	frameAt,
 	hull,
@@ -9,8 +10,8 @@ import {
 	type Scene,
 } from "./replay-types";
 
-/** One 3D view of a recorded run at a given time, with the glass-box overlays: contact force arrows, slip, centre of mass and
- * support polygon. The controller owns the clock; this component only draws frame `frame` of `replay`. */
+/** One 3D view of a recorded run at a given time, with the glass-box overlays: contact force arrows, slip, centre of mass,
+ * support polygon, wind streamlines, footprint trails, and Theo Jansen PVC styling. */
 let {
 	replay,
 	time,
@@ -28,27 +29,55 @@ let {
 } = $props();
 
 let host: HTMLDivElement;
+let camView = $state<"iso" | "side" | "top">("iso");
 const live = {
 	replay: null as Replay | null,
 	time: 0,
 	follow: true,
-	overlays: { forces: true, slip: true, com: true } as Overlays,
+	camView: "iso" as "iso" | "side" | "top",
+	overlays: {
+		forces: true,
+		slip: true,
+		com: true,
+		wind: true,
+		trails: true,
+		pvc: true,
+	} as Overlays,
 };
 $effect(() => {
 	live.replay = replay;
 	live.time = time;
 	live.follow = follow;
+	live.camView = camView;
 	live.overlays = overlays;
 });
 let rebuild: (() => void) | null = null;
+let applyCameraPreset: ((v: "iso" | "side" | "top") => void) | null = null;
 $effect(() => {
 	replay;
+	overlays.pvc;
 	rebuild?.();
 });
+
+function setCamera(v: "iso" | "side" | "top") {
+	camView = v;
+	applyCameraPreset?.(v);
+}
 
 const SCALE_PER_N = 0.03; // metres of arrow per newton, capped
 const MAX_ARROW = 0.25;
 const SLIP_SPEED = 0.02;
+const PVC_COLOR = 0xe3b448; // Theo Jansen iconic yellow PVC conduit tone
+const PVC_TORSO_COLOR = 0xc89632;
+
+// Deterministic wind streamline seeds in local walker space
+const STREAMLINES = Array.from({ length: 28 }, (_, i) => ({
+	phase: ((i * 61) % 100) / 100,
+	y: 0.02 + (((i * 37) % 100) / 100) * 0.26,
+	z: -0.24 + (((i * 53) % 100) / 100) * 0.48,
+	len: 0.06 + (i % 4) * 0.02,
+	speedMul: 0.85 + (i % 5) * 0.1,
+}));
 
 $effect(() => {
 	let disposed = false;
@@ -63,18 +92,35 @@ $effect(() => {
 		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		host.appendChild(renderer.domElement);
 		const scn = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(38, 1, 0.005, 20);
-		camera.position.set(0.15, 0.2, 0.62);
+		camera.position.set(0.18, 0.22, 0.64);
 		const controls = new OrbitControls(camera, renderer.domElement);
 		controls.enableDamping = true;
 		scn.add(
-			new THREE.HemisphereLight(0xffffff, dark ? 0x333344 : 0xbbbbcc, 1.2),
+			new THREE.HemisphereLight(
+				dark ? 0xdde4ff : 0xfff8e7,
+				dark ? 0x2a2d3a : 0xcbb89d,
+				1.15,
+			),
 		);
-		const sun = new THREE.DirectionalLight(0xffffff, 1.3);
-		sun.position.set(1, 2, 1.5);
+		const sun = new THREE.DirectionalLight(0xfffdf6, 1.45);
+		sun.position.set(0.8, 1.8, 1.1);
+		sun.castShadow = true;
+		sun.shadow.mapSize.set(1024, 1024);
+		sun.shadow.camera.near = 0.1;
+		sun.shadow.camera.far = 5;
+		const d = 0.9;
+		sun.shadow.camera.left = -d;
+		sun.shadow.camera.right = d;
+		sun.shadow.camera.top = d;
+		sun.shadow.camera.bottom = -d;
+		sun.shadow.bias = -0.0005;
 		scn.add(sun);
+		scn.add(sun.target);
 
 		// mujoco (x fwd, y lateral, z up) -> three (x, z, -y): a rotation about x by -90 degrees
 		const qMap = new THREE.Quaternion().setFromAxisAngle(
@@ -86,7 +132,22 @@ $effect(() => {
 			new THREE.Vector3(a[0] as number, a[2] as number, -(a[1] as number));
 		const world = new THREE.Group();
 		scn.add(world);
-		let dyn: { update: (f: number) => void; torso: number } | null = null;
+		let dyn: {
+			update: (f: number, nowSec: number) => void;
+			torso: number;
+		} | null = null;
+
+		applyCameraPreset = (v: "iso" | "side" | "top") => {
+			const tPos = controls.target.clone();
+			if (v === "side") {
+				camera.position.set(tPos.x, tPos.y + 0.04, tPos.z + 0.68);
+			} else if (v === "top") {
+				camera.position.set(tPos.x, tPos.y + 0.72, tPos.z + 0.01);
+			} else {
+				camera.position.set(tPos.x + 0.18, tPos.y + 0.22, tPos.z + 0.62);
+			}
+			controls.update();
+		};
 
 		function build() {
 			world.clear();
@@ -96,18 +157,35 @@ $effect(() => {
 				return;
 			}
 			const S: Scene = R.scene;
+			const usePvc = live.overlays.pvc ?? true;
 			world.rotation.z = (S.slope_deg * Math.PI) / 180;
-			world.add(
-				new THREE.GridHelper(
-					6,
-					120,
-					dark ? 0x666666 : 0xaaaaaa,
-					dark ? 0x3a3a3a : 0xdddddd,
-				),
+
+			// Beach / planetary ground plane with shadow reception
+			const beachPlane = new THREE.Mesh(
+				new THREE.PlaneGeometry(8, 4),
+				new THREE.MeshStandardMaterial({
+					color: dark ? 0x1e2028 : usePvc ? 0xf3ead8 : 0xeeeae0,
+					roughness: 0.92,
+					metalness: 0.02,
+				}),
 			);
+			beachPlane.rotation.x = -Math.PI / 2;
+			beachPlane.position.y = -0.0005;
+			beachPlane.receiveShadow = true;
+			world.add(beachPlane);
+
+			const grid = new THREE.GridHelper(
+				6,
+				120,
+				dark ? 0x555866 : 0xb8ad99,
+				dark ? 0x2c2f3a : 0xe2d9c8,
+			);
+			grid.position.y = 0.0001;
+			world.add(grid);
+
 			const groundMat = new THREE.MeshStandardMaterial({
-				color: dark ? 0x2a2a2e : 0xeeeae0,
-				roughness: 1,
+				color: dark ? 0x2e323d : 0xdccbb1,
+				roughness: 0.9,
 			});
 			for (const o of S.obstacles) {
 				const m = new THREE.Mesh(
@@ -119,6 +197,8 @@ $effect(() => {
 					groundMat,
 				);
 				m.position.set(o.pos[0] as number, o.pos[2] as number, 0);
+				m.castShadow = true;
+				m.receiveShadow = true;
 				world.add(m);
 			}
 			const parts: {
@@ -128,16 +208,24 @@ $effect(() => {
 			}[] = [];
 			let fi = 0;
 			for (const g of S.geoms) {
-				const color = new THREE.Color(
-					g.rgba[0] ?? 0.5,
-					g.rgba[1] ?? 0.5,
-					g.rgba[2] ?? 0.5,
-				);
+				const isSailBox = g.type === "box";
+				const baseColor = usePvc
+					? isSailBox
+						? new THREE.Color(0xf7f2e4)
+						: g.foot
+							? new THREE.Color(0xd9622b)
+							: new THREE.Color(g.body === 1 ? PVC_TORSO_COLOR : PVC_COLOR)
+					: new THREE.Color(
+							g.rgba[0] ?? 0.5,
+							g.rgba[1] ?? 0.5,
+							g.rgba[2] ?? 0.5,
+						);
 				const mat = new THREE.MeshStandardMaterial({
-					color,
-					roughness: 0.55,
-					transparent: g.type === "box",
-					opacity: g.type === "box" ? 0.55 : 1,
+					color: baseColor,
+					roughness: usePvc ? 0.36 : 0.55,
+					metalness: usePvc ? 0.08 : 0.02,
+					transparent: isSailBox,
+					opacity: isSailBox ? 0.72 : 1,
 				});
 				let mesh: T.Mesh;
 				if (g.type === "capsule")
@@ -146,16 +234,16 @@ $effect(() => {
 							g.radius as number,
 							g.radius as number,
 							1,
-							8,
+							12,
 						),
 						mat,
 					);
 				else if (g.type === "sphere")
 					mesh = new THREE.Mesh(
-						new THREE.SphereGeometry(g.radius as number, 14, 10),
+						new THREE.SphereGeometry(g.radius as number, 16, 12),
 						mat,
 					);
-				else
+				else {
 					mesh = new THREE.Mesh(
 						new THREE.BoxGeometry(
 							2 * (g.size as number[])[0]!,
@@ -164,9 +252,21 @@ $effect(() => {
 						),
 						mat,
 					);
+					// Add a subtle sail frame border to box geoms
+					const edges = new THREE.LineSegments(
+						new THREE.EdgesGeometry(mesh.geometry),
+						new THREE.LineBasicMaterial({
+							color: usePvc ? PVC_TORSO_COLOR : 0xd9622b,
+						}),
+					);
+					mesh.add(edges);
+				}
+				mesh.castShadow = true;
+				mesh.receiveShadow = !isSailBox;
 				world.add(mesh);
 				parts.push({ geom: g, mesh, contactIdx: g.foot ? fi++ : -1 });
 			}
+
 			// overlays: one arrow per foot, a centre-of-mass marker and the support polygon
 			const nFeet = fi;
 			const arrows = Array.from({ length: nFeet }, () => {
@@ -198,6 +298,66 @@ $effect(() => {
 				o.visible = false;
 				world.add(o);
 			}
+
+			// 3D Wind Streamlines (animated ribbons flowing past the walker)
+			const windGroup = new THREE.Group();
+			const windLines = STREAMLINES.map(() => {
+				const geom = new THREE.BufferGeometry().setFromPoints([
+					new THREE.Vector3(),
+					new THREE.Vector3(0.08, 0, 0),
+				]);
+				const line = new THREE.Line(
+					geom,
+					new THREE.LineBasicMaterial({
+						color: dark ? 0x7cb3ff : 0x2f6fd1,
+						transparent: true,
+						opacity: 0.45,
+					}),
+				);
+				windGroup.add(line);
+				return line;
+			});
+			world.add(windGroup);
+
+			// Footprint ground contact marks (sampled along the replay up to current frame)
+			const trailGroup = new THREE.Group();
+			const footprintGeo = new THREE.CircleGeometry(0.0055, 10);
+			footprintGeo.rotateX(-Math.PI / 2);
+			const matStanceMark = new THREE.MeshBasicMaterial({
+				color: 0x2e8b57,
+				transparent: true,
+				opacity: 0.35,
+			});
+			const matSlipMark = new THREE.MeshBasicMaterial({
+				color: 0xd62828,
+				transparent: true,
+				opacity: 0.55,
+			});
+			const footMarks: { frame: number; mesh: T.Mesh }[] = [];
+			if (R.foot_pos && R.contact) {
+				const step = Math.max(1, Math.floor(R.t.length / 90));
+				for (let fIdx = 0; fIdx < R.t.length; fIdx += step) {
+					const contacts = R.contact[fIdx] as number[] | undefined;
+					const fps = R.foot_pos[fIdx];
+					if (!contacts || !fps) continue;
+					for (let k = 0; k < contacts.length; k++) {
+						if (!contacts[k]) continue;
+						const fp = fps[k];
+						if (!fp) continue;
+						const slip = (R.foot_slip?.[fIdx]?.[k] as number | undefined) ?? 0;
+						const mark = new THREE.Mesh(
+							footprintGeo,
+							slip > SLIP_SPEED ? matSlipMark : matStanceMark,
+						);
+						mark.position.set(fp[0] as number, 0.0006, -(fp[1] as number));
+						mark.visible = false;
+						trailGroup.add(mark);
+						footMarks.push({ frame: fIdx, mesh: mark });
+					}
+				}
+			}
+			world.add(trailGroup);
+
 			const torso = S.bodies.indexOf("torso");
 			const tmp = new THREE.Vector3();
 			const tmp2 = new THREE.Vector3();
@@ -211,7 +371,7 @@ $effect(() => {
 			};
 			dyn = {
 				torso,
-				update(f: number) {
+				update(f: number, nowSec: number) {
 					const P = R.pos[f] as number[][];
 					const Q = R.quat[f] as number[][];
 					for (const { geom: g, mesh, contactIdx } of parts) {
@@ -335,6 +495,39 @@ $effect(() => {
 							new THREE.Vector3(com[0], ground, -(com[1] as number)),
 						]);
 					}
+
+					// Footprint trails visibility
+					const showTrails = ov.trails ?? true;
+					trailGroup.visible = showTrails;
+					if (showTrails) {
+						for (const fm of footMarks) {
+							fm.mesh.visible = fm.frame <= f;
+						}
+					}
+
+					// Wind streamlines around the walker torso
+					const torsoX =
+						torso >= 0 ? ((P[torso]?.[0] as number | undefined) ?? 0) : 0;
+					const wSpeed =
+						R.info?.drive === "sail" ? (R.info.wind?.speed ?? 3) : 0;
+					const showWind = (ov.wind ?? true) && wSpeed > 0.05;
+					windGroup.visible = showWind;
+					if (showWind) {
+						const spanX = 0.9;
+						windLines.forEach((line, i) => {
+							const s = STREAMLINES[i]!;
+							const travel =
+								(s.phase + nowSec * (0.25 + wSpeed * 0.09) * s.speedMul) % 1;
+							const x0 = torsoX - spanX * 0.5 + travel * spanX;
+							const len = s.len * (0.7 + wSpeed * 0.12);
+							const posAttr = line.geometry.getAttribute(
+								"position",
+							) as T.BufferAttribute;
+							posAttr.setXYZ(0, x0, s.y, s.z);
+							posAttr.setXYZ(1, x0 + len, s.y, s.z);
+							posAttr.needsUpdate = true;
+						});
+					}
 				},
 			};
 		}
@@ -355,12 +548,12 @@ $effect(() => {
 		resize();
 
 		const lastTarget = new THREE.Vector3();
-		function tick() {
+		function tick(now: number) {
 			raf = requestAnimationFrame(tick);
 			const R = live.replay;
 			if (R && dyn) {
 				const f = frameAt(R, live.time);
-				dyn.update(f);
+				dyn.update(f, now / 1000);
 				if (live.follow && dyn.torso >= 0) {
 					const tp = R.pos[f]?.[dyn.torso] as number[];
 					const target = world.localToWorld(
@@ -368,6 +561,8 @@ $effect(() => {
 					);
 					camera.position.add(target.clone().sub(lastTarget));
 					controls.target.copy(target);
+					sun.position.set(target.x + 0.8, target.y + 1.8, target.z + 1.1);
+					sun.target.position.copy(target);
 					lastTarget.copy(target);
 				}
 			}
@@ -382,6 +577,7 @@ $effect(() => {
 			renderer.dispose();
 			renderer.domElement.remove();
 			rebuild = null;
+			applyCameraPreset = null;
 		};
 	})();
 	return () => {
@@ -393,12 +589,21 @@ $effect(() => {
 
 <div class="vp" class:highlight>
 	{#if label}<div class="label">{label}</div>{/if}
+	<div class="cam-hud">
+		<button class="hud-btn" class:active={camView === "iso"} onclick={() => setCamera("iso")}>{t("viewport.cam.iso")}</button>
+		<button class="hud-btn" class:active={camView === "side"} onclick={() => setCamera("side")}>{t("viewport.cam.side")}</button>
+		<button class="hud-btn" class:active={camView === "top"} onclick={() => setCamera("top")}>{t("viewport.cam.top")}</button>
+	</div>
 	<div bind:this={host} class="host"></div>
 </div>
 
 <style>
 	.vp { position: relative; min-width: 0; }
-	.label { position: absolute; top: 8px; left: 10px; z-index: 2; font-weight: 700; font-size: 13px; background: var(--card); padding: 1px 8px; border-radius: 8px; border: 1px solid var(--line); }
+	.label { position: absolute; top: 8px; left: 10px; z-index: 2; font-weight: 700; font-size: 13px; background: color-mix(in srgb, var(--card) 85%, transparent); backdrop-filter: blur(4px); padding: 1px 8px; border-radius: 8px; border: 1px solid var(--line); }
+	.cam-hud { position: absolute; top: 8px; right: 10px; z-index: 2; display: flex; gap: 3px; background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+	.hud-btn { font: inherit; font-size: 11.5px; padding: 2px 7px; border: none; border-radius: 5px; background: transparent; color: var(--muted); cursor: pointer; }
+	.hud-btn:hover { color: var(--ink); }
+	.hud-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
 	.host { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); overflow: hidden; min-height: 280px; }
 	.highlight .host { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 	.host :global(canvas) { display: block; }

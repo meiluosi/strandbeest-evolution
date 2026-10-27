@@ -67,6 +67,9 @@ export interface Overlays {
 	forces: boolean;
 	slip: boolean;
 	com: boolean;
+	wind?: boolean;
+	trails?: boolean;
+	pvc?: boolean;
 }
 
 /** Index of the recorded frame closest to time `t` (seconds since the start of driving). */

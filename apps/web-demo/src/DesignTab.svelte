@@ -53,6 +53,12 @@ let metrics = $state<{
 	lift: number;
 	duty: number;
 } | null>(null);
+let theta = $state(0);
+let windDrive = $state(false);
+let windOmega = $state<number | null>(null);
+let windSpeed = $state(0);
+let stalledAt = $state<number | null>(null);
+let viewerRef: ReturnType<typeof LinkageViewer> | null = null;
 
 /** what is shown: the committed design, or the draft of a slider / dragged point over it */
 const shown = $derived(previewDesign());
@@ -209,7 +215,17 @@ function applyEvolved(spec: LinkageSpec) {
 		<div class="card">
 			<h2>{t("design.footPath")}</h2>
 			<p class="muted">{t("design.footPath.hint")}</p>
-			<LinkageViewer spec={shownLinkage} bind:metrics onedit={dragEdit} />
+			<LinkageViewer
+				bind:this={viewerRef}
+				spec={shownLinkage}
+				bind:metrics
+				bind:theta
+				legs={view.legs}
+				{windOmega}
+				{windSpeed}
+				{stalledAt}
+				onedit={dragEdit}
+			/>
 			{#if metrics}
 				<div class="row">
 					<div class="chip"><b>{(metrics.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
@@ -262,9 +278,17 @@ function applyEvolved(spec: LinkageSpec) {
 		<summary><b>{t("history.title")}</b> <small>{t("history.subtitle")}</small></summary>
 		<HistoryPanel onmessage={fail} />
 	</details>
-	<details class="card">
+	<details class="card" open>
 		<summary><b>{t("wind.title")}</b> <small>{t("wind.subtitle")}</small></summary>
-		<WindPanel spec={view.linkage} />
+		<WindPanel
+			spec={shownLinkage}
+			bind:theta
+			bind:windDrive
+			bind:windOmega
+			bind:windSpeed
+			bind:stalledAt
+			ongust={() => viewerRef?.triggerGust()}
+		/>
 	</details>
 	<details class="card" id="evolver" bind:open={evolveOpen}>
 		<summary><b>{t("evolve.title")}</b> <small>{t("evolve.subtitle")}</small></summary>

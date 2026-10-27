@@ -427,5 +427,20 @@
 	"dynamometer.starts": "顺利起步：风帆转矩在全周期均高于阻力曲线（最小富余度 {margin} mN·m）。",
 	"dynamometer.minStartWind": "起步风速：{minWind} m/s",
 	"dynamometer.peakTorque": "峰值阻力：{peak} mN·m",
-	"dynamometer.windSpeed": "测试风速：{wind} m/s"
+	"dynamometer.windSpeed": "测试风速：{wind} m/s",
+	"dynamometer.jumpStall": "定格失速点",
+	"viewer.stalledBadge": "受阻失速（风力不足）",
+	"viewer.multiLegs": "多腿相位残影",
+	"viewer.truss": "刚性三角桁架",
+	"viewer.legend.stance": "■ 着地推进段",
+	"wind.driveViewer": "用当前风速实时驱动上方 2D 预览",
+	"wind.gustImpulse": "吹一阵强风",
+	"overlay.wind": "风场流线",
+	"overlay.trails": "地面足迹",
+	"overlay.pvc": "海滩 PVC 风格",
+	"viewport.cam.iso": "斜视",
+	"viewport.cam.side": "侧视",
+	"viewport.cam.top": "俯视",
+	"viewer3d.pvcStyle": "切换 PVC 仿生色",
+	"viewer3d.layerColors": "切换分层配色"
 }

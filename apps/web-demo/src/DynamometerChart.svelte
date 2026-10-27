@@ -14,6 +14,8 @@ let {
 	legs = 12,
 	slopeDeg = 0,
 	rolling = 5,
+	theta = 0,
+	onseektheta,
 }: {
 	spec: LinkageSpec;
 	wind?: number;
@@ -21,6 +23,8 @@ let {
 	legs?: number;
 	slopeDeg?: number;
 	rolling?: number;
+	theta?: number;
+	onseektheta?: (th: number) => void;
 } = $props();
 
 const N_SAMPLES = 120;
@@ -115,18 +119,47 @@ const sailY = $derived(toY(data.sailTorque));
 const stallX = $derived(toX(data.stallIdx));
 const stallY = $derived(toY(data.peakLoad));
 const zeroY = $derived(toY(0));
+
+// Live crank angle cursor
+const normTheta = $derived(
+	((((theta / (2 * Math.PI)) % 1) + 1) % 1) * (N_SAMPLES - 1),
+);
+const cursorX = $derived(toX(normTheta));
+const cursorIdx = $derived(
+	Math.min(N_SAMPLES - 1, Math.max(0, Math.round(normTheta))),
+);
+const cursorTorque = $derived(data.loadTorques[cursorIdx] ?? 0);
+const cursorY = $derived(toY(cursorTorque));
+
+let scrubbing = $state(false);
+function pointerToTheta(e: PointerEvent, svg: SVGSVGElement) {
+	const r = svg.getBoundingClientRect();
+	const frac = Math.max(
+		0,
+		Math.min(1, (((e.clientX - r.left) / r.width) * W_SVG - PAD_L) / PLOT_W),
+	);
+	onseektheta?.(frac * 2 * Math.PI);
+}
 </script>
 
 <div class="dynamometer stack">
 	<div class="header">
 		<h4>{t("dynamometer.title")}</h4>
-		<span class="badge" class:bad={data.stalls} class:good={!data.stalls}>
-			{#if data.stalls}
-				{t("dynamometer.stalls", { angle: data.stallAngleDeg, minWind: data.minStartWind.toFixed(2) })}
-			{:else}
-				{t("dynamometer.starts", { margin: (data.stallMargin * 1000).toFixed(1) })}
-			{/if}
-		</span>
+		<div class="row center" style="margin:0;gap:6px">
+			<button
+				class="btn small"
+				onclick={() => onseektheta?.((data.stallIdx / N_SAMPLES) * 2 * Math.PI)}
+			>
+				{t("dynamometer.jumpStall")}
+			</button>
+			<span class="badge" class:bad={data.stalls} class:good={!data.stalls}>
+				{#if data.stalls}
+					{t("dynamometer.stalls", { angle: data.stallAngleDeg, minWind: data.minStartWind.toFixed(2) })}
+				{:else}
+					{t("dynamometer.starts", { margin: (data.stallMargin * 1000).toFixed(1) })}
+				{/if}
+			</span>
+		</div>
 	</div>
 
 	<p class="desc">{t("dynamometer.desc")}</p>
@@ -138,7 +171,31 @@ const zeroY = $derived(toY(0));
 	</div>
 
 	<div class="chart-container">
-		<svg viewBox="0 0 {W_SVG} {H_SVG}" preserveAspectRatio="none">
+		<svg
+			role="slider"
+			tabindex="0"
+			aria-label={t("dynamometer.title")}
+			aria-valuemin={0}
+			aria-valuemax={360}
+			aria-valuenow={Math.round(((((theta * 180) / Math.PI) % 360) + 360) % 360)}
+			viewBox="0 0 {W_SVG} {H_SVG}"
+			preserveAspectRatio="none"
+			style="cursor:crosshair;touch-action:none"
+			onkeydown={(e) => {
+				if (e.key === "ArrowRight") onseektheta?.(theta + (5 * Math.PI) / 180);
+				if (e.key === "ArrowLeft") onseektheta?.(theta - (5 * Math.PI) / 180);
+			}}
+			onpointerdown={(e) => {
+				scrubbing = true;
+				e.currentTarget.setPointerCapture(e.pointerId);
+				pointerToTheta(e, e.currentTarget);
+			}}
+			onpointermove={(e) => {
+				if (scrubbing) pointerToTheta(e, e.currentTarget);
+			}}
+			onpointerup={() => (scrubbing = false)}
+			onpointercancel={() => (scrubbing = false)}
+		>
 			<!-- Zero baseline -->
 			<line x1={PAD_L} y1={zeroY} x2={W_SVG - PAD_R} y2={zeroY} class="zero-line" />
 
@@ -165,6 +222,10 @@ const zeroY = $derived(toY(0));
 
 			<!-- Load Torque Curve T(theta) -->
 			<path d={loadPath} class="load-curve" />
+
+			<!-- Live Crank Angle Cursor -->
+			<line x1={cursorX} y1={PAD_T} x2={cursorX} y2={H_SVG - PAD_B} class="cursor-line" />
+			<circle cx={cursorX} cy={cursorY} r="4.2" class="cursor-dot" />
 
 			<!-- Stall Marker Dot -->
 			<circle cx={stallX} cy={stallY} r="4" class="stall-dot" />
@@ -273,6 +334,15 @@ const zeroY = $derived(toY(0));
 	}
 	.stall-dot {
 		fill: #d32f2f;
+		stroke: white;
+		stroke-width: 1.5;
+	}
+	.cursor-line {
+		stroke: var(--blue, #2f6fd1);
+		stroke-width: 1.5;
+	}
+	.cursor-dot {
+		fill: var(--blue, #2f6fd1);
 		stroke: white;
 		stroke-width: 1.5;
 	}

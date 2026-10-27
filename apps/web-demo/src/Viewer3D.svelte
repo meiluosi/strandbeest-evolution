@@ -41,16 +41,23 @@ let {
 let host: HTMLDivElement;
 let mode = $state<"assembly" | "part">("assembly");
 let legsShown = $state<"one" | "all">("one");
+let colorMode = $state<"layer" | "pvc">("layer");
 let playing = $state(true);
 let part = $state("frame_plate");
 let status = $state("");
 
 const stlParts = $derived(Object.keys(manifest.parts));
 // let the render loop read current values without re-creating the scene
-const live = { mode: "assembly", legs: "one", playing: true };
+const live = {
+	mode: "assembly",
+	legs: "one",
+	colorMode: "layer",
+	playing: true,
+};
 $effect(() => {
 	live.mode = mode;
 	live.legs = legsShown;
+	live.colorMode = colorMode;
 	live.playing = playing;
 });
 
@@ -92,6 +99,8 @@ $effect(() => {
 		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		host.appendChild(renderer.domElement);
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(40, 1, 1, 5000);
@@ -99,10 +108,23 @@ $effect(() => {
 		const controls = new OrbitControls(camera, renderer.domElement);
 		controls.enableDamping = true;
 		scene.add(
-			new THREE.HemisphereLight(0xffffff, dark ? 0x333344 : 0xbbbbcc, 1.1),
+			new THREE.HemisphereLight(
+				dark ? 0xdde4ff : 0xfff8e7,
+				dark ? 0x333344 : 0xcbb89d,
+				1.15,
+			),
 		);
-		const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+		const sun = new THREE.DirectionalLight(0xfffdf6, 1.35);
 		sun.position.set(200, 400, 300);
+		sun.castShadow = true;
+		sun.shadow.mapSize.set(1024, 1024);
+		sun.shadow.camera.near = 10;
+		sun.shadow.camera.far = 1500;
+		const sd = 260;
+		sun.shadow.camera.left = -sd;
+		sun.shadow.camera.right = sd;
+		sun.shadow.camera.top = sd;
+		sun.shadow.camera.bottom = -sd;
 		scene.add(sun);
 
 		const assembly = new THREE.Group();
@@ -111,10 +133,14 @@ $effect(() => {
 		const palette = [
 			0xd9622b, 0x2f6fd1, 0x3aa17e, 0xb7791f, 0x8e5bd0, 0x777777,
 		];
+		const pvcPalette = [
+			0xe3b448, 0xd8a63c, 0xce9932, 0xc38c28, 0xb87f1f, 0xad7317,
+		];
 		const geoCache = new Map<string, THREE_NS.BufferGeometry>();
 		let bars: { mesh: THREE_NS.Mesh; bar: Bar; leg: number }[] = [];
 		let feet: THREE_NS.Mesh[] = [];
 		let ground: THREE_NS.GridHelper | null = null;
+		let groundPlane: THREE_NS.Mesh | null = null;
 
 		function shapeOf(o: Outline): THREE_NS.Shape {
 			const sh = new THREE.Shape(
@@ -150,16 +176,19 @@ $effect(() => {
 			const n = manifest.crank_phase_deg.length;
 			const legIdx = live.legs === "all" ? [...Array(n).keys()] : [0];
 			const pitch = manifest.layer_pitch_mm;
+			const activePalette = live.colorMode === "pvc" ? pvcPalette : palette;
 			for (const leg of legIdx) {
 				for (const bar of manifest.bars) {
 					const g = geometryFor(bar.part);
 					if (!g) continue;
 					const mat = new THREE.MeshStandardMaterial({
-						color: palette[bar.layer % palette.length],
-						roughness: 0.55,
-						metalness: 0.05,
+						color: activePalette[bar.layer % activePalette.length],
+						roughness: live.colorMode === "pvc" ? 0.36 : 0.55,
+						metalness: live.colorMode === "pvc" ? 0.08 : 0.05,
 					});
 					const mesh = new THREE.Mesh(g, mat);
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
 					assembly.add(mesh);
 					bars.push({ mesh, bar, leg });
 				}
@@ -167,15 +196,27 @@ $effect(() => {
 					new THREE.SphereGeometry(3, 16, 12),
 					new THREE.MeshStandardMaterial({ color: 0xd9622b }),
 				);
+				foot.castShadow = true;
 				assembly.add(foot);
 				feet.push(foot);
 			}
 			if (ground) scene.remove(ground);
+			if (groundPlane) scene.remove(groundPlane);
+			groundPlane = new THREE.Mesh(
+				new THREE.PlaneGeometry(700, 700),
+				new THREE.MeshStandardMaterial({
+					color: dark ? 0x1e2028 : 0xf3ead8,
+					roughness: 0.92,
+				}),
+			);
+			groundPlane.rotation.x = -Math.PI / 2;
+			groundPlane.receiveShadow = true;
+			scene.add(groundPlane);
 			ground = new THREE.GridHelper(
 				500,
 				20,
-				dark ? 0x555555 : 0xbbbbbb,
-				dark ? 0x333333 : 0xdddddd,
+				dark ? 0x555555 : 0xb8ad99,
+				dark ? 0x333333 : 0xe2d9c8,
 			);
 			scene.add(ground);
 			void pitch;
@@ -217,6 +258,8 @@ $effect(() => {
 				);
 			}
 			if (ground && Number.isFinite(lowest)) ground.position.y = lowest - 1;
+			if (groundPlane && Number.isFinite(lowest))
+				groundPlane.position.y = lowest - 1.2;
 			void n;
 		}
 
@@ -263,10 +306,12 @@ $effect(() => {
 		// frame the walker once
 		controls.target.set(40, -30, 20);
 		let lastLegs = live.legs;
+		let lastColorMode = live.colorMode;
 		function frame(now: number) {
 			raf = requestAnimationFrame(frame);
-			if (live.legs !== lastLegs) {
+			if (live.legs !== lastLegs || live.colorMode !== lastColorMode) {
 				lastLegs = live.legs;
+				lastColorMode = live.colorMode;
 				rebuild();
 			}
 			if (live.playing) clock += ((now - last) / 1000) * 1.2;
@@ -274,6 +319,7 @@ $effect(() => {
 			assembly.visible = live.mode === "assembly";
 			partGroup.visible = live.mode === "part";
 			if (ground) ground.visible = live.mode === "assembly";
+			if (groundPlane) groundPlane.visible = live.mode === "assembly";
 			if (live.mode === "assembly") pose(clock);
 			controls.update();
 			renderer.render(scene, camera);
@@ -306,6 +352,7 @@ $effect(() => {
 		{#if mode === "assembly"}
 			<button class="btn small" onclick={() => (playing = !playing)}>{playing ? t("common.pause") : t("common.play")}</button>
 			<button class="btn small" onclick={() => (legsShown = legsShown === "one" ? "all" : "one")}>{legsShown === "one" ? t("viewer3d.allLegs") : t("viewer3d.oneLeg")}</button>
+			<button class="btn small" onclick={() => (colorMode = colorMode === "layer" ? "pvc" : "layer")}>{colorMode === "layer" ? t("viewer3d.pvcStyle") : t("viewer3d.layerColors")}</button>
 			<small>{t("viewer3d.hint")}</small>
 		{:else}
 			<select bind:value={part}>

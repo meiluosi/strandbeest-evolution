@@ -33,7 +33,14 @@ let time = $state(0);
 let playing = $state(true);
 let speed = $state(1);
 let follow = $state(true);
-let overlays = $state<Overlays>({ forces: true, slip: true, com: true });
+let overlays = $state<Overlays>({
+	forces: true,
+	slip: true,
+	com: true,
+	wind: true,
+	trails: true,
+	pvc: true,
+});
 
 const scene = $derived(SCENES[key] as (typeof SCENES)[string]);
 const runs = $derived(
@@ -322,6 +329,9 @@ const rows = $derived(
 			<label class="inline"><input type="checkbox" bind:checked={overlays.forces} /> {t("overlay.forces")}</label>
 			<label class="inline"><input type="checkbox" bind:checked={overlays.slip} /> {t("overlay.slip")}</label>
 			<label class="inline"><input type="checkbox" bind:checked={overlays.com} /> {t("overlay.com")}</label>
+			<label class="inline"><input type="checkbox" bind:checked={overlays.wind} /> {t("overlay.wind")}</label>
+			<label class="inline"><input type="checkbox" bind:checked={overlays.trails} /> {t("overlay.trails")}</label>
+			<label class="inline"><input type="checkbox" bind:checked={overlays.pvc} /> {t("overlay.pvc")}</label>
 		</div>
 		{#if diff}
 			<p class="notice">{t("compare.largest", { time: diff.t.toFixed(2), mm: (diff.distance * 1000).toFixed(1) })} <button class="btn small" onclick={() => seek(diff.t)}>{t("compare.jump")}</button></p>
