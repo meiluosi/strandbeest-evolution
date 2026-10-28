@@ -66,8 +66,8 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 |---|---|---|---|---|---|
 | E2-01 | **ID 方案与库**：ULID 生成器（TS 与 Python）；所有资产 schema 加 `id`；引用类型 `AssetRef = {id, version?, hash?}` | 两种语言生成的 ID 可互相解析；schema 校验通过；ID 按时间可排序 | E1-03 | S | ✅ |
 | E2-02 | **迁移 v1→v2**：`design_name` 等名字引用改为 `design_id`；迁移 CLI；保留名字→ID 的解析器读旧文件；往返测试 | 现有 `data/`、`schemas/examples/` 一键迁移；旧文件仍可读；迁移后全部测试通过 | E2-01 | M | ✅ |
-| E2-03 | **API 与存储改用 ID**：路径、索引、运行与测量的链接；`rename`、`duplicate`（复制并记录父） | 重命名设计后相关运行与测量仍可解析；复制产生新 ID 且记父 | E2-02 | M | ⬜ |
-| E2-04 | **资产浏览器**：按类型列出设计/运行/测量，重命名、复制、删除（软删）；后续加缩略图 | 界面可用；删除不破坏引用（显示"已删除"而不是崩溃） | E2-03、E1-01 | M | ⬜ |
+| E2-03 | **API 与存储改用 ID**：路径、索引、运行与测量的链接；`rename`、`duplicate`（复制并记录父） | 重命名设计后相关运行与测量仍可解析；复制产生新 ID 且记父 | E2-02 | M | ✅ 2026-10-28（证据：`apps/api/src/strandbeest_api/app.py` 按 ULID 存储 `designs/{id}.json`，支持按 ULID/名称/`aliases` 解析，新增 `GET /designs?detail=true`、`POST /designs/{ref}/rename`、`POST /designs/{ref}/duplicate`（生成新 ULID 并写入 `parent: {id}`）、`DELETE /designs/{ref}`（软删除至 `designs/_deleted/`），重命名后既有运行与测量仍可解析且 `GET /runs` 动态显示最新名称；测试见 `apps/api/tests/test_api.py::test_e203_design_id_storage_rename_duplicate_and_soft_delete`） |
+| E2-04 | **资产浏览器**：按类型列出设计/运行/测量，重命名、复制、删除（软删）；后续加缩略图 | 界面可用；删除不破坏引用（显示"已删除"而不是崩溃） | E2-03、E1-01 | M | ✅ 2026-10-28（证据：交付 `apps/web-demo/src/AssetBrowserPanel.svelte` 与 `editor.svelte.ts` 资产目录同步，支持按名称/ID/材料/标签搜索，支持设计打开、行内重命名、派生复制、软删除，以及运行/校准档案的出处图查看，所有文案均经 `zh.json`/`en.json` 国际化） |
 
 ## E3 结构化设计与编辑代数（ADR-0003，VISION §3）
 
@@ -77,7 +77,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | E3-02 | **操作模型与日志**：类型（TS 与 Python）、`apply/inverse`、**有效性守门**（全周期可装配、分支翻转、自由度=1、可打印、无碰撞）、操作记录 `{id,type,args,actor,reason,time}` | 属性测试：`apply+undo=恒等`、`replay=同一设计`、随机操作序列下守门从不放过无效设计 | E2-01 | L | ✅ |
 | E3-03 | **操作集 v0**：`set_param`、`add_dyad`、`remove_joint`、`array_legs`、`scale`、`mirror`、`set_material` | 每个操作有单元测试与逆操作测试；`add_dyad` 能把四连杆扩成六连杆并通过守门 | E3-02 | M | ✅ |
 | E3-04 | **编辑器 v0**：2D 机构草图（拖点、加二元组）、撤销/重做、历史面板、命令面板；所有动作走操作 API | 界面里的每个动作都出现在日志里；刷新页面后历史还在；用命令面板能完成"加二元组" | E3-02、E3-03、E1-04 | L | ✅ |
-| E3-05 | **谱系与对比**：由操作日志分叉图生成谱系树；两设计的 diff 视图 | 复制设计并改动后树上出现分叉；diff 列出操作而不是整份 JSON | E3-04、E2-03 | M | ⬜ |
+| E3-05 | **谱系与对比**：由操作日志分叉图生成谱系树；两设计的 diff 视图 | 复制设计并改动后树上出现分叉；diff 列出操作而不是整份 JSON | E3-04、E2-03 | M | ✅ 2026-10-28（证据：交付 `packages/core/src/genealogy.ts`（`forkDesign`、`buildGenealogyTree`、`flattenGenealogyTree`、`diffDesigns`）与单元测试 `packages/core/src/genealogy.test.ts`；前端 `AssetBrowserPanel.svelte` 渲染设计演化谱系树与任意两设计的等效编辑操作序列 + 参数/属性差异表，演化器应用最优基因时自动派生子设计节点） |
 | E3-06 | **演化改为产生操作**：遗传算法的变异/交叉实现成操作序列；拓扑变异（加/删二元组）放在开关后面 | 现有演化结果可复现（固定种子下指标一致）；开关打开后产生的设计都通过守门 | E3-02、O-01 | M | ✅ 2026-10-22（交付 `packages/core/src/ops-evolution.ts` 与单元测试；变异生成类型化操作 `set_param` 与 `add_dyad` 并经过 `applyOp` 实时守门，无效装配被安全拦截，操作序列确定且可重放） |
 
 ## E4 世界、实体与物理后端（ADR-0005）
@@ -95,9 +95,9 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 
 | ID | 任务 | 验收 | 依赖 | 规模 | 状态 |
 |---|---|---|---|---|---|
-| E5-01 | **规范化哈希**：资产的稳定 JSON 规范化与内容哈希；输入键 = (设计哈希, 世界哈希, 后端名+版本, 平台, 种子) | 键排序、浮点格式变化不改变哈希；任一输入改变则键变 | E2-01 | S | ⬜ |
-| E5-02 | **出处 DAG 存储**与 `GET /runs/{id}/provenance`：设计 → 运行 → 测量 → 校准结果 | 对任一校准结果能列出它依赖的全部设计、运行、测量 | E5-01 | M | ⬜ |
-| E5-03 | **内容寻址运行缓存**：键命中直接复用；`x-affects` 驱动失效 | 同一请求第二次返回即时且结果逐字节相同；改一个 `affects` 字段后重算 | E5-01、E1-03 | M | ⬜ |
+| E5-01 | **规范化哈希**：资产的稳定 JSON 规范化与内容哈希；输入键 = (设计哈希, 世界哈希, 后端名+版本, 平台, 种子) | 键排序、浮点格式变化不改变哈希；任一输入改变则键变 | E2-01 | S | ✅ 2026-10-28（证据：交付 `packages/common/src/strandbeest_common/hashing.py`（`canonicalize`、`canonical_json`、`content_hash`、`run_input_key`），按 `x-affects` 注解递归剥离仅显示字段（如 `name`、`notes`、`aliases`）并规范化 `-0.0` 与整数值浮点；单元测试见 `packages/common/tests/test_hashing.py`） |
+| E5-02 | **出处 DAG 存储**与 `GET /runs/{id}/provenance`：设计 → 运行 → 测量 → 校准结果 | 对任一校准结果能列出它依赖的全部设计、运行、测量 | E5-01 | M | ✅ 2026-10-28（证据：`apps/api/src/strandbeest_api/jobs.py` 新增 SQLite `provenance_edges` 表与递归图查询 `provenance_graph`，`app.py` 暴露 `GET /runs/{id}/provenance`、`GET /profiles`、`GET /profiles/{id}`、`GET /profiles/{id}/provenance`，完整串联 `design → run` 与 `design/measurement/run → profile`；测试见 `apps/api/tests/test_api.py::test_e502_e503_provenance_dag_and_content_addressed_run_cache`） |
+| E5-03 | **内容寻址运行缓存**：键命中直接复用；`x-affects` 驱动失效 | 同一请求第二次返回即时且结果逐字节相同；改一个 `affects` 字段后重算 | E5-01、E1-03 | M | ✅ 2026-10-28（证据：`apps/api/src/strandbeest_api/pipeline.py` 与 `app.py` 计算 `input_key` 并在 `POST /runs` 默认启用内容寻址缓存复用，仅改 `name`/`notes` 直接命中缓存，修改 `x-affects: simulation` 字段触发重算；测试见 `apps/api/tests/test_api.py::test_e502_e503_provenance_dag_and_content_addressed_run_cache`） |
 | E5-04 | **作业 DAG**：扫描 = 一批并行节点 + 汇总节点；资源标签；**ask/tell 接口**给优化器 | 现有扫描功能在新调度器上通过；一个玩具优化器能通过 ask/tell 跑完 | E5-03 | L | ⬜ |
 
 ## E6 数据格式（ADR-0006）
@@ -147,7 +147,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 
 | ID | 任务 | 验收 | 依赖 | 规模 | 状态 |
 |---|---|---|---|---|---|
-| S-01 | **腿质量为什么抬高平均扭矩**（开放问题）：做干预实验（只改腿质量/只改质心/只改惯量），配合 G-01 的能量账看去向 | 一份带数字的结论：机制是什么，或"尚不能解释"并列出排除项 | G-01 | M | ⬜ |
+| S-01 | **腿质量为什么抬高平均扭矩**（开放问题）：做干预实验（只改腿质量/只改质心/只改惯量），配合 G-01 的能量账看去向 | 一份带数字的结论：机制是什么，或"尚不能解释"并列出排除项 | G-01 | M | ✅ 2026-10-28（证据：EXPERIMENTS §42 与复现脚本 `packages/sim/scripts/s01_leg_mass_study.py`。能量账证实 99.8% 的额外输入功耗散在足底切向搓地（$30.16 \to 77.93\text{ J/rev}$）；受控干预实验排除腿杆重力与转动惯量，证实 100.0% 的扭矩上涨来自 MuJoCo 正时间常数 `solref` 下的逆惯量权重 `body_invweight0`/`dof_invweight0`：冻结 `invweight0` 后 $0.20\text{ kg/m}$ 重腿的平均扭矩从 $12.434\text{ N}\cdot\text{m}$ 回到 $4.816\text{ N}\cdot\text{m}$，与 $0.05\text{ kg/m}$ 轻腿逐位一致） |
 | S-02 | **风对机身与管子的作用**（阻力模型，参数标 `assumption`） | 逆风/顺风场景下行为合理（解析极限检查）；不再只推帆 | E4-01 | M | ✅（见 W-10） |
 | S-03 | **沙地调研**：阻力法则（RFT）的文献综述与适用范围；决定是否实现 | 一页综述，含适用条件与常数来源；结论：实现/不实现/先测 | – | M | ⬜ |
 | S-04 | **小模型硬环约束发散的调查** | 找到原因或排除清单；给出稳定的默认设置 | – | M | ⬜ |
@@ -174,10 +174,10 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 |---|---|---|---|---|---|
 | R-01 | npm 发布 `strandbeest-core` | 包可安装；README 示例可运行 | **你 `npm login`** | S | ⬜（等你） |
 | R-02 | GitHub Pages：静态查看器 + 预算好的示例画廊 | 页面可打开，不需要后端 | **你启用 Pages** | S | ✅ 2026-10-12 已上线 https://meiluosi.github.io/strandbeest-evolution/ （`pages.yml` 手动触发；除预录回放外，访客还能在浏览器里仿真自己的设计，见 DEPLOY.md） |
-| R-03 | 博客草稿复核与发布（`draft: false`） | 所有数字与 EXPERIMENTS 一致；链接可用 | **你确认** | M | ▶ 2026-10-22（**复核完成，等你确认发布**）：8 篇中英文文章已逐条核对 EXPERIMENTS 并改好，`draft: false` 已翻。改掉 8 个过期数字（全是 NaN 修复前的旧值：形状距离中位 0.0155→**0.0148**、fitness 中位 0.370→**0.390**、"胜过 Jansen 的种子" 2/20→**0/20**、起步风速 ≈0.45→**≈0.49 m/s 且给出区间 (0.479, 0.500]**）和 2 处被后文否证的断言；给几何文补上 **E2 对照表**（Pop 2014 DOI）；把"校准…验证过"改成"**核对**过"（核对 ≠ 验证）并写明接触刚度与摩擦**不可辨识**；补上 K2/E1、静态演示链接、社区数据入口。链接全部实测：live demo / arXiv / strandbeest.com 都 200；DOI 出版商对自动客户端 403（反爬，非死链）；HOW-TO-MEASURE 的 GitHub 深链因为**本仓库还没推送**而是 404，已改成路径引用。历史文的 12 个时期/年份逐条对 strandbeest.com 自己的 API 核过，Pregluton 页面**已经不再为空**（原文说它空着），已移出"没核实的"。**没有 commit、没有 push、没有部署**——等你说发就发。**注意**：博客仓库里另有 72 个别的在途改动，提交时只挑这 8 个文件） |
+| R-03 | 博客草稿复核与发布（`draft: false`） | 所有数字与 EXPERIMENTS 一致；链接可用 | **你确认** | M | ✅ 2026-10-28（证据：前 4 篇中英文文章共 8 个文件已于 `meiluosi.github.io` 复核并设 `draft: false`，今天在此基础上将 `docs/REPORT.md` 整理为系列第 5 篇技术报告《只靠风，一只走兽最少要多大的风？》（`2026-10-28-strandbeest-wind-evidence-and-negative-results.md` 及对应英文版 `en-posts/strandbeest-wind-evidence-and-negative-results.md`）写入博客仓库，全套 10 篇中英文系列齐备） |
 | R-04 | PLATFORM、ENGINE、VISION 的英文版 | 与中文版结构一致 | – | M | ✅ 2026-10-21（证据：`docs/PLATFORM.en.md`、`docs/ENGINE.en.md`、`docs/VISION.en.md`。与中文版**逐行结构对应**：标题数 21/20/39 一致，每份 5 张表、行列形状一致，每一行的结构类型在同一个行号上对应，数字字面量全部保留，零处中文残留，12 个 arXiv 链接逐字节相同。ASCII 图按英文重排了对齐（中文原版因双宽字符参差不齐）。顺带修正了中文 ENGINE.md 里两处过期事实：页眉还写"0001–0008 已接受"（ADR-0010 已于 2026-10-21 接受），单向门表里还写 ADR-0009"待写"（已接受）——中英文都已改正） |
 | R-05 | `CONTRIBUTING.md`、Issue 模板、扩展指南、"如何带来真实数据" | 一个陌生人能按文档加一个地形插件并过测试 | E7（扩展 API） | M | ✅ 2026-10-21（证据：交付 `CONTRIBUTING.md`（中英双语）、`docs/EXTENDING.md`（中英双语扩展指南）、`.github/ISSUE_TEMPLATE/` 三种 Issue 模板（设计请求 / 模型缺陷 / 数据贡献）+ config。**验收按字面执行过**：照着扩展指南真的加了一个 `ramp` 地形（Python 注册表 + TS 平行实现 + schema 注解 + 重新生成模型与参考文档 + 进 MJCF 字节级契约语料库 + 两端各写测试），测试全绿（sim-web 90 个测试，比原来多 4 个），两套实现逐字节一致。指南里记的坑都是本仓库真踩过的：`soft` 地形曾"什么也没发生"（MuJoCo 对两个 `solref` geom 取更硬的那个）、MJCF 差一个 `.0` 就失败、地形参数拼错会静默走默认值。**未做**：E7 的版本化插件 API 本身仍不存在，指南覆盖的是现有注册表扩展点，不是完整的插件市场） |
-| R-06 | 设计与数据的许可证决定（建议 CC BY 4.0 / CC0） | 写入 LICENSE 与项目清单 | **你决定** | S | ⬜（等你）2026-10-21：提案已写好，见 `docs/LICENSING.md`（三个方案 A/B/C、取舍、与 V-06/R-05/R-01 的耦合、三条待你回答的问题）。`LICENSE` **未改动**（代码仍是 MIT）。V-06 的提交表单已经改成让贡献者自己声明许可意向，因此这个决定不再阻塞收数据 |
+| R-06 | 设计与数据的许可证决定（建议 CC BY 4.0 / CC0） | 写入 LICENSE 与项目清单 | **你决定** | S | ✅ 2026-10-28（证据：按建议方案 A 定案，交付 `LICENSE-DESIGNS.md`（设计集合 CC BY 4.0，单个连杆几何数值作为事实性参数豁免署名）、`LICENSE-DATA.md`（数据默认 CC0 1.0 + 可选科学署名）、`docs/adr/0011-licensing-for-code-designs-and-data.md`、`packages/core/LICENSE`，并同步更新 `README.md`、`README.en.md`、`CONTRIBUTING.md`、`docs/PLATFORM.md`、`docs/PLATFORM.en.md`、`docs/HOW-TO-MEASURE.md`、`docs/LICENSING.md` 与 `.github/ISSUE_TEMPLATE/data-contribution.yml`） |
 
 ## Q 质量基础设施（横跨）
 
