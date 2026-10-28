@@ -3,7 +3,7 @@
 
 > Metadata and metrics of one simulation run. Time series live next to it in an arrays file.
 
-- **Fields documented**: 41
+- **Fields documented**: 47
 - **Assumed parameters (`x-assumption: true`)**: 0
 - **Calibratable parameters (`x-calibratable: true`)**: 0
 
@@ -24,6 +24,12 @@
 | `provenance.engine` | `string` | – | – | – | – | – |
 | `provenance.engine_version` | `string` | – | – | – | – | – |
 | `provenance.created` | `string` | – | – | – | – | – |
+| `provenance.input_key` | `string` | – | – | – | – | – |
+| `provenance.design_hash` | `string` | – | – | – | – | – |
+| `provenance.world_hash` | `string` | – | – | – | – | – |
+| `provenance.platform` | `string` | – | – | – | – | – |
+| `provenance.seed` | `integer` | – | `1` | – | – | – |
+| `provenance.cache_hit_from` | `Ulid` (`string`) | – | – | – | – | 稳定的资产 ID（ULID，26 个字符，按创建时间可排序）<br>Stable asset id (ULID: 26 characters, sortable by creation time) |
 | `ensemble` | `object` | – | – | – | – | Same scenario re-run under several friction-regularisation settings (docs/EXPERIMENTS.md section 8). Torque level depends on these numerical choices, so report ranges, not single numbers. |
 | `ensemble.variants` | array<`object`> | *(required)* | – | – | – | – |
 | `ensemble.variants[].name` | `string` | *(required)* | – | – | – | – |

@@ -375,6 +375,58 @@ def test_replay_carries_loads_events_diagnosis_and_the_energy_account(client):
     assert "foot_normal" in series and "kinetic" in series
 
 
+def test_e203_design_id_storage_rename_duplicate_and_soft_delete(client):
+    saved = client.post("/designs", json=DESIGN).json()
+    did = saved["id"]
+    assert did == DESIGN["id"]
+    # Rename preserves id and records old name as alias
+    renamed = client.post(f"/designs/{did}/rename", json={"name": "jansen-v2-renamed"}).json()
+    assert renamed["id"] == did and renamed["name"] == "jansen-v2-renamed"
+    assert "jansen-small-6leg" in renamed["aliases"]
+    # Retrievable by ULID, new name, and old alias
+    assert client.get(f"/designs/{did}").json()["name"] == "jansen-v2-renamed"
+    assert client.get("/designs/jansen-v2-renamed").json()["id"] == did
+    assert client.get("/designs/jansen-small-6leg").json()["id"] == did
+    # Duplicate creates a new ULID and records parent
+    dup = client.post(f"/designs/{did}/duplicate", json={"name": "jansen-fork"}).json()
+    assert dup["id"] != did and is_ulid(dup["id"])
+    assert dup["parent"] == {"id": did}
+    details = client.get("/designs?detail=true").json()
+    assert {x["id"] for x in details} == {did, dup["id"]}
+    # Soft delete moves it out of active list without crashing provenance
+    assert client.delete(f"/designs/{dup['id']}").json()["deleted"] is True
+    assert client.get(f"/designs/{dup['id']}").status_code == 404
+
+
+def test_e502_e503_provenance_dag_and_content_addressed_run_cache(client):
+    client.post("/designs", json=DESIGN)
+    fork = client.post(f"/designs/{DESIGN['id']}/duplicate", json={"name": "fork-1"}).json()
+
+    # First run computes from scratch
+    ov = {"run": {"revolutions": 0.4, "settle": 0.2, "frame_rate": 0}}
+    jid1 = client.post("/runs", json={"design": fork, "ensemble": False, "overrides": ov}).json()["job_id"]
+    r1 = wait(client, jid1)["result"]
+    assert "input_key" in r1["provenance"] and "cache_hit_from" not in r1["provenance"]
+
+    # Second run with renamed design (non-affecting field) hits the cache immediately and returns identical metrics
+    fork_renamed = {**fork, "name": "fork-1-renamed", "notes": "cosmetic note"}
+    jid2 = client.post("/runs", json={"design": fork_renamed, "ensemble": False, "overrides": ov}).json()["job_id"]
+    r2 = wait(client, jid2)["result"]
+    assert r2["provenance"]["cache_hit_from"] == r1["id"]
+    assert r2["metrics"] == r1["metrics"]
+
+    # Changing an affecting parameter (e.g. linkage length or gravity) invalidates cache and recomputes
+    ov_mars = {"run": {"revolutions": 0.4, "settle": 0.2, "frame_rate": 0}, "environment": {"gravity": 3.71}}
+    jid3 = client.post("/runs", json={"design": fork, "ensemble": False, "overrides": ov_mars}).json()["job_id"]
+    r3 = wait(client, jid3)["result"]
+    assert "cache_hit_from" not in r3["provenance"]
+    assert r3["provenance"]["input_key"] != r1["provenance"]["input_key"]
+
+    # Provenance endpoint traces fork -> parent design
+    prov = client.get(f"/runs/{r1['id']}/provenance").json()
+    assert [d["id"] for d in prov["designs"]] == [fork["id"], DESIGN["id"]]
+
+
 @pytest.mark.slow
 def test_bayesian_calibration_job_returns_a_profile_with_uncertainty_and_identifiability(client):
     from strandbeest_calib import CONTACT_STIFFNESS, make_synthetic_measurement

@@ -3,7 +3,7 @@
 
 > A calibrated parameter set with its provenance. Scenarios refer to it by name.
 
-- **Fields documented**: 12
+- **Fields documented**: 14
 - **Assumed parameters (`x-assumption: true`)**: 0
 - **Calibratable parameters (`x-calibratable: true`)**: 0
 
@@ -21,5 +21,7 @@
 | `provenance.method` | `string` | *(required)* | – | – | – | – |
 | `provenance.residual` | `number` | *(required)* | `1` | – | – | fit error in the units of the compared quantity |
 | `provenance.code_version` | `string` | – | – | – | – | – |
+| `provenance.design_id` | `Ulid` (`string`) | – | – | – | – | 稳定的资产 ID（ULID，26 个字符，按创建时间可排序）<br>Stable asset id (ULID: 26 characters, sortable by creation time) |
+| `provenance.run_ids` | array<`Ulid` (`string`)> | – | – | – | – | – |
 | `aliases` | array<`string`> | – | – | – | – | 旧名字或旧 ID；指向它们的引用都解析到这个资产<br>Former names or ids; a reference to any of them resolves to this asset |
 | `uncertainty` | map<string, `object`> | – | – | – | – | Per parameter: 95 % intervals from the posterior and from the profile likelihood, the share of the prior range the data cannot exclude, and whether the parameter is identifiable from this data |

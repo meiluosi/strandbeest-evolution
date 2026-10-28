@@ -38,11 +38,16 @@ class JobStore:
             CREATE INDEX IF NOT EXISTS jobs_status ON jobs(status, created);
             CREATE TABLE IF NOT EXISTS runs (
               id TEXT PRIMARY KEY, design_name TEXT, created TEXT, stalled INTEGER, metrics TEXT, ranges TEXT,
-              design_id TEXT, aliases TEXT);
+              design_id TEXT, aliases TEXT, input_key TEXT);
+            CREATE TABLE IF NOT EXISTS provenance_edges (
+              child_id TEXT NOT NULL, child_kind TEXT NOT NULL,
+              parent_id TEXT NOT NULL, parent_kind TEXT NOT NULL,
+              relation TEXT NOT NULL,
+              PRIMARY KEY (child_id, parent_id, relation));
             """
         )
         cols = {r["name"] for r in self._db.execute("PRAGMA table_info(runs)")}
-        for col in ("design_id", "aliases"):  # indexes made before ids existed lack these; the index is rebuilt from files anyway
+        for col in ("design_id", "aliases", "input_key"):  # indexes made before ids existed lack these; the index is rebuilt from files anyway
             if col not in cols:
                 self._db.execute(f"ALTER TABLE runs ADD COLUMN {col} TEXT")
 
@@ -130,17 +135,41 @@ class JobStore:
 
     # -- run index --------------------------------------------------------
     def index_run(self, doc: dict[str, Any]) -> None:
+        prov = doc.get("provenance", {})
         with self._lock:
             self._db.execute(
-                "INSERT OR REPLACE INTO runs(id, design_name, created, stalled, metrics, ranges, design_id, aliases) VALUES (?,?,?,?,?,?,?,?)",
-                (doc["id"], doc.get("design_name", ""), doc["provenance"].get("created", ""), int(doc.get("stalled", False)),
+                "INSERT OR REPLACE INTO runs(id, design_name, created, stalled, metrics, ranges, design_id, aliases, input_key) VALUES (?,?,?,?,?,?,?,?,?)",
+                (doc["id"], doc.get("design_name", ""), prov.get("created", ""), int(doc.get("stalled", False)),
                  json.dumps(doc["metrics"]), json.dumps(doc.get("ensemble", {}).get("ranges")) if "ensemble" in doc else None,
-                 doc["design_id"], json.dumps(doc.get("aliases", []))),
+                 doc["design_id"], json.dumps(doc.get("aliases", [])), prov.get("input_key")),
+            )
+            if doc.get("design_id"):
+                self._db.execute(
+                    "INSERT OR REPLACE INTO provenance_edges(child_id, child_kind, parent_id, parent_kind, relation) VALUES (?,?,?,?,?)",
+                    (doc["id"], "run", doc["design_id"], "design", "simulated_from"),
+                )
+
+    def add_provenance_edge(self, child_id: str, child_kind: str, parent_id: str, parent_kind: str, relation: str) -> None:
+        with self._lock:
+            self._db.execute(
+                "INSERT OR REPLACE INTO provenance_edges(child_id, child_kind, parent_id, parent_kind, relation) VALUES (?,?,?,?,?)",
+                (child_id, child_kind, parent_id, parent_kind, relation),
             )
 
     def clear_run_index(self) -> None:
         with self._lock:
             self._db.execute("DELETE FROM runs")
+            self._db.execute("DELETE FROM provenance_edges")
+
+    def find_cached_run(self, input_key: str, *, require_ensemble: bool = False) -> str | None:
+        """Return the most recent canonical run_id matching `input_key` (and `ranges IS NOT NULL` if `require_ensemble`)."""
+        cond = " AND ranges IS NOT NULL" if require_ensemble else ""
+        with self._lock:
+            r = self._db.execute(
+                f"SELECT id FROM runs WHERE input_key=?{cond} ORDER BY created DESC LIMIT 1",
+                (input_key,),
+            ).fetchone()
+        return r["id"] if r else None
 
     def run_aliases(self, rid: str) -> list[str]:
         with self._lock:

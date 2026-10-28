@@ -102,6 +102,7 @@ def calibrate(
         "name": f"{design.name}-calibrated",
         "parameters": {p.name: v for p, v in zip(params, best_vals)},
         "provenance": {
+            "design_id": design.id,
             "measurement_ids": [measurement["id"]],
             "synthetic": bool(measurement["synthetic"]),
             "method": f"Nelder-Mead on log-parameters, {len(history)} simulator runs",

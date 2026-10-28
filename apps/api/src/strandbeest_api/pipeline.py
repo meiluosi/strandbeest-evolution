@@ -13,7 +13,7 @@ from typing import Any
 import mujoco
 import numpy as np
 
-from strandbeest_common import Design, audit_run_evidence, default_evidence, gait_metrics
+from strandbeest_common import Design, audit_run_evidence, default_evidence, gait_metrics, run_input_key
 from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
 from strandbeest_fab import export as fab_export
@@ -38,12 +38,27 @@ def evaluate(design: Design) -> dict[str, Any]:
     return {"gait": g.asdict(), "bar_mass_per_m_kg": design.bar_mass_per_m()}
 
 
+def compute_run_key(design: Design, overrides: dict[str, Any] | None = None, seed: int = 0) -> dict[str, Any]:
+    """Compute the canonical 5-tuple input key for a simulation run (E5-01)."""
+    sc = scenario_from_design(design, overrides)
+    sc_doc = json.loads(sc.model_dump_json())
+    return run_input_key(
+        design.doc,
+        sc_doc,
+        backend="mujoco",
+        backend_version=mujoco.__version__,
+        seed=seed,
+    )
+
+
 def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None, run_id: str | None = None) -> dict[str, Any]:
     """Run the simulator and write run.json (validated against the Run schema) plus arrays.npz."""
     rid = run_id or new_ulid()
     out = Path(out_dir) / rid
     out.mkdir(parents=True, exist_ok=True)
     sc = scenario_from_design(design, overrides)
+    sc_doc = json.loads(sc.model_dump_json())
+    ik = run_input_key(design.doc, sc_doc, backend="mujoco", backend_version=mujoco.__version__, seed=0)
     res = sim_run(sc)
     events = detect_events(res)
     np.savez(out / "arrays.npz", t=res.t, psi=res.psi, x=res.x, z=res.z, torque=res.torque, **res.series)
@@ -55,7 +70,7 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "id": rid,
         "design_id": design.id,
         "design_name": design.name,
-        "scenario": json.loads(sc.model_dump_json()),
+        "scenario": sc_doc,
         "metrics": {k: (None if v != v else v) for k, v in res.metrics.items()},
         "stalled": res.stalled,
         "evidence": audit_run_evidence({"metrics": res.metrics, "stalled": res.stalled}),
@@ -63,8 +78,17 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "diagnosis": diagnose(res, events),
         "arrays_file": "arrays.npz",
         **({"frames_file": "frames.npz", "scene_file": "scene.json"} if res.frames is not None else {}),
-        "provenance": {"code_version": code_version(), "engine": "mujoco", "engine_version": mujoco.__version__,
-                       "created": datetime.now(timezone.utc).isoformat()},
+        "provenance": {
+            "code_version": code_version(),
+            "engine": "mujoco",
+            "engine_version": mujoco.__version__,
+            "created": datetime.now(timezone.utc).isoformat(),
+            "input_key": ik["key"],
+            "design_hash": ik["design_hash"],
+            "world_hash": ik["world_hash"],
+            "platform": ik["platform"],
+            "seed": ik["seed"],
+        },
     }
     validate("run", doc)
     (out / "run.json").write_text(json.dumps(doc, indent=2))

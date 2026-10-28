@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from strandbeest_calib import CONTACT_STIFFNESS, FRICTION, calibrate
 from strandbeest_calib.compare import curves, distance
 from strandbeest_common import Design
-from strandbeest_common.ids import legacy_ulid
+from strandbeest_common.ids import legacy_ulid, new_ulid
 from strandbeest_common.migrate import migrate_any, migrate_doc
 from strandbeest_common.scenario import flatten as flatten_scenario
 from strandbeest_common.schemas import validate
@@ -27,7 +27,7 @@ from strandbeest_rig import Calibration, convert_raw
 from strandbeest_sim import virtual_dynamometer
 
 from .jobs import JobContext, JobStore, Workers
-from .pipeline import evaluate, simulate, simulate_ensemble
+from .pipeline import compute_run_key, evaluate, simulate, simulate_ensemble
 from .sweeps import expand, run_sweep
 
 PARAMS = {"contact_stiffness": CONTACT_STIFFNESS, "friction": FRICTION}
@@ -73,12 +73,47 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             raise HTTPException(404, "no such measurement")
         return migrate_any(json.loads(p.read_text()), "measurement")
 
+    def design_file(ref: str) -> tuple[Path, dict] | None:
+        """Resolve a design by ULID, name, or alias; returns (file_path, migrated_v2_doc) or None."""
+        safe = Path(ref).name
+        direct = root / "designs" / f"{safe}.json"
+        if direct.exists():
+            d = migrate_any(json.loads(direct.read_text()), "design")
+            return direct, d
+        for q in sorted((root / "designs").glob("*.json")):
+            d = migrate_any(json.loads(q.read_text()), "design")
+            if ref == d["id"] or ref == d["name"] or ref in d.get("aliases", []):
+                return q, d
+        return None
+
+    def profile_doc(ref: str) -> dict:
+        """Resolve a profile by ULID, name, or alias."""
+        safe = Path(ref).name
+        direct = root / "profiles" / f"{safe}.json"
+        if direct.exists():
+            return migrate_any(json.loads(direct.read_text()), "profile")
+        for q in sorted((root / "profiles").glob("*.json")):
+            d = migrate_any(json.loads(q.read_text()), "profile")
+            if ref == d["id"] or ref == d["name"] or ref in d.get("aliases", []):
+                return d
+        raise HTTPException(404, "no such profile")
+
     # -- job handlers (run inside worker threads) --------------------------
     def h_run(ctx: JobContext, payload: dict[str, Any]):
         d = Design(payload["design"])
-        fn = simulate_ensemble if payload.get("ensemble", True) else simulate
+        ens = bool(payload.get("ensemble", True))
+        ov = payload.get("overrides")
+        if payload.get("use_cache", True):
+            ik = compute_run_key(d, ov)
+            cached_id = store.find_cached_run(ik["key"], require_ensemble=ens)
+            if cached_id and (run_dir(cached_id) / "run.json").exists():
+                doc = migrate_any(json.loads((run_dir(cached_id) / "run.json").read_text()), "run")
+                doc.setdefault("provenance", {})["cache_hit_from"] = cached_id
+                ctx.progress(1, 1, "cache hit")
+                return doc
+        fn = simulate_ensemble if ens else simulate
         ctx.progress(0, 1, "simulating")
-        doc = fn(d, root / "runs", payload.get("overrides"))
+        doc = fn(d, root / "runs", ov)
         store.index_run(doc)
         ctx.progress(1, 1, "done")
         return doc
@@ -87,7 +122,10 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         d = Design(payload["design"])
         profile = calibrate(d, measurement_doc(payload["measurement"]), [PARAMS[n] for n in payload["params"]], max_evals=payload["max_evals"])
         validate("profile", profile)
-        (root / "profiles" / f"{profile['name']}.json").write_text(json.dumps(profile, indent=2))
+        (root / "profiles" / f"{profile['id']}.json").write_text(json.dumps(profile, indent=2))
+        store.add_provenance_edge(profile["id"], "profile", d.id, "design", "calibrated_design")
+        for mid in profile["provenance"]["measurement_ids"]:
+            store.add_provenance_edge(profile["id"], "profile", mid, "measurement", "calibrated_from")
         return profile
 
     def h_bayes(ctx: JobContext, payload: dict[str, Any]):
@@ -95,7 +133,10 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
 
         d = Design(payload["design"])
         profile = calibrate_bayes(d, measurement_doc(payload["measurement"]), payload["params"], payload["points"], progress=lambda i, k, msg: ctx.progress(i, k, msg))
-        (root / "profiles" / f"{profile['name']}.json").write_text(json.dumps(profile, indent=2))
+        (root / "profiles" / f"{profile['id']}.json").write_text(json.dumps(profile, indent=2))
+        store.add_provenance_edge(profile["id"], "profile", d.id, "design", "calibrated_design")
+        for mid in profile["provenance"]["measurement_ids"]:
+            store.add_provenance_edge(profile["id"], "profile", mid, "measurement", "calibrated_from")
         return profile
 
     def h_sweep(ctx: JobContext, payload: dict[str, Any]):
@@ -124,19 +165,85 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.post("/designs")
     def save_design(doc: dict = Body(...)):
         d = parse(doc)
-        (root / "designs" / f"{d.name}.json").write_text(json.dumps(d.doc, indent=2))
-        return {"id": d.id, "name": d.name}
+        existing = design_file(d.id)
+        if existing and existing[0] != (root / "designs" / f"{d.id}.json"):
+            existing[0].unlink()
+        (root / "designs" / f"{d.id}.json").write_text(json.dumps(d.doc, indent=2))
+        if d.doc.get("parent", {}).get("id"):
+            store.add_provenance_edge(d.id, "design", d.doc["parent"]["id"], "design", "derived_from")
+        return {"id": d.id, "name": d.name, "parent": d.doc.get("parent")}
 
     @app.get("/designs")
-    def list_designs():
-        return sorted(p.stem for p in (root / "designs").glob("*.json"))
+    def list_designs(detail: bool = False):
+        items = []
+        for p in sorted((root / "designs").glob("*.json")):
+            d = migrate_any(json.loads(p.read_text()), "design")
+            items.append({
+                "id": d["id"],
+                "name": d["name"],
+                "parent": d.get("parent"),
+                "aliases": d.get("aliases", []),
+                "legs": d.get("walker", {}).get("legs", 6),
+                "drive": d.get("drive", {}).get("kind", "motor"),
+            })
+        if detail:
+            return sorted(items, key=lambda x: (x["name"], x["id"]))
+        return sorted(x["name"] for x in items)
 
-    @app.get("/designs/{name}")
-    def get_design(name: str):
-        p = root / "designs" / f"{Path(name).name}.json"
-        if not p.exists():
+    @app.get("/designs/{ref}")
+    def get_design(ref: str):
+        found = design_file(ref)
+        if not found:
             raise HTTPException(404, "no such design")
-        return migrate_any(json.loads(p.read_text()), "design")
+        return found[1]
+
+    @app.post("/designs/{ref}/rename")
+    def rename_design(ref: str, body: dict = Body(...)):
+        found = design_file(ref)
+        if not found:
+            raise HTTPException(404, "no such design")
+        new_name = str(body.get("name", "")).strip()
+        if not new_name:
+            raise HTTPException(422, "name must be a non-empty string")
+        path, doc = found
+        old_name = doc["name"]
+        aliases = list(doc.get("aliases", []))
+        if old_name != new_name and old_name not in aliases:
+            aliases.append(old_name)
+        doc["name"] = new_name
+        doc["aliases"] = aliases
+        validate("design", doc)
+        if path != (root / "designs" / f"{doc['id']}.json"):
+            path.unlink()
+        (root / "designs" / f"{doc['id']}.json").write_text(json.dumps(doc, indent=2))
+        return doc
+
+    @app.post("/designs/{ref}/duplicate")
+    def duplicate_design(ref: str, body: dict = Body(default={})):
+        found = design_file(ref)
+        if not found:
+            raise HTTPException(404, "no such design")
+        _, src = found
+        dup = json.loads(json.dumps(src))
+        dup["id"] = new_ulid()
+        dup["name"] = str(body.get("name") or f"{src['name']}-copy").strip()
+        dup["parent"] = {"id": src["id"]}
+        dup.pop("aliases", None)
+        validate("design", dup)
+        (root / "designs" / f"{dup['id']}.json").write_text(json.dumps(dup, indent=2))
+        store.add_provenance_edge(dup["id"], "design", src["id"], "design", "duplicated_from")
+        return dup
+
+    @app.delete("/designs/{ref}")
+    def delete_design(ref: str):
+        found = design_file(ref)
+        if not found:
+            raise HTTPException(404, "no such design")
+        path, doc = found
+        trash = root / "designs" / "_deleted"
+        trash.mkdir(parents=True, exist_ok=True)
+        path.rename(trash / f"{doc['id']}.json")
+        return {"deleted": True, "id": doc["id"], "name": doc["name"]}
 
     # -- the edit algebra ------------------------------------------------------------------------------------
     @app.post("/designs/guard")
@@ -195,7 +302,17 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.post("/runs")
     def start_run(body: dict = Body(...)):
         d = parse(body["design"])
-        return {"job_id": store.create("run", {"design": d.doc, "overrides": body.get("overrides"), "ensemble": body.get("ensemble", True)})}
+        return {
+            "job_id": store.create(
+                "run",
+                {
+                    "design": d.doc,
+                    "overrides": body.get("overrides"),
+                    "ensemble": body.get("ensemble", True),
+                    "use_cache": body.get("use_cache", True),
+                },
+            )
+        }
 
     @app.post("/sweeps")
     def start_sweep(body: dict = Body(...)):
@@ -258,7 +375,89 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         p = run_dir(rid) / "run.json"
         if not p.exists():
             raise HTTPException(404, "no such run")
-        return migrate_any(json.loads(p.read_text()), "run")
+        doc = migrate_any(json.loads(p.read_text()), "run")
+        found = design_file(doc["design_id"])
+        if found:
+            doc["design_name"] = found[1]["name"]
+        return doc
+
+    def design_ancestry(did: str) -> list[dict[str, Any]]:
+        """Walk parent links from `did` up to the root design, returning [{id, name, parent, deleted}, ...]."""
+        chain = []
+        seen = set()
+        cur: str | None = did
+        while cur and cur not in seen:
+            seen.add(cur)
+            found = design_file(cur)
+            if found:
+                d = found[1]
+                parent_id = d.get("parent", {}).get("id") if isinstance(d.get("parent"), dict) else None
+                chain.append({"id": d["id"], "name": d["name"], "parent_id": parent_id, "deleted": False})
+                cur = parent_id
+            else:
+                chain.append({"id": cur, "name": cur, "parent_id": None, "deleted": True})
+                cur = None
+        return chain
+
+    @app.get("/runs/{rid}/provenance")
+    def run_provenance(rid: str):
+        p = run_dir(rid) / "run.json"
+        if not p.exists():
+            raise HTTPException(404, "no such run")
+        doc = migrate_any(json.loads(p.read_text()), "run")
+        designs = design_ancestry(doc["design_id"])
+        return {
+            "target": {"kind": "run", "id": doc["id"]},
+            "provenance": doc.get("provenance", {}),
+            "designs": designs,
+            "runs": [{"id": doc["id"], "design_id": doc["design_id"], "input_key": doc.get("provenance", {}).get("input_key")}],
+            "measurements": [],
+        }
+
+    @app.get("/profiles")
+    def list_profiles():
+        out = []
+        for p in sorted((root / "profiles").glob("*.json")):
+            d = migrate_any(json.loads(p.read_text()), "profile")
+            out.append({"id": d["id"], "name": d["name"], "parameters": d["parameters"], "provenance": d["provenance"]})
+        return out
+
+    @app.get("/profiles/{pid}")
+    def get_profile(pid: str):
+        return profile_doc(pid)
+
+    @app.get("/profiles/{pid}/provenance")
+    def profile_provenance(pid: str):
+        prof = profile_doc(pid)
+        prov = prof.get("provenance", {})
+        meas_docs = []
+        design_ids: list[str] = []
+        if prov.get("design_id"):
+            design_ids.append(prov["design_id"])
+        for mid in prov.get("measurement_ids", []):
+            try:
+                m = measurement_doc(mid)
+                meas_docs.append({"id": m["id"], "name": m["name"], "design_id": m["design_id"], "synthetic": m["synthetic"]})
+                if m["design_id"] not in design_ids:
+                    design_ids.append(m["design_id"])
+            except HTTPException:
+                meas_docs.append({"id": mid, "name": mid, "design_id": None, "deleted": True})
+        all_designs: list[dict[str, Any]] = []
+        seen_d = set()
+        for did in design_ids:
+            for item in design_ancestry(did):
+                if item["id"] not in seen_d:
+                    seen_d.add(item["id"])
+                    all_designs.append(item)
+        # Include any runs linked to those designs
+        related_runs = [r for r in store.list_runs(limit=100) if r["design_id"] in seen_d]
+        return {
+            "target": {"kind": "profile", "id": prof["id"], "name": prof["name"]},
+            "provenance": prov,
+            "designs": all_designs,
+            "measurements": meas_docs,
+            "runs": [{"id": r["id"], "design_id": r["design_id"], "created": r["created"]} for r in related_runs],
+        }
 
     @app.get("/runs/{rid}/series")
     def run_series(rid: str, max_points: int = 600):

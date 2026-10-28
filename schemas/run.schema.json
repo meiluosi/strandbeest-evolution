@@ -63,6 +63,28 @@
 				},
 				"created": {
 					"type": "string"
+				},
+				"input_key": {
+					"type": "string",
+					"pattern": "^sha256:[0-9a-f]{64}$"
+				},
+				"design_hash": {
+					"type": "string",
+					"pattern": "^sha256:[0-9a-f]{64}$"
+				},
+				"world_hash": {
+					"type": "string",
+					"pattern": "^sha256:[0-9a-f]{64}$"
+				},
+				"platform": {
+					"type": "string"
+				},
+				"seed": {
+					"type": "integer",
+					"x-unit": "1"
+				},
+				"cache_hit_from": {
+					"$ref": "#/$defs/Ulid"
 				}
 			}
 		},

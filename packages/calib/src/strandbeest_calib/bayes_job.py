@@ -56,6 +56,7 @@ def calibrate_bayes(design: Design, measurement: dict[str, Any], names: list[str
         "uncertainty": {n: {"ci95": summary[n]["posterior_ci95"], "profile_ci95": summary[n]["profile_ci95"], "identifiable": summary[n]["identifiable"],
                             "profile_share_of_prior": summary[n]["profile_share_of_prior"]} for n in names},
         "provenance": {
+            "design_id": design.id,
             "measurement_ids": [measurement["id"]],
             "synthetic": bool(measurement["synthetic"]),
             "method": f"Bayesian: RBF emulator from {points} simulator runs, Metropolis posterior, profile likelihood; emulator leave-one-out error {float(emu.sigma_emu.mean()):.3g}",

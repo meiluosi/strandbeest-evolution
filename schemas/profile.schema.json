@@ -50,6 +50,15 @@
 				},
 				"code_version": {
 					"type": "string"
+				},
+				"design_id": {
+					"$ref": "#/$defs/Ulid"
+				},
+				"run_ids": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Ulid"
+					}
 				}
 			}
 		},
