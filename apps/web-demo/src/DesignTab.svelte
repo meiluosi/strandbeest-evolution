@@ -6,9 +6,11 @@ import {
 	trace,
 } from "strandbeest-core";
 import designSchema from "../../../schemas/design.schema.json";
+import AssetBrowserPanel from "./AssetBrowserPanel.svelte";
 import { call, download } from "./api";
 import Evolver from "./Evolver.svelte";
 import {
+	branchDesign,
 	commit,
 	currentDesign,
 	edit,
@@ -187,9 +189,10 @@ function applySchemaField(field: SchemaField, value: unknown) {
 	rejected(setProperty(field.pointer, value));
 }
 
-/** The best genome of the evolver becomes operations by the algorithm, in one undo step. */
+/** The best genome of the evolver forks a child design in the genealogy tree and commits the evolved parameters as algorithm operations. */
 function applyEvolved(spec: LinkageSpec) {
-	const now = currentDesign().linkage.params;
+	const parent = currentDesign();
+	const now = parent.linkage.params;
 	const ops = Object.entries(spec.params)
 		.filter(([k, v]) => now[k] !== v)
 		.map(([k, v]) =>
@@ -198,7 +201,9 @@ function applyEvolved(spec: LinkageSpec) {
 				id: "ga",
 			}),
 		);
-	rejected(ops.length ? commit(ops) : { ok: true });
+	if (!ops.length) return;
+	branchDesign(`${parent.name}-evolved`);
+	rejected(commit(ops));
 }
 </script>
 
@@ -274,6 +279,10 @@ function applyEvolved(spec: LinkageSpec) {
 		{#if msg}<p class="notice {msg.kind}">{msg.text}</p>{/if}
 	</div>
 
+	<details class="card" open>
+		<summary><b>{t("assets.title")}</b> <small>{t("assets.subtitle")}</small></summary>
+		<AssetBrowserPanel onmessage={(text, kind = "info") => (msg = { text, kind })} />
+	</details>
 	<details class="card" open>
 		<summary><b>{t("history.title")}</b> <small>{t("history.subtitle")}</small></summary>
 		<HistoryPanel onmessage={fail} />

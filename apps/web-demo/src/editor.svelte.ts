@@ -2,6 +2,7 @@ import {
 	type Actor,
 	type Design,
 	defaultDesign,
+	forkDesign,
 	GuardError,
 	History,
 	type LinkageSpec,
@@ -21,6 +22,7 @@ import designSchema from "../../../schemas/design.schema.json";
  * kept in localStorage so a refresh keeps the history; if it can no longer be replayed we keep what still applies.
  */
 const STORAGE_KEY = "strandbeest-editor-v1";
+const CATALOG_KEY = "strandbeest-catalog-v1";
 const guard = makeGuard(designSchema as Record<string, unknown>);
 export const HUMAN: Actor = { kind: "human", id: "web" };
 
@@ -60,6 +62,22 @@ const restored = load();
 if (restored) history = restored.history;
 else history = new History(defaultDesign(), [guard]);
 
+function loadCatalog(seed: Design): Record<string, Design> {
+	try {
+		const raw = localStorage.getItem(CATALOG_KEY);
+		if (raw) {
+			const parsed = JSON.parse(raw) as Record<string, Design>;
+			if (parsed && typeof parsed === "object") {
+				parsed[seed.id] = clone(seed);
+				return parsed;
+			}
+		}
+	} catch {
+		/* ignore storage errors */
+	}
+	return { [seed.id]: clone(seed) };
+}
+
 export interface EditResult {
 	ok: boolean;
 	message?: string;
@@ -76,7 +94,17 @@ export const editor = $state({
 	preview: null as Operation[] | null,
 	/** set when a saved log could only be partly replayed: how many steps were kept */
 	restoredPartly: restored?.notice ?? null,
+	/** local + synced design catalog keyed by design ULID (used by Asset Browser & Genealogy tree) */
+	catalog: loadCatalog(history.design),
 });
+
+function saveCatalog() {
+	try {
+		localStorage.setItem(CATALOG_KEY, JSON.stringify(editor.catalog));
+	} catch {
+		/* storage unavailable */
+	}
+}
 
 function sync() {
 	editor.design = clone(history.design);
@@ -84,6 +112,10 @@ function sync() {
 	editor.canUndo = history.canUndo;
 	editor.canRedo = history.canRedo;
 	editor.preview = null;
+	editor.catalog = {
+		...editor.catalog,
+		[history.design.id]: clone(history.design),
+	};
 	try {
 		localStorage.setItem(
 			STORAGE_KEY,
@@ -96,6 +128,7 @@ function sync() {
 	} catch {
 		/* storage unavailable: the history lives only as long as the page */
 	}
+	saveCatalog();
 }
 
 function describe(e: unknown): EditResult {
@@ -177,6 +210,46 @@ export function openDocument(doc: Design) {
 
 export function newFromLinkage(linkage: LinkageSpec, name = "untitled") {
 	openDocument(defaultDesign(clone(linkage), name));
+}
+
+/** Fork the current design into a child design with `parent: { id }` and open it in the editor. */
+export function branchDesign(name?: string): Design {
+	const parent = currentDesign();
+	upsertCatalogDesign(parent);
+	const child = forkDesign(parent, name ?? `${parent.name}-fork`);
+	openDocument(child);
+	return child;
+}
+
+export function upsertCatalogDesign(doc: Design) {
+	editor.catalog = { ...editor.catalog, [doc.id]: clone(doc) };
+	saveCatalog();
+}
+
+export function renameCatalogDesign(id: string, name: string) {
+	const existing = editor.catalog[id];
+	if (existing) {
+		const updated = clone(existing);
+		const oldName = updated.name;
+		updated.name = name;
+		if (oldName && oldName !== name) {
+			const aliases = new Set(updated.aliases ?? []);
+			aliases.add(oldName);
+			updated.aliases = Array.from(aliases);
+		}
+		editor.catalog = { ...editor.catalog, [id]: updated };
+		saveCatalog();
+	}
+	if (history.design.id === id && history.design.name !== name) {
+		setProperty("/name", name);
+	}
+}
+
+export function removeCatalogDesign(id: string) {
+	const next = { ...editor.catalog };
+	delete next[id];
+	editor.catalog = next;
+	saveCatalog();
 }
 
 /** The operations of the whole log, flat, as an OpLog document (schemas/ops.schema.json). */

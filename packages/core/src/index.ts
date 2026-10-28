@@ -4,6 +4,7 @@ export * from "./dynamics-fitness";
 export * from "./fitness";
 export * from "./frames";
 export * from "./ga";
+export * from "./genealogy";
 export type * from "./generated/ops";
 export type * from "./generated/scenario";
 export type * from "./generated/scenario-v1";
