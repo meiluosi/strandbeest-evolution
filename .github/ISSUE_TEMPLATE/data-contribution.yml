@@ -75,11 +75,11 @@ body:
   - type: input
     id: licence
     attributes:
-      label: 数据的许可意向
+      label: 数据许可
       description: |
-        设计与数据的许可方案**尚未定案**（见 docs/LICENSING.md）。
-        请说明你愿意授予什么，例如"CC0，随你用"或"CC BY 4.0，署名我"。
-      placeholder: "CC0 / CC BY 4.0，署名写 XXX"
+        本项目实测数据默认采用 CC0 1.0（公有领域 + 科学溯源致谢，见 LICENSE-DATA.md 与 docs/LICENSING.md），
+        也接受 CC BY 4.0。请填写你授予的许可。
+      placeholder: "CC0-1.0（默认推荐）或 CC-BY-4.0"
     validations:
       required: true
 

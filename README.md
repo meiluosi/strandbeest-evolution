@@ -112,4 +112,4 @@ pnpm dynamics                                # 动力学对比
 - 架构蓝图（要做成"引擎"，哪些决定要先定）：[docs/ENGINE.md](docs/ENGINE.md)，决定记录：[docs/adr/](docs/adr/)；编辑器与操作日志：[docs/EDITOR.md](docs/EDITOR.md)
 - 下一步做什么（带验收条件的任务卡）：[docs/ACTIONS.md](docs/ACTIONS.md)；实验记录：[docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)
 
-欢迎 issue 和 PR。开发约定见 [AGENTS.md](AGENTS.md)。MIT 许可。
+欢迎 issue 和 PR。开发约定见 [AGENTS.md](AGENTS.md)。许可证：代码 [MIT](LICENSE)，设计库 [CC BY 4.0](LICENSE-DESIGNS.md)（单个连杆几何参数作为事实性参数不要求署名），实验与实测数据 [CC0 1.0](LICENSE-DATA.md)（详见 [docs/LICENSING.md](docs/LICENSING.md)）。

@@ -112,4 +112,4 @@ pnpm dynamics                                # dynamics comparison
 - Engine-style architecture blueprint: [docs/ENGINE.md](docs/ENGINE.md), decision records: [docs/adr/](docs/adr/); editor and operation log: [docs/EDITOR.md](docs/EDITOR.md)
 - What to do next (task cards with acceptance criteria): [docs/ACTIONS.md](docs/ACTIONS.md); experiment log: [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md)
 
-Issues and PRs welcome. MIT licensed.
+Issues and PRs welcome. Licensing: code under [MIT](LICENSE), design library under [CC BY 4.0](LICENSE-DESIGNS.md) (individual linkage parameters are treated as factual geometry and do not require attribution), and experimental/measured data under [CC0 1.0](LICENSE-DATA.md) (see [docs/LICENSING.md](docs/LICENSING.md)).

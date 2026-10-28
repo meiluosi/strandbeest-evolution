@@ -201,10 +201,10 @@ Dependencies: after the MVP, P1/P2/P3/P4 can largely run in parallel; P5 depends
 | Compute cost and abuse of the hosted mode | Static/local modes first; hosted last, with rate limiting and quotas |
 | The "assumptions" in the parameters are taken for facts | Named fields + default-value marking + stored with the Run; both articles and the interface show the source |
 
-## 11. Open source and governance (pending)
+## 11. Open source and governance
 
-- Code: MIT (settled).
-- Designs and data: CC BY 4.0 is suggested (design library), CC0 or CC BY for the measured data sets. **Waiting on your decision.**
+- Code: MIT ([`LICENSE`](../LICENSE)).
+- Designs and data: CC BY 4.0 for the design library collection ([`LICENSE-DESIGNS.md`](../LICENSE-DESIGNS.md), with raw linkage parameters exempted as factual geometry), and CC0 1.0 with optional scientific attribution for the measured data sets ([`LICENSE-DATA.md`](../LICENSE-DATA.md), see [ADR-0011](adr/0011-licensing-for-code-designs-and-data.md)).
 - Contributions: `CONTRIBUTING.md` (description of the extension points, requirements for contract tests, requirements for the experiment log); the design library is contributed through PRs; the Issue templates distinguish "design request / model defect / data contribution".
 
 ## 12. Open questions

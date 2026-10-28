@@ -2,8 +2,8 @@
 
 # Technical Report: How Much Wind Does a Wind-Only Walker Need?
 
-> **状态**：本地草稿，**未发布**。ROADMAP 的 G5 目标写的是"发布前须你确认"，所以这份文件还没有对外，也没有人推送过它。
-> **Status**: local draft, **not published**. Roadmap goal G5 requires the owner's confirmation before publication, so this file has not been released or pushed.
+> **状态**：已发布（2026-10-28）。同步发表于博客系列第五篇（中英双语）。
+> **Status**: published (2026-10-28). Also published as Part 5 of the blog series (bilingual).
 
 > **最重要的一句话**：**本报告里的每一个数字都来自本仓库的仿真器（MuJoCo，以及一个独立实现的平面刚体求解器 K2），没有一个来自实物走兽。** 项目接受 E3（可追溯实测）暂时为空（见 [VALIDATION.md](VALIDATION.md) §2、§3）。下文按该文件的 E0–E3 给每个结论标等级，并逐处写明"模型内"还是"实测"。
 
@@ -375,7 +375,7 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 
 社区数据入口已经建好：《如何测一只走兽》指南（`docs/HOW-TO-MEASURE.md`，中英双语）、提交校验器（`packages/calib/src/strandbeest_calib/community.py`）、命令行入口 `scripts/validate_community_measurement.py`、一份格式示例、21 个测试。**E3 判据有八条**（量在文件里、单位已声明、绝对误差估计、`provenance.source` 有效、仪器/测量日期/标定日期齐全、原始数据有出处、许可已声明、文件非合成），八条齐了才写 "E3 for …"。
 
-**必须讲清楚的两件事**（§39 §5）：**校验器查不出"你是不是真的测了"**——它查格式与内部一致性，真实性由人审；**E1/E2 不会由单份社区提交产生**——社区提交只能把某个量从 E0 抬到 E3。示例文件里的数字是**编出来的**（文件自己写明了），它只用来展示格式。**提交数据的许可方案还没定**（`docs/LICENSING.md` 是提案）。
+**必须讲清楚的两件事**（§39 §5）：**校验器查不出"你是不是真的测了"**——它查格式与内部一致性，真实性由人审；**E1/E2 不会由单份社区提交产生**——社区提交只能把某个量从 E0 抬到 E3。示例文件里的数字是**编出来的**（文件自己写明了），它只用来展示格式。**提交数据的许可方案已定案为默认 CC0 1.0（带可选科学署名，见 [LICENSING.md](LICENSING.md) 与 [ADR-0011](adr/0011-licensing-for-code-designs-and-data.md)）**。
 
 **所以：本报告的每一个数字都是模型内的。** 这不是谦虚，这是事实陈述。
 
@@ -551,4 +551,4 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 
 ---
 
-*本文件是本地草稿，尚未发布。发布前需要项目所有者确认（ROADMAP G5）。它引用的每一个数字都能在 [EXPERIMENTS.md](EXPERIMENTS.md) 找到对应节号；如果你发现某处对不上，以 [EXPERIMENTS.md](EXPERIMENTS.md) 为准，并且请按项目规则留更正记录。*
+*本报告引用的每一个数字都能在 [EXPERIMENTS.md](EXPERIMENTS.md) 找到对应节号；如果你发现某处对不上，以 [EXPERIMENTS.md](EXPERIMENTS.md) 为准，并且请按项目规则留更正记录。*

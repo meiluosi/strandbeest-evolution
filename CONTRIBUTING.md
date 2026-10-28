@@ -140,9 +140,10 @@ CI 里它们是独立的 job（`python-slow`）。
 
 ## 7. 数据与设计的许可证
 
-代码是 **MIT**（见 [`LICENSE`](LICENSE)）。**设计与实测数据的许可证尚未定案**——提案与取舍写在 [`docs/LICENSING.md`](docs/LICENSING.md)，等仓库所有者拍板。
-
-在你提交设计或数据之前，请先看那份文件：它决定了"你交出来的东西，之后别人能怎么用"。如果上面写着"待定"，请在 Issue 里先问一句，别默认。
+本项目采用三类许可证方案（见 [`docs/LICENSING.md`](docs/LICENSING.md) 与 [`docs/adr/0011-licensing-for-code-designs-and-data.md`](docs/adr/0011-licensing-for-code-designs-and-data.md)）：
+- **代码**：**MIT**（见 [`LICENSE`](LICENSE)）。
+- **设计库**：**CC BY 4.0**（见 [`LICENSE-DESIGNS.md`](LICENSE-DESIGNS.md)），其中单个连杆几何数值本身（如 `linkage.params` 中的 13 个长度）视为事实性参数，不要求署名即可自由使用或打印。
+- **实测与实验数据**：默认 **CC0 1.0**（见 [`LICENSE-DATA.md`](LICENSE-DATA.md)），并保留可选科学署名字段；贡献者也可在提交时显式声明 `CC-BY-4.0`。
 
 ---
 
@@ -246,4 +247,7 @@ Model corrections are recorded in [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md) �
 
 ## Licensing
 
-The code is **MIT** (see [`LICENSE`](LICENSE)). **The licence for designs and measured data is not decided yet** — the proposal and its trade-offs are in [`docs/LICENSING.md`](docs/LICENSING.md), pending the repository owner's decision. Please read it before submitting a design or data: it decides what happens to what you hand over. If it still says "pending", ask in the issue rather than assuming.
+This repository uses a three-tier licensing model (see [`docs/LICENSING.md`](docs/LICENSING.md) and [`docs/adr/0011-licensing-for-code-designs-and-data.md`](docs/adr/0011-licensing-for-code-designs-and-data.md)):
+- **Code**: **MIT** (see [`LICENSE`](LICENSE)).
+- **Design library**: **CC BY 4.0** (see [`LICENSE-DESIGNS.md`](LICENSE-DESIGNS.md)), with individual numerical linkage parameters (`linkage.params`) treated as factual geometry that does not require attribution.
+- **Measured and experimental data**: **CC0 1.0** by default (see [`LICENSE-DATA.md`](LICENSE-DATA.md)) with optional scientific attribution credit, or `CC-BY-4.0` if explicitly chosen per submission.

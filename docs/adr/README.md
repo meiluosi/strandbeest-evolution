@@ -15,6 +15,7 @@
 | [0008](0008-project-format-and-i18n.md) | 项目文件格式与国际化 | 单向门 #11、#12 | 接受 |
 | [0009](0009-single-source-of-kinematics.md) | 运动学的唯一真相来源（双实现、Rust/WASM 内核、Pyodide…） | #13 | 接受（先保持双实现，触发线可检查） |
 | [0010](0010-k2-independent-solver.md) | K2 独立平面刚体物理求解器设计 | V-02、单向门 #5 | 接受 |
+| [0011](0011-licensing-for-code-designs-and-data.md) | 代码、设计库与实测数据的三类许可证方案 | R-06 | 接受 |
 
 ## 模板
 ```

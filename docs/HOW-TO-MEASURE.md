@@ -340,23 +340,20 @@ With all eight, the report prints "evidence level: E3 for …" and names the qua
 
 ---
 
-## 8. 许可：还没定 · The licence question is still open
+## 8. 许可：默认 CC0 1.0（带可选署名） · Licensing: CC0 1.0 by default (with optional credit)
 
-**本项目对"社区贡献的数据"用哪一套许可，目前还没有决定。** 三个候选方案（数据 CC0、数据 CC BY 4.0、或者别的）和它们的取舍写在 `docs/LICENSING.md`，那张文件是**提案，等项目所有者拍板**。
+**本项目对实测数据默认采用 `CC0-1.0`（公有领域贡献，见 `LICENSE-DATA.md` 与 `docs/LICENSING.md`），同时保留科学出处与可选署名。**
 
-所以：
-
-- 在 `provenance.calibration.licence` 里写**你自己的意向**，取值只能是下面四个之一：
-  - `CC0-1.0` —— 放进公有领域，谁都能用，不用问你；
-  - `CC-BY-4.0` —— 用可以，但要署名；
-  - `all-rights-reserved` —— 保留所有权利，别人要用来问过你；
+在 `provenance.calibration.licence` 里填写你授予的许可，取值只能是下面四个之一：
+  - `CC0-1.0`（**推荐/项目默认**）—— 放进公有领域，谁都能用，不用承担法律署名义务（我们仍会在实验记录中按科学出处致谢你）；
+  - `CC-BY-4.0` —— 允许自由使用，但要求法律署名；
+  - `all-rights-reserved` —— 保留所有权利，别人要用需先问过你；
   - `pending` —— 你还没决定，请项目方来问。
 - 写了 `pending` 不会让提交作废，但报告会把它列成 E3 的一道缺口。
-- 项目最终采用哪一套，以 `docs/LICENSING.md` 的结论为准；在那之前，你写下的意向不会被改动。
 
 **EN**
 
-**The project's licence for contributed data has not been decided yet.** The candidates and their trade-offs are in `docs/LICENSING.md`, which is a proposal awaiting the owner's decision. So state **your own** intent in `provenance.calibration.licence`, using one of `CC0-1.0`, `CC-BY-4.0`, `all-rights-reserved` or `pending`. `pending` does not invalidate the submission, but the report lists it as one gap towards E3. Whatever the project decides later, your stated intent is not changed.
+**The project's default licence for contributed measurement data is `CC0-1.0` (see `LICENSE-DATA.md` and `docs/LICENSING.md`), while preserving scientific provenance and optional contributor credit.** State your chosen licence in `provenance.calibration.licence`, using one of `CC0-1.0` (recommended default), `CC-BY-4.0`, `all-rights-reserved`, or `pending`. `pending` does not invalidate the submission, but the report lists it as one gap towards E3.
 
 ---
 
