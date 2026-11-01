@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from pathlib import Path
 from typing import Any
 
 import numpy as np
-from fastapi import Body, FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
@@ -469,52 +470,84 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         return {k: a[k][::step].tolist() for k in a.files}
 
     @app.get("/runs/{rid}/replay")
-    def run_replay(rid: str, max_frames: int = 240):
-        """Everything a viewer needs to replay a run: scene geometry, per-frame body poses, foot contacts and the time series."""
+    def run_replay(rid: str, max_frames: int = 240, layers: str | None = None):
+        """Everything a viewer needs to replay a run: scene geometry, per-frame body poses, foot contacts and the time series.
+        Supports selective layered retrieval via `layers` query param (e.g. layers='feet,series' or layers='poses')."""
         folder = run_dir(rid)
-        if not (folder / "frames.npz").exists():
+        has_frames_parquet = (folder / "frames.parquet").exists()
+        has_frames_npz = (folder / "frames.npz").exists()
+        if not (has_frames_parquet or has_frames_npz):
             raise HTTPException(404, "this run has no recorded frames (sweep points and ensemble variants are not recorded)")
-        fr = np.load(folder / "frames.npz")
-        ar = np.load(folder / "arrays.npz")
+
+        active_layers = set(layers.split(",")) if layers else {"poses", "feet", "series", "energy", "scene"}
+
+        from strandbeest_common.telemetry import read_parquet_columns
+
+        # Determine which columns to read
+        needed_fr = {"t"}
+        if "poses" in active_layers:
+            needed_fr.update({"pos", "quat", "contact"})
+        if "feet" in active_layers:
+            needed_fr.update({"foot_pos", "foot_force", "foot_slip", "com"})
+
+        if has_frames_parquet:
+            fr = read_parquet_columns(folder / "frames.parquet", list(needed_fr))
+        else:
+            fr = np.load(folder / "frames.npz")
+
+        needed_ar = {"t"}
+        if "series" in active_layers:
+            needed_ar.update({"psi", "x", "torque"})
+        if "energy" in active_layers:
+            needed_ar.update({"e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration"})
+
+        if (folder / "arrays.parquet").exists():
+            ar = read_parquet_columns(folder / "arrays.parquet", list(needed_ar))
+        else:
+            ar = np.load(folder / "arrays.npz")
+
         run_doc = json.loads((folder / "run.json").read_text())
         step = max(1, len(fr["t"]) // max_frames)
         sstep = max(1, len(ar["t"]) // 500)
         sc = flatten_scenario(run_doc["scenario"])  # runs store schema v2; older ones the flat v1 shape
-        # distance one crank revolution would carry the body if no foot slipped or was blocked: stance travel / duty factor
         from strandbeest_common import gait_metrics, load_spec
 
         g = gait_metrics(load_spec(sc["linkage"]["spec"])) if isinstance(sc["linkage"]["spec"], dict) else None
         nominal = (g.stroke_length / g.duty * sc["walker"]["unit"]) if g and g.duty > 0 else None
-        feet_ok = "foot_force" in fr.files
-        extra = {}
-        if feet_ok:
-            extra = {
-                "foot_pos": np.round(fr["foot_pos"][::step], 4).tolist(),
-                "foot_force": np.round(fr["foot_force"][::step], 3).tolist(),
-                "foot_slip": np.round(fr["foot_slip"][::step], 4).tolist(),
-                "com": np.round(fr["com"][::step], 4).tolist(),
-            }
-        energy = None
-        if "e_in" in ar.files:
-            energy = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar.files}
-        return {
-            "scene": json.loads((folder / "scene.json").read_text()),
+
+        res_payload: dict[str, Any] = {
             "t": np.round(fr["t"][::step], 4).tolist(),
-            "pos": np.round(fr["pos"][::step], 4).tolist(),
-            "quat": np.round(fr["quat"][::step], 4).tolist(),
-            "contact": fr["contact"][::step].astype(int).tolist(),
-            **extra,
-            "series": {k: np.round(ar[k][::sstep], 5).tolist() for k in ("t", "psi", "x", "torque")},
-            "energy": energy,
             "events": run_doc.get("events", []),
             "diagnosis": run_doc.get("diagnosis", []),
             "metrics": run_doc["metrics"],
             "stalled": run_doc.get("stalled", False),
             "nominal_stride_m": nominal,
             "kinematic_duty": g.duty if g else None,
-            "revolutions": float(ar["psi"][-1] / (2 * np.pi)),
+            "revolutions": float(ar["psi"][-1] / (2 * np.pi)) if "psi" in ar else None,
             "info": {"terrain": sc["terrain"], "drive": sc["drive"]["kind"], "wind": sc["wind"], "environment": sc["environment"], "legs": sc["walker"]["legs"], "max_torque": sc["drive"].get("max_torque")},
         }
+
+        if "scene" in active_layers and (folder / "scene.json").exists():
+            res_payload["scene"] = json.loads((folder / "scene.json").read_text())
+
+        if "poses" in active_layers and "pos" in fr:
+            res_payload["pos"] = np.round(fr["pos"][::step], 4).tolist()
+            res_payload["quat"] = np.round(fr["quat"][::step], 4).tolist()
+            res_payload["contact"] = fr["contact"][::step].astype(int).tolist()
+
+        if "feet" in active_layers and "foot_force" in fr:
+            res_payload["foot_pos"] = np.round(fr["foot_pos"][::step], 4).tolist()
+            res_payload["foot_force"] = np.round(fr["foot_force"][::step], 3).tolist()
+            res_payload["foot_slip"] = np.round(fr["foot_slip"][::step], 4).tolist()
+            res_payload["com"] = np.round(fr["com"][::step], 4).tolist()
+
+        if "series" in active_layers:
+            res_payload["series"] = {k: np.round(ar[k][::sstep], 5).tolist() for k in ("t", "psi", "x", "torque") if k in ar}
+
+        if "energy" in active_layers and "e_in" in ar:
+            res_payload["energy"] = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar}
+
+        return res_payload
 
     # -- exports -------------------------------------------------------------
     @app.post("/exports")
@@ -622,6 +655,98 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         d = distance(mc, sc)
         return {"angle_deg": [(i + 0.5) / nb * 360.0 for i in range(nb)], "measured": clean(mc.torque), "simulated": clean(sc.torque),
                 "stride_measured": mc.stride, "stride_simulated": sc.stride, "distance": None if d != d or d == float("inf") else d}
+
+    # -- interactive WebSocket session (G-06) --------------------------------
+    @app.websocket("/ws/sim")
+    async def websocket_sim(websocket: WebSocket):
+        await websocket.accept()
+        from strandbeest_sim import InteractiveSession, load_scenario, scenario_from_design
+
+        MAX_FORKS = 16
+        session: InteractiveSession | None = None
+        saved_snapshot: dict[str, Any] | None = None
+        forks: dict[str, InteractiveSession] = {}
+        try:
+            while True:
+                msg = await websocket.receive_json()
+                cmd = msg.get("cmd")
+                if cmd == "init":
+                    doc = msg.get("scenario")
+                    if not doc:
+                        d = parse(msg["design"])
+                        sc = scenario_from_design(d, msg.get("overrides"))
+                    else:
+                        sc = load_scenario(doc)
+                    session = InteractiveSession.create(sc, backend=msg.get("backend", "mujoco"))
+                    forks.clear()
+                    await websocket.send_json({"event": "ready", "t": 0.0})
+                elif cmd == "step":
+                    if session is None:
+                        await websocket.send_json({"event": "error", "message": "session not initialized"})
+                        continue
+                    count = int(msg.get("count", 10))
+                    data = await asyncio.to_thread(session.step, count)
+                    await websocket.send_json({"event": "telemetry", **data})
+                elif cmd == "pause":
+                    if session:
+                        session.pause()
+                    await websocket.send_json({"event": "paused"})
+                elif cmd == "resume":
+                    if session:
+                        session.resume()
+                    await websocket.send_json({"event": "resumed"})
+                elif cmd == "set":
+                    if session is None:
+                        await websocket.send_json({"event": "error", "message": "session not initialized"})
+                        continue
+                    try:
+                        session.set_param(msg["param"], msg["value"])
+                        await websocket.send_json({"event": "set_ack", "param": msg["param"], "value": msg["value"]})
+                    except Exception as exc:
+                        await websocket.send_json({"event": "error", "message": str(exc)})
+                elif cmd == "snapshot":
+                    if session:
+                        saved_snapshot = session.snapshot()
+                        await websocket.send_json({"event": "snapshot_ack", "t": saved_snapshot["t"]})
+                elif cmd == "restore":
+                    if session and saved_snapshot:
+                        session.restore(saved_snapshot)
+                        await websocket.send_json({"event": "restore_ack", "t": session.t})
+                elif cmd == "fork":
+                    if session is None:
+                        await websocket.send_json({"event": "error", "message": "session not initialized"})
+                        continue
+                    fork_id = msg.get("fork_id", f"fork_{len(forks) + 1}")
+                    forked_sess = session.fork()
+                    if fork_id not in forks and len(forks) >= MAX_FORKS:
+                        oldest = next(iter(forks))
+                        del forks[oldest]
+                    forks[fork_id] = forked_sess
+                    if msg.get("switch", False):
+                        session = forked_sess
+                    await websocket.send_json({"event": "fork_ack", "fork_id": fork_id, "t": forked_sess.t})
+                elif cmd == "switch_fork":
+                    fork_id = msg.get("fork_id")
+                    if fork_id in forks:
+                        session = forks[fork_id]
+                        await websocket.send_json({"event": "switched", "fork_id": fork_id, "t": session.t})
+                    else:
+                        await websocket.send_json({"event": "error", "message": f"unknown fork_id '{fork_id}'"})
+                elif cmd == "close_fork":
+                    fork_id = msg.get("fork_id")
+                    if fork_id in forks:
+                        del forks[fork_id]
+                        await websocket.send_json({"event": "close_fork_ack", "fork_id": fork_id})
+                    else:
+                        await websocket.send_json({"event": "error", "message": f"unknown fork_id '{fork_id}'"})
+                else:
+                    await websocket.send_json({"event": "error", "message": f"unknown cmd {cmd}"})
+        except WebSocketDisconnect:
+            pass
+        finally:
+            forks.clear()
+            session = None
+            saved_snapshot = None
 
     return app
 

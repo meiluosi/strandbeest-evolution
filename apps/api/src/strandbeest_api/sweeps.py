@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from strandbeest_common import Design
+from strandbeest_common import Design, JobDAG
 
 from .jobs import Cancelled, JobContext
 from .pipeline import loop_tolerance, simulate
@@ -53,13 +53,13 @@ def run_sweep(ctx: JobContext, payload: dict[str, Any], runs_dir: Path, parallel
     Design(base_doc)  # validate the base design early
     points = expand(payload["axes"])
     base_overrides = payload.get("overrides") or {}
-    rows: list[dict[str, Any] | None] = [None] * len(points)
-    done = 0
 
-    def one(i: int) -> None:
-        nonlocal done
+    dag = JobDAG()
+    rows: list[dict[str, Any] | None] = [None] * len(points)
+
+    def evaluate_point(i: int) -> dict[str, Any]:
         if ctx.cancelled:
-            return
+            return {"point": points[i], "run_id": None, "metrics": {}, "valid": False}
         doc = json.loads(json.dumps(base_doc))
         ov = json.loads(json.dumps(base_overrides))
         ov.setdefault("run", {}).setdefault("frame_rate", 0)  # sweep points are not replayed unless asked
@@ -70,16 +70,33 @@ def run_sweep(ctx: JobContext, payload: dict[str, Any], runs_dir: Path, parallel
             ctx.store.index_run(run)
             m = run["metrics"]
             ok = not run["stalled"] and m.get("max_loop_violation", 1.0) < loop_tolerance(Design(doc))
-            rows[i] = {"point": points[i], "run_id": run["id"], "metrics": m, "valid": ok}
-        except Exception as e:  # keep the sweep going; record the failure for this point
-            rows[i] = {"point": points[i], "run_id": None, "metrics": {}, "valid": False, "error": f"{type(e).__name__}: {e}"}
-        done += 1
-        ctx.progress(done, len(points), f"{done}/{len(points)} points")
+            row = {"point": points[i], "run_id": run["id"], "metrics": m, "valid": ok}
+        except Exception as e:
+            row = {"point": points[i], "run_id": None, "metrics": {}, "valid": False, "error": f"{type(e).__name__}: {e}"}
+        rows[i] = row
+        return row
+
+    point_node_ids = []
+    for i in range(len(points)):
+        nid = f"point_{i}"
+        dag.add_node(nid, evaluate_point, dependencies=(), resources={"cpu": 1}, i=i)
+        point_node_ids.append(nid)
+
+    def aggregate_summary() -> dict[str, Any]:
+        return {"axes": payload["axes"], "rows": [r for r in rows if r is not None]}
+
+    dag.add_node("summary", aggregate_summary, dependencies=point_node_ids, resources={"cpu": 1})
 
     ctx.progress(0, len(points), "starting")
-    with ThreadPoolExecutor(max_workers=parallel) as ex:
-        list(ex.map(one, range(len(points))))
-    result = {"axes": payload["axes"], "rows": [r for r in rows if r is not None]}
+
+    def _progress(done: int, total: int, msg: str) -> None:
+        # progress count relative to sweep points
+        pts_done = min(done, len(points))
+        ctx.progress(pts_done, len(points), f"{pts_done}/{len(points)} points")
+
+    dag.execute(max_workers=parallel, progress_cb=_progress, is_cancelled=lambda: ctx.cancelled)
+    result = dag.nodes["summary"].result or aggregate_summary()
+
     if ctx.cancelled:
         raise Cancelled(result)
     return result

@@ -374,6 +374,13 @@ def test_replay_carries_loads_events_diagnosis_and_the_energy_account(client):
     series = client.get(f"/runs/{doc['id']}/series").json()
     assert "foot_normal" in series and "kinetic" in series
 
+    # E6-01 / E6-03: Parquet storage & layered retrieval
+    assert doc.get("parquet_file") == "arrays.parquet"
+    assert doc.get("frames_parquet_file") == "frames.parquet"
+    r_feet = client.get(f"/runs/{doc['id']}/replay?layers=feet,events").json()
+    assert "foot_pos" in r_feet and "foot_force" in r_feet
+    assert "pos" not in r_feet and "quat" not in r_feet and "energy" not in r_feet
+
 
 def test_e203_design_id_storage_rename_duplicate_and_soft_delete(client):
     saved = client.post("/designs", json=DESIGN).json()

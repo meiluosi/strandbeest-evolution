@@ -16,6 +16,7 @@ import numpy as np
 from strandbeest_common import Design, audit_run_evidence, default_evidence, gait_metrics, run_input_key
 from strandbeest_common.ids import new_ulid
 from strandbeest_common.schemas import validate
+from strandbeest_common.telemetry import save_parquet
 from strandbeest_fab import export as fab_export
 from strandbeest_sim import run as sim_run
 from strandbeest_sim.events import detect_events, diagnose
@@ -61,9 +62,12 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
     ik = run_input_key(design.doc, sc_doc, backend="mujoco", backend_version=mujoco.__version__, seed=0)
     res = sim_run(sc)
     events = detect_events(res)
-    np.savez(out / "arrays.npz", t=res.t, psi=res.psi, x=res.x, z=res.z, torque=res.torque, **res.series)
+    arr_dict = {"t": res.t, "psi": res.psi, "x": res.x, "z": res.z, "torque": res.torque, **res.series}
+    np.savez(out / "arrays.npz", **arr_dict)
+    save_parquet(out / "arrays.parquet", arr_dict)
     if res.frames is not None:
         np.savez_compressed(out / "frames.npz", **res.frames)
+        save_parquet(out / "frames.parquet", res.frames)
         (out / "scene.json").write_text(json.dumps(res.scene))
     doc = {
         "schema_version": 2,
@@ -77,7 +81,12 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "events": events,
         "diagnosis": diagnose(res, events),
         "arrays_file": "arrays.npz",
-        **({"frames_file": "frames.npz", "scene_file": "scene.json"} if res.frames is not None else {}),
+        "parquet_file": "arrays.parquet",
+        **(
+            {"frames_file": "frames.npz", "frames_parquet_file": "frames.parquet", "scene_file": "scene.json"}
+            if res.frames is not None
+            else {}
+        ),
         "provenance": {
             "code_version": code_version(),
             "engine": "mujoco",

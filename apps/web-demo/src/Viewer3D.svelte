@@ -228,9 +228,11 @@ $effect(() => {
 			const legPitch = manifest.leg_pitch_mm;
 			const [px, py] = manifest.crank_pivot_mm as [number, number];
 			let lowest = Number.POSITIVE_INFINITY;
+			const legPoses = manifest.crank_phase_deg.map((deg) =>
+				solvePose(spec, -t + ((deg ?? 0) * Math.PI) / 180),
+			);
 			for (const { mesh, bar, leg } of bars) {
-				const phase = ((manifest.crank_phase_deg[leg] ?? 0) * Math.PI) / 180;
-				const p = solvePose(spec, -t + phase);
+				const p = legPoses[leg];
 				if (!p) continue;
 				const pt = (id: string) =>
 					id === "P"
@@ -247,8 +249,7 @@ $effect(() => {
 			}
 			for (let i = 0; i < feet.length; i++) {
 				const leg = bars[0] ? i : 0;
-				const phase = ((manifest.crank_phase_deg[leg] ?? 0) * Math.PI) / 180;
-				const p = solvePose(spec, -t + phase);
+				const p = legPoses[leg];
 				if (!p) continue;
 				const f = p[spec.foot] as { x: number; y: number };
 				feet[i]?.position.set(
