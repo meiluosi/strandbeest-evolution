@@ -54,6 +54,7 @@ class K2Backend:
         self._last_power_balance = PowerBalance(0.0, 0.0, 0.0, 0.0)
         self._last_max_penetration = 0.0
         self._last_constraint_torque = 0.0
+        self._contact_softness: tuple[float, float] | None = None
 
     def build_reference(self, kind: str, **params: float) -> None:
         self._kind = kind
@@ -150,9 +151,30 @@ class K2Backend:
         # Pin friction and damping
         self._joint_friction = getattr(w, "joint_friction", 0.0)
         self._joint_damping = getattr(w, "joint_damping", 0.0)
+        self._joint_friction_coeff = getattr(w, "joint_friction_coeff", 0.0)
+        self._joint_pin_radius = getattr(w, "joint_pin_radius", 0.003)
         self._foot_radius = w.foot_radius
         self._foot_friction = w.foot_friction
         self._lateral_spacing = w.lateral_spacing
+
+        if plan.softness is not None:
+            self._contact_softness = (float(plan.softness[0]), float(plan.softness[1]))
+        elif hasattr(cfg, "terrain") and cfg.terrain:
+            if cfg.terrain.kind == "sand":
+                self._contact_softness = (
+                    float(cfg.terrain.params.get("stiffness", 2800.0)),
+                    float(cfg.terrain.params.get("damping", 180.0)),
+                )
+            elif cfg.terrain.kind == "soft":
+                self._contact_softness = (
+                    float(cfg.terrain.params.get("stiffness", 4000.0)),
+                    float(cfg.terrain.params.get("damping", 120.0)),
+                )
+            elif "stiffness" in cfg.terrain.params:
+                self._contact_softness = (
+                    float(cfg.terrain.params["stiffness"]),
+                    float(cfg.terrain.params.get("damping", 0.0)),
+                )
 
         body_names = ("torso",) + tuple(f"leg_{i}" for i in range(n))
         foot_names = tuple(f"foot_bar{i}_F0" for i in range(n))
@@ -175,7 +197,15 @@ class K2Backend:
             if self._kind == "pendulum":
                 self._params["gravity"] = abs(self._gravity[2])
         elif path == "contact.softness":
-            pass
+            if value is None:
+                self._contact_softness = None
+            else:
+                stiffness, damping = value
+                self._contact_softness = (float(stiffness), float(damping))
+        elif path in ("terrain.friction", "friction"):
+            self._foot_friction = float(value)
+            if self._kind == "block":
+                self._params["friction"] = float(value)
         else:
             raise KeyError(f"unsupported parameter path '{path}'")
 
@@ -277,8 +307,14 @@ class K2Backend:
                 self._last_actuator_force = 0.0
                 tau_crank = -d * self._applied_joint_torque
 
-            # Add internal joint friction and damping on crank
-            pin_fric = self._joint_friction + self._frictionloss
+            # Add internal joint friction and damping on crank (with load-dependent bearing force model)
+            bearing_force = (
+                sum(l.normal for l in self._last_foot_loads)
+                if self._last_foot_loads
+                else self._m_total * abs(gz)
+            )
+            load_pin_fric = self._joint_friction_coeff * self._joint_pin_radius * bearing_force
+            pin_fric = self._joint_friction + self._frictionloss + load_pin_fric
             pin_damp = self._joint_damping + self._damping
             if abs(v[3]) > 1e-7:
                 tau_crank -= math.copysign(pin_fric, v[3]) + pin_damp * v[3]
@@ -338,13 +374,21 @@ class K2Backend:
                 v_curr = v_star.copy()
                 beta = 0.15  # Baumgarte penetration stabilization
 
+                # Compliant contact softness (RFT sand / soft ground)
+                cfm_n = 0.0
+                if self._contact_softness is not None:
+                    c_stiff, _ = self._contact_softness
+                    if c_stiff > 0:
+                        # In impulse CFM: resting penetration pen = Fn / c_stiff
+                        cfm_n = beta / (c_stiff * dt * dt)
+
                 for _ in range(12):
                     for idx, (leg_idx, jn, jt, pen, _) in enumerate(active):
-                        # Normal impulse
+                        # Normal impulse (softened by compliance if contact.softness is configured)
                         vn = float(jn @ v_curr)
-                        diag_n = float(jn @ (self._inv_M * jn))
+                        diag_n = float(jn @ (self._inv_M * jn)) + cfm_n
                         if diag_n > 1e-9:
-                            delta_pn = (-vn + beta * pen / dt) / diag_n
+                            delta_pn = (-vn + beta * pen / dt - cfm_n * pn[idx]) / diag_n
                             new_pn = max(0.0, pn[idx] + delta_pn)
                             d_pn = new_pn - pn[idx]
                             pn[idx] = new_pn
@@ -386,7 +430,7 @@ class K2Backend:
 
             # Dissipation power
             w_crank = abs(v[3])
-            fric_power = (self._joint_friction + self._frictionloss) * w_crank + (self._joint_damping + self._damping) * (w_crank**2)
+            fric_power = pin_fric * w_crank + (self._joint_damping + self._damping) * (w_crank**2)
             self._last_power_balance = PowerBalance(
                 contact=float(total_contact_dissipation),
                 equality=0.0,
@@ -425,6 +469,13 @@ class K2Backend:
         if self._kind == "walker":
             self._q = payload["q"].copy()
             self._v = payload["v"].copy()
+
+    def clone(self) -> K2Backend:
+        """Create a lightweight clone sharing precomputed trajectory tables with separate dynamic state."""
+        cloned = copy.copy(self)
+        snap = self.snapshot()
+        cloned.restore(snap)
+        return cloned
 
     def energies(self) -> Energies:
         if self._kind == "pendulum":

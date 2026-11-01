@@ -11,6 +11,7 @@ class MotorDrive:
         self.actuator = sim.info.actuator
         self.target = sim.q0
         self.t_drive = 0.0
+        self.f_drag = 0.0
 
     def control(self, sim, t: float, driving: bool) -> None:
         sc = sim.scenario
@@ -26,6 +27,9 @@ class MotorDrive:
     def torque(self, sim) -> float:
         # force on the hinge coordinate q; flip the sign so positive means driving psi forward
         return float(-sim.scenario.walker.direction * sim.backend.actuator_force(self.actuator))
+
+    def body_drag_force(self, sim) -> float:
+        return 0.0
 
 
 class SailDrive:
@@ -45,6 +49,7 @@ class SailDrive:
         sim.backend.configure_joint(self.joint, armature=sc.drive.rotor_inertia, damping=sc.drive.crank_damping, frictionloss=sc.drive.crank_friction)
         self.wind = winds.get(sc.wind.kind)(sc.wind)
         self.tau = 0.0
+        self.f_drag = 0.0
 
     def control(self, sim, t: float, driving: bool) -> None:
         b = sim.backend
@@ -69,11 +74,16 @@ class SailDrive:
             v_wind = self.wind(t, torso_pos[2])
             vx = b.joint_velocity("tx")
             v_rel = v_wind - vx
-            f_drag = 0.5 * sc.environment.air_density * body_drag_coeff * body_drag_area * abs(v_rel) * v_rel
-            b.apply_joint_torque("tx", f_drag)
+            self.f_drag = 0.5 * sc.environment.air_density * body_drag_coeff * body_drag_area * abs(v_rel) * v_rel
+            b.apply_joint_torque("tx", self.f_drag)
+        else:
+            self.f_drag = 0.0
 
     def torque(self, sim) -> float:
         return self.tau
+
+    def body_drag_force(self, sim) -> float:
+        return self.f_drag
 
 
 @drives.register("motor", energy_source="test_rig")

@@ -88,7 +88,9 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
         # energy account: what the drive puts in, where it goes (rectangle rule at the step rate)
         omega = -sc.walker.direction * be.joint_velocity(info.crank_joint)
         pb = be.power_balance()
-        e_in += drive.torque(sim) * omega * dt
+        vx = be.joint_velocity("tx") if hasattr(be, "joint_velocity") else 0.0
+        f_drag = drive.body_drag_force(sim) if hasattr(drive, "body_drag_force") else getattr(drive, "f_drag", 0.0)
+        e_in += (drive.torque(sim) * omega + f_drag * vx) * dt
         e_contact += pb.contact * dt
         e_loops += pb.equality * dt
         e_friction += (pb.joint_friction + pb.viscous) * dt

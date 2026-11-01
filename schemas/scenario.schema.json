@@ -288,6 +288,38 @@
 					"x-calibratable": true,
 					"x-affects": ["sim"]
 				},
+				"joint_friction_coeff": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.0,
+					"x-unit": "1",
+					"x-range": [0.0, 0.5],
+					"x-group": "group.contact",
+					"x-doc": {
+						"zh": "销轴法向力动摩擦系数（无量纲）；0 表示仅采用绝对库仑力矩，>0 则根据机构承载内力动态缩放销轴阻力",
+						"en": "Pin normal-load dynamic friction coefficient (dimensionless); 0 uses absolute Coulomb torque only, >0 dynamically scales pin resistance with joint bearing forces"
+					},
+					"x-assumption": true,
+					"x-source": "Coulomb bearing pin friction model (Model A in WIND.md §3)",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
+				"joint_pin_radius": {
+					"type": "number",
+					"minimum": 0,
+					"default": 0.003,
+					"x-unit": "m",
+					"x-range": [0.001, 0.05],
+					"x-group": "group.contact",
+					"x-doc": {
+						"zh": "销轴物理接触半径（用于将法向力折算为摩擦力矩）",
+						"en": "Physical pin contact radius (used to convert normal bearing force into friction torque)"
+					},
+					"x-assumption": true,
+					"x-source": "Typical 3 mm to 6 mm axle radius in small to medium scale walkers",
+					"x-calibratable": true,
+					"x-affects": ["sim"]
+				},
 				"body_drag_area": {
 					"type": "number",
 					"minimum": 0,
@@ -402,8 +434,8 @@
 					"x-group": "group.terrain",
 					"x-affects": ["sim"],
 					"x-doc": {
-						"zh": "地形类型：flat、slope、step、bumps、ramp……",
-						"en": "Terrain kind: flat, slope, step, bumps, ramp, ..."
+						"zh": "地形类型：flat、slope、step、bumps、ramp、sand……",
+						"en": "Terrain kind: flat, slope, step, bumps, ramp, sand, ..."
 					}
 				},
 				"friction": {
@@ -438,8 +470,8 @@
 					"default": {},
 					"x-group": "group.terrain",
 					"x-doc": {
-						"zh": "随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）",
-						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg)"
+						"zh": "随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand 用 stiffness（N/m）、damping（N·s/m）",
+						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)"
 					},
 					"x-affects": ["sim"]
 				}

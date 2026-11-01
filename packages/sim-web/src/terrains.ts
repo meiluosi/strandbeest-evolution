@@ -74,6 +74,10 @@ export function terrainPlan(sc: SimConfig): TerrainPlan {
 			return plan({
 				softness: [num(p.stiffness, 4000.0), num(p.damping, 120.0)],
 			});
+		case "sand":
+			return plan({
+				softness: [num(p.stiffness, 2800.0), num(p.damping, 180.0)],
+			});
 		case "ramp": {
 			const start = num(p.start, 0.3);
 			const height = num(p.height, 0.03);

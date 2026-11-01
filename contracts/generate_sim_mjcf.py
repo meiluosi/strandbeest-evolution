@@ -67,6 +67,8 @@ CASES += [
     ("terrain-soft", "base", {"terrain": {"kind": "soft", "params": {"stiffness": 5000.0, "damping": 90.0}}}),
     ("terrain-ramp-defaults", "base", {"terrain": {"kind": "ramp"}}),
     ("terrain-ramp-params", "base", {"terrain": {"kind": "ramp", "friction": 0.8, "params": {"start": 0.2, "height": 0.05, "length": 0.4, "angle_deg": 25.0}}}),
+    ("terrain-sand-defaults", "base", {"terrain": {"kind": "sand"}}),
+    ("terrain-sand-params", "base", {"terrain": {"kind": "sand", "friction": 0.62, "params": {"stiffness": 3000.0, "damping": 150.0}}}),
     ("solver-no-contact-stiffness", "base", {"solver": {"contact_stiffness": None, "contact_solref": 0.015}}),
     ("solver-options", "base", {"solver": {"timestep": 0.0002, "iterations": 50, "cone": "elliptic", "impratio": 10.0, "noslip_iterations": 5, "solref_time": 0.002, "solimp": "0.95 0.99 0.001", "contact_damping_ratio": 0.7}}),
     ("solver-tiny-timestep", "base", {"solver": {"timestep": 0.00001}}),

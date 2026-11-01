@@ -89,3 +89,21 @@ def test_body_drag_effect_on_startability():
 
     # Forward distance with chassis wind assistance is greater than or equal to without
     assert res_with.x[-1] >= res_no.x[-1]
+
+
+def test_body_drag_energy_balance():
+    """Verify that input energy includes chassis body drag work, so energy_residual_share remains near zero."""
+    d = _example_design()
+    ov_drag = {
+        "drive": {"kind": "sail"},
+        "wind": {"kind": "constant", "speed": 4.0},
+        "walker": {"body_drag_area": 0.04, "body_drag_coeff": 1.1},
+        "run": {"revolutions": 1.0, "settle": 0.1, "frame_rate": 0},
+    }
+    sc_drag = _scenario(d, ov_drag)
+    res_mj = run(sc_drag, backend=MujocoBackend())
+    res_k2 = run(sc_drag, backend=K2Backend())
+
+    assert abs(res_mj.metrics["energy_residual_share"]) < 0.02
+    assert abs(res_k2.metrics["energy_residual_share"]) < 0.03
+

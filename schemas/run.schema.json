@@ -47,6 +47,12 @@
 		"arrays_file": {
 			"type": "string"
 		},
+		"parquet_file": {
+			"type": "string"
+		},
+		"frames_parquet_file": {
+			"type": "string"
+		},
 		"provenance": {
 			"type": "object",
 			"required": ["code_version"],

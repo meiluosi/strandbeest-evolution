@@ -169,6 +169,22 @@ class MujocoBackend:
         mujoco.mj_setState(self.model, self.data, snap.payload, self._STATE)
         mujoco.mj_forward(self.model, self.data)
 
+    def clone(self) -> MujocoBackend:
+        """Create a lightweight clone sharing the immutable MjModel with independent MjData state."""
+        if self.model is None or self.data is None:
+            raise RuntimeError("cannot clone unbuilt MujocoBackend")
+        cloned = MujocoBackend()
+        cloned.model = self.model
+        cloned.data = mujoco.MjData(self.model)
+        cloned._plan = self._plan
+        cloned._info = self._info
+        cloned._foot_geoms = list(self._foot_geoms)
+        cloned._reset_caches()
+        cloned.data.ctrl[:] = self.data.ctrl[:]
+        cloned.data.qfrc_applied[:] = self.data.qfrc_applied[:]
+        cloned.restore(self.snapshot())
+        return cloned
+
     def set_param(self, path: str, value: Any) -> None:
         m = self.model
         if path == "gravity":
@@ -179,8 +195,13 @@ class MujocoBackend:
             for i in range(m.ngeom):
                 if m.geom_bodyid[i] == 0 or m.geom_contype[i] == 2:
                     m.geom_solref[i] = (-float(stiffness), -float(damping))
+        elif path in ("terrain.friction", "friction"):
+            fric_val = float(value)
+            for i in range(m.ngeom):
+                if m.geom_bodyid[i] == 0:  # world body (ground plane)
+                    m.geom_friction[i, 0] = fric_val
         else:
-            raise KeyError(f"unknown parameter '{path}'; known: gravity, contact.softness")
+            raise KeyError(f"unknown parameter '{path}'; known: gravity, contact.softness, terrain.friction")
 
     # ---- observation ------------------------------------------------------------------------------------------
     def contacts(self) -> list[Contact]:

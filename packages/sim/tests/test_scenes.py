@@ -132,3 +132,23 @@ def test_ramp_params_override_the_defaults():
     assert box.pos[0] == pytest.approx(0.4)
     # a 90 degree ramp stands upright: its centre rises by the half length
     assert box.pos[2] == pytest.approx(0.03 / 2 + 0.2, abs=1e-12)
+
+
+def test_sand_plan_matches_its_rft_assumptions():
+    from strandbeest_sim.config import sim_config
+    from strandbeest_sim.registry import terrains
+
+    cfg = sim_config(sc(terrain={"kind": "sand"}))
+    plan = terrains.get("sand")(cfg)
+    assert plan.softness == (2800.0, 180.0)
+    assert plan.obstacles == ()
+    assert plan.slope_deg == 0.0
+
+
+def test_sand_params_override_defaults():
+    from strandbeest_sim.config import sim_config
+    from strandbeest_sim.registry import terrains
+
+    cfg = sim_config(sc(terrain={"kind": "sand", "params": {"stiffness": 3200.0, "damping": 140.0}}))
+    plan = terrains.get("sand")(cfg)
+    assert plan.softness == (3200.0, 140.0)

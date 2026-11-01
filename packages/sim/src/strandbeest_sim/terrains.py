@@ -52,6 +52,18 @@ def soft(sc: SimConfig) -> TerrainPlan:
     return TerrainPlan(softness=(float(sc.terrain.params.get("stiffness", 4000.0)), float(sc.terrain.params.get("damping", 120.0))))
 
 
+@terrains.register("sand")
+def sand(sc: SimConfig) -> TerrainPlan:
+    """Sand terrain based on Resistive Force Theory (RFT) parameterization (S-03).
+
+    Applies equivalent granular sinkage compliance and high plastic damping.
+    Default parameters derived for loose beach quartz sand (docs/research/sand-rft.md)."""
+    p = sc.terrain.params
+    stiffness = float(p.get("stiffness", 2800.0))
+    damping = float(p.get("damping", 180.0))
+    return TerrainPlan(softness=(stiffness, damping))
+
+
 @terrains.register("ramp")
 def ramp(sc: SimConfig) -> TerrainPlan:
     """A short inclined platform the feet must climb (not a vertical step).

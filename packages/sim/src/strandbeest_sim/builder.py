@@ -56,6 +56,25 @@ class Built:
     bar_mass_total: float
 
 
+@dataclass
+class EntityBuilt:
+    name: str
+    torso_body: str
+    crank_joint: str
+    crank_q0: float
+    actuator: str
+    hip_height: float
+    n_legs: int
+    bar_mass_total: float
+    total_mass: float
+
+
+@dataclass
+class HerdBuilt:
+    xml: str
+    entities: dict[str, EntityBuilt]
+
+
 def _f(v: float) -> str:
     return f"{v:.9g}"
 
@@ -68,23 +87,27 @@ class _Bar:
     mass: float
 
 
-def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> Built:
-    """`obstacles` is MJCF for the static blocks of the terrain (made by the MuJoCo adapter from the terrain plan)."""
-    sc = sim_config(sc)
-    w = sc.walker
+def _build_walker_tree(
+    w: Any,
+    drive: Any,
+    spec: LinkageSpec,
+    prefix: str = "",
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    phase_offset: float = 0.0,
+) -> tuple[str, list[str], str, EntityBuilt]:
     u = w.unit
     n = w.legs
-    phases = [2 * math.pi * i / n for i in range(n)]
+    phases = [phase_offset + 2 * math.pi * i / n for i in range(n)]
     poses = []
     for ph in phases:
-        p = solve_pose(spec, ph)  # theta_i0 = phase_i  (psi = 0 for leg 0)
+        p = solve_pose(spec, ph)
         if p is None:
             raise ValueError("linkage cannot assemble at the initial crank angle")
         poses.append(p)
 
     lowest = min(p[spec.foot][1] for p in poses) * u
     hip_h = -lowest + w.foot_radius
-    # pin friction and damping (assumptions, 0 = ideal); written only when non-zero so the default model text is unchanged
     pin_loss = (f' frictionloss="{_f(w.joint_friction)}"' if w.joint_friction > 0 else "") + (f' damping="{_f(w.joint_damping)}"' if w.joint_damping > 0 else "")
 
     def mass_of(length_units: float) -> float:
@@ -105,16 +128,16 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
         px, py = spec.pivot
         tip = pose["C"]
 
-        # two bars per joint, one from each centre; the first one owns the joint point
+        crank_body_name = f"{prefix}crank{i}"
         bars_at: dict[str, list[_Bar]] = {}
-        owner_of: dict[str, str] = {"C": f"crank{i}"}  # point -> name of the body that owns it (G handled apart)
+        owner_of: dict[str, str] = {"C": crank_body_name}
         by_name: dict[str, _Bar] = {}
         for j in spec.joints:
             for k, (c, r) in enumerate(zip(j.centers, j.radii)):
-                b = _Bar(f"bar{i}_{j.id}{k}", c, j.id, mass_of(spec.val(r)))
+                b = _Bar(f"{prefix}bar{i}_{j.id}{k}", c, j.id, mass_of(spec.val(r)))
                 bars_at.setdefault(c, []).append(b)
                 by_name[b.name] = b
-            owner_of[j.id] = f"bar{i}_{j.id}0"
+            owner_of[j.id] = f"{prefix}bar{i}_{j.id}0"
 
         foot_done: list[bool] = []
 
@@ -127,7 +150,7 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
                 f'contype="0" conaffinity="0" rgba="0.75 0.7 0.2 1"/>'
             )
             if b.end == spec.foot and (not foot_done or LEGACY_FOOT_BUG):
-                foot_done.append(True)  # both bars ending at the foot share one sphere: two coincident spheres would collide with each other
+                foot_done.append(True)
                 geoms += (
                     f'<geom name="foot_{b.name}" type="sphere" pos="{_f(rel[0])} 0 {_f(rel[1])}" size="{_f(w.foot_radius)}" '
                     f'mass="1e-6" friction="{_f(w.foot_friction)} 0.005 0.0001" contype="{1 if LEGACY_FOOT_BUG else 2}" conaffinity="1" rgba="0.9 0.45 0.25 1"/>'
@@ -140,40 +163,76 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
                 f'<joint name="{b.name}" type="hinge" axis="0 1 0"{pin_loss}/>{geoms}{kids}</body>'
             )
 
-        # bars hinged at the hip G hang from the torso (offset laterally by this leg's y)
         torso_children.extend(emit(b, (0.0, 0.0), y) for b in bars_at.get("G", []))
-        # crank: hinge at the pivot; its geometry already points along theta0 (the body frame is the q = ref pose)
         crank_vec = ((tip[0] - px) * u, (tip[1] - py) * u)
         crank_kids = "".join(emit(b, (px, py), 0.0) for b in bars_at.get("C", []))
         torso_children.append(
-            f'<body name="crank{i}" pos="{_f(px * u)} {_f(y)} {_f(py * u)}">'
-            f'<joint name="crank{i}" type="hinge" axis="0 1 0" ref="{_f(-phases[i])}"/>'
+            f'<body name="{crank_body_name}" pos="{_f(px * u)} {_f(y)} {_f(py * u)}">'
+            f'<joint name="{crank_body_name}" type="hinge" axis="0 1 0" ref="{_f(-phases[i])}"/>'
             f'<geom type="capsule" fromto="0 0 0 {_f(crank_vec[0])} 0 {_f(crank_vec[1])}" size="{_f(w.bar_radius)}" '
             f'mass="{_f(crank_mass)}" contype="0" conaffinity="0" rgba="0.2 0.2 0.25 1"/>{crank_kids}</body>'
         )
 
-        # loop closures: the second bar at each joint connects to the first at the joint's position
         for j in spec.joints:
-            first, second = f"bar{i}_{j.id}0", f"bar{i}_{j.id}1"
+            first, second = f"{prefix}bar{i}_{j.id}0", f"{prefix}bar{i}_{j.id}1"
             at = pose[j.id]
             s2 = pose[by_name[second].start]
             eq.append(
                 f'<connect body1="{second}" body2="{first}" anchor="{_f((at[0] - s2[0]) * u)} 0 {_f((at[1] - s2[1]) * u)}"/>'
             )
         if i > 0:
-            eq.append(f'<joint joint1="crank{i}" joint2="crank0" polycoef="0 1 0 0 0"/>')
+            eq.append(f'<joint joint1="{crank_body_name}" joint2="{prefix}crank0" polycoef="0 1 0 0 0"/>')
+
+    pitch_joint = f'<joint name="{prefix}tp" type="hinge" axis="0 1 0"/>' if w.pitch == "free" else ""
+    half_y = max(w.lateral_spacing * n / 2, 0.05)
+    torso_name = f"{prefix}torso" if prefix else "torso"
+    tx_name = f"{prefix}tx" if prefix else "tx"
+    tz_name = f"{prefix}tz" if prefix else "tz"
+    pos_str = f"{_f(offset_x)} {_f(offset_y)} {_f(hip_h)}"
+    torso_geom_name = f"{torso_name}_geom"
+
+    torso_xml = f"""<body name="{torso_name}" pos="{pos_str}">
+      <joint name="{tx_name}" type="slide" axis="1 0 0"/>
+      <joint name="{tz_name}" type="slide" axis="0 0 1"/>
+      {pitch_joint}
+      <geom name="{torso_geom_name}" type="box" size="{_f(w.body_length / 2)} {_f(half_y)} 0.03" mass="{_f(torso_mass)}" contype="4" conaffinity="4" rgba="0.15 0.15 0.2 1"/>
+      {"".join(torso_children)}
+    </body>"""
+
+    force_attr = f' forcelimited="true" forcerange="{-drive.max_torque} {drive.max_torque}"' if drive.max_torque else ""
+    actuator_name = f"{prefix}drive" if prefix else "drive"
+    crank0_name = f"{prefix}crank0"
+    actuator_xml = f'<position name="{actuator_name}" joint="{crank0_name}" kp="{drive.kp}" kv="{drive.kv}" ctrlrange="-1e6 1e6"{force_attr}/>'
+
+    ent_built = EntityBuilt(
+        name=prefix.rstrip("_"),
+        torso_body=torso_name,
+        crank_joint=crank0_name,
+        crank_q0=-phases[0],
+        actuator=actuator_name,
+        hip_height=hip_h,
+        n_legs=n,
+        bar_mass_total=n * per_leg_mass,
+        total_mass=torso_mass + n * per_leg_mass,
+    )
+    return torso_xml, eq, actuator_xml, ent_built
+
+
+def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> Built:
+    """`obstacles` is MJCF for the static blocks of the terrain (made by the MuJoCo adapter from the terrain plan)."""
+    sc = sim_config(sc)
+    w = sc.walker
+    torso_xml, eq, actuator_xml, ent_built = _build_walker_tree(w, sc.drive, spec)
 
     sv = sc.solver
-    force_attr = f' forcelimited="true" forcerange="{-sc.drive.max_torque} {sc.drive.max_torque}"' if sc.drive.max_torque else ""
     if sv.contact_stiffness is not None:
         # direct (negative) solref = stiffness (1/s^2, mass-normalised) and damping (1/s); damping from a damping ratio
-        m_eff = (torso_mass + n * per_leg_mass) / 5.0
+        m_eff = ent_built.total_mass / 5.0
         damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness * m_eff)
         geom_solref = f"{-sv.contact_stiffness} {-damping}"
     else:
         geom_solref = f"{sv.contact_solref} 1"
-    pitch_joint = '<joint name="tp" type="hinge" axis="0 1 0"/>' if w.pitch == "free" else ""
-    half_y = max(w.lateral_spacing * n / 2, 0.05)
+
     xml = f"""<mujoco model="{sc.name}">
   <compiler angle="radian"/>
   <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{sc.environment.gravity}"/>
@@ -184,27 +243,108 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
   <worldbody>
     {obstacles}
     <geom name="ground" type="plane" size="200 20 0.1" friction="{sc.terrain.friction} 0.005 0.0001" contype="1" conaffinity="2" rgba="0.85 0.82 0.75 1"/>
-    <body name="torso" pos="0 0 {_f(hip_h)}">
-      <joint name="tx" type="slide" axis="1 0 0"/>
-      <joint name="tz" type="slide" axis="0 0 1"/>
-      {pitch_joint}
-      <geom type="box" size="{_f(w.body_length / 2)} {_f(half_y)} 0.03" mass="{_f(torso_mass)}" contype="0" conaffinity="0" rgba="0.15 0.15 0.2 1"/>
-      {"".join(torso_children)}
-    </body>
+    {torso_xml}
   </worldbody>
   <equality>
     {"".join(eq)}
   </equality>
   <actuator>
-    <position name="drive" joint="crank0" kp="{sc.drive.kp}" kv="{sc.drive.kv}" ctrlrange="-1e6 1e6"{force_attr}/>
+    {actuator_xml}
   </actuator>
 </mujoco>"""
     return Built(
         xml=xml,
-        n_legs=n,
-        crank_joint="crank0",
-        crank_q0=-phases[0],
-        actuator="drive",
-        hip_height=hip_h,
-        bar_mass_total=n * per_leg_mass,
+        n_legs=ent_built.n_legs,
+        crank_joint=ent_built.crank_joint,
+        crank_q0=ent_built.crank_q0,
+        actuator=ent_built.actuator,
+        hip_height=ent_built.hip_height,
+        bar_mass_total=ent_built.bar_mass_total,
     )
+
+
+def build_herd(
+    sc: Scenario | dict[str, Any],
+    specs: dict[str, LinkageSpec] | None = None,
+    obstacles: str = "",
+) -> HerdBuilt:
+    """Build a multi-entity herd of walkers inside a single shared MuJoCo world (E4-04)."""
+    doc = sc.model_dump(mode="json") if isinstance(sc, Scenario) else sc
+    entities = doc.get("entities", [])
+    world = doc.get("world", {})
+    solver = doc.get("solver", {})
+    from strandbeest_common.models.scenario_v1 import Solver
+
+    sv = Solver.model_validate(solver)
+
+    grav = world.get("gravity", 9.81)
+    terrain_fric = world.get("terrain", {}).get("friction", 0.95)
+
+    if sv.contact_stiffness is not None:
+        m_eff = 50.0 / 5.0
+        damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness * m_eff)
+        geom_solref = f"{-sv.contact_stiffness} {-damping}"
+    else:
+        geom_solref = f"{sv.contact_solref} 1"
+
+    torsos = []
+    equalities = []
+    actuators = []
+    built_entities = {}
+
+    for idx, ent in enumerate(entities):
+        ename = ent.get("name", f"walker{idx}")
+        prefix = f"{ename}_"
+        comps = ent["components"]
+        from strandbeest_common.models.scenario_v1 import Drive, Linkage, Walker
+
+        w = Walker.model_validate(comps.get("body", {}))
+        drive = Drive.model_validate(comps.get("drive", {}))
+        link_cfg = Linkage.model_validate(comps.get("linkage", {}))
+
+        if specs and ename in specs:
+            spec = specs[ename]
+        else:
+            spec_src = link_cfg.spec
+            if isinstance(spec_src, dict):
+                spec = load_spec(spec_src)
+            else:
+                p = DATA / "jansen.json" if spec_src == "jansen" else Path(spec_src)
+                d = json.loads(p.read_text())
+                d["params"].update(link_cfg.params)
+                spec = load_spec(d)
+
+        placement = ent.get("placement", {})
+        ox = float(placement.get("x", 0.0))
+        oy = float(placement.get("y", 0.0))
+        phase_off = float(placement.get("phase_offset", 0.0))
+
+        torso_xml, eq_list, act_xml, ent_built = _build_walker_tree(
+            w, drive, spec, prefix=prefix, offset_x=ox, offset_y=oy, phase_offset=phase_off
+        )
+        torsos.append(torso_xml)
+        equalities.extend(eq_list)
+        actuators.append(act_xml)
+        built_entities[ename] = ent_built
+
+    xml = f"""<mujoco model="{doc.get('name', 'herd')}">
+  <compiler angle="radian"/>
+  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{grav}"/>
+  <default>
+    <equality solref="{sv.solref_time} 1" solimp="{sv.solimp}"/>
+    <geom solref="{geom_solref}"/>
+  </default>
+  <worldbody>
+    {obstacles}
+    <geom name="ground" type="plane" size="200 20 0.1" friction="{terrain_fric} 0.005 0.0001" contype="1" conaffinity="2" rgba="0.85 0.82 0.75 1"/>
+    {"".join(torsos)}
+  </worldbody>
+  <equality>
+    {"".join(equalities)}
+  </equality>
+  <actuator>
+    {"".join(actuators)}
+  </actuator>
+</mujoco>"""
+    return HerdBuilt(xml=xml, entities=built_entities)
+

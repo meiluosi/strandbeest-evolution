@@ -60,6 +60,34 @@ def test_k2_vs_mujoco_flat_stride():
 
 
 
+def test_k2_load_dependent_pin_friction():
+    """Verify load-dependent pin friction scales torque/dissipation with bearing loads."""
+    from strandbeest_sim.contract import _example_design, _walk
+
+    d = _example_design()
+    res_ideal = _walk(K2Backend, d)
+    res_fric = _walk(K2Backend, d, {"walker": {"joint_friction_coeff": 0.15, "joint_pin_radius": 0.005}})
+
+    # Dynamic bearing load adds friction torque, increasing mean torque
+    assert res_fric.metrics["mean_torque"] > res_ideal.metrics["mean_torque"]
+    assert res_fric.metrics["stride_per_rev"] > 0.1  # Still walks cleanly
+
+
+def test_k2_sand_contact_softness_penetration():
+    """Verify sand terrain softens ground contact in K2, allowing compliant penetration."""
+    from strandbeest_sim.contract import _example_design, _walk
+
+    d = _example_design()
+    # Walk on rigid ground
+    res_rigid = _walk(K2Backend, d, {"terrain": {"kind": "flat"}})
+    # Walk on sand ground (low stiffness RFT compliance)
+    res_sand = _walk(K2Backend, d, {"terrain": {"kind": "sand", "params": {"stiffness": 1500.0, "damping": 150.0}}})
+
+    # Sand compliance allows deeper foot sinkage (penetration)
+    assert res_sand.metrics["max_penetration"] > res_rigid.metrics["max_penetration"]
+    assert res_sand.metrics["max_penetration"] > 0.0005
+
+
 # ---- Mutants: test that bugs in K2 are caught by the contract suite ----
 class K2ReversedGravity(K2Backend):
     def set_param(self, path, value):
