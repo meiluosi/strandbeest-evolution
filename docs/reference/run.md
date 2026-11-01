@@ -3,7 +3,7 @@
 
 > Metadata and metrics of one simulation run. Time series live next to it in an arrays file.
 
-- **Fields documented**: 47
+- **Fields documented**: 49
 - **Assumed parameters (`x-assumption: true`)**: 0
 - **Calibratable parameters (`x-calibratable: true`)**: 0
 
@@ -19,6 +19,8 @@
 | `metrics` | map<string, `number` \| `boolean` \| `null`> | *(required)* | `1` | – | – | – |
 | `stalled` | `boolean` | – | – | – | – | – |
 | `arrays_file` | `string` | – | – | – | – | – |
+| `parquet_file` | `string` | – | – | – | – | – |
+| `frames_parquet_file` | `string` | – | – | – | – | – |
 | `provenance` | `object` | *(required)* | – | – | – | – |
 | `provenance.code_version` | `string` | *(required)* | – | – | – | – |
 | `provenance.engine` | `string` | – | – | – | – | – |

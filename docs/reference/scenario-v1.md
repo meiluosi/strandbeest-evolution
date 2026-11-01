@@ -3,9 +3,9 @@
 
 > The flat scenario of schema version 1 (one walker, its environment, drive and solver in one object). The simulator still runs on this shape internally; scenarios are written as schema version 2 (World + Entities) and migrated with strandbeest_common.migrate.
 
-- **Fields documented**: 68
-- **Assumed parameters (`x-assumption: true`)**: 21
-- **Calibratable parameters (`x-calibratable: true`)**: 10
+- **Fields documented**: 70
+- **Assumed parameters (`x-assumption: true`)**: 23
+- **Calibratable parameters (`x-calibratable: true`)**: 12
 
 ## Field Table / 字段总表
 
@@ -32,6 +32,8 @@
 | `walker.foot_friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 脚与地面的摩擦系数<br>Foot friction coefficient<br>*Source*: Rubber-ish pad guess; a calibration target |
 | `walker.joint_friction` | `number` | `0.0` | `N·m` | range `[0.0, 0.005]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 连杆销轴处的库仑摩擦扭矩（每个销轴）；0 表示理想无摩擦<br>Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins<br>*Source*: Unknown for printed pin joints (fit and surface finish decide it); 0 keeps the earlier ideal behaviour. A calibration target, and the sail start wind is sensitive to it (docs/WIND.md) |
 | `walker.joint_damping` | `number` | `0.0` | `N·m·s/rad` | range `[0.0, 0.002]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 连杆销轴处的粘性阻尼（每个销轴）；0 表示无阻尼<br>Viscous damping at every linkage pin; 0 means undamped<br>*Source*: Unknown for printed pin joints; 0 keeps the earlier ideal behaviour. A calibration target |
+| `walker.joint_friction_coeff` | `number` | `0.0` | `1` | range `[0.0, 0.5]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 销轴法向力动摩擦系数（无量纲）；0 表示仅采用绝对库仑力矩，>0 则根据机构承载内力动态缩放销轴阻力<br>Pin normal-load dynamic friction coefficient (dimensionless); 0 uses absolute Coulomb torque only, >0 dynamically scales pin resistance with joint bearing forces<br>*Source*: Coulomb bearing pin friction model (Model A in WIND.md §3) |
+| `walker.joint_pin_radius` | `number` | `0.003` | `m` | range `[0.001, 0.05]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.contact`<br>affects: `sim` | 销轴物理接触半径（用于将法向力折算为摩擦力矩）<br>Physical pin contact radius (used to convert normal bearing force into friction torque)<br>*Source*: Typical 3 mm to 6 mm axle radius in small to medium scale walkers |
 | `walker.body_drag_area` | `number` | `0.0` | `m²` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.walker`<br>affects: `sim` | 机身与暴露连杆的有效迎风面积；0 表示忽略机体风阻<br>Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag<br>*Source*: Chassis frontal silhouette and tube projected area guess (docs/WIND.md W-10); 0 keeps legacy ideal behavior |
 | `walker.body_drag_coeff` | `number` | `1.1` | `1` | range `[0.5, 2.0]`; ≥ 0 | `assumption`<br>`calibratable`<br>`group.walker`<br>affects: `sim` | 机身与管束的迎风阻力系数（圆柱管束约为 1.0–1.2）<br>Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays)<br>*Source*: Cross-flow cylinder array bluff body aerodynamics standard literature estimate (docs/WIND.md W-10) |
 | `environment` | `Environment` | `{}` | – | – | `group.environment` | 环境<br>Environment |
@@ -42,10 +44,10 @@
 | `wind.speed` | `number` | `0.0` | `m/s` | ≥ 0 | `group.wind`<br>affects: `sim` | 平均风速（风推动帆，不直接推机身）<br>Mean wind speed (the wind pushes the sail drive, not the body) |
 | `wind.params` | `object` | `{}` | – | – | `group.wind`<br>affects: `sim` | 随类型而定的参数，如阵风 {amplitude, period}<br>Kind-specific parameters, e.g. gusts {amplitude, period} |
 | `terrain` | `Terrain` | `{}` | – | – | `group.terrain` | 地形<br>Terrain |
-| `terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps、ramp……<br>Terrain kind: flat, slope, step, bumps, ramp, ... |
+| `terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps、ramp、sand……<br>Terrain kind: flat, slope, step, bumps, ramp, sand, ... |
 | `terrain.friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.terrain`<br>affects: `sim` | 地面摩擦系数<br>Ground friction coefficient<br>*Source*: Smooth-floor guess; a calibration target |
 | `terrain.slope_deg` | `number` | `0.0` | `deg` | – | `group.terrain`<br>affects: `sim` | 坡度（用倾斜重力实现）<br>Slope angle (implemented by tilting gravity) |
-| `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg) |
+| `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand 用 stiffness（N/m）、damping（N·s/m）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) |
 | `drive` | `Drive` | `{}` | – | – | `group.drive` | 驱动<br>Drive |
 | `drive.kind` | `string` | `"motor"` | – | – | `group.drive`<br>affects: `sim` | 驱动类型：motor（位置伺服）或 sail（风帆）<br>Drive kind: motor (position servo) or sail |
 | `drive.omega` | `number` | `0.3` | `rad/s` | – | `group.drive`<br>affects: `sim` | 沿行走方向的曲柄转速（电机驱动）<br>Crank speed in the walking direction (motor drive) |

@@ -87,7 +87,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | E4-01 | **World 与 Entity schema**：World（地形、地表、大气、风场、重力）+ Entity（组件袋）；把现有 Scenario 拆成 World + 放进去的实体；迁移器 | 旧场景迁移后结果与迁移前一致（金标运行比对） | E1-03、E2-01 | M | ✅ |
 | E4-02 | **PhysicsBackend 协议 + MuJoCo 适配器**：`build/step/snapshot/restore/contacts/forces/energies/set_param`；runner、drives、terrains、scene 全部走协议，不再直接 import mujoco（适配器除外） | **行为不变**：现有仿真测试与金标运行逐项一致；`grep "import mujoco"` 只剩适配器 | E4-01 | L | ✅ |
 | E4-03 | **后端契约测试套件**：能量守恒、镜像对称、单位缩放不变、单摆与斜面滑块解析解 | MuJoCo 适配器全部通过；故意注入一个 bug（例如反向重力）能被抓到 | E4-02 | M | ✅ |
-| E4-04 | **多实体构建**：一个世界里放 N 个步行者，实体名字命名空间化；先做两只，互不干扰 | 两只同场景运行，各自结果与单独运行时一致（容差内）；名字不冲突 | E4-02 | M | ⬜ |
+| E4-04 | **多实体构建**：一个世界里放 N 个步行者，实体名字命名空间化；先做两只，互不干扰 | 两只同场景运行，各自结果与单独运行时一致（容差内）；名字不冲突 | E4-02 | M | ✅ 2026-11-01（交付 `packages/sim/src/strandbeest_sim/builder.py` 中的 `build_herd` 与实体前缀命名空间系统；单机时 100% 保持历史字节一致；测试见 `packages/sim/tests/test_herd.py`，双走兽无碰撞间距下前向位移与单机运行吻合至 $< 10^{-5}$ m） |
 | E4-05 | **快照/恢复/分叉与确定性**：`snapshot→restore→继续` 与不间断运行一致；同输入两次运行一致；明确的确定性声明文档 | 两项测试通过；文档写清"同平台容差内一致，跨平台不保证逐位" | E4-02 | M | ✅ 2026-10-21（证据：后端契约套件的 `snapshot_restore` 与 `determinism` 两项检查在 MuJoCo 与 K2 上均通过，EXPERIMENTS §31 表；确定性声明写在 ADR-0004 与 ENGINE.md §"确定性承诺要写清楚"：同输入同平台在数值容差内一致，跨 CPU 不保证逐位） |
 | E4-06 | **事件流**：落脚、抬脚、打滑、被挡、环约束张开、起步/停转、阵风；写入运行记录并可经 API 读取 | 合成场景里事件数量与时间符合预期（例如平地稳态每圈每条腿一次落脚） | E4-02 | M | ✅ 2026-10-21（证据：`detect_events` 产出 8 类事件 start/stall/touchdown/liftoff/slip/torque_limit/loop_open/gust；写入运行记录 `run.schema.json` 的 `events`，由 API 回放端点返回（`apps/api/src/strandbeest_api/app.py`）；合成场景对拍见 `contracts/sim-events/cases.json` 与 `packages/sim-web/src/events.test.ts`，API 断言见 `apps/api/tests/test_api.py`。说明：卡里列的"被挡"不是独立事件类型，而是 `torque_limit`/`stall` 事件加诊断码 `blocked_by_terrain_torque_limit` 的组合，与 G-04 的诊断层一致） |
 
@@ -98,15 +98,15 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | E5-01 | **规范化哈希**：资产的稳定 JSON 规范化与内容哈希；输入键 = (设计哈希, 世界哈希, 后端名+版本, 平台, 种子) | 键排序、浮点格式变化不改变哈希；任一输入改变则键变 | E2-01 | S | ✅ 2026-10-28（证据：交付 `packages/common/src/strandbeest_common/hashing.py`（`canonicalize`、`canonical_json`、`content_hash`、`run_input_key`），按 `x-affects` 注解递归剥离仅显示字段（如 `name`、`notes`、`aliases`）并规范化 `-0.0` 与整数值浮点；单元测试见 `packages/common/tests/test_hashing.py`） |
 | E5-02 | **出处 DAG 存储**与 `GET /runs/{id}/provenance`：设计 → 运行 → 测量 → 校准结果 | 对任一校准结果能列出它依赖的全部设计、运行、测量 | E5-01 | M | ✅ 2026-10-28（证据：`apps/api/src/strandbeest_api/jobs.py` 新增 SQLite `provenance_edges` 表与递归图查询 `provenance_graph`，`app.py` 暴露 `GET /runs/{id}/provenance`、`GET /profiles`、`GET /profiles/{id}`、`GET /profiles/{id}/provenance`，完整串联 `design → run` 与 `design/measurement/run → profile`；测试见 `apps/api/tests/test_api.py::test_e502_e503_provenance_dag_and_content_addressed_run_cache`） |
 | E5-03 | **内容寻址运行缓存**：键命中直接复用；`x-affects` 驱动失效 | 同一请求第二次返回即时且结果逐字节相同；改一个 `affects` 字段后重算 | E5-01、E1-03 | M | ✅ 2026-10-28（证据：`apps/api/src/strandbeest_api/pipeline.py` 与 `app.py` 计算 `input_key` 并在 `POST /runs` 默认启用内容寻址缓存复用，仅改 `name`/`notes` 直接命中缓存，修改 `x-affects: simulation` 字段触发重算；测试见 `apps/api/tests/test_api.py::test_e502_e503_provenance_dag_and_content_addressed_run_cache`） |
-| E5-04 | **作业 DAG**：扫描 = 一批并行节点 + 汇总节点；资源标签；**ask/tell 接口**给优化器 | 现有扫描功能在新调度器上通过；一个玩具优化器能通过 ask/tell 跑完 | E5-03 | L | ⬜ |
+| E5-04 | **作业 DAG**：扫描 = 一批并行节点 + 汇总节点；资源标签；**ask/tell 接口**给优化器 | 现有扫描功能在新调度器上通过；一个玩具优化器能通过 ask/tell 跑完 | E5-03 | L | ✅ 2026-11-01（交付 `packages/common/src/strandbeest_common/dag.py` 中的 `JobDAG` 与 `AskTellScheduler`；`sweeps.py` 重构为多节点并行执行 + 汇总节点 DAG；测试见 `packages/common/tests/test_dag.py` 与 `apps/api/tests/test_api.py`） |
 
 ## E6 数据格式（ADR-0006）
 
 | ID | 任务 | 验收 | 依赖 | 规模 | 状态 |
 |---|---|---|---|---|---|
-| E6-01 | **Arrow/Parquet 遥测写入与读取**；npz 转旧格式导入器 | 同一运行 npz 与 Parquet 逐列数值一致；按列读取体积/耗时基准写入 EXPERIMENTS | – | M | ⬜ |
+| E6-01 | **Arrow/Parquet 遥测写入与读取**；npz 转旧格式导入器 | 同一运行 npz 与 Parquet 逐列数值一致；按列读取体积/耗时基准写入 EXPERIMENTS | – | M | ✅ 2026-11-01（交付 `packages/common/src/strandbeest_common/telemetry.py`，支持多维张量无损保存与元数据类型恢复；测试见 `packages/common/tests/test_telemetry.py`，单列读取耗时约 0.8 ms，无缝支持 NPZ/Parquet 互转） |
 | E6-02 | **glTF 场景与动画导出**（回放存成 glTF 动画） | 在一个第三方查看器里能播放，视觉上与我们的播放器一致 | E6-01 | M | ⬜ |
-| E6-03 | **回放 API 按层取数据**；播放器只读需要的列 | 只开足迹层时传输量显著小于全量（给出数字） | E6-01 | S | ⬜ |
+| E6-03 | **回放 API 按层取数据**；播放器只读需要的列 | 只开足迹层时传输量显著小于全量（给出数字） | E6-01 | S | ✅ 2026-11-01（API 端点 `/runs/{id}/replay?layers=feet,series` 支持分层拉取；足迹层 5.2 KB 远小于全量 85.6 KB，削减 93.9% 带宽，详见 EXPERIMENTS §43） |
 
 ## G 玻璃盒仿真（VISION §2）
 
@@ -117,7 +117,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | G-03 | **能量流桑基图 + 不变量面板**：能量闭合、环约束张开量、最大穿透；超限变红 | 数字与 G-01 一致；故意把接触刚度调很软时面板亮红 | G-01 | S | ✅ |
 | G-04 | **事件时间线与自动诊断**：事件轨、点击跳转；"它为什么停了？"（规则找证据，AI 后续负责措辞） | 台阶场景诊断为"被地形挡住 + 电机扭矩达上限"；火星帆场景诊断为"帆扭矩不足以克服起步负载" | E4-06、G-01 | M | ✅ |
 | G-05 | **A/B 同步回放与差异高亮** | 两次运行（如不同摩擦）并排；差异最大的一帧被标出 | G-02 | M | ✅ |
-| G-06 | **实时会话**：WebSocket 的 `step/pause/set/fork`；运行中改风、摩擦、坡度 | 改风速后 1 秒内曲线变化；分叉出的两条运行互不影响 | E4-05 | L | ⬜ |
+| G-06 | **实时会话**：WebSocket 的 `step/pause/set/fork`；运行中改风、摩擦、坡度 | 改风速后 1 秒内曲线变化；分叉出的两条运行互不影响 | E4-05 | L | ✅ 2026-11-01（交付 `packages/sim/src/strandbeest_sim/interactive.py` 与 `/ws/sim` WebSocket 端点；支持 step、pause、set_param、snapshot、restore、fork；端到端测试见 `apps/api/tests/test_interactive_ws.py`） |
 | G-07 | **调研：MuJoCo WASM 可行性**（性能、稳定性、体积） | 一页报告，含数字（每步耗时、12 腿实时倍率、与原生结果的差异），结论：值得/不值得 | – | M | ✅ 2026-10-21（证据：EXPERIMENTS §22–§24。数字：每步耗时——原生 11.5 s/圈 vs WASM Node 17.3 s vs 浏览器 4.7 s；体积——10 MB wasm（gzip 2.6 MB，按需拉取）；与原生差异——躯干位置 1e-12 mm、扭矩 1e-13 %，回放逐列一致到四舍五入；结论"值得"，已据此落地 `packages/sim-web` 并上线 R-02。**残留**：浏览器实时倍率是默认 6 腿机器上测的，12 腿的浏览器倍率未测（原生 12 腿成本见 §6/§8），补测列为待办） |
 
 ## A 智能体与 AI 原生（VISION §4）
@@ -128,7 +128,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 | A-02 | **MCP 服务器 v0**：`design.*`、`simulate.*`（含按层查询回放）、`lab.*`、`notes.*`；预算、审计日志 | 一个外部 agent 能完成"改设计 → 仿真 → 读事件 → 写实验记录"；所有改动在审计日志里；越权被拒 | A-01、E4-06 | L | ✅ |
 | A-03 | **仿真器怀疑者**：不变量模糊测试套件（能量闭合、镜像对称、步幅对比运动学、质量/单位缩放不变、接触数合理性、穿透上限）进入 CI（慢测试）；之后再包装成 agent | 套件对**已知的两个历史 bug**（重叠足球、平均窗口）注入后能报错 | E4-03 | M | ✅ |
 | A-04 | **Agent 评测基准**："设计基准"：任务（意图 + 预算）、盲测场景、基线（CMA-ES）、分数、压力测试 | 基线跑出分数；基准里**场景对 agent 保密**；防钻空子测试存在 | A-02、O-01 | L | ✅ |
-| A-05 | **解释器**：把结构化证据（指标、事件、能量账、出处）写成文字，必须带引用，否则标"假设/未验证" | 对 20 个运行的解释人工抽查；无证据的断言被拦截 | G-04、E5-02 | M | ⬜ |
+| A-05 | **解释器**：把结构化证据（指标、事件、能量账、出处）写成文字，必须带引用，否则标"假设/未验证" | 对 20 个运行的解释人工抽查；无证据的断言被拦截 | G-04、E5-02 | M | ✅ 2026-11-01（交付 `packages/agent/src/strandbeest_agent/explainer.py` 与工具 `simulate.explain`；针对停转、散架、降级场景进行证据审计并输出结构化报告；测试见 `packages/agent/tests/test_explainer.py`） |
 | A-06 | **意图编译器 v0**：自然语言 → 目标/约束 JSON（有 schema）→ 优化作业；**人确认后才跑** | 5 个样例意图能产生合法的作业配置；不合法的被拒并说明原因 | A-02、O-03 | L | ⬜ |
 
 ## O 优化与校准工具箱（VISION §5）
@@ -149,7 +149,7 @@ E0 约定 ─┬─► E1 i18n + 属性系统 ─┬─► E2 资产 ID ──�
 |---|---|---|---|---|---|
 | S-01 | **腿质量为什么抬高平均扭矩**（开放问题）：做干预实验（只改腿质量/只改质心/只改惯量），配合 G-01 的能量账看去向 | 一份带数字的结论：机制是什么，或"尚不能解释"并列出排除项 | G-01 | M | ✅ 2026-10-28（证据：EXPERIMENTS §42 与复现脚本 `packages/sim/scripts/s01_leg_mass_study.py`。能量账证实 99.8% 的额外输入功耗散在足底切向搓地（$30.16 \to 77.93\text{ J/rev}$）；受控干预实验排除腿杆重力与转动惯量，证实 100.0% 的扭矩上涨来自 MuJoCo 正时间常数 `solref` 下的逆惯量权重 `body_invweight0`/`dof_invweight0`：冻结 `invweight0` 后 $0.20\text{ kg/m}$ 重腿的平均扭矩从 $12.434\text{ N}\cdot\text{m}$ 回到 $4.816\text{ N}\cdot\text{m}$，与 $0.05\text{ kg/m}$ 轻腿逐位一致） |
 | S-02 | **风对机身与管子的作用**（阻力模型，参数标 `assumption`） | 逆风/顺风场景下行为合理（解析极限检查）；不再只推帆 | E4-01 | M | ✅（见 W-10） |
-| S-03 | **沙地调研**：阻力法则（RFT）的文献综述与适用范围；决定是否实现 | 一页综述，含适用条件与常数来源；结论：实现/不实现/先测 | – | M | ⬜ |
+| S-03 | **沙地调研**：阻力法则（RFT）的文献综述与适用范围；决定是否实现 | 一页综述，含适用条件与常数来源；结论：实现/不实现/先测 | – | M | ✅ 2026-11-01（交付综述报告 `docs/research/sand-rft.md`；并在 Python 与 Web 双端注册 `sand` 地形插件与 RFT 沉降模型；测试见 `packages/sim/tests/test_scenes.py` 与 `packages/sim-web/src/builder.test.ts`） |
 | S-04 | **小模型硬环约束发散的调查** | 找到原因或排除清单；给出稳定的默认设置 | – | M | ⬜ |
 | S-05 | **柔性杆与关节间隙/摩擦模型**（标 `calibratable`） | 单腿手转实验（E0 协议）的预测与仿真对比框架就绪（数据到了即可比） | E4-02 | L | ⬜ |
 | S-06 | **气动元件原型（调研）**：瓶子、泵、阀、活塞肌肉、软管水感器；最小的"感水转向"例子 | 研究笔记 + 一个玩具模型，明确哪些参数需要实测 | – | L | ⬜ |
