@@ -46,6 +46,8 @@ class Body(_Strict):
     foot_friction: float = Field(default=1.5, gt=0, description='Foot friction coefficient')
     joint_friction: float = Field(default=0.0, ge=0, description='Coulomb friction torque at every linkage pin; 0 means ideal frictionless pins')
     joint_damping: float = Field(default=0.0, ge=0, description='Viscous damping at every linkage pin; 0 means undamped')
+    joint_friction_coeff: float = Field(default=0.0, ge=0, description='Pin normal-load dynamic friction coefficient (dimensionless); 0 uses absolute Coulomb torque only, >0 dynamically scales pin resistance with joint bearing forces')
+    joint_pin_radius: float = Field(default=0.003, ge=0, description='Physical pin contact radius (used to convert normal bearing force into friction torque)')
     body_drag_area: float = Field(default=0.0, ge=0, description='Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag')
     body_drag_coeff: float = Field(default=1.1, ge=0, description='Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays)')
 
@@ -67,10 +69,10 @@ class Wind(_Strict):
 class Terrain(_Strict):
     """Terrain"""
 
-    kind: str = Field(default='flat', description='Terrain kind: flat, slope, step, bumps, ramp, ...')
+    kind: str = Field(default='flat', description='Terrain kind: flat, slope, step, bumps, ramp, sand, ...')
     friction: float = Field(default=1.5, gt=0, description='Ground friction coefficient')
     slope_deg: float = Field(default=0.0, description='Slope angle (implemented by tilting gravity)')
-    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg)')
+    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)')
 
 
 class Drive(_Strict):

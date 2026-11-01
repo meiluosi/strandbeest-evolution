@@ -92,8 +92,16 @@ void loop() {
 
   static uint32_t next_us = 0;
   uint32_t now_us = micros();
+  if (next_us == 0) {
+    next_us = now_us;
+  }
   if ((int32_t)(now_us - next_us) < 0) return;
-  next_us = now_us + 1000000UL / SAMPLE_HZ;
+  const uint32_t dt_us = 1000000UL / SAMPLE_HZ;
+  if ((int32_t)(now_us - next_us) > (int32_t)(10 * dt_us)) {
+    next_us = now_us + dt_us;
+  } else {
+    next_us += dt_us;
+  }
 
   noInterrupts();
   int32_t count = g_count;
@@ -111,7 +119,7 @@ void loop() {
   }
 
   rig::Sample s{};
-  s.t_ms = g_running ? millis() - g_t0_ms : millis();
+  s.t_ms = g_running ? (uint32_t)(millis() - g_t0_ms) : 0;
   s.enc = ENC_SIGN * count;
 #ifdef USE_INA219
   s.has_current = true;

@@ -18,6 +18,7 @@ from shapely.geometry import LineString, Point, Polygon, box
 from strandbeest_common import Design
 
 from .checks import run_checks
+from .layout import compensate_kerf, export_cut_plan, export_laser_dxf, export_laser_svg
 from .parts import GAP_MM, LegPlan, axle_plan, plan_leg
 
 SEG = 16  # circle quarter segments
@@ -281,11 +282,13 @@ def export(design: Design, out_dir: Path) -> dict:
             "clearance and pin size from the Design",
             "loads, wear and flex of printed parts are not modelled",
         ],
+        "laser_cut": "laser_cut.svg",
     }
     (out / "parts.json").write_text(json.dumps(manifest, indent=2))
     (out / "printability.json").write_text(json.dumps([c.__dict__ for c in checks], indent=2))
     (out / "BOM.md").write_text(_bom(design, manifest))
     (out / "ASSEMBLY.md").write_text(_assembly(design, manifest, plan, axles))
+    export_laser_svg(design, out_path=out / "laser_cut.svg", kerf_width_mm=m.get("laser_kerf_mm", 0.2))
     with zipfile.ZipFile(out / f"{design.name}-print-pack.zip", "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(out.rglob("*")):
             if f.is_file() and f.suffix != ".zip":
