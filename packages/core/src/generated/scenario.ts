@@ -40,6 +40,10 @@ export interface ScenarioBody {
 	joint_friction?: number;
 	/** Viscous damping at every linkage pin; 0 means undamped (unit: N·m·s/rad; default: 0.0; assumption) */
 	joint_damping?: number;
+	/** Pin normal-load dynamic friction coefficient (dimensionless); 0 uses absolute Coulomb torque only, >0 dynamically scales pin resistance with joint bearing forces (unit: 1; default: 0.0; assumption) */
+	joint_friction_coeff?: number;
+	/** Physical pin contact radius (used to convert normal bearing force into friction torque) (unit: m; default: 0.003; assumption) */
+	joint_pin_radius?: number;
 	/** Effective frontal aerodynamic area of the chassis and exposed linkage; 0 ignores chassis drag (unit: m²; default: 0.0; assumption) */
 	body_drag_area?: number;
 	/** Aerodynamic drag coefficient of the torso and tube bundle (~1.0–1.2 for cylinder arrays) (unit: 1; default: 1.1; assumption) */
@@ -64,13 +68,13 @@ export interface ScenarioWind {
 
 /** Terrain */
 export interface ScenarioTerrain {
-	/** Terrain kind: flat, slope, step, bumps, ramp, ... (default: "flat") */
+	/** Terrain kind: flat, slope, step, bumps, ramp, sand, ... (default: "flat") */
 	kind?: string;
 	/** Ground friction coefficient (unit: 1; default: 1.5; assumption) */
 	friction?: number;
 	/** Slope angle (implemented by tilting gravity) (unit: deg; default: 0.0) */
 	slope_deg?: number;
-	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg) */
+	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) */
 	params?: Record<string, unknown>;
 }
 

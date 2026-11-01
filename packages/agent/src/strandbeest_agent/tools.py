@@ -188,6 +188,14 @@ def simulate_audit(ws: Workspace, s: Session, a: dict) -> Any:
             "checked": ["energy_closure", "loop_closure", "penetration", "stride_vs_kinematics", "support"]}
 
 
+def simulate_explain(ws: Workspace, s: Session, a: dict) -> Any:
+    """Generate an invariant-audited diagnostic report and explanation for a simulation run."""
+    from .explainer import explain_run
+
+    doc = _run_doc(ws, a["run"])
+    return explain_run(doc)
+
+
 # ---- lab ----------------------------------------------------------------------------------------------------------
 def _measurements(ws: Workspace) -> list[dict]:
     d = ws.root / "measurements"
@@ -260,6 +268,7 @@ def default_registry() -> Registry:
           obj({"run": RUN, "layer": {"enum": list(LAYERS), "default": "summary"}, "kinds": {"type": "array", "items": {"type": "string"}}, "limit": {"type": "integer", "minimum": 1},
                "names": {"type": "array", "items": {"type": "string"}}, "max_points": {"type": "integer", "minimum": 10, "maximum": 1000}}, ["run"]), "read", simulate_query),
         t("simulate.audit", "Run the simulator skeptic on a run: energy closure, loop closure, penetration, stride against the kinematic stride, support. Say whether to trust the numbers.", obj({"run": RUN}, ["run"]), "read", simulate_audit),
+        t("simulate.explain", "Generate an invariant-audited diagnostic report and explanation for a simulation run.", obj({"run": RUN}, ["run"]), "read", simulate_explain),
         t("lab.list_measurements", "Measurements in the workspace (data from a real build).", obj({}), "read", lab_list),
         t("lab.compare", "Compare a measurement with a simulation run: crank torque against crank angle, one mismatch number.", obj({"measurement": {"type": "string"}, "run": RUN}, ["measurement", "run"]), "read", lab_compare),
         t("notes.add", "Write a lab note, optionally tied to a design or run.", obj({"text": {"type": "string", "minLength": 1}, "design": REF, "run": RUN, "tags": {"type": "array", "items": {"type": "string"}}}, ["text"]), "write", notes_add),

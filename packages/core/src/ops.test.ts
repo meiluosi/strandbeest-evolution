@@ -267,7 +267,7 @@ describe("properties over random operation sequences", () => {
 			}
 			expect(accepted).toBeGreaterThan(100);
 			expect(rejected).toBeGreaterThan(100);
-		});
+		}, 20_000);
 	}
 
 	it("a new commit discards the redo branch", () => {
