@@ -114,7 +114,7 @@
 - [ ] Publish: enable GitHub Pages (workflow `pages.yml` is manual), npm publish, flip `draft` to false
 
 ## M6 — 系统演进与原生内核（System Evolution & Unified Core）
-- [ ] **M6-01 端到端 Arrow/Feather IPC 流式管道**：API 增加 `/runs/{rid}/telemetry.arrow` 二进制流；前端引入 `apache-arrow` 直接将 `Float32Array` 绑定至 WebGL，废除 JSON 文本与大对象堆分配开销。
+- [x] **M6-01 端到端 Arrow/Feather IPC 流式管道**：API 增加 `/runs/{rid}/telemetry.arrow` 二进制流；前端引入 `apache-arrow` 直接将 `Float32Array` 绑定至 WebGL，废除 JSON 文本与大对象堆分配开销。
 - [ ] **M6-02 Three.js 现代化渲染管线**：连杆、障碍物、流线、足迹全面改用 `InstancedMesh` 归并（全局 Draw Call 压降至 10 次内）；引入帧间 Slerp/Lerp 平滑插值消除高刷屏机械微抖动；渲染循环预分配池化实现零 GC。
 - [ ] **M6-03 统一 Rust 内核原型（ADR-0009 beest-kernel）**：用 Rust 重写平面阿苏尔杆组运动学求解、步态评估与守门校验；编译为 PyO3 轮子与 WebAssembly 字节码，收敛跨语言重复模块。
 

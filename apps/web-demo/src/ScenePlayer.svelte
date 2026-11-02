@@ -13,7 +13,8 @@ import ReplayViewport from "./ReplayViewport.svelte";
 import { largestDifference, type Overlays, type Replay } from "./replay-types";
 import { recordCanvas, saveBlob, videoType } from "./share-export";
 import { STATIC } from "./static";
-import { view } from "./store.svelte";
+import { store, view } from "./store.svelte";
+import { fetchArrowTelemetry } from "./telemetry-arrow";
 
 // shared with the agent tools (contracts/scenes.json)
 const SCENES = scenesFile.scenes as Record<
@@ -147,7 +148,13 @@ async function run() {
 			ensemble: false,
 			overrides: ov,
 		});
-		const next: Replay = await call(`/runs/${doc.id}/replay`);
+		let next: Replay;
+		try {
+			const decoded = await fetchArrowTelemetry(doc.id, undefined, store.api);
+			next = decoded.toReplay();
+		} catch {
+			next = await call(`/runs/${doc.id}/replay`);
+		}
 		if (replay) previous = { replay, label };
 		replay = next;
 		label = `${t(sc.label)}${sc.sail ? ` · ${wind} m/s` : ""}`;

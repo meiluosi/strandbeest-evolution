@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import Body, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
@@ -548,6 +548,22 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             res_payload["energy"] = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar}
 
         return res_payload
+
+    @app.get("/runs/{rid}/telemetry.arrow")
+    def run_telemetry_arrow(rid: str, max_frames: int = 240, layers: str | None = None):
+        """End-to-end Apache Arrow binary IPC stream for high-performance telemetry replay (ADR-0006, M6-01)."""
+        folder = run_dir(rid)
+        has_frames_parquet = (folder / "frames.parquet").exists()
+        has_frames_npz = (folder / "frames.npz").exists()
+        if not (has_frames_parquet or has_frames_npz):
+            raise HTTPException(404, "this run has no recorded frames (sweep points and ensemble variants are not recorded)")
+
+        active_layers = set(layers.split(",")) if layers else None
+        from strandbeest_common.telemetry import build_telemetry_table, serialize_table_to_arrow_stream
+
+        table = build_telemetry_table(folder, max_frames=max_frames, layers=active_layers)
+        body = serialize_table_to_arrow_stream(table)
+        return Response(content=body, media_type="application/vnd.apache.arrow.stream")
 
     # -- exports -------------------------------------------------------------
     @app.post("/exports")

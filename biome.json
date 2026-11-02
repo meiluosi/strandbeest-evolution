@@ -32,6 +32,7 @@
 			"!packages/calib",
 			"!packages/rig",
 			"!hardware",
+			"!target",
 			"!**/pytest-of-*",
 			"!**/.pytest_cache"
 		]
