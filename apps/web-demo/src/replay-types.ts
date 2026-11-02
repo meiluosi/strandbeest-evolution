@@ -81,6 +81,38 @@ export function frameAt(r: Replay, t: number): number {
 	return Math.max(0, Math.min(n - 1, Math.round((t - t0) / dt)));
 }
 
+/** Find surrounding keyframe indices k0, k1 and fractional interpolation alpha in [0, 1] for time `t`. */
+export function findKeyframes(
+	times: number[],
+	t: number,
+): { k0: number; k1: number; alpha: number } {
+	const n = times.length;
+	if (n === 0) return { k0: 0, k1: 0, alpha: 0 };
+	if (n === 1) return { k0: 0, k1: 0, alpha: 0 };
+	const t0 = times[0] as number;
+	if (t <= t0) return { k0: 0, k1: 0, alpha: 0 };
+	const tEnd = times[n - 1] as number;
+	if (t >= tEnd) return { k0: n - 1, k1: n - 1, alpha: 0 };
+
+	let low = 0;
+	let high = n - 1;
+	while (low <= high) {
+		const mid = (low + high) >> 1;
+		if ((times[mid] as number) <= t) {
+			low = mid + 1;
+		} else {
+			high = mid - 1;
+		}
+	}
+	const k0 = Math.max(0, Math.min(n - 2, high));
+	const k1 = k0 + 1;
+	const tk0 = times[k0] as number;
+	const tk1 = times[k1] as number;
+	const dt = tk1 - tk0;
+	const alpha = dt > 1e-6 ? Math.max(0, Math.min(1, (t - tk0) / dt)) : 0;
+	return { k0, k1, alpha };
+}
+
 /** Convex hull (monotone chain) of 2D points, counter-clockwise. */
 export function hull(points: [number, number][]): [number, number][] {
 	const p = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);

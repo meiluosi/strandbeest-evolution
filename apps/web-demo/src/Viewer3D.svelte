@@ -222,11 +222,14 @@ $effect(() => {
 			void pitch;
 		}
 
+		const ptP = { x: 0, y: 0 };
 		function pose(t: number) {
 			const n = manifest.crank_phase_deg.length;
 			const pitch = manifest.layer_pitch_mm;
 			const legPitch = manifest.leg_pitch_mm;
 			const [px, py] = manifest.crank_pivot_mm as [number, number];
+			ptP.x = (px ?? 0) / unitMm;
+			ptP.y = (py ?? 0) / unitMm;
 			let lowest = Number.POSITIVE_INFINITY;
 			const legPoses = manifest.crank_phase_deg.map((deg) =>
 				solvePose(spec, -t + ((deg ?? 0) * Math.PI) / 180),
@@ -234,12 +237,9 @@ $effect(() => {
 			for (const { mesh, bar, leg } of bars) {
 				const p = legPoses[leg];
 				if (!p) continue;
-				const pt = (id: string) =>
-					id === "P"
-						? { x: px / unitMm, y: py / unitMm }
-						: (p[id] as { x: number; y: number });
-				const A = pt(bar.a);
-				const B = pt(bar.b);
+				const A = bar.a === "P" ? ptP : (p[bar.a] as { x: number; y: number });
+				const B = bar.b === "P" ? ptP : (p[bar.b] as { x: number; y: number });
+				if (!A || !B) continue;
 				const ax = A.x * unitMm;
 				const ay = A.y * unitMm;
 				const ang = Math.atan2((B.y - A.y) * unitMm, (B.x - A.x) * unitMm);

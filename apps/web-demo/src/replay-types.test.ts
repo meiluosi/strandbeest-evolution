@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	findKeyframes,
 	frameAt,
 	hull,
 	insidePolygon,
@@ -49,6 +50,21 @@ describe("replay helpers", () => {
 		expect(frameAt(r, 0.16)).toBe(2);
 		expect(frameAt(r, -1)).toBe(0);
 		expect(frameAt(r, 9)).toBe(3);
+	});
+	it("findKeyframes interpolates fractional alpha and finds surrounding frames", () => {
+		const times = [0, 0.1, 0.2, 0.3];
+		expect(findKeyframes(times, -0.5)).toEqual({ k0: 0, k1: 0, alpha: 0 });
+		expect(findKeyframes(times, 0)).toEqual({ k0: 0, k1: 0, alpha: 0 });
+		const mid = findKeyframes(times, 0.15);
+		expect(mid.k0).toBe(1);
+		expect(mid.k1).toBe(2);
+		expect(mid.alpha).toBeCloseTo(0.5, 6);
+		const quarter = findKeyframes(times, 0.225);
+		expect(quarter.k0).toBe(2);
+		expect(quarter.k1).toBe(3);
+		expect(quarter.alpha).toBeCloseTo(0.25, 6);
+		expect(findKeyframes(times, 0.3)).toEqual({ k0: 3, k1: 3, alpha: 0 });
+		expect(findKeyframes(times, 1.0)).toEqual({ k0: 3, k1: 3, alpha: 0 });
 	});
 	it("largestDifference finds the instant where two runs part ways", () => {
 		const t = Array.from({ length: 101 }, (_, i) => i / 10);

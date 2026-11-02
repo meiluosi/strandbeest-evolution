@@ -2,7 +2,7 @@
 import type * as T from "three";
 import { t } from "./i18n/index.svelte";
 import {
-	frameAt,
+	findKeyframes,
 	hull,
 	insidePolygon,
 	type Overlays,
@@ -88,6 +88,9 @@ $effect(() => {
 		const { OrbitControls } = await import(
 			"three/examples/jsm/controls/OrbitControls.js"
 		);
+		const { mergeGeometries } = await import(
+			"three/examples/jsm/utils/BufferGeometryUtils.js"
+		);
 		if (disposed) return;
 		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -127,18 +130,51 @@ $effect(() => {
 			new THREE.Vector3(1, 0, 0),
 			-Math.PI / 2,
 		);
-		const mapV = (v: T.Vector3) => new THREE.Vector3(v.x, v.z, -v.y);
-		const mapA = (a: number[]) =>
-			new THREE.Vector3(a[0] as number, a[2] as number, -(a[1] as number));
 		const world = new THREE.Group();
 		scn.add(world);
+
+		// Pre-allocated scratch object pool for zero allocation in the animation loop
+		const _vBody0 = new THREE.Vector3();
+		const _vBody1 = new THREE.Vector3();
+		const _qBody0 = new THREE.Quaternion();
+		const _qBody1 = new THREE.Quaternion();
+
+		const _vLocalA = new THREE.Vector3();
+		const _vLocalB = new THREE.Vector3();
+		const _vWorldA = new THREE.Vector3();
+		const _vWorldB = new THREE.Vector3();
+		const _vThreeA = new THREE.Vector3();
+		const _vThreeB = new THREE.Vector3();
+		const _vMid = new THREE.Vector3();
+		const _vDir = new THREE.Vector3();
+		const _vScale = new THREE.Vector3();
+		const _vUp = new THREE.Vector3(0, 1, 0);
+
+		const _vWorldPos = new THREE.Vector3();
+		const _vThreePos = new THREE.Vector3();
+
+		const _qIdentity = new THREE.Quaternion(0, 0, 0, 1);
+		const _qRot = new THREE.Quaternion();
+		const _qGeom = new THREE.Quaternion();
+		const _qBox = new THREE.Quaternion();
+
+		const _mat = new THREE.Matrix4();
+		const _colFootActive = new THREE.Color();
+
+		const _vTarget = new THREE.Vector3();
+		const _vDelta = new THREE.Vector3();
+		const _vForceDir = new THREE.Vector3();
+		const _vFootPos = new THREE.Vector3();
+		const _comInterp = new THREE.Vector3();
+
 		let dyn: {
-			update: (f: number, nowSec: number) => void;
+			update: (timeSec: number, nowSec: number) => void;
+			getTorsoTarget: (out: T.Vector3) => void;
 			torso: number;
 		} | null = null;
 
 		applyCameraPreset = (v: "iso" | "side" | "top") => {
-			const tPos = controls.target.clone();
+			const tPos = controls.target;
 			if (v === "side") {
 				camera.position.set(tPos.x, tPos.y + 0.04, tPos.z + 0.68);
 			} else if (v === "top") {
@@ -152,7 +188,7 @@ $effect(() => {
 		function build() {
 			world.clear();
 			const R = live.replay;
-			if (!R) {
+			if (!R || !R.scene || !R.t || R.t.length === 0) {
 				dyn = null;
 				return;
 			}
@@ -160,7 +196,7 @@ $effect(() => {
 			const usePvc = live.overlays.pvc ?? true;
 			world.rotation.z = (S.slope_deg * Math.PI) / 180;
 
-			// Beach / planetary ground plane with shadow reception
+			// Beach / planetary ground plane with shadow reception (1 draw call)
 			const beachPlane = new THREE.Mesh(
 				new THREE.PlaneGeometry(8, 4),
 				new THREE.MeshStandardMaterial({
@@ -174,6 +210,7 @@ $effect(() => {
 			beachPlane.receiveShadow = true;
 			world.add(beachPlane);
 
+			// Ground grid (1 draw call)
 			const grid = new THREE.GridHelper(
 				6,
 				120,
@@ -183,36 +220,66 @@ $effect(() => {
 			grid.position.y = 0.0001;
 			world.add(grid);
 
+			// Static obstacles: merge all obstacle box geometries into a single mesh (1 draw call)
 			const groundMat = new THREE.MeshStandardMaterial({
 				color: dark ? 0x2e323d : 0xdccbb1,
 				roughness: 0.9,
 			});
-			for (const o of S.obstacles) {
-				const m = new THREE.Mesh(
-					new THREE.BoxGeometry(
+			if (S.obstacles && S.obstacles.length > 0) {
+				const obsGeoms: T.BufferGeometry[] = [];
+				for (const o of S.obstacles) {
+					const bg = new THREE.BoxGeometry(
 						2 * (o.size[0] as number),
 						2 * (o.size[2] as number),
 						2 * Math.min(o.size[1] as number, 0.6),
-					),
-					groundMat,
-				);
-				m.position.set(o.pos[0] as number, o.pos[2] as number, 0);
-				m.castShadow = true;
-				m.receiveShadow = true;
-				world.add(m);
+					);
+					bg.translate(o.pos[0] as number, o.pos[2] as number, 0);
+					obsGeoms.push(bg);
+				}
+				const merged = mergeGeometries(obsGeoms, false);
+				for (const g of obsGeoms) g.dispose();
+				if (merged) {
+					const obsMesh = new THREE.Mesh(merged, groundMat);
+					obsMesh.castShadow = true;
+					obsMesh.receiveShadow = true;
+					world.add(obsMesh);
+				}
 			}
-			const parts: {
+
+			// Pre-allocate interpolated body pose array
+			const numBodies = S.bodies.length;
+			const bodyPositions = Array.from(
+				{ length: numBodies },
+				() => new THREE.Vector3(),
+			);
+			const bodyQuaternions = Array.from(
+				{ length: numBodies },
+				() => new THREE.Quaternion(),
+			);
+
+			// Categorize scene geoms: capsules (bars) vs spheres (feet) vs boxes (torso/sail)
+			type GeomItem = {
+				geom: Scene["geoms"][number];
+				contactIdx: number;
+				baseColor: T.Color;
+			};
+			const barItems: GeomItem[] = [];
+			const sphereItems: GeomItem[] = [];
+			const boxItems: {
 				geom: Scene["geoms"][number];
 				mesh: T.Mesh;
 				contactIdx: number;
 			}[] = [];
+
 			let fi = 0;
 			for (const g of S.geoms) {
+				const isFoot = !!g.foot;
+				const cIdx = isFoot ? fi++ : -1;
 				const isSailBox = g.type === "box";
 				const baseColor = usePvc
 					? isSailBox
 						? new THREE.Color(0xf7f2e4)
-						: g.foot
+						: isFoot
 							? new THREE.Color(0xd9622b)
 							: new THREE.Color(g.body === 1 ? PVC_TORSO_COLOR : PVC_COLOR)
 					: new THREE.Color(
@@ -220,31 +287,20 @@ $effect(() => {
 							g.rgba[1] ?? 0.5,
 							g.rgba[2] ?? 0.5,
 						);
-				const mat = new THREE.MeshStandardMaterial({
-					color: baseColor,
-					roughness: usePvc ? 0.36 : 0.55,
-					metalness: usePvc ? 0.08 : 0.02,
-					transparent: isSailBox,
-					opacity: isSailBox ? 0.72 : 1,
-				});
-				let mesh: T.Mesh;
-				if (g.type === "capsule")
-					mesh = new THREE.Mesh(
-						new THREE.CylinderGeometry(
-							g.radius as number,
-							g.radius as number,
-							1,
-							12,
-						),
-						mat,
-					);
-				else if (g.type === "sphere")
-					mesh = new THREE.Mesh(
-						new THREE.SphereGeometry(g.radius as number, 16, 12),
-						mat,
-					);
-				else {
-					mesh = new THREE.Mesh(
+
+				if (g.type === "capsule") {
+					barItems.push({ geom: g, contactIdx: cIdx, baseColor });
+				} else if (g.type === "sphere") {
+					sphereItems.push({ geom: g, contactIdx: cIdx, baseColor });
+				} else {
+					const mat = new THREE.MeshStandardMaterial({
+						color: baseColor,
+						roughness: usePvc ? 0.36 : 0.55,
+						metalness: usePvc ? 0.08 : 0.02,
+						transparent: isSailBox,
+						opacity: isSailBox ? 0.72 : 1,
+					});
+					const mesh = new THREE.Mesh(
 						new THREE.BoxGeometry(
 							2 * (g.size as number[])[0]!,
 							2 * (g.size as number[])[1]!,
@@ -252,7 +308,6 @@ $effect(() => {
 						),
 						mat,
 					);
-					// Add a subtle sail frame border to box geoms
 					const edges = new THREE.LineSegments(
 						new THREE.EdgesGeometry(mesh.geometry),
 						new THREE.LineBasicMaterial({
@@ -260,14 +315,60 @@ $effect(() => {
 						}),
 					);
 					mesh.add(edges);
+					mesh.castShadow = true;
+					mesh.receiveShadow = !isSailBox;
+					world.add(mesh);
+					boxItems.push({ geom: g, mesh, contactIdx: cIdx });
 				}
-				mesh.castShadow = true;
-				mesh.receiveShadow = !isSailBox;
-				world.add(mesh);
-				parts.push({ geom: g, mesh, contactIdx: g.foot ? fi++ : -1 });
 			}
 
-			// overlays: one arrow per foot, a centre-of-mass marker and the support polygon
+			// 1. InstancedMesh for Linkage Bars (Capsules -> consolidated into 1 InstancedMesh)
+			let barInstMesh: T.InstancedMesh | null = null;
+			if (barItems.length > 0) {
+				const unitCylinderGeo = new THREE.CylinderGeometry(1, 1, 1, 12);
+				const barMat = new THREE.MeshStandardMaterial({
+					roughness: usePvc ? 0.36 : 0.55,
+					metalness: usePvc ? 0.08 : 0.02,
+				});
+				barInstMesh = new THREE.InstancedMesh(
+					unitCylinderGeo,
+					barMat,
+					barItems.length,
+				);
+				barInstMesh.castShadow = true;
+				barInstMesh.receiveShadow = true;
+				for (let i = 0; i < barItems.length; i++) {
+					barInstMesh.setColorAt(i, barItems[i]!.baseColor);
+				}
+				if (barInstMesh.instanceColor)
+					barInstMesh.instanceColor.needsUpdate = true;
+				world.add(barInstMesh);
+			}
+
+			// 2. InstancedMesh for Feet (Spheres -> consolidated into 1 InstancedMesh)
+			let sphereInstMesh: T.InstancedMesh | null = null;
+			if (sphereItems.length > 0) {
+				const unitSphereGeo = new THREE.SphereGeometry(1, 16, 12);
+				const sphereMat = new THREE.MeshStandardMaterial({
+					roughness: usePvc ? 0.36 : 0.55,
+					metalness: usePvc ? 0.08 : 0.02,
+				});
+				sphereInstMesh = new THREE.InstancedMesh(
+					unitSphereGeo,
+					sphereMat,
+					sphereItems.length,
+				);
+				sphereInstMesh.castShadow = true;
+				sphereInstMesh.receiveShadow = true;
+				for (let i = 0; i < sphereItems.length; i++) {
+					sphereInstMesh.setColorAt(i, sphereItems[i]!.baseColor);
+				}
+				if (sphereInstMesh.instanceColor)
+					sphereInstMesh.instanceColor.needsUpdate = true;
+				world.add(sphereInstMesh);
+			}
+
+			// Overlays: arrows, comMarker, comDrop, polyLine
 			const nFeet = fi;
 			const arrows = Array.from({ length: nFeet }, () => {
 				const a = new THREE.ArrowHelper(
@@ -282,16 +383,33 @@ $effect(() => {
 				world.add(a);
 				return a;
 			});
+
 			const comMarker = new THREE.Mesh(
 				new THREE.SphereGeometry(0.008, 12, 8),
 				new THREE.MeshBasicMaterial({ color: 0x2255cc }),
 			);
+
+			// Pre-allocated Float32Array for comDrop line (2 vertices, 6 floats)
+			const comDropPositions = new Float32Array(6);
+			const comDropGeo = new THREE.BufferGeometry();
+			comDropGeo.setAttribute(
+				"position",
+				new THREE.BufferAttribute(comDropPositions, 3),
+			);
 			const comDrop = new THREE.Line(
-				new THREE.BufferGeometry(),
+				comDropGeo,
 				new THREE.LineBasicMaterial({ color: 0x2255cc }),
 			);
+
+			// Pre-allocated Float32Array for support polygon (up to 32 vertices, 96 floats)
+			const polyPositions = new Float32Array(32 * 3);
+			const polyGeo = new THREE.BufferGeometry();
+			polyGeo.setAttribute(
+				"position",
+				new THREE.BufferAttribute(polyPositions, 3),
+			);
 			const polyLine = new THREE.LineLoop(
-				new THREE.BufferGeometry(),
+				polyGeo,
 				new THREE.LineBasicMaterial({ color: 0x2e8b57 }),
 			);
 			for (const o of [comMarker, comDrop, polyLine]) {
@@ -299,41 +417,27 @@ $effect(() => {
 				world.add(o);
 			}
 
-			// 3D Wind Streamlines (animated ribbons flowing past the walker)
-			const windGroup = new THREE.Group();
-			const windLines = STREAMLINES.map(() => {
-				const geom = new THREE.BufferGeometry().setFromPoints([
-					new THREE.Vector3(),
-					new THREE.Vector3(0.08, 0, 0),
-				]);
-				const line = new THREE.Line(
-					geom,
-					new THREE.LineBasicMaterial({
-						color: dark ? 0x7cb3ff : 0x2f6fd1,
-						transparent: true,
-						opacity: 0.45,
-					}),
-				);
-				windGroup.add(line);
-				return line;
+			// Wind streamlines: consolidated into a SINGLE THREE.LineSegments (1 draw call)
+			const numStreamlines = STREAMLINES.length;
+			const windPositions = new Float32Array(numStreamlines * 2 * 3);
+			const windGeo = new THREE.BufferGeometry();
+			const windPosAttr = new THREE.BufferAttribute(windPositions, 3);
+			windGeo.setAttribute("position", windPosAttr);
+			const windMat = new THREE.LineBasicMaterial({
+				color: dark ? 0x7cb3ff : 0x2f6fd1,
+				transparent: true,
+				opacity: 0.45,
 			});
-			world.add(windGroup);
+			const windSegments = new THREE.LineSegments(windGeo, windMat);
+			world.add(windSegments);
 
-			// Footprint ground contact marks (sampled along the replay up to current frame)
-			const trailGroup = new THREE.Group();
-			const footprintGeo = new THREE.CircleGeometry(0.0055, 10);
-			footprintGeo.rotateX(-Math.PI / 2);
-			const matStanceMark = new THREE.MeshBasicMaterial({
-				color: 0x2e8b57,
-				transparent: true,
-				opacity: 0.35,
-			});
-			const matSlipMark = new THREE.MeshBasicMaterial({
-				color: 0xd62828,
-				transparent: true,
-				opacity: 0.55,
-			});
-			const footMarks: { frame: number; mesh: T.Mesh }[] = [];
+			// Footprint ground contact marks: consolidated into a SINGLE THREE.InstancedMesh (1 draw call)
+			type FootprintEntry = {
+				frame: number;
+				pos: [number, number, number];
+				isSlip: boolean;
+			};
+			const footprintMarks: FootprintEntry[] = [];
 			if (R.foot_pos && R.contact) {
 				const step = Math.max(1, Math.floor(R.t.length / 90));
 				for (let fIdx = 0; fIdx < R.t.length; fIdx += step) {
@@ -345,101 +449,195 @@ $effect(() => {
 						const fp = fps[k];
 						if (!fp) continue;
 						const slip = (R.foot_slip?.[fIdx]?.[k] as number | undefined) ?? 0;
-						const mark = new THREE.Mesh(
-							footprintGeo,
-							slip > SLIP_SPEED ? matSlipMark : matStanceMark,
-						);
-						mark.position.set(fp[0] as number, 0.0006, -(fp[1] as number));
-						mark.visible = false;
-						trailGroup.add(mark);
-						footMarks.push({ frame: fIdx, mesh: mark });
+						footprintMarks.push({
+							frame: fIdx,
+							pos: [fp[0] as number, 0.0006, -(fp[1] as number)],
+							isSlip: slip > SLIP_SPEED,
+						});
 					}
 				}
 			}
-			world.add(trailGroup);
+
+			let footprintInstancedMesh: T.InstancedMesh | null = null;
+			if (footprintMarks.length > 0) {
+				const footprintGeo = new THREE.CircleGeometry(0.0055, 10);
+				footprintGeo.rotateX(-Math.PI / 2);
+				const footprintMat = new THREE.MeshBasicMaterial({
+					transparent: true,
+					opacity: 0.45,
+				});
+				footprintInstancedMesh = new THREE.InstancedMesh(
+					footprintGeo,
+					footprintMat,
+					footprintMarks.length,
+				);
+				footprintInstancedMesh.count = 0;
+				const colStance = new THREE.Color(0x2e8b57);
+				const colSlip = new THREE.Color(0xd62828);
+				for (let i = 0; i < footprintMarks.length; i++) {
+					const m = footprintMarks[i]!;
+					_mat.makeTranslation(m.pos[0], m.pos[1], m.pos[2]);
+					footprintInstancedMesh.setMatrixAt(i, _mat);
+					footprintInstancedMesh.setColorAt(i, m.isSlip ? colSlip : colStance);
+				}
+				footprintInstancedMesh.instanceMatrix.needsUpdate = true;
+				if (footprintInstancedMesh.instanceColor)
+					footprintInstancedMesh.instanceColor.needsUpdate = true;
+				world.add(footprintInstancedMesh);
+			}
 
 			const torso = S.bodies.indexOf("torso");
-			const tmp = new THREE.Vector3();
-			const tmp2 = new THREE.Vector3();
 			const footColor = (R2: Replay, f: number, k: number) => {
-				const down = (R2.contact[f] as number[])[k];
+				const down = (R2.contact[f] as number[] | undefined)?.[k];
 				const slipping =
 					live.overlays.slip &&
 					down &&
 					((R2.foot_slip?.[f]?.[k] as number | undefined) ?? 0) > SLIP_SPEED;
 				return slipping ? 0xd62828 : down ? 0x2e8b57 : 0xd9622b;
 			};
+
 			dyn = {
 				torso,
-				update(f: number, nowSec: number) {
-					const P = R.pos[f] as number[][];
-					const Q = R.quat[f] as number[][];
-					for (const { geom: g, mesh, contactIdx } of parts) {
-						const p = P[g.body] as number[];
-						const q = Q[g.body] as number[];
-						const qb = new THREE.Quaternion(q[1], q[2], q[3], q[0]);
-						const pb = new THREE.Vector3(p[0], p[1], p[2]);
-						if (g.type === "capsule") {
-							const am = mapV(
-								tmp
-									.fromArray(g.a as number[])
-									.applyQuaternion(qb)
-									.add(pb)
-									.clone(),
+				getTorsoTarget(out: T.Vector3) {
+					if (torso >= 0 && bodyPositions[torso]) {
+						const tp = bodyPositions[torso]!;
+						_vWorldPos.set(tp.x, tp.z, -tp.y);
+						world.localToWorld(out.copy(_vWorldPos));
+					}
+				},
+				update(timeSec: number, nowSec: number) {
+					const { k0, k1, alpha } = findKeyframes(R.t, timeSec);
+					const nearestFrame = alpha < 0.5 ? k0 : k1;
+
+					// Fractional sub-frame body interpolation: position lerp and orientation slerp
+					const P0 = R.pos[k0];
+					const P1 = R.pos[k1];
+					const Q0 = R.quat[k0];
+					const Q1 = R.quat[k1];
+					for (let b = 0; b < numBodies; b++) {
+						const p0 = P0?.[b];
+						const p1 = P1?.[b];
+						const q0 = Q0?.[b];
+						const q1 = Q1?.[b];
+						if (p0 && p1 && q0 && q1) {
+							_vBody0.set(p0[0] as number, p0[1] as number, p0[2] as number);
+							_vBody1.set(p1[0] as number, p1[1] as number, p1[2] as number);
+							bodyPositions[b]!.lerpVectors(_vBody0, _vBody1, alpha);
+
+							_qBody0.set(
+								q0[1] as number,
+								q0[2] as number,
+								q0[3] as number,
+								q0[0] as number,
 							);
-							const bm = mapV(
-								tmp2
-									.fromArray(g.b as number[])
-									.applyQuaternion(qb)
-									.add(pb)
-									.clone(),
+							_qBody1.set(
+								q1[1] as number,
+								q1[2] as number,
+								q1[3] as number,
+								q1[0] as number,
 							);
-							const dir = bm.clone().sub(am);
-							const len = dir.length();
-							mesh.position.copy(am.clone().add(bm).multiplyScalar(0.5));
-							mesh.scale.set(1, len, 1);
-							mesh.quaternion.setFromUnitVectors(
-								new THREE.Vector3(0, 1, 0),
-								dir.normalize(),
-							);
-						} else if (g.type === "sphere") {
-							mesh.position.copy(
-								mapV(
-									tmp
-										.fromArray(g.pos as number[])
-										.applyQuaternion(qb)
-										.add(pb)
-										.clone(),
-								),
-							);
-							if (g.foot)
-								(mesh.material as T.MeshStandardMaterial).color.set(
-									footColor(R, f, contactIdx),
-								);
-						} else {
-							const gq = new THREE.Quaternion(
-								(g.quat as number[])[1],
-								(g.quat as number[])[2],
-								(g.quat as number[])[3],
-								(g.quat as number[])[0],
-							);
-							mesh.position.copy(
-								mapV(
-									tmp
-										.fromArray(g.pos as number[])
-										.applyQuaternion(qb)
-										.add(pb)
-										.clone(),
-								),
-							);
-							mesh.quaternion.copy(
-								qMap.clone().multiply(qb.clone().multiply(gq)),
-							);
+							bodyQuaternions[b]!.copy(_qBody0).slerp(_qBody1, alpha);
 						}
 					}
+
+					// Update InstancedMesh for Linkage Bars
+					if (barInstMesh) {
+						let barColorUpdated = false;
+						for (let i = 0; i < barItems.length; i++) {
+							const { geom: g, contactIdx } = barItems[i]!;
+							const pb = bodyPositions[g.body]!;
+							const qb = bodyQuaternions[g.body]!;
+
+							const ga = g.a as number[];
+							const gb = g.b as number[];
+							_vLocalA.set(ga[0] as number, ga[1] as number, ga[2] as number);
+							_vLocalB.set(gb[0] as number, gb[1] as number, gb[2] as number);
+
+							_vWorldA.copy(_vLocalA).applyQuaternion(qb).add(pb);
+							_vThreeA.set(_vWorldA.x, _vWorldA.z, -_vWorldA.y);
+
+							_vWorldB.copy(_vLocalB).applyQuaternion(qb).add(pb);
+							_vThreeB.set(_vWorldB.x, _vWorldB.z, -_vWorldB.y);
+
+							_vMid.addVectors(_vThreeA, _vThreeB).multiplyScalar(0.5);
+							_vDir.subVectors(_vThreeB, _vThreeA);
+							const len = _vDir.length();
+							if (len > 1e-6) {
+								_vDir.multiplyScalar(1 / len);
+							} else {
+								_vDir.set(0, 1, 0);
+							}
+							_qRot.setFromUnitVectors(_vUp, _vDir);
+							const r = g.radius ?? 0.005;
+							_vScale.set(r, len, r);
+							_mat.compose(_vMid, _qRot, _vScale);
+							barInstMesh.setMatrixAt(i, _mat);
+
+							if (g.foot && contactIdx >= 0) {
+								_colFootActive.set(footColor(R, nearestFrame, contactIdx));
+								barInstMesh.setColorAt(i, _colFootActive);
+								barColorUpdated = true;
+							}
+						}
+						barInstMesh.instanceMatrix.needsUpdate = true;
+						if (barColorUpdated && barInstMesh.instanceColor) {
+							barInstMesh.instanceColor.needsUpdate = true;
+						}
+					}
+
+					// Update InstancedMesh for Feet Spheres
+					if (sphereInstMesh) {
+						let sphereColorUpdated = false;
+						for (let i = 0; i < sphereItems.length; i++) {
+							const { geom: g, contactIdx } = sphereItems[i]!;
+							const pb = bodyPositions[g.body]!;
+							const qb = bodyQuaternions[g.body]!;
+							const gp = g.pos as number[];
+							_vLocalA.set(gp[0] as number, gp[1] as number, gp[2] as number);
+							_vWorldA.copy(_vLocalA).applyQuaternion(qb).add(pb);
+							_vThreePos.set(_vWorldA.x, _vWorldA.z, -_vWorldA.y);
+
+							const r = g.radius ?? 0.002;
+							_vScale.set(r, r, r);
+							_mat.compose(_vThreePos, _qIdentity, _vScale);
+							sphereInstMesh.setMatrixAt(i, _mat);
+
+							if (g.foot && contactIdx >= 0) {
+								_colFootActive.set(footColor(R, nearestFrame, contactIdx));
+								sphereInstMesh.setColorAt(i, _colFootActive);
+								sphereColorUpdated = true;
+							}
+						}
+						sphereInstMesh.instanceMatrix.needsUpdate = true;
+						if (sphereColorUpdated && sphereInstMesh.instanceColor) {
+							sphereInstMesh.instanceColor.needsUpdate = true;
+						}
+					}
+
+					// Update minimal box meshes (torso box, sails)
+					for (const { geom: g, mesh } of boxItems) {
+						const pb = bodyPositions[g.body]!;
+						const qb = bodyQuaternions[g.body]!;
+						const gp = g.pos as number[];
+						_vLocalA.set(gp[0] as number, gp[1] as number, gp[2] as number);
+						_vWorldA.copy(_vLocalA).applyQuaternion(qb).add(pb);
+						mesh.position.set(_vWorldA.x, _vWorldA.z, -_vWorldA.y);
+
+						const gq = g.quat as number[];
+						_qGeom.set(
+							gq[1] as number,
+							gq[2] as number,
+							gq[3] as number,
+							gq[0] as number,
+						);
+						_qBox.copy(qb).multiply(_qGeom);
+						mesh.quaternion.copy(qMap).multiply(_qBox);
+					}
+
+					// Overlays: foot force arrows
 					const ov = live.overlays;
-					const ff = R.foot_force?.[f];
-					const fp = R.foot_pos?.[f];
+					const ff = R.foot_force?.[nearestFrame];
+					const fp = R.foot_pos?.[nearestFrame];
 					arrows.forEach((a, k) => {
 						const force = ff?.[k];
 						const pos = fp?.[k];
@@ -452,21 +650,50 @@ $effect(() => {
 							: 0;
 						a.visible = ov.forces && !!force && !!pos && mag > 0.02;
 						if (!a.visible || !force || !pos) return;
-						const dir = mapA(force).normalize();
+
+						_vForceDir
+							.set(
+								force[0] as number,
+								force[2] as number,
+								-(force[1] as number),
+							)
+							.normalize();
 						const len = Math.min(MAX_ARROW, mag * SCALE_PER_N);
-						a.position.copy(mapA(pos).sub(dir.clone().multiplyScalar(0)));
-						a.setDirection(dir);
+						_vFootPos.set(
+							pos[0] as number,
+							pos[2] as number,
+							-(pos[1] as number),
+						);
+						a.position.copy(_vFootPos);
+						a.setDirection(_vForceDir);
 						a.setLength(
 							len,
 							Math.min(0.03, len * 0.4),
 							Math.min(0.015, len * 0.25),
 						);
 					});
-					const com = R.com?.[f];
-					const show = ov.com && !!com && !!fp;
+
+					// Overlays: Centre of mass & support polygon
+					const com0 = R.com?.[k0];
+					const com1 = R.com?.[k1];
+					const show = ov.com && !!com0 && !!com1 && !!fp;
 					comMarker.visible = comDrop.visible = polyLine.visible = show;
-					if (show && com && fp) {
-						const down = (R.contact[f] as number[])
+					if (show && com0 && com1 && fp) {
+						const cx0 = com0[0] as number;
+						const cy0 = com0[1] as number;
+						const cz0 = com0[2] as number;
+						const cx1 = com1[0] as number;
+						const cy1 = com1[1] as number;
+						const cz1 = com1[2] as number;
+
+						const cx = cx0 * (1 - alpha) + cx1 * alpha;
+						const cy = cy0 * (1 - alpha) + cy1 * alpha;
+						const cz = cz0 * (1 - alpha) + cz1 * alpha;
+
+						_comInterp.set(cx, cz, -cy);
+						comMarker.position.copy(_comInterp);
+
+						const down = ((R.contact[nearestFrame] as number[]) ?? [])
 							.map((c, k) => (c ? k : -1))
 							.filter((k) => k >= 0);
 						const pts = hull(
@@ -478,55 +705,74 @@ $effect(() => {
 									] as [number, number],
 							),
 						);
-						const stable =
-							pts.length >= 3 &&
-							insidePolygon([com[0] as number, com[1] as number], pts);
+						const stable = pts.length >= 3 && insidePolygon([cx, cy], pts);
 						const col = stable ? 0x2e8b57 : 0xd62828;
 						(polyLine.material as T.LineBasicMaterial).color.set(col);
 						(comMarker.material as T.MeshBasicMaterial).color.set(col);
 						(comDrop.material as T.LineBasicMaterial).color.set(col);
 						const ground = 0.0005;
-						polyLine.geometry.setFromPoints(
-							pts.map(([x, y]) => new THREE.Vector3(x, ground, -y)),
-						);
-						comMarker.position.copy(mapA(com));
-						comDrop.geometry.setFromPoints([
-							mapA(com),
-							new THREE.Vector3(com[0], ground, -(com[1] as number)),
-						]);
+
+						comDropPositions[0] = cx;
+						comDropPositions[1] = cz;
+						comDropPositions[2] = -cy;
+						comDropPositions[3] = cx;
+						comDropPositions[4] = ground;
+						comDropPositions[5] = -cy;
+						comDropGeo.attributes.position!.needsUpdate = true;
+
+						for (let i = 0; i < pts.length; i++) {
+							const pt = pts[i]!;
+							polyPositions[i * 3] = pt[0]!;
+							polyPositions[i * 3 + 1] = ground;
+							polyPositions[i * 3 + 2] = -pt[1]!;
+						}
+						polyGeo.setDrawRange(0, pts.length);
+						polyGeo.attributes.position!.needsUpdate = true;
 					}
 
-					// Footprint trails visibility
+					// Overlays: Footprint trails via InstancedMesh dynamic count
 					const showTrails = ov.trails ?? true;
-					trailGroup.visible = showTrails;
-					if (showTrails) {
-						for (const fm of footMarks) {
-							fm.mesh.visible = fm.frame <= f;
+					if (footprintInstancedMesh) {
+						if (!showTrails || footprintMarks.length === 0) {
+							footprintInstancedMesh.count = 0;
+						} else {
+							let low = 0;
+							let high = footprintMarks.length;
+							while (low < high) {
+								const mid = (low + high) >> 1;
+								if (footprintMarks[mid]!.frame <= nearestFrame) {
+									low = mid + 1;
+								} else {
+									high = mid;
+								}
+							}
+							footprintInstancedMesh.count = low;
 						}
 					}
 
-					// Wind streamlines around the walker torso
-					const torsoX =
-						torso >= 0 ? ((P[torso]?.[0] as number | undefined) ?? 0) : 0;
+					// Overlays: Wind streamlines via LineSegments position updates
+					const torsoX = torso >= 0 ? (bodyPositions[torso]?.x ?? 0) : 0;
 					const wSpeed =
 						R.info?.drive === "sail" ? (R.info.wind?.speed ?? 3) : 0;
 					const showWind = (ov.wind ?? true) && wSpeed > 0.05;
-					windGroup.visible = showWind;
+					windSegments.visible = showWind;
 					if (showWind) {
 						const spanX = 0.9;
-						windLines.forEach((line, i) => {
+						for (let i = 0; i < numStreamlines; i++) {
 							const s = STREAMLINES[i]!;
 							const travel =
 								(s.phase + nowSec * (0.25 + wSpeed * 0.09) * s.speedMul) % 1;
 							const x0 = torsoX - spanX * 0.5 + travel * spanX;
 							const len = s.len * (0.7 + wSpeed * 0.12);
-							const posAttr = line.geometry.getAttribute(
-								"position",
-							) as T.BufferAttribute;
-							posAttr.setXYZ(0, x0, s.y, s.z);
-							posAttr.setXYZ(1, x0 + len, s.y, s.z);
-							posAttr.needsUpdate = true;
-						});
+							const idx = i * 6;
+							windPositions[idx] = x0;
+							windPositions[idx + 1] = s.y;
+							windPositions[idx + 2] = s.z;
+							windPositions[idx + 3] = x0 + len;
+							windPositions[idx + 4] = s.y;
+							windPositions[idx + 5] = s.z;
+						}
+						windPosAttr.needsUpdate = true;
 					}
 				},
 			};
@@ -547,23 +793,29 @@ $effect(() => {
 		ro.observe(host);
 		resize();
 
+		let hasTarget = false;
 		const lastTarget = new THREE.Vector3();
 		function tick(now: number) {
 			raf = requestAnimationFrame(tick);
 			const R = live.replay;
 			if (R && dyn) {
-				const f = frameAt(R, live.time);
-				dyn.update(f, now / 1000);
+				dyn.update(live.time, now / 1000);
 				if (live.follow && dyn.torso >= 0) {
-					const tp = R.pos[f]?.[dyn.torso] as number[];
-					const target = world.localToWorld(
-						mapV(new THREE.Vector3(tp[0], tp[1], tp[2])),
+					dyn.getTorsoTarget(_vTarget);
+					if (!hasTarget) {
+						lastTarget.copy(_vTarget);
+						hasTarget = true;
+					}
+					_vDelta.subVectors(_vTarget, lastTarget);
+					camera.position.add(_vDelta);
+					controls.target.copy(_vTarget);
+					sun.position.set(
+						_vTarget.x + 0.8,
+						_vTarget.y + 1.8,
+						_vTarget.z + 1.1,
 					);
-					camera.position.add(target.clone().sub(lastTarget));
-					controls.target.copy(target);
-					sun.position.set(target.x + 0.8, target.y + 1.8, target.z + 1.1);
-					sun.target.position.copy(target);
-					lastTarget.copy(target);
+					sun.target.position.copy(_vTarget);
+					lastTarget.copy(_vTarget);
 				}
 			}
 			controls.update();
