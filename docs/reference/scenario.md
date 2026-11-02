@@ -3,7 +3,7 @@
 
 > One document that fully determines a simulation run: a World (gravity, atmosphere, wind, terrain) with the entities placed in it (a walker is an entity with a linkage, a body and a drive), plus solver and run settings. Defaults marked x-assumption are guesses, not measurements.
 
-- **Fields documented**: 75
+- **Fields documented**: 84
 - **Assumed parameters (`x-assumption: true`)**: 23
 - **Calibratable parameters (`x-calibratable: true`)**: 12
 
@@ -26,6 +26,7 @@
 | `world.terrain.friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.terrain`<br>affects: `sim` | 地面摩擦系数<br>Ground friction coefficient<br>*Source*: Smooth-floor guess; a calibration target |
 | `world.terrain.slope_deg` | `number` | `0.0` | `deg` | – | `group.terrain`<br>affects: `sim` | 坡度（用倾斜重力实现）<br>Slope angle (implemented by tilting gravity) |
 | `world.terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand 用 stiffness（N/m）、damping（N·s/m）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) |
+| `world.terrain.water_level_m` | `number` \| `null` | `null` | `m` | – | `group.terrain`<br>affects: `sim` | 潮水或水面高度（Z轴米数，为 null 表示干燥沙滩）<br>Water or tide surface height (Z in metres, null for dry beach) |
 | `entities` | array<`Entity`> | *(required)* | – | – | – | 放进世界里的实体<br>The entities placed in the world |
 | `entities[].name` | `string` | *(required)* | – | – | – | 实体名（命名空间，如 walker）<br>Entity name (the namespace, e.g. walker) |
 | `entities[].kind` | enum `"walker"` | *(required)* | – | – | – | 实体种类；walker 需要 linkage、body、drive 三个组件<br>Entity kind; a walker needs the linkage, body and drive components |
@@ -68,6 +69,14 @@
 | `entities[].components.drive.crank_damping` | `number` | `0.001` | `N·m·s/rad` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.drive`<br>affects: `sim` | 曲柄处的粘性损耗<br>Viscous loss at the crank<br>*Source*: Our guess, not measured |
 | `entities[].components.drive.crank_friction` | `number` | `0.002` | `N·m` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.drive`<br>affects: `sim` | 曲柄处的库仑摩擦<br>Coulomb friction at the crank<br>*Source*: Our guess, not measured |
 | `entities[].components.drive.params` | `object` | `{}` | – | – | `group.drive`<br>affects: `sim` | 随类型而定的参数<br>Kind-specific parameters |
+| `entities[].components.pneumatics` | `Pneumatics` | – | – | – | `group.pneumatics` | 气动系统<br>Pneumatic system |
+| `entities[].components.pneumatics.bottle_count` | `integer` | `4` | `count` | ≥ 1 | `group.pneumatics`<br>affects: `sim` | PET 瓶数量<br>Number of PET bottles |
+| `entities[].components.pneumatics.bottle_volume_l` | `number` | `2.0` | `1` | ≥ 0.1 | `group.pneumatics`<br>affects: `sim` | 单瓶容积 (升)<br>Volume per bottle (L) |
+| `entities[].components.pneumatics.precharge_pa` | `number` | `101325` | `Pa` | ≥ 0 | `group.pneumatics`<br>affects: `sim` | 预充气压<br>Precharge pressure |
+| `entities[].components.pneumatics.pump_bore_m` | `number` | `0.03` | `m` | ≥ 0.005 | `group.pneumatics`<br>affects: `sim` | 气泵缸径<br>Pump bore diameter |
+| `entities[].components.pneumatics.pump_stroke_m` | `number` | `0.05` | `m` | ≥ 0.005 | `group.pneumatics`<br>affects: `sim` | 气泵冲程<br>Pump stroke length |
+| `entities[].components.pneumatics.feeler_enabled` | `boolean` | `true` | – | – | `group.pneumatics`<br>affects: `sim` | 启用潮水水感反射<br>Enable water feeler reflex |
+| `entities[].components.pneumatics.anchor_enabled` | `boolean` | `true` | – | – | `group.pneumatics`<br>affects: `sim` | 启用暴风沙锚反射<br>Enable storm anchor reflex |
 | `solver` | `Solver` | `{}` | – | – | `group.solver` | 求解器<br>Solver |
 | `solver.timestep` | `number` | `0.00025` | `s` | > 0 | `group.solver`<br>affects: `sim` | 时间步长；峰值扭矩需要 ≤ 0.25 ms 才收敛（docs/EXPERIMENTS.md §8）<br>Time step; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8) |
 | `solver.iterations` | `integer` | `100` | `count` | ≥ 1 | `group.solver`<br>affects: `sim` | 求解器迭代次数<br>Solver iterations |

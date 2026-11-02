@@ -8,13 +8,13 @@
 
 | Schema | Reference | Fields | Assumptions (`x-assumption`) | Calibratable (`x-calibratable`) |
 | :--- | :--- | ---: | ---: | ---: |
-| `schemas/design.schema.json` | [design.md](design.md) | 55 | 14 | 4 |
-| `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 75 | 23 | 12 |
+| `schemas/design.schema.json` | [design.md](design.md) | 63 | 14 | 4 |
+| `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 84 | 23 | 12 |
 | `schemas/run.schema.json` | [run.md](run.md) | 49 | 0 | 0 |
 | `schemas/measurement.schema.json` | [measurement.md](measurement.md) | 31 | 0 | 0 |
 | `schemas/profile.schema.json` | [profile.md](profile.md) | 14 | 0 | 0 |
 | `schemas/ops.schema.json` | [ops.md](ops.md) | 4 | 0 | 0 |
-| `schemas/scenario-v1.schema.json` | [scenario-v1.md](scenario-v1.md) | 70 | 23 | 12 |
+| `schemas/scenario-v1.schema.json` | [scenario-v1.md](scenario-v1.md) | 71 | 23 | 12 |
 
 ## 2. Assumptions Inventory / 我们到底猜了哪些参数（`x-assumption: true`）
 

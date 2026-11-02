@@ -14,7 +14,7 @@ NUMERIC = {"number", "integer"}
 # Units a schema may declare (schemas/ANNOTATIONS.md). A typo in x-unit is a defect, so unknown values are reported.
 UNITS = {
     "m", "mm", "kg", "s", "rad", "deg", "rad/s", "N", "N·m", "N·m/rad", "N·m·s/rad", "1/s²", "m/s", "m/s²",
-    "kg/m", "kg/m³", "m²", "kg·m²", "Hz", "1", "count", "unit_m",
+    "kg/m", "kg/m³", "m²", "kg·m²", "Hz", "1", "count", "unit_m", "Pa", "m³", "m³/(s·Pa)", "kg/s",
 }
 
 

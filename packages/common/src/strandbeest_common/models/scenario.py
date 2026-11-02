@@ -73,6 +73,7 @@ class Terrain(_Strict):
     friction: float = Field(default=1.5, gt=0, description='Ground friction coefficient')
     slope_deg: float = Field(default=0.0, description='Slope angle (implemented by tilting gravity)')
     params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)')
+    water_level_m: Union[float, None] = Field(default=None, description='Water or tide surface height (Z in metres, null for dry beach)')
 
 
 class Drive(_Strict):
@@ -94,6 +95,18 @@ class Drive(_Strict):
     params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters')
 
 
+class Pneumatics(_Strict):
+    """Pneumatic system"""
+
+    bottle_count: int = Field(default=4, ge=1, description='Number of PET bottles')
+    bottle_volume_l: float = Field(default=2.0, ge=0.1, description='Volume per bottle (L)')
+    precharge_pa: float = Field(default=101325, ge=0, description='Precharge pressure')
+    pump_bore_m: float = Field(default=0.03, ge=0.005, description='Pump bore diameter')
+    pump_stroke_m: float = Field(default=0.05, ge=0.005, description='Pump stroke length')
+    feeler_enabled: bool = Field(default=True, description='Enable water feeler reflex')
+    anchor_enabled: bool = Field(default=True, description='Enable storm anchor reflex')
+
+
 class World(_Strict):
     """The world: gravity, atmosphere, wind, terrain"""
 
@@ -106,11 +119,12 @@ class World(_Strict):
 class Components(_Strict):
     """The bag of components of an entity"""
 
-    __non_nullable__: ClassVar[tuple[str, ...]] = ('linkage', 'body', 'drive', )
+    __non_nullable__: ClassVar[tuple[str, ...]] = ('linkage', 'body', 'drive', 'pneumatics', )
 
     linkage: Union[Linkage, None] = None
     body: Union[Body, None] = None
     drive: Union[Drive, None] = None
+    pneumatics: Union[Pneumatics, None] = None
 
 
 class Entity(_Strict):

@@ -125,6 +125,24 @@ export interface DesignManufacturing {
 	motor?: DesignMotor;
 }
 
+/** Pneumatic system */
+export interface DesignPneumatics {
+	/** Number of PET bottles (unit: count; default: 4) */
+	bottle_count?: number;
+	/** Volume per bottle (L) (unit: 1; default: 2.0) */
+	bottle_volume_l?: number;
+	/** Precharge pressure (unit: Pa; default: 101325) */
+	precharge_pa?: number;
+	/** Pump bore diameter (unit: m; default: 0.03) */
+	pump_bore_m?: number;
+	/** Pump stroke length (unit: m; default: 0.05) */
+	pump_stroke_m?: number;
+	/** Enable water feeler reflex (default: true) */
+	feeler_enabled?: boolean;
+	/** Enable storm anchor reflex (default: true) */
+	anchor_enabled?: boolean;
+}
+
 /** A walker: linkage geometry, scale, drive and manufacturing parameters. The single source for kinematics, evolution, simulation and fabrication. */
 export interface Design {
 	schema_version: 2;
@@ -141,4 +159,5 @@ export interface Design {
 	walker: DesignWalker;
 	drive: DesignDrive;
 	manufacturing: DesignManufacturing;
+	pneumatics?: DesignPneumatics;
 }

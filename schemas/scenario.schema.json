@@ -474,6 +474,17 @@
 						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)"
 					},
 					"x-affects": ["sim"]
+				},
+				"water_level_m": {
+					"type": ["number", "null"],
+					"default": null,
+					"x-unit": "m",
+					"x-group": "group.terrain",
+					"x-doc": {
+						"zh": "潮水或水面高度（Z轴米数，为 null 表示干燥沙滩）",
+						"en": "Water or tide surface height (Z in metres, null for dry beach)"
+					},
+					"x-affects": ["sim"]
 				}
 			},
 			"x-doc": {
@@ -679,6 +690,97 @@
 			},
 			"x-group": "group.drive"
 		},
+		"Pneumatics": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"bottle_count": {
+					"type": "integer",
+					"minimum": 1,
+					"default": 4,
+					"x-unit": "count",
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "PET 瓶数量",
+						"en": "Number of PET bottles"
+					}
+				},
+				"bottle_volume_l": {
+					"type": "number",
+					"minimum": 0.1,
+					"default": 2.0,
+					"x-unit": "1",
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "单瓶容积 (升)",
+						"en": "Volume per bottle (L)"
+					}
+				},
+				"precharge_pa": {
+					"type": "number",
+					"minimum": 0,
+					"default": 101325,
+					"x-unit": "Pa",
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "预充气压",
+						"en": "Precharge pressure"
+					}
+				},
+				"pump_bore_m": {
+					"type": "number",
+					"minimum": 0.005,
+					"default": 0.03,
+					"x-unit": "m",
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "气泵缸径",
+						"en": "Pump bore diameter"
+					}
+				},
+				"pump_stroke_m": {
+					"type": "number",
+					"minimum": 0.005,
+					"default": 0.05,
+					"x-unit": "m",
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "气泵冲程",
+						"en": "Pump stroke length"
+					}
+				},
+				"feeler_enabled": {
+					"type": "boolean",
+					"default": true,
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "启用潮水水感反射",
+						"en": "Enable water feeler reflex"
+					}
+				},
+				"anchor_enabled": {
+					"type": "boolean",
+					"default": true,
+					"x-group": "group.pneumatics",
+					"x-affects": ["sim"],
+					"x-doc": {
+						"zh": "启用暴风沙锚反射",
+						"en": "Enable storm anchor reflex"
+					}
+				}
+			},
+			"x-doc": {
+				"zh": "气动系统",
+				"en": "Pneumatic system"
+			},
+			"x-group": "group.pneumatics"
+		},
 		"World": {
 			"type": "object",
 			"additionalProperties": false,
@@ -730,6 +832,9 @@
 				},
 				"drive": {
 					"$ref": "#/$defs/Drive"
+				},
+				"pneumatics": {
+					"$ref": "#/$defs/Pneumatics"
 				}
 			}
 		},

@@ -74,6 +74,7 @@ class Terrain(_Strict):
     friction: float = Field(default=1.5, gt=0, description='Ground friction coefficient')
     slope_deg: float = Field(default=0.0, description='Slope angle (implemented by tilting gravity)')
     params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)')
+    water_level_m: Union[float, None] = Field(default=None, description='Water or tide surface height (Z in metres, null for dry beach)')
 
 
 class Drive(_Strict):

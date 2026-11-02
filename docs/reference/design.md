@@ -3,7 +3,7 @@
 
 > A walker: linkage geometry, scale, drive and manufacturing parameters. The single source for kinematics, evolution, simulation and fabrication.
 
-- **Fields documented**: 55
+- **Fields documented**: 63
 - **Assumed parameters (`x-assumption: true`)**: 14
 - **Calibratable parameters (`x-calibratable: true`)**: 4
 
@@ -66,3 +66,11 @@
 | `manufacturing.motor.shaft_diameter_mm` | `number` | – | `mm` | > 0 | `assumption`<br>`group.motor`<br>affects: `fab` | 输出轴直径<br>Output shaft diameter<br>*Source*: N20 motors: 3 mm D-shaft |
 | `manufacturing.motor.mount_hole_spacing_mm` | `number` | – | `mm` | > 0 | `assumption`<br>`group.motor`<br>affects: `fab` | 安装孔间距<br>Mounting hole spacing<br>*Source*: Check against your motor's datasheet |
 | `manufacturing.motor.mount_hole_diameter_mm` | `number` | – | `mm` | > 0 | `assumption`<br>`group.motor`<br>affects: `fab` | 安装孔直径<br>Mounting hole diameter<br>*Source*: Check against your motor's datasheet |
+| `pneumatics` | `Pneumatics` | – | – | – | `group.pneumatics` | 气动系统<br>Pneumatic system |
+| `pneumatics.bottle_count` | `integer` | `4` | `count` | ≥ 1 | `group.pneumatics`<br>affects: `sim` | PET 瓶数量<br>Number of PET bottles |
+| `pneumatics.bottle_volume_l` | `number` | `2.0` | `1` | ≥ 0.1 | `group.pneumatics`<br>affects: `sim` | 单瓶容积 (升)<br>Volume per bottle (L) |
+| `pneumatics.precharge_pa` | `number` | `101325` | `Pa` | ≥ 0 | `group.pneumatics`<br>affects: `sim` | 预充气压<br>Precharge pressure |
+| `pneumatics.pump_bore_m` | `number` | `0.03` | `m` | ≥ 0.005 | `group.pneumatics`<br>affects: `sim` | 气泵缸径<br>Pump bore diameter |
+| `pneumatics.pump_stroke_m` | `number` | `0.05` | `m` | ≥ 0.005 | `group.pneumatics`<br>affects: `sim` | 气泵冲程<br>Pump stroke length |
+| `pneumatics.feeler_enabled` | `boolean` | `true` | – | – | `group.pneumatics`<br>affects: `sim` | 启用潮水水感反射<br>Enable water feeler reflex |
+| `pneumatics.anchor_enabled` | `boolean` | `true` | – | – | `group.pneumatics`<br>affects: `sim` | 启用暴风沙锚反射<br>Enable storm anchor reflex |

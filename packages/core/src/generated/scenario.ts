@@ -76,6 +76,8 @@ export interface ScenarioTerrain {
 	slope_deg?: number;
 	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) */
 	params?: Record<string, unknown>;
+	/** Water or tide surface height (Z in metres, null for dry beach) (unit: m; default: null) */
+	water_level_m?: number | null;
 }
 
 /** Drive */
@@ -110,6 +112,24 @@ export interface ScenarioDrive {
 	params?: Record<string, unknown>;
 }
 
+/** Pneumatic system */
+export interface ScenarioPneumatics {
+	/** Number of PET bottles (unit: count; default: 4) */
+	bottle_count?: number;
+	/** Volume per bottle (L) (unit: 1; default: 2.0) */
+	bottle_volume_l?: number;
+	/** Precharge pressure (unit: Pa; default: 101325) */
+	precharge_pa?: number;
+	/** Pump bore diameter (unit: m; default: 0.03) */
+	pump_bore_m?: number;
+	/** Pump stroke length (unit: m; default: 0.05) */
+	pump_stroke_m?: number;
+	/** Enable water feeler reflex (default: true) */
+	feeler_enabled?: boolean;
+	/** Enable storm anchor reflex (default: true) */
+	anchor_enabled?: boolean;
+}
+
 /** The world: gravity, atmosphere, wind, terrain */
 export interface ScenarioWorld {
 	/** Gravitational acceleration (unit: m/s²; default: 9.81) */
@@ -124,6 +144,7 @@ export interface ScenarioComponents {
 	linkage?: ScenarioLinkage;
 	body?: ScenarioBody;
 	drive?: ScenarioDrive;
+	pneumatics?: ScenarioPneumatics;
 }
 
 /** An entity placed in the world; its name is its namespace */

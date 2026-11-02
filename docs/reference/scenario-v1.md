@@ -3,7 +3,7 @@
 
 > The flat scenario of schema version 1 (one walker, its environment, drive and solver in one object). The simulator still runs on this shape internally; scenarios are written as schema version 2 (World + Entities) and migrated with strandbeest_common.migrate.
 
-- **Fields documented**: 70
+- **Fields documented**: 71
 - **Assumed parameters (`x-assumption: true`)**: 23
 - **Calibratable parameters (`x-calibratable: true`)**: 12
 
@@ -48,6 +48,7 @@
 | `terrain.friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.terrain`<br>affects: `sim` | 地面摩擦系数<br>Ground friction coefficient<br>*Source*: Smooth-floor guess; a calibration target |
 | `terrain.slope_deg` | `number` | `0.0` | `deg` | – | `group.terrain`<br>affects: `sim` | 坡度（用倾斜重力实现）<br>Slope angle (implemented by tilting gravity) |
 | `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand 用 stiffness（N/m）、damping（N·s/m）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) |
+| `terrain.water_level_m` | `number` \| `null` | `null` | `m` | – | `group.terrain`<br>affects: `sim` | 潮水或水面高度（Z轴米数，为 null 表示干燥沙滩）<br>Water or tide surface height (Z in metres, null for dry beach) |
 | `drive` | `Drive` | `{}` | – | – | `group.drive` | 驱动<br>Drive |
 | `drive.kind` | `string` | `"motor"` | – | – | `group.drive`<br>affects: `sim` | 驱动类型：motor（位置伺服）或 sail（风帆）<br>Drive kind: motor (position servo) or sail |
 | `drive.omega` | `number` | `0.3` | `rad/s` | – | `group.drive`<br>affects: `sim` | 沿行走方向的曲柄转速（电机驱动）<br>Crank speed in the walking direction (motor drive) |

@@ -19,6 +19,9 @@ WALKER = "walker"
 def to_v2(doc: dict[str, Any]) -> dict[str, Any]:
     """The schema v2 form of a flat v1 scenario (defaults made explicit)."""
     v1 = ScenarioV1.model_validate(doc).model_dump(mode="json")
+    comps: dict[str, Any] = {"linkage": v1["linkage"], "body": v1["walker"], "drive": v1["drive"]}
+    if doc.get("pneumatics") is not None:
+        comps["pneumatics"] = copy.deepcopy(doc["pneumatics"])
     return {
         "schema_version": 2,
         "name": v1["name"],
@@ -28,7 +31,7 @@ def to_v2(doc: dict[str, Any]) -> dict[str, Any]:
             "wind": v1["wind"],
             "terrain": v1["terrain"],
         },
-        "entities": [{"name": WALKER, "kind": "walker", "components": {"linkage": v1["linkage"], "body": v1["walker"], "drive": v1["drive"]}}],
+        "entities": [{"name": WALKER, "kind": "walker", "components": comps}],
         "solver": v1["solver"],
         "run": v1["run"],
     }
@@ -46,7 +49,7 @@ def flatten(doc: dict[str, Any]) -> dict[str, Any]:
         if need not in c:
             raise ValueError(f"a walker entity needs the '{need}' component")
     w = doc.get("world", {})
-    return {
+    res: dict[str, Any] = {
         "schema_version": 1,
         "name": doc.get("name", "unnamed"),
         "linkage": copy.deepcopy(c["linkage"]),
@@ -58,3 +61,6 @@ def flatten(doc: dict[str, Any]) -> dict[str, Any]:
         "solver": copy.deepcopy(doc.get("solver", {})),
         "run": copy.deepcopy(doc.get("run", {})),
     }
+    if c.get("pneumatics") is not None:
+        res["pneumatics"] = copy.deepcopy(c["pneumatics"])
+    return res

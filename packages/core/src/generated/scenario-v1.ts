@@ -78,6 +78,8 @@ export interface ScenarioV1Terrain {
 	slope_deg?: number;
 	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) */
 	params?: Record<string, unknown>;
+	/** Water or tide surface height (Z in metres, null for dry beach) (unit: m; default: null) */
+	water_level_m?: number | null;
 }
 
 /** Drive */

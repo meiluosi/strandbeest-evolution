@@ -494,6 +494,17 @@
 						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)"
 					},
 					"x-affects": ["sim"]
+				},
+				"water_level_m": {
+					"type": ["number", "null"],
+					"default": null,
+					"x-unit": "m",
+					"x-group": "group.terrain",
+					"x-doc": {
+						"zh": "潮水或水面高度（Z轴米数，为 null 表示干燥沙滩）",
+						"en": "Water or tide surface height (Z in metres, null for dry beach)"
+					},
+					"x-affects": ["sim"]
 				}
 			},
 			"x-doc": {
