@@ -6,8 +6,9 @@ from .from_design import scenario_from_design
 from .interactive import InteractiveSession
 from .runner import Result, run
 from .startwind import find_start_wind, work_energy_start_wind_proxy
+from . import fluids
 
-__all__ = ["Scenario", "SimConfig", "load_scenario", "sim_config", "Result", "run", "scenario_from_design", "virtual_dynamometer", "find_start_wind", "work_energy_start_wind_proxy", "InteractiveSession"]
+__all__ = ["Scenario", "SimConfig", "load_scenario", "sim_config", "Result", "run", "scenario_from_design", "virtual_dynamometer", "find_start_wind", "work_energy_start_wind_proxy", "InteractiveSession", "fluids"]
 
 # importing these modules registers the built-in extensions
 from . import drives as _drives  # noqa: E402,F401
