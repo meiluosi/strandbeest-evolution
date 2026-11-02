@@ -112,3 +112,17 @@
 - [x] Bilingual README, demo GIFs
 - [x] Verify the evolution timeline against strandbeest.com (done except Pregluton, whose page was empty)
 - [ ] Publish: enable GitHub Pages (workflow `pages.yml` is manual), npm publish, flip `draft` to false
+
+## M6 — 系统演进与原生内核（System Evolution & Unified Core）
+- [ ] **M6-01 端到端 Arrow/Feather IPC 流式管道**：API 增加 `/runs/{rid}/telemetry.arrow` 二进制流；前端引入 `apache-arrow` 直接将 `Float32Array` 绑定至 WebGL，废除 JSON 文本与大对象堆分配开销。
+- [ ] **M6-02 Three.js 现代化渲染管线**：连杆、障碍物、流线、足迹全面改用 `InstancedMesh` 归并（全局 Draw Call 压降至 10 次内）；引入帧间 Slerp/Lerp 平滑插值消除高刷屏机械微抖动；渲染循环预分配池化实现零 GC。
+- [ ] **M6-03 统一 Rust 内核原型（ADR-0009 beest-kernel）**：用 Rust 重写平面阿苏尔杆组运动学求解、步态评估与守门校验；编译为 PyO3 轮子与 WebAssembly 字节码，收敛跨语言重复模块。
+
+## M7 — 形态计算与气动大脑（Morphological Computing & Pneumatic Brain）
+- [ ] **M7-01 气压逻辑回路与打气储能**：一维可压缩流体压力节点网络；腿部曲柄往复气泵向 PET 瓶储能；双稳态气动逻辑阀门（Flip-Flop）与二进制步数计数器。
+- [ ] **M7-02 潮水自救与暴风沙锚反射**：水感管触水负压突变触发倒车换向；倾覆与强风冲击下自动打入沙钉自锁。
+
+## M8 — 开放式演化与数字海滩（Quality Diversity & The Digital Beach）
+- [ ] **M8-01 质量多样性进化（MAP-Elites）**：构建二维行为特征网格（抬腿越障高度 vs 迎风倾覆裕度/比能耗）；演化自适应物种图鉴库。
+- [ ] **M8-02 视觉测功机数字孪生闭环**：实机行走视频多铰链反光点追踪；相机内参标定；贝叶斯反演实测材料柔度、轴套摩擦与沙地刚度。
+- [ ] **M8-03 多人实时“数字海滩”沙盒**：基于真实海滩风场数据的多人在线无边界沙盒，多兽角逐、推挤避障、群体协同。
