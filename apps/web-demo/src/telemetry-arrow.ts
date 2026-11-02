@@ -14,6 +14,13 @@ export interface DecodedTelemetry {
 	psi?: Float32Array;
 	x?: Float32Array;
 	torque?: Float32Array;
+	bottle_pressure_pa?: Float32Array;
+	bottle_pressure?: Float32Array;
+	feeler_vacuum_pa?: Float32Array;
+	feeler_vacuum?: Float32Array;
+	valve_state?: Int8Array;
+	step_count?: Uint8Array;
+	anchor_deployed?: Uint8Array;
 	shapes: Record<string, number[]>;
 	meta: Record<string, any>;
 	toReplay(): Replay;
@@ -129,6 +136,23 @@ export function decodeArrowTelemetry(
 	const x = extractFlatVector<Float32Array>(table.getChild("x")) ?? undefined;
 	const torque =
 		extractFlatVector<Float32Array>(table.getChild("torque")) ?? undefined;
+	const bottle_pressure_pa =
+		extractFlatVector<Float32Array>(
+			table.getChild("bottle_pressure_pa") ?? table.getChild("bottle_pressure"),
+		) ?? undefined;
+	const bottle_pressure = bottle_pressure_pa;
+	const feeler_vacuum_pa =
+		extractFlatVector<Float32Array>(
+			table.getChild("feeler_vacuum_pa") ?? table.getChild("feeler_vacuum"),
+		) ?? undefined;
+	const feeler_vacuum = feeler_vacuum_pa;
+	const valve_state =
+		extractFlatVector<Int8Array>(table.getChild("valve_state")) ?? undefined;
+	const step_count =
+		extractFlatVector<Uint8Array>(table.getChild("step_count")) ?? undefined;
+	const anchor_deployed =
+		extractFlatVector<Uint8Array>(table.getChild("anchor_deployed")) ??
+		undefined;
 
 	return {
 		table,
@@ -143,9 +167,48 @@ export function decodeArrowTelemetry(
 		psi,
 		x,
 		torque,
+		bottle_pressure_pa,
+		bottle_pressure,
+		feeler_vacuum_pa,
+		feeler_vacuum,
+		valve_state,
+		step_count,
+		anchor_deployed,
 		shapes,
 		meta,
 		toReplay(): Replay {
+			const pneumatics =
+				bottle_pressure_pa ||
+				feeler_vacuum_pa ||
+				valve_state ||
+				step_count ||
+				anchor_deployed ||
+				meta.pneumatics
+					? {
+							bottle_pressure_pa: bottle_pressure_pa
+								? Array.from(bottle_pressure_pa)
+								: meta.pneumatics?.bottle_pressure_pa,
+							bottle_pressure: bottle_pressure
+								? Array.from(bottle_pressure)
+								: meta.pneumatics?.bottle_pressure,
+							feeler_vacuum_pa: feeler_vacuum_pa
+								? Array.from(feeler_vacuum_pa)
+								: meta.pneumatics?.feeler_vacuum_pa,
+							feeler_vacuum: feeler_vacuum
+								? Array.from(feeler_vacuum)
+								: meta.pneumatics?.feeler_vacuum,
+							valve_state: valve_state
+								? Array.from(valve_state)
+								: meta.pneumatics?.valve_state,
+							step_count: step_count
+								? Array.from(step_count)
+								: meta.pneumatics?.step_count,
+							anchor_deployed: anchor_deployed
+								? Array.from(anchor_deployed)
+								: meta.pneumatics?.anchor_deployed,
+						}
+					: undefined;
+
 			return {
 				scene: meta.scene ?? {
 					bodies: [],
@@ -184,6 +247,7 @@ export function decodeArrowTelemetry(
 				nominal_stride_m: meta.nominal_stride_m ?? null,
 				kinematic_duty: meta.kinematic_duty ?? null,
 				revolutions: meta.revolutions ?? 0,
+				pneumatics,
 				info: meta.info ?? {
 					terrain: { kind: "flat", slope_deg: 0, params: {} },
 					drive: "motor",

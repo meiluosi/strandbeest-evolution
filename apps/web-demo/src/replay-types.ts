@@ -15,6 +15,7 @@ export type Scene = {
 	}[];
 	obstacles: { pos: number[]; size: number[] }[];
 	slope_deg: number;
+	water_level_m?: number | null;
 };
 
 export type RunEvent = {
@@ -49,17 +50,28 @@ export type Replay = {
 	nominal_stride_m: number | null;
 	kinematic_duty: number | null;
 	revolutions: number;
+	pneumatics?: {
+		bottle_pressure_pa?: number[];
+		bottle_pressure?: number[];
+		feeler_vacuum_pa?: number[];
+		feeler_vacuum?: number[];
+		valve_state?: number[];
+		step_count?: number[];
+		anchor_deployed?: number[];
+	};
 	info: {
 		terrain: {
 			kind: string;
 			slope_deg: number;
 			params: Record<string, number>;
+			water_level_m?: number | null;
 		};
 		drive: string;
 		wind: { kind: string; speed: number; params: Record<string, number> };
 		environment: { gravity: number; air_density: number };
 		legs: number;
 		max_torque: number | null;
+		pneumatics?: Record<string, any>;
 	};
 };
 
@@ -70,6 +82,7 @@ export interface Overlays {
 	wind?: boolean;
 	trails?: boolean;
 	pvc?: boolean;
+	pneumatics?: boolean;
 }
 
 /** Index of the recorded frame closest to time `t` (seconds since the start of driving). */

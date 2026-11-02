@@ -2,14 +2,17 @@
 
 import time
 import numpy as np
+import pyarrow as pa
 import pytest
 
 from strandbeest_common.telemetry import (
+    build_telemetry_table,
     load_parquet,
     npz_to_parquet,
     parquet_to_npz,
     read_parquet_columns,
     save_parquet,
+    serialize_table_to_arrow_stream,
 )
 
 
@@ -155,3 +158,43 @@ def test_multidimensional_no_object_dtype_benchmark(tmp_path):
     np.testing.assert_allclose(pos, pos_data)
     # Ensure fast decoding without Python object overhead (< 0.2s for 1000 frames)
     assert elapsed < 0.5
+
+
+def test_build_telemetry_table_pneumatics_layer(tmp_path):
+    """Test IPC table construction with pneumatics layer channels."""
+    run_dir = tmp_path / "run_01"
+    run_dir.mkdir()
+
+    n = 60
+    t = np.linspace(0.0, 3.0, n)
+    frames_data = {
+        "t": t,
+        "pos": np.zeros((n, 2, 3), dtype=np.float32),
+        "quat": np.zeros((n, 2, 4), dtype=np.float32),
+        "contact": np.zeros((n, 4), dtype=bool),
+        "bottle_pressure_pa": np.linspace(101325.0, 500000.0, n, dtype=np.float32),
+        "feeler_vacuum_pa": np.linspace(0.0, 30000.0, n, dtype=np.float32),
+        "valve_state": np.ones(n, dtype=np.int8),
+        "step_count": np.arange(n, dtype=np.uint8) % 16,
+        "anchor_deployed": (np.arange(n) > 30).astype(np.uint8),
+    }
+    save_parquet(run_dir / "frames.parquet", frames_data)
+
+    table = build_telemetry_table(run_dir, max_frames=100, layers={"pneumatics", "poses"})
+    assert "bottle_pressure_pa" in table.column_names
+    assert "feeler_vacuum_pa" in table.column_names
+    assert "valve_state" in table.column_names
+    assert "step_count" in table.column_names
+    assert "anchor_deployed" in table.column_names
+
+    # Check dtypes
+    assert table["bottle_pressure_pa"].type == pa.float32()
+    assert table["feeler_vacuum_pa"].type == pa.float32()
+    assert table["valve_state"].type == pa.int8()
+    assert table["step_count"].type == pa.uint8()
+    assert table["anchor_deployed"].type == pa.uint8()
+
+    # Check serialized stream
+    stream_bytes = serialize_table_to_arrow_stream(table)
+    assert len(stream_bytes) > 0
+

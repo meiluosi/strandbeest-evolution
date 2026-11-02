@@ -146,7 +146,7 @@ def build_telemetry_table(
     if not (has_frames_parquet or has_frames_npz):
         raise FileNotFoundError(f"Run folder {folder} has no recorded frames")
 
-    active_layers = set(layers) if layers is not None else {"poses", "feet", "series", "energy", "events", "scene"}
+    active_layers = set(layers) if layers is not None else {"poses", "feet", "series", "energy", "events", "scene", "pneumatics"}
 
     # Determine needed frame columns based on layers
     needed_fr: set[str] = {"t"}
@@ -154,6 +154,8 @@ def build_telemetry_table(
         needed_fr.update({"pos", "quat", "contact"})
     if "feet" in active_layers:
         needed_fr.update({"foot_pos", "foot_force", "foot_slip", "com"})
+    if "pneumatics" in active_layers:
+        needed_fr.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed"})
 
     # Read frames
     if has_frames_parquet:
@@ -173,6 +175,12 @@ def build_telemetry_table(
         arr = fr[c][::step]
         if c == "contact" and arr.dtype == bool:
             arr = arr.astype(np.uint8)
+        elif c in ("bottle_pressure_pa", "feeler_vacuum_pa"):
+            arr = arr.astype(np.float32)
+        elif c == "valve_state":
+            arr = arr.astype(np.int8)
+        elif c in ("step_count", "anchor_deployed"):
+            arr = arr.astype(np.uint8)
         sliced_fr[c] = arr
 
     t_sliced = sliced_fr["t"]
@@ -183,6 +191,8 @@ def build_telemetry_table(
         needed_ar.update({"t", "psi", "x", "torque"})
     if "energy" in active_layers:
         needed_ar.update({"t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration"})
+    if "pneumatics" in active_layers:
+        needed_ar.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed"})
 
     ar: dict[str, np.ndarray] = {}
     if needed_ar:
@@ -216,6 +226,21 @@ def build_telemetry_table(
                     sliced_ar[c] = np.interp(t_sliced, ar_t, ar[c]).astype(np.float32)
             sstep = max(1, len(ar_t) // 500)
             energy_dict = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar}
+
+        if "pneumatics" in active_layers:
+            for c in ("bottle_pressure_pa", "feeler_vacuum_pa"):
+                if c in ar and ar[c].ndim == 1 and c not in sliced_fr:
+                    sliced_ar[c] = np.interp(t_sliced, ar_t, ar[c]).astype(np.float32)
+            for c in ("valve_state",):
+                if c in ar and ar[c].ndim == 1 and c not in sliced_fr:
+                    idx = np.searchsorted(ar_t, t_sliced, side="right") - 1
+                    idx = np.clip(idx, 0, len(ar_t) - 1)
+                    sliced_ar[c] = ar[c][idx].astype(np.int8)
+            for c in ("step_count", "anchor_deployed"):
+                if c in ar and ar[c].ndim == 1 and c not in sliced_fr:
+                    idx = np.searchsorted(ar_t, t_sliced, side="right") - 1
+                    idx = np.clip(idx, 0, len(ar_t) - 1)
+                    sliced_ar[c] = ar[c][idx].astype(np.uint8)
 
     # Read run metadata
     run_doc: dict[str, Any] = {}
@@ -257,6 +282,7 @@ def build_telemetry_table(
             "environment": sc.get("environment"),
             "legs": sc.get("walker", {}).get("legs", 6) if isinstance(sc.get("walker"), dict) else 6,
             "max_torque": sc.get("drive", {}).get("max_torque") if isinstance(sc.get("drive"), dict) else None,
+            "pneumatics": sc.get("pneumatics"),
         },
     }
 

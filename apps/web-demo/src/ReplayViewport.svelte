@@ -42,6 +42,7 @@ const live = {
 		wind: true,
 		trails: true,
 		pvc: true,
+		pneumatics: true,
 	} as Overlays,
 };
 $effect(() => {
@@ -56,6 +57,7 @@ let applyCameraPreset: ((v: "iso" | "side" | "top") => void) | null = null;
 $effect(() => {
 	replay;
 	overlays.pvc;
+	overlays.pneumatics;
 	rebuild?.();
 });
 
@@ -167,6 +169,23 @@ $effect(() => {
 		const _vFootPos = new THREE.Vector3();
 		const _comInterp = new THREE.Vector3();
 
+		const _colClear = new THREE.Color(0xa0e8f0);
+		const _colPressurized = new THREE.Color(0xe64a19);
+		const _colBottle = new THREE.Color();
+		const _colFeelerDry = new THREE.Color(0x667788);
+		const _colFeelerGlow = new THREE.Color(0xff2233);
+		const _vScaleOne = new THREE.Vector3(1, 1, 1);
+		const _vFeelerBase = new THREE.Vector3();
+		const _vFeelerTip = new THREE.Vector3();
+		const _qCylHorizontal = new THREE.Quaternion().setFromAxisAngle(
+			new THREE.Vector3(0, 0, 1),
+			Math.PI / 2,
+		);
+		const _qAnchorCone = new THREE.Quaternion().setFromAxisAngle(
+			new THREE.Vector3(1, 0, 0),
+			Math.PI,
+		);
+
 		let dyn: {
 			update: (timeSec: number, nowSec: number) => void;
 			getTorsoTarget: (out: T.Vector3) => void;
@@ -219,6 +238,28 @@ $effect(() => {
 			);
 			grid.position.y = 0.0001;
 			world.add(grid);
+
+			// Water plane (if water_level_m is set on terrain)
+			const waterLevel =
+				R.info?.terrain?.water_level_m ??
+				(R.info?.terrain?.params as any)?.water_level_m ??
+				(S as any)?.water_level_m;
+			if (typeof waterLevel === "number") {
+				const waterPlane = new THREE.Mesh(
+					new THREE.PlaneGeometry(12, 6),
+					new THREE.MeshStandardMaterial({
+						color: 0x1976d2,
+						roughness: 0.1,
+						metalness: 0.1,
+						transparent: true,
+						opacity: 0.5,
+						depthWrite: false,
+					}),
+				);
+				waterPlane.rotation.x = -Math.PI / 2;
+				waterPlane.position.y = waterLevel;
+				world.add(waterPlane);
+			}
 
 			// Static obstacles: merge all obstacle box geometries into a single mesh (1 draw call)
 			const groundMat = new THREE.MeshStandardMaterial({
@@ -487,6 +528,82 @@ $effect(() => {
 			}
 
 			const torso = S.bodies.indexOf("torso");
+
+			// Pneumatic overlays: PET bottle bank, water feeler, sand anchor spike
+			const pneumaticsData = R.pneumatics;
+			const pneumaticsConfig =
+				(R.info as any)?.pneumatics ?? (S as any)?.pneumatics;
+			const hasPneumatics =
+				(live.overlays.pneumatics ?? true) &&
+				(!!pneumaticsData || !!pneumaticsConfig);
+
+			let bottleInstMesh: T.InstancedMesh | null = null;
+			let feelerArmMesh: T.Mesh | null = null;
+			let feelerTipMesh: T.Mesh | null = null;
+			let feelerTipMat: T.MeshStandardMaterial | null = null;
+			let anchorMesh: T.Mesh | null = null;
+
+			const BOTTLE_OFFSETS = [
+				{ x: -0.07, y: -0.035, z: 0.08 },
+				{ x: -0.07, y: 0.035, z: 0.08 },
+				{ x: 0.07, y: -0.035, z: 0.08 },
+				{ x: 0.07, y: 0.035, z: 0.08 },
+			];
+
+			if (hasPneumatics && torso >= 0) {
+				// 1. PET Bottle bank (semi-transparent cylinders on walker chassis)
+				const bottleGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.12, 16);
+				const bottleMat = new THREE.MeshStandardMaterial({
+					roughness: 0.25,
+					transparent: true,
+					opacity: 0.75,
+					metalness: 0.05,
+				});
+				bottleInstMesh = new THREE.InstancedMesh(
+					bottleGeo,
+					bottleMat,
+					BOTTLE_OFFSETS.length,
+				);
+				bottleInstMesh.castShadow = true;
+				for (let i = 0; i < BOTTLE_OFFSETS.length; i++) {
+					bottleInstMesh.setColorAt(i, _colClear);
+				}
+				if (bottleInstMesh.instanceColor)
+					bottleInstMesh.instanceColor.needsUpdate = true;
+				world.add(bottleInstMesh);
+
+				// 2. Water feeler (probe arm and tip indicator extending down from chassis front)
+				const feelerArmGeo = new THREE.CylinderGeometry(0.003, 0.003, 1, 8);
+				const feelerArmMat = new THREE.MeshStandardMaterial({
+					color: 0x556677,
+					roughness: 0.4,
+					metalness: 0.3,
+				});
+				feelerArmMesh = new THREE.Mesh(feelerArmGeo, feelerArmMat);
+				world.add(feelerArmMesh);
+
+				const feelerTipGeo = new THREE.SphereGeometry(0.01, 16, 12);
+				feelerTipMat = new THREE.MeshStandardMaterial({
+					color: _colFeelerDry,
+					emissive: 0x000000,
+					roughness: 0.3,
+					metalness: 0.1,
+				});
+				feelerTipMesh = new THREE.Mesh(feelerTipGeo, feelerTipMat);
+				world.add(feelerTipMesh);
+
+				// 3. Sand anchor spike (retracted into chassis or extended down into sand)
+				const anchorGeo = new THREE.ConeGeometry(0.012, 0.14, 16);
+				const anchorMat = new THREE.MeshStandardMaterial({
+					color: 0x37474f,
+					roughness: 0.35,
+					metalness: 0.8,
+				});
+				anchorMesh = new THREE.Mesh(anchorGeo, anchorMat);
+				anchorMesh.castShadow = true;
+				world.add(anchorMesh);
+			}
+
 			const footColor = (R2: Replay, f: number, k: number) => {
 				const down = (R2.contact[f] as number[] | undefined)?.[k];
 				const slipping =
@@ -773,6 +890,104 @@ $effect(() => {
 							windPositions[idx + 5] = s.z;
 						}
 						windPosAttr.needsUpdate = true;
+					}
+
+					// Overlays: Pneumatics (PET bottle bank, water feeler, sand anchor spike)
+					if (hasPneumatics && torso >= 0) {
+						const pb = bodyPositions[torso]!;
+						const qb = bodyQuaternions[torso]!;
+
+						// 1. PET Bottle bank pressure color & position
+						if (bottleInstMesh) {
+							const pressPa =
+								pneumaticsData?.bottle_pressure?.[nearestFrame] ??
+								pneumaticsData?.bottle_pressure_pa?.[nearestFrame] ??
+								pneumaticsConfig?.precharge_pa ??
+								101325;
+							const pNorm = Math.max(
+								0,
+								Math.min(1, (pressPa - 101325) / (600000 - 101325)),
+							);
+							_colBottle.lerpColors(_colClear, _colPressurized, pNorm);
+
+							for (let i = 0; i < BOTTLE_OFFSETS.length; i++) {
+								const bo = BOTTLE_OFFSETS[i]!;
+								_vLocalA.set(bo.x, bo.y, bo.z);
+								_vWorldA.copy(_vLocalA).applyQuaternion(qb).add(pb);
+								_vThreePos.set(_vWorldA.x, _vWorldA.z, -_vWorldA.y);
+
+								_qBox.copy(qb).multiply(_qCylHorizontal);
+								_qRot.copy(qMap).multiply(_qBox);
+								_mat.compose(_vThreePos, _qRot, _vScaleOne);
+								bottleInstMesh.setMatrixAt(i, _mat);
+								bottleInstMesh.setColorAt(i, _colBottle);
+							}
+							bottleInstMesh.instanceMatrix.needsUpdate = true;
+							if (bottleInstMesh.instanceColor) {
+								bottleInstMesh.instanceColor.needsUpdate = true;
+							}
+						}
+
+						// 2. Water feeler arm & glowing tip indicator
+						if (feelerTipMesh && feelerArmMesh && feelerTipMat) {
+							_vLocalA.set(0.18, 0, 0.02);
+							_vWorldA.copy(_vLocalA).applyQuaternion(qb).add(pb);
+							_vFeelerBase.set(_vWorldA.x, _vWorldA.z, -_vWorldA.y);
+
+							_vLocalB.set(0.28, 0, -0.12);
+							_vWorldB.copy(_vLocalB).applyQuaternion(qb).add(pb);
+							_vFeelerTip.set(_vWorldB.x, _vWorldB.z, -_vWorldB.y);
+
+							feelerTipMesh.position.copy(_vFeelerTip);
+
+							const vacPa =
+								pneumaticsData?.feeler_vacuum?.[nearestFrame] ??
+								pneumaticsData?.feeler_vacuum_pa?.[nearestFrame] ??
+								0;
+							const isSubmerged =
+								(typeof waterLevel === "number" &&
+									_vFeelerTip.y <= waterLevel) ||
+								vacPa > 15000;
+
+							if (isSubmerged) {
+								feelerTipMat.color.copy(_colFeelerGlow);
+								feelerTipMat.emissive.copy(_colFeelerGlow);
+								feelerTipMat.emissiveIntensity = 1.2;
+							} else {
+								feelerTipMat.color.copy(_colFeelerDry);
+								feelerTipMat.emissive.set(0x000000);
+								feelerTipMat.emissiveIntensity = 0.0;
+							}
+
+							_vMid.addVectors(_vFeelerBase, _vFeelerTip).multiplyScalar(0.5);
+							_vDir.subVectors(_vFeelerTip, _vFeelerBase);
+							const armLen = _vDir.length();
+							if (armLen > 1e-6) {
+								_vDir.multiplyScalar(1 / armLen);
+							} else {
+								_vDir.set(0, 1, 0);
+							}
+							_qRot.setFromUnitVectors(_vUp, _vDir);
+							_vScale.set(1, armLen, 1);
+							_mat.compose(_vMid, _qRot, _vScale);
+							feelerArmMesh.matrix.copy(_mat);
+							feelerArmMesh.matrixAutoUpdate = false;
+						}
+
+						// 3. Sand anchor spike extension
+						if (anchorMesh) {
+							const isDeployed =
+								Boolean(pneumaticsData?.anchor_deployed?.[nearestFrame]) ||
+								false;
+							_vLocalA.set(0, 0, isDeployed ? -0.12 : 0.03);
+							_vWorldA.copy(_vLocalA).applyQuaternion(qb).add(pb);
+							_vThreePos.set(_vWorldA.x, _vWorldA.z, -_vWorldA.y);
+
+							_qBox.copy(qb).multiply(_qAnchorCone);
+							_qRot.copy(qMap).multiply(_qBox);
+							anchorMesh.position.copy(_vThreePos);
+							anchorMesh.quaternion.copy(_qRot);
+						}
 					}
 				},
 			};
