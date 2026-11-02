@@ -365,3 +365,56 @@ def test_adiabatic_polytropic_compression_pv_n_constant() -> None:
         c_t = p * (v**n)
         assert math.isclose(c_t, c0, rel_tol=1e-5)
 
+
+def test_extreme_pressure_burst_limit_charging() -> None:
+    """Stress test crank pump charging near PET burst pressure limit (750 - 800 kPa)."""
+    bank = PETBottleBank(num_bottles=4, volume_per_bottle=0.002, precharge_pressure=750_000.0)
+    pump = CrankReciprocatingPump()
+
+    res = pump.simulate_charging(
+        bottle_bank=bank,
+        crank_speed_rpm=60.0,
+        num_cycles=2,
+        dt=1e-4,
+    )
+
+    # Verification: simulation remains numerically stable, no NaN, work matches indicator p-V work
+    assert not np.any(np.isnan(res.p_cyl))
+    assert not np.any(np.isnan(res.p_bottle))
+    assert res.work_conservation_error < 1e-4
+    assert res.final_bottle_pressure > res.initial_bottle_pressure
+    assert not bank.is_burst(res.final_bottle_pressure)
+    assert bank.safety_factor(res.final_bottle_pressure) > 1.0
+
+
+def test_high_speed_crank_pumping_stability() -> None:
+    """Stress test crank pump at 300 RPM (5 Hz) and 600 RPM (10 Hz)."""
+    bank = PETBottleBank(num_bottles=2, volume_per_bottle=0.002)
+    pump = CrankReciprocatingPump()
+
+    for rpm in [300.0, 600.0]:
+        res = pump.simulate_charging(
+            bottle_bank=bank,
+            crank_speed_rpm=rpm,
+            num_cycles=2,
+            dt=5e-5,
+        )
+        assert not np.any(np.isnan(res.p_cyl))
+        assert res.work_conservation_error < 1e-4
+        assert res.pressure_rise > 0.0
+        assert res.is_monotonically_increasing_bottle_pressure
+
+
+def test_extreme_pressure_gradient_mass_conservation() -> None:
+    """Stress test mass conservation with 800 kPa chamber expanding into 50 kPa chamber."""
+    net = FluidNetwork(track_mass=True)
+    net.add_node(FluidNode("burst_tank", pressure=800_000.0, volume=0.005, n=1.25))
+    net.add_node(FluidNode("vacuum_tank", pressure=50_000.0, volume=0.015, n=1.25))
+    net.add_element(Orifice("orifice", "burst_tank", "vacuum_tank", conductance=1e-7))
+
+    res = net.simulate(t_span=(0.0, 1.0), dt=1e-4)
+
+    assert res.mass_conservation_relative_error < 1e-7
+    assert not np.any(np.isnan(res.total_mass))
+
+
