@@ -1,0 +1,95 @@
+{
+  "created_utc": "2026-11-04T06:49:00.546972+00:00",
+  "complete": true,
+  "scope": "Primary-source methods review for a public crank dataset; not dynamics validation.",
+  "previous_review": {
+    "path": "experiments/external-dynamics-candidates-2026-11-04.json",
+    "sha256": "4a147ff6cda4f81579fca15257ca2c8b13bfe5733ee407a52e37a2e38c119761"
+  },
+  "dataset": {
+    "doi": "10.5281/zenodo.10059390",
+    "url": "https://zenodo.org/records/10059390",
+    "license": "CC BY 4.0",
+    "license_evidence": "Provider API verified in previous review; distinct from paper copyright."
+  },
+  "paper": {
+    "doi": "10.1152/jn.00536.2019",
+    "url": "https://jameshermus.github.io/assets/pdf/Hermus_2020.pdf",
+    "local_path": "/tmp/beest-solver-precision-2026-11-04/Hermus_2020.pdf",
+    "sha256": "7ee48fcfd1298d97b39159f67c06eb6c4a0449ac64e07a74558e7e844c8b88bc",
+    "bytes": 1232649,
+    "pages": 16,
+    "primary_author_host": true,
+    "redistributed": false
+  },
+  "visual_reviews": [
+    {
+      "printed_page": 1881,
+      "pdf_page": 12,
+      "local_path": "/tmp/beest-solver-precision-2026-11-04/Hermus-page12.png",
+      "sha256": "2ddd4067e7e71c09022d9c490203141343f1d95e052811e11eeb20d739489caa",
+      "reviewed": "Original inertia typography and Fig A1 model-coordinate convention."
+    },
+    {
+      "printed_page": 1883,
+      "pdf_page": 14,
+      "local_path": "/tmp/beest-solver-precision-2026-11-04/Hermus-page14.png",
+      "sha256": "87e285a1ac0b88c0709d05f645ae9802b12a06039f8660e43cb40a88f6327447",
+      "reviewed": "Eq A2 and surrounding Appendix A definitions."
+    }
+  ],
+  "verified_measurement_descriptions": {
+    "crank_radius_m": 0.1029,
+    "encoder_sample_hz": 200,
+    "force_sample_hz": 100,
+    "encoder_resolution_degrees_per_count": 0.0004,
+    "encoder_resolution_is_absolute_uncertainty": false,
+    "force_transducer": "ATI 15/50"
+  },
+  "inertia_review": {
+    "reported_value": 0.003716,
+    "reported_unit_literal": "kg/m^2",
+    "printed_page": 1881,
+    "unit_visually_confirmed": true,
+    "dimensional_inference": "Mass moment of inertia in Eq A2 requires kg*m^2. A printing error is likely, but no silent correction is applied to a Measurement.",
+    "si_value_accepted": false,
+    "uncertainty_found": false,
+    "calibration_method_found": false
+  },
+  "equation_review": {
+    "equation": "I*theta_ddot + b_c*theta_dot = r*e^T*F",
+    "id": "A2",
+    "printed_page": 1883,
+    "force_frame": "Paper Appendix A uses Cartesian F; dataset README identifies raw C3 as radial. These are not automatically the same coordinate frame.",
+    "crank_damping_coefficient_numeric_verified": false,
+    "raw_to_model_force_sign_mapping_verified": false
+  },
+  "thesis_lead": {
+    "title": "An investigation into the discrete nature of human arm movements",
+    "author": "Joseph A. Doeringer",
+    "year": 1999,
+    "publisher": "MIT",
+    "url": "https://dspace.mit.edu/entities/publication/06800448-3f71-42b0-a514-d242ae9236bb",
+    "metadata_source": "Primary publisher indexed result",
+    "publisher_filename": "43047273-MIT.pdf",
+    "provider_md5": "93f41758da573ab4bc7e632849f862ee",
+    "raw_retrieved": false,
+    "md5_verified": false,
+    "direct_read_result": "HTTP 429; no repeated request or restriction bypass.",
+    "license_scope": "Publisher metadata permits viewing but restricts reproduction/distribution; not the CC BY dataset license."
+  },
+  "remaining_gaps": [
+    "Resolve inertia unit and calibration/uncertainty.",
+    "Verify raw force frame, sign and channel-to-angle synchronization.",
+    "Obtain condition mapping functions or equivalent source documentation.",
+    "Predeclare independent trial holdouts before any parameter fitting.",
+    "Crank subsystem data does not validate a complete Jansen walker or wind startup."
+  ],
+  "new_raw_trials_retrieved": 0,
+  "measurement_created": false,
+  "profile_created": false,
+  "parameter_fit_performed": false,
+  "h4_01_accepted": false,
+  "authors_contacted": false,
+  "access_restrictions_bypassed": false
+}

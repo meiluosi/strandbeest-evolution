@@ -1,0 +1,169 @@
+{
+  "created_utc": "2026-11-04T04:45:59.159538+00:00",
+  "complete": true,
+  "cohorts": {
+    "default": {
+      "before": "experiments/hardening-g1-contact-v3-default-2026-11-04.json",
+      "before_sha256": "4f1ef45480ca984d2045b5cfb639542223d3ca8c2807c07b9dbeb07de761c5a6",
+      "after": "experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json",
+      "after_sha256": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0",
+      "original_designs_and_overrides_identical": true,
+      "all_preexisting_metrics_bit_identical": true,
+      "findings_identical": true,
+      "added_metrics": [
+        {
+          "case": 11,
+          "new_metrics": {
+            "energy_in_per_rev": -0.0054119010529960305,
+            "energy_contact_share": -2.2466136407963795,
+            "energy_loops_share": -0.09954959439648961,
+            "energy_friction_share": -0.0,
+            "energy_residual_share": 2.991224484767121e-05
+          }
+        }
+      ],
+      "summary": {
+        "completed": 64,
+        "failed_cases": [
+          17,
+          19,
+          20,
+          23,
+          31,
+          37,
+          40,
+          51,
+          58,
+          61
+        ],
+        "findings": {
+          "loop_closure": 10,
+          "stride_vs_kinematics": 2
+        }
+      },
+      "source_drift": [],
+      "strata": {
+        "4": {
+          "cases": 16,
+          "failures": 0
+        },
+        "6": {
+          "cases": 29,
+          "failures": 5
+        },
+        "8": {
+          "cases": 19,
+          "failures": 5
+        }
+      },
+      "max_abs_energy_residual_share": 0.0005384637715726716,
+      "max_loop_open_m": 0.013339896016368868,
+      "max_penetration_m": 0.0008516598575622879
+    },
+    "solref05": {
+      "before": "experiments/hardening-g1-contact-v3-solref05-2026-11-04.json",
+      "before_sha256": "639142742e51c965d1e714a297e15ac0af07c604ebed0aacf2729e139a4872ac",
+      "after": "experiments/hardening-g1-audit-energy-v3-solref05-2026-11-04.json",
+      "after_sha256": "f0efddd0bc54b5bd58928cd593f2a9c19a28890cd360b2c40d960b5745e00257",
+      "original_designs_and_overrides_identical": true,
+      "all_preexisting_metrics_bit_identical": true,
+      "findings_identical": true,
+      "added_metrics": [
+        {
+          "case": 11,
+          "new_metrics": {
+            "energy_in_per_rev": -0.005858670068984011,
+            "energy_contact_share": -2.2620878969378326,
+            "energy_loops_share": 0.1710345684982818,
+            "energy_friction_share": -0.0,
+            "energy_residual_share": 2.5069903385274722e-05
+          }
+        }
+      ],
+      "summary": {
+        "completed": 64,
+        "failed_cases": [
+          20,
+          56,
+          61
+        ],
+        "findings": {
+          "stride_vs_kinematics": 3
+        }
+      },
+      "source_drift": [],
+      "strata": {
+        "4": {
+          "cases": 16,
+          "failures": 0
+        },
+        "6": {
+          "cases": 29,
+          "failures": 1
+        },
+        "8": {
+          "cases": 19,
+          "failures": 2
+        }
+      },
+      "max_abs_energy_residual_share": 0.0006424544094014223,
+      "max_loop_open_m": 0.004649937468617971,
+      "max_penetration_m": 0.0011561794449170392
+    },
+    "solref05-dt005": {
+      "before": "experiments/hardening-g1-contact-v3-solref05-dt005-2026-11-04.json",
+      "before_sha256": "118b3bf9a497da0df345e68dadd39a6f99ff62b98f8e8548aeeb4aec29662556",
+      "after": "experiments/hardening-g1-audit-energy-v3-solref05-dt005-2026-11-04.json",
+      "after_sha256": "227b372d41446a6ffad242325652727a2426c96880e11697db261de7645019a8",
+      "original_designs_and_overrides_identical": true,
+      "all_preexisting_metrics_bit_identical": true,
+      "findings_identical": true,
+      "added_metrics": [
+        {
+          "case": 11,
+          "new_metrics": {
+            "energy_in_per_rev": -0.00490406899819197,
+            "energy_contact_share": -2.6601761552474974,
+            "energy_loops_share": -0.03255429689283227,
+            "energy_friction_share": -0.0,
+            "energy_residual_share": 1.6441320803449927e-05
+          }
+        }
+      ],
+      "summary": {
+        "completed": 64,
+        "failed_cases": [
+          20,
+          56,
+          61
+        ],
+        "findings": {
+          "stride_vs_kinematics": 3
+        }
+      },
+      "source_drift": [],
+      "strata": {
+        "4": {
+          "cases": 16,
+          "failures": 0
+        },
+        "6": {
+          "cases": 29,
+          "failures": 1
+        },
+        "8": {
+          "cases": 19,
+          "failures": 2
+        }
+      },
+      "max_abs_energy_residual_share": 0.000316329807083118,
+      "max_loop_open_m": 0.004647417270342125,
+      "max_penetration_m": 0.0011551499642155055
+    }
+  },
+  "production_defaults_changed": false,
+  "original_thresholds_changed": false,
+  "new_missing_evidence_is_a_finding": true,
+  "legacy_stride_heuristic_replaced": false,
+  "goal_complete": false
+}

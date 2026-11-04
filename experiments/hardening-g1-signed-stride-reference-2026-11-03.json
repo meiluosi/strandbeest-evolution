@@ -1,0 +1,701 @@
+{
+  "definition": "Independent signed multi-leg reference study; never changes the live audit.\n\nAssumption: a nonrotating torso rides on the lowest foot centres. A declared\nheight tolerance selects candidate supports. Equal weighting is a least-\nsquares convention, not a claim that incompatible supports can all avoid slip.\nReport their incompatibility explicitly. No ratio denominator is enlarged.\n",
+  "analytic_checks": [
+    {
+      "legs": 2,
+      "direction": -1,
+      "amplitude": 1.0,
+      "expected_stride": 4.0,
+      "actual": {
+        "stride": 3.9999997459648986,
+        "rms_slip": 0.0,
+        "max_spread": 0.0,
+        "max_supports": 1
+      }
+    },
+    {
+      "legs": 2,
+      "direction": 1,
+      "amplitude": 1.0,
+      "expected_stride": -4.0,
+      "actual": {
+        "stride": -3.9999997459648986,
+        "rms_slip": 0.0,
+        "max_spread": 0.0,
+        "max_supports": 1
+      }
+    },
+    {
+      "legs": 4,
+      "direction": -1,
+      "amplitude": 1.0,
+      "expected_stride": 5.65685424949238,
+      "actual": {
+        "stride": 5.656853890195639,
+        "rms_slip": 0.0,
+        "max_spread": 0.0,
+        "max_supports": 1
+      }
+    },
+    {
+      "legs": 4,
+      "direction": 1,
+      "amplitude": 1.0,
+      "expected_stride": -5.65685424949238,
+      "actual": {
+        "stride": -5.656853890195639,
+        "rms_slip": 0.0,
+        "max_spread": 0.0,
+        "max_supports": 1
+      }
+    },
+    {
+      "legs": 2,
+      "direction": -1,
+      "amplitude": 0.0,
+      "expected_stride": 0.0,
+      "actual": {
+        "stride": 0.0,
+        "rms_slip": 0.0,
+        "max_spread": 0.0,
+        "max_supports": 1
+      }
+    },
+    {
+      "legs": 2,
+      "direction": 1,
+      "amplitude": 1e-10,
+      "expected_stride": -4e-10,
+      "actual": {
+        "stride": -3.9999997459647773e-10,
+        "rms_slip": 0.0,
+        "max_spread": 0.0,
+        "max_supports": 1
+      }
+    }
+  ],
+  "rows": [
+    {
+      "case": 20,
+      "spec": {
+        "params": {
+          "a": 39.94203779252581,
+          "b": 41.5,
+          "c": 39.3,
+          "d": 40.1,
+          "e": 55.8,
+          "f": 39.4,
+          "g": 36.7,
+          "h": 65.7,
+          "i": 52.62365682141761,
+          "j": 47.37213676142175,
+          "k": 61.9,
+          "l": 7.8,
+          "m": 15.168673368588433
+        },
+        "crank": {
+          "x": "a",
+          "y": "l",
+          "length": "m"
+        },
+        "joints": [
+          {
+            "id": "K",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "b",
+              "j"
+            ],
+            "side": 1
+          },
+          {
+            "id": "L",
+            "centers": [
+              "G",
+              "K"
+            ],
+            "radii": [
+              "d",
+              "e"
+            ],
+            "side": 1
+          },
+          {
+            "id": "M",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "c",
+              "k"
+            ],
+            "side": -1
+          },
+          {
+            "id": "N",
+            "centers": [
+              "L",
+              "M"
+            ],
+            "radii": [
+              "f",
+              "g"
+            ],
+            "side": -1
+          },
+          {
+            "id": "F",
+            "centers": [
+              "M",
+              "N"
+            ],
+            "radii": [
+              "i",
+              "h"
+            ],
+            "side": 1
+          }
+        ],
+        "foot": "F"
+      },
+      "walker": {
+        "legs": 8,
+        "mass": 50.0,
+        "body_mass": 0.35,
+        "unit": 0.002,
+        "direction": -1,
+        "tube_mass_per_m": 0.02232,
+        "min_bar_mass": 0.0001,
+        "lateral_spacing": 0.014,
+        "body_length": 0.25,
+        "pitch": "locked",
+        "bar_radius": 0.005,
+        "foot_radius": 0.002,
+        "foot_friction": 1.5,
+        "joint_friction": 0.0,
+        "joint_damping": 0.0,
+        "joint_friction_coeff": 0.0,
+        "joint_pin_radius": 0.003,
+        "body_drag_area": 0.0,
+        "body_drag_coeff": 1.1
+      },
+      "observed_stride": -0.12427560358477627,
+      "old_findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is -93% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": -0.12427560358477627,
+            "nominal_m": 0.1340125395520839,
+            "ratio": -0.9273430978932881
+          }
+        }
+      ],
+      "references": [
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 720,
+          "stride": -0.12491513271545977,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 1440,
+          "stride": -0.12342830747673089,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 720,
+          "stride": -0.10001975482806695,
+          "rms_slip": 0.026954632329378725,
+          "max_spread": 0.090463694682974,
+          "max_supports": 2
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 1440,
+          "stride": -0.10142198068096031,
+          "rms_slip": 0.02699721435566154,
+          "max_spread": 0.09057946853054943,
+          "max_supports": 2
+        }
+      ]
+    },
+    {
+      "case": 53,
+      "spec": {
+        "params": {
+          "a": 38,
+          "b": 41.5,
+          "c": 39.3,
+          "d": 42.09256330935524,
+          "e": 55.8,
+          "f": 39.4,
+          "g": 33.90581256190924,
+          "h": 65.7,
+          "i": 49,
+          "j": 53.232142436954334,
+          "k": 61.9,
+          "l": 7.8,
+          "m": 14.291572170568362
+        },
+        "crank": {
+          "x": "a",
+          "y": "l",
+          "length": "m"
+        },
+        "joints": [
+          {
+            "id": "K",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "b",
+              "j"
+            ],
+            "side": 1
+          },
+          {
+            "id": "L",
+            "centers": [
+              "G",
+              "K"
+            ],
+            "radii": [
+              "d",
+              "e"
+            ],
+            "side": 1
+          },
+          {
+            "id": "M",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "c",
+              "k"
+            ],
+            "side": -1
+          },
+          {
+            "id": "N",
+            "centers": [
+              "L",
+              "M"
+            ],
+            "radii": [
+              "f",
+              "g"
+            ],
+            "side": -1
+          },
+          {
+            "id": "F",
+            "centers": [
+              "M",
+              "N"
+            ],
+            "radii": [
+              "i",
+              "h"
+            ],
+            "side": 1
+          }
+        ],
+        "foot": "F"
+      },
+      "walker": {
+        "legs": 8,
+        "mass": 50.0,
+        "body_mass": 0.35,
+        "unit": 0.002,
+        "direction": -1,
+        "tube_mass_per_m": 0.02232,
+        "min_bar_mass": 0.0001,
+        "lateral_spacing": 0.014,
+        "body_length": 0.25,
+        "pitch": "locked",
+        "bar_radius": 0.005,
+        "foot_radius": 0.002,
+        "foot_friction": 1.5,
+        "joint_friction": 0.0,
+        "joint_damping": 0.0,
+        "joint_friction_coeff": 0.0,
+        "joint_pin_radius": 0.003,
+        "body_drag_area": 0.0,
+        "body_drag_coeff": 1.1
+      },
+      "observed_stride": 0.12309732372781095,
+      "old_findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is 117% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": 0.12309732372781095,
+            "nominal_m": 0.10541111577700392,
+            "ratio": 1.167783139571561
+          }
+        }
+      ],
+      "references": [
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 720,
+          "stride": 0.10743043957451574,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 1440,
+          "stride": 0.1070721936157093,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 720,
+          "stride": 0.1758230010594558,
+          "rms_slip": 0.017921954961624506,
+          "max_spread": 0.0656947417152054,
+          "max_supports": 3
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 1440,
+          "stride": 0.1763174828075629,
+          "rms_slip": 0.018026308548066878,
+          "max_spread": 0.06597849037426329,
+          "max_supports": 3
+        }
+      ]
+    },
+    {
+      "case": 56,
+      "spec": {
+        "params": {
+          "a": 38,
+          "b": 41.5,
+          "c": 39.3,
+          "d": 41.52620050401054,
+          "e": 55.8,
+          "f": 39.4,
+          "g": 39.605646700726396,
+          "h": 65.7,
+          "i": 49,
+          "j": 50,
+          "k": 62.463424352216606,
+          "l": 7.969145130712606,
+          "m": 15
+        },
+        "crank": {
+          "x": "a",
+          "y": "l",
+          "length": "m"
+        },
+        "joints": [
+          {
+            "id": "K",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "b",
+              "j"
+            ],
+            "side": 1
+          },
+          {
+            "id": "L",
+            "centers": [
+              "G",
+              "K"
+            ],
+            "radii": [
+              "d",
+              "e"
+            ],
+            "side": 1
+          },
+          {
+            "id": "M",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "c",
+              "k"
+            ],
+            "side": -1
+          },
+          {
+            "id": "N",
+            "centers": [
+              "L",
+              "M"
+            ],
+            "radii": [
+              "f",
+              "g"
+            ],
+            "side": -1
+          },
+          {
+            "id": "F",
+            "centers": [
+              "M",
+              "N"
+            ],
+            "radii": [
+              "i",
+              "h"
+            ],
+            "side": 1
+          }
+        ],
+        "foot": "F"
+      },
+      "walker": {
+        "legs": 8,
+        "mass": 50.0,
+        "body_mass": 0.35,
+        "unit": 0.002,
+        "direction": -1,
+        "tube_mass_per_m": 0.02232,
+        "min_bar_mass": 0.0001,
+        "lateral_spacing": 0.014,
+        "body_length": 0.25,
+        "pitch": "locked",
+        "bar_radius": 0.005,
+        "foot_radius": 0.002,
+        "foot_friction": 1.5,
+        "joint_friction": 0.0,
+        "joint_damping": 0.0,
+        "joint_friction_coeff": 0.0,
+        "joint_pin_radius": 0.003,
+        "body_drag_area": 0.0,
+        "body_drag_coeff": 1.1
+      },
+      "observed_stride": 0.25901519989938004,
+      "old_findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is 116% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": 0.25901519989938004,
+            "nominal_m": 0.22422272316360317,
+            "ratio": 1.1551692720741362
+          }
+        }
+      ],
+      "references": [
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 720,
+          "stride": 0.25869730220656484,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 1440,
+          "stride": 0.2584311110383658,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 720,
+          "stride": 0.22380091317031464,
+          "rms_slip": 0.01479762992127288,
+          "max_spread": 0.059927022876316016,
+          "max_supports": 4
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 1440,
+          "stride": 0.22363505701109299,
+          "rms_slip": 0.014845753032526665,
+          "max_spread": 0.060369349869304756,
+          "max_supports": 4
+        }
+      ]
+    },
+    {
+      "case": 61,
+      "spec": {
+        "params": {
+          "a": 38,
+          "b": 41.5,
+          "c": 40.83897332037926,
+          "d": 40.1,
+          "e": 51.74122459830258,
+          "f": 39.4,
+          "g": 36.7,
+          "h": 65.35418282846028,
+          "i": 49,
+          "j": 50,
+          "k": 61.9,
+          "l": 7.8,
+          "m": 15.02467421469623
+        },
+        "crank": {
+          "x": "a",
+          "y": "l",
+          "length": "m"
+        },
+        "joints": [
+          {
+            "id": "K",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "b",
+              "j"
+            ],
+            "side": 1
+          },
+          {
+            "id": "L",
+            "centers": [
+              "G",
+              "K"
+            ],
+            "radii": [
+              "d",
+              "e"
+            ],
+            "side": 1
+          },
+          {
+            "id": "M",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "c",
+              "k"
+            ],
+            "side": -1
+          },
+          {
+            "id": "N",
+            "centers": [
+              "L",
+              "M"
+            ],
+            "radii": [
+              "f",
+              "g"
+            ],
+            "side": -1
+          },
+          {
+            "id": "F",
+            "centers": [
+              "M",
+              "N"
+            ],
+            "radii": [
+              "i",
+              "h"
+            ],
+            "side": 1
+          }
+        ],
+        "foot": "F"
+      },
+      "walker": {
+        "legs": 6,
+        "mass": 50.0,
+        "body_mass": 0.35,
+        "unit": 0.002,
+        "direction": -1,
+        "tube_mass_per_m": 0.02232,
+        "min_bar_mass": 0.0001,
+        "lateral_spacing": 0.014,
+        "body_length": 0.25,
+        "pitch": "locked",
+        "bar_radius": 0.005,
+        "foot_radius": 0.002,
+        "foot_friction": 1.5,
+        "joint_friction": 0.0,
+        "joint_damping": 0.0,
+        "joint_friction_coeff": 0.0,
+        "joint_pin_radius": 0.003,
+        "body_drag_area": 0.0,
+        "body_drag_coeff": 1.1
+      },
+      "observed_stride": 0.00023225823009145682,
+      "old_findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is 0% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": 0.00023225823009145682,
+            "nominal_m": 0.09984973343417684,
+            "ratio": 0.0023260776178693214
+          }
+        }
+      ],
+      "references": [
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 720,
+          "stride": -5.949294020122005e-05,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 0.0,
+          "samples": 1440,
+          "stride": -0.0013407701124604837,
+          "rms_slip": 0.0,
+          "max_spread": 0.0,
+          "max_supports": 1
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 720,
+          "stride": 0.014290872813802513,
+          "rms_slip": 0.028385539899719186,
+          "max_spread": 0.1102962677631325,
+          "max_supports": 2
+        },
+        {
+          "support_tolerance_units": 1.0,
+          "samples": 1440,
+          "stride": 0.014051991261219686,
+          "rms_slip": 0.028548289699149448,
+          "max_spread": 0.11062090345212994,
+          "max_supports": 2
+        }
+      ]
+    }
+  ],
+  "changes_live_audit": false,
+  "passes_original_g1_gate": false
+}

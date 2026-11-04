@@ -1,0 +1,123 @@
+{
+  "study": "H2 signed stride reference diagnostic",
+  "production_audit_changed": false,
+  "denominator_floor_added": false,
+  "reference_assumption": "Nonrotating torso, strict lowest-foot support, no-slip during each support interval; switching events found by bisection. This is an ideal model, not a validated truth for compliant/slipping feet.",
+  "analytic_cases": "Compatible / opposite / absent supports; 2/4 phased ellipse legs; forward/reverse; exact zero; signed amplitude 1e-10.",
+  "validation": {
+    "python_tests_passed": 7,
+    "typescript_tests_passed": 11,
+    "typescript_typecheck": "passed"
+  },
+  "rows": [
+    {
+      "case": 20,
+      "signed_lowest_foot_stride_m": -0.12490597839071482,
+      "refinement_spread_m": 0.0,
+      "cohorts": {
+        "default": {
+          "observed": -0.1254573273144464,
+          "relative_error": 0.004414111564835732,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.0005513489237315705
+        },
+        "solref05": {
+          "observed": -0.12427560358477627,
+          "relative_error": -0.005046794509440566,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.000630374805938555
+        },
+        "solref05_dt005": {
+          "observed": -0.12420746972324112,
+          "relative_error": -0.0055922756978750154,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.0006985086674737018
+        }
+      },
+      "band_reference_m": -0.10142198068096031,
+      "band_rms_incompatible_slip_m_per_rad": 0.02699721435566154
+    },
+    {
+      "case": 53,
+      "signed_lowest_foot_stride_m": 0.1073325428819838,
+      "refinement_spread_m": 0.0,
+      "cohorts": {
+        "default": {
+          "observed": 0.12842603687642046,
+          "relative_error": 0.19652468326991723,
+          "passes_same_15_percent": false,
+          "absolute_difference_m": 0.021093493994436663
+        },
+        "solref05": {
+          "observed": 0.12309732372781095,
+          "relative_error": 0.14687792185414938,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.01576478084582715
+        },
+        "solref05_dt005": {
+          "observed": 0.12343599541612507,
+          "relative_error": 0.15003327138021527,
+          "passes_same_15_percent": false,
+          "absolute_difference_m": 0.016103452534141277
+        }
+      },
+      "band_reference_m": 0.1763174828075629,
+      "band_rms_incompatible_slip_m_per_rad": 0.018026308548066878
+    },
+    {
+      "case": 56,
+      "signed_lowest_foot_stride_m": 0.2585556528827565,
+      "refinement_spread_m": 5.551115123125783e-17,
+      "cohorts": {
+        "default": {
+          "observed": 0.2582537700578516,
+          "relative_error": -0.0011675738725457352,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.0003018828249048977
+        },
+        "solref05": {
+          "observed": 0.25901519989938004,
+          "relative_error": 0.0017773620940011448,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.00045954701662354047
+        },
+        "solref05_dt005": {
+          "observed": 0.25915492635751164,
+          "relative_error": 0.0023177736323827247,
+          "passes_same_15_percent": true,
+          "absolute_difference_m": 0.0005992734747551354
+        }
+      },
+      "band_reference_m": 0.22363505701109299,
+      "band_rms_incompatible_slip_m_per_rad": 0.014845753032526665
+    },
+    {
+      "case": 61,
+      "signed_lowest_foot_stride_m": -0.00172199674445013,
+      "refinement_spread_m": 0.0,
+      "cohorts": {
+        "default": {
+          "observed": 0.0030317141464937182,
+          "relative_error": -2.76058064933323,
+          "passes_same_15_percent": false,
+          "absolute_difference_m": 0.004753710890943848
+        },
+        "solref05": {
+          "observed": 0.00023225823009145682,
+          "relative_error": -1.1348772759530517,
+          "passes_same_15_percent": false,
+          "absolute_difference_m": 0.0019542549745415866
+        },
+        "solref05_dt005": {
+          "observed": 0.00024565847854851863,
+          "relative_error": -1.142659084194124,
+          "passes_same_15_percent": false,
+          "absolute_difference_m": 0.0019676552229986486
+        }
+      },
+      "band_reference_m": 0.014051991261219686,
+      "band_rms_incompatible_slip_m_per_rad": 0.028548289699149448
+    }
+  ],
+  "remaining": "Case61 fails under every solver setting, and case53 narrowly fails with the half timestep. No original G1 pass is claimed."
+}

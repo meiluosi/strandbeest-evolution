@@ -1,0 +1,1023 @@
+{
+  "date": "2026-11-04",
+  "task": "H4-01",
+  "h4_01_accepted": false,
+  "models": {
+    "viscous_2param": {
+      "damping_nm_s_per_rad": 0.0041984916389489315,
+      "torque_bias_nm": -0.001973956190132417,
+      "train": {
+        "pooled_velocity_rmse_rad_s": 2.5216501460279863,
+        "condition_velocity_nrmse": {
+          "ccw_fast": 0.16283497553371634,
+          "ccw_medium": 0.8154080554295485,
+          "cw_fast": 0.18448973013379705,
+          "cw_medium": 1.2601676825090913
+        }
+      },
+      "holdout": {
+        "pooled_velocity_rmse_rad_s": 2.6387599287411008,
+        "condition_velocity_nrmse": {
+          "ccw_fast": 0.09401206350556603,
+          "ccw_medium": 0.8827146852447091,
+          "cw_fast": 0.09453664554347815,
+          "cw_medium": 1.4811004068487281
+        }
+      }
+    },
+    "coulomb_3param": {
+      "damping_nm_s_per_rad": 0.002626017838888986,
+      "coulomb_friction_nm": 0.014812644100665236,
+      "torque_bias_nm": -0.0019315405959395755,
+      "condition_number": 15.26002179281085,
+      "train": {
+        "pooled_velocity_rmse_rad_s": 2.2705285659559333,
+        "condition_velocity_nrmse": {
+          "ccw_fast": 0.2344797719605222,
+          "ccw_medium": 0.5681287785349758,
+          "cw_fast": 0.2317311945063059,
+          "cw_medium": 0.8188688829413292
+        }
+      },
+      "holdout": {
+        "pooled_velocity_rmse_rad_s": 2.1704464001221773,
+        "condition_velocity_nrmse": {
+          "ccw_fast": 0.1319936276868771,
+          "ccw_medium": 0.5141685091661617,
+          "cw_fast": 0.13325468968201273,
+          "cw_medium": 1.1733563659823782
+        }
+      },
+      "native_mujoco_holdout": {
+        "pooled_velocity_rmse_rad_s": 2.1703551805445573,
+        "condition_velocity_nrmse": {
+          "ccw_fast": 0.13199103339237866,
+          "ccw_medium": 0.5140194359542767,
+          "cw_fast": 0.1332523890081346,
+          "cw_medium": 1.1733460869408892
+        }
+      }
+    }
+  },
+  "train_dissipation_by_condition": {
+    "ccw_fast": {
+      "mean_omega_rad_s": 10.812779517495745,
+      "observed_mean_dissipative_torque_nm": 0.04277481939187154,
+      "viscous_2param_predicted_nm": 0.04342340820787173,
+      "viscous_2param_residual_nm": -0.0006485888160001896,
+      "coulomb_3param_predicted_nm": 0.04127565540564292,
+      "coulomb_3param_residual_nm": 0.0014991639862286174
+    },
+    "ccw_medium": {
+      "mean_omega_rad_s": 2.76567284759346,
+      "observed_mean_dissipative_torque_nm": 0.018755409460906695,
+      "viscous_2param_predicted_nm": 0.009637698136556808,
+      "viscous_2param_residual_nm": 0.009117711324349888,
+      "coulomb_3param_predicted_nm": 0.020143809739036986,
+      "coulomb_3param_residual_nm": -0.001388400278130291
+    },
+    "cw_fast": {
+      "mean_omega_rad_s": -10.60654467472976,
+      "observed_mean_dissipative_torque_nm": -0.0394591141464167,
+      "viscous_2param_predicted_nm": -0.04650544532512362,
+      "viscous_2param_residual_nm": 0.00704633117870692,
+      "coulomb_3param_predicted_nm": -0.04459716022141814,
+      "coulomb_3param_residual_nm": 0.005138046075001436
+    },
+    "cw_medium": {
+      "mean_omega_rad_s": -2.8959267829385884,
+      "observed_mean_dissipative_torque_nm": -0.029829079378461285,
+      "viscous_2param_predicted_nm": -0.014132480575308358,
+      "viscous_2param_residual_nm": -0.015696598803152925,
+      "coulomb_3param_predicted_nm": -0.02434894008871794,
+      "coulomb_3param_residual_nm": -0.005480139289743346
+    }
+  },
+  "sensor_zero_drift_sensitivity": {
+    "transducer_model": "ATI Gamma 15/50 6-DOF force/torque transducer",
+    "transducer_full_scale_force_n": 66.7233242289075,
+    "crank_radius_m": 0.10286999999999999,
+    "fitted_viscous_damping_nm_s_per_rad": 0.002626017838888986,
+    "mechanical_time_constant_s": 1.4150703567086822,
+    "rollout_duration_s": 15.995,
+    "velocity_drift_per_0p05n_force_offset_rad_s": 1.9586691011117077,
+    "holdout_median_abs_force_offset_n": 0.03076808534006696,
+    "holdout_max_abs_force_offset_n": 0.13833306745874105,
+    "holdout_median_abs_force_offset_pct_full_scale": 0.046112938310014326,
+    "holdout_max_abs_force_offset_pct_full_scale": 0.2073234046076035
+  },
+  "trials": [
+    {
+      "name": "crank_data/ONZ/ONZ102.ASC",
+      "condition": "cw_medium",
+      "split": "train",
+      "mean_omega_rad_s": -2.9837747322531456,
+      "mean_ft_n": -0.30928726078799246,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.880744619507265,
+        "velocity_nrmse": 1.2791420668146187,
+        "angle_rmse_rad": 29.787455962415425,
+        "final_angle_error_rad": -58.64422760226725,
+        "final_velocity_error_rad_s": -5.582349286897664
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.6384750024779255,
+        "velocity_nrmse": 0.8696744307634547,
+        "angle_rmse_rad": 14.24067655910928,
+        "final_angle_error_rad": -33.73192040902519,
+        "final_velocity_error_rad_s": -4.849876037897275
+      },
+      "implied_force_zero_offset_n": -0.06436475366517205,
+      "implied_force_zero_offset_pct_of_full_scale": 0.09646514829560364,
+      "steady_velocity_sensitivity_rad_s": 2.521385084092781
+    },
+    {
+      "name": "crank_data/ONZ/ONZ104.ASC",
+      "condition": "cw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": -2.98701027460174,
+      "mean_ft_n": -0.3831110600375235,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 5.619368338099962,
+        "velocity_nrmse": 1.8630441065771008,
+        "angle_rmse_rad": 45.709042043770765,
+        "final_angle_error_rad": -86.55031581455873,
+        "final_velocity_error_rad_s": -6.773843208303086
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 5.160689570271414,
+        "velocity_nrmse": 1.7109738517370412,
+        "angle_rmse_rad": 38.370458905188016,
+        "final_angle_error_rad": -76.67063945092653,
+        "final_velocity_error_rad_s": -7.041426221237096
+      },
+      "implied_force_zero_offset_n": -0.13833306745874105,
+      "implied_force_zero_offset_pct_of_full_scale": 0.2073234046076035,
+      "steady_velocity_sensitivity_rad_s": 5.418974097868752,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 5.1606656536368085,
+        "velocity_nrmse": 1.710965922421419,
+        "angle_rmse_rad": 38.370477936777384,
+        "final_angle_error_rad": -76.67062296938383,
+        "final_velocity_error_rad_s": -7.041437868386929
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00010728912144308822,
+      "native_vs_analytic_max_angle_diff_rad": 0.00015182165524052493
+    },
+    {
+      "name": "crank_data/ONZ/ONZ105.ASC",
+      "condition": "cw_medium",
+      "split": "train",
+      "mean_omega_rad_s": -3.0432540731587445,
+      "mean_ft_n": -0.30048131019387114,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.808036526020437,
+        "velocity_nrmse": 1.2384263388202679,
+        "angle_rmse_rad": 34.09672067227396,
+        "final_angle_error_rad": -55.5922521261161,
+        "final_velocity_error_rad_s": -4.2651621496705125
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.770498228067038,
+        "velocity_nrmse": 0.901004481928829,
+        "angle_rmse_rad": 21.934278394097014,
+        "final_angle_error_rad": -31.076758420179935,
+        "final_velocity_error_rad_s": -2.154872153516731
+      },
+      "implied_force_zero_offset_n": -0.054500972277317095,
+      "implied_force_zero_offset_pct_of_full_scale": 0.08168203983713518,
+      "steady_velocity_sensitivity_rad_s": 2.1349874076025355
+    },
+    {
+      "name": "crank_data/ONZ/ONZ106.ASC",
+      "condition": "cw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": -2.9577834631614626,
+      "mean_ft_n": -0.2758559740462789,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.224456955851826,
+        "velocity_nrmse": 1.0782223328412637,
+        "angle_rmse_rad": 21.85974682068895,
+        "final_angle_error_rad": -46.51459270780021,
+        "final_velocity_error_rad_s": -4.583986996907089
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.0136561797537733,
+        "velocity_nrmse": 0.6733440989913194,
+        "angle_rmse_rad": 4.510000272537837,
+        "final_angle_error_rad": -14.344344294540669,
+        "final_velocity_error_rad_s": -3.731468431686852
+      },
+      "implied_force_zero_offset_n": -0.030751601293556297,
+      "implied_force_zero_offset_pct_of_full_scale": 0.0460882332361872,
+      "steady_velocity_sensitivity_rad_s": 1.2046442252679108,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 2.013563961282327,
+        "velocity_nrmse": 0.6733132621661501,
+        "angle_rmse_rad": 4.5098646406079475,
+        "final_angle_error_rad": -14.347981928234674,
+        "final_velocity_error_rad_s": -3.7314773170078768
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.017943441352798628,
+      "native_vs_analytic_max_angle_diff_rad": 0.0037489369188357102
+    },
+    {
+      "name": "crank_data/ONZ/ONZ107.ASC",
+      "condition": "cw_medium",
+      "split": "train",
+      "mean_omega_rad_s": -2.841190871672297,
+      "mean_ft_n": -0.3060850969355847,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.934876865563537,
+        "velocity_nrmse": 1.3680522033280749,
+        "angle_rmse_rad": 29.517102416819718,
+        "final_angle_error_rad": -59.1575781167026,
+        "final_velocity_error_rad_s": -6.032897641125871
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.661157278714294,
+        "velocity_nrmse": 0.9252137240706875,
+        "angle_rmse_rad": 12.967727458276036,
+        "final_angle_error_rad": -32.70361965864776,
+        "final_velocity_error_rad_s": -5.434457205406213
+      },
+      "implied_force_zero_offset_n": -0.0645090528592252,
+      "implied_force_zero_offset_pct_of_full_scale": 0.09668141329097182,
+      "steady_velocity_sensitivity_rad_s": 2.527037771546925
+    },
+    {
+      "name": "crank_data/ONZ/ONZ108.ASC",
+      "condition": "cw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": -2.938735094793354,
+      "mean_ft_n": -0.32700358036272664,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 4.327729342910033,
+        "velocity_nrmse": 1.4622713373914789,
+        "angle_rmse_rad": 35.272622811188064,
+        "final_angle_error_rad": -66.47742581929424,
+        "final_velocity_error_rad_s": -5.768793798837866
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 3.162861153324062,
+        "velocity_nrmse": 1.0686807889757808,
+        "angle_rmse_rad": 22.052135073199146,
+        "final_angle_error_rad": -45.254559864129654,
+        "final_velocity_error_rad_s": -5.230419037268792
+      },
+      "implied_force_zero_offset_n": -0.08408249048221836,
+      "implied_force_zero_offset_pct_of_full_scale": 0.12601663878999317,
+      "steady_velocity_sensitivity_rad_s": 3.2937955210408068,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 3.1628408384496103,
+        "velocity_nrmse": 1.0686739249008168,
+        "angle_rmse_rad": 22.05215224318222,
+        "final_angle_error_rad": -45.254576060125196,
+        "final_velocity_error_rad_s": -5.230407591904026
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 8.257445096937488e-05,
+      "native_vs_analytic_max_angle_diff_rad": 0.00011684865772831898
+    },
+    {
+      "name": "crank_data/ONZ/ONZ110.ASC",
+      "condition": "cw_medium",
+      "split": "train",
+      "mean_omega_rad_s": -2.7154874546701655,
+      "mean_ft_n": -0.26477022201375855,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.1448014685618206,
+        "velocity_nrmse": 1.144822823563536,
+        "angle_rmse_rad": 24.79749650624315,
+        "final_angle_error_rad": -47.733259643231264,
+        "final_velocity_error_rad_s": -4.389944020133618
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.3953501633002325,
+        "velocity_nrmse": 0.5079585244978115,
+        "angle_rmse_rad": 5.552631908154724,
+        "final_angle_error_rad": -14.760918016858469,
+        "final_velocity_error_rad_s": -2.833611934396292
+      },
+      "implied_force_zero_offset_n": -0.029715112896286935,
+      "implied_force_zero_offset_pct_of_full_scale": 0.044534820828685616,
+      "steady_velocity_sensitivity_rad_s": 1.164041469320065
+    },
+    {
+      "name": "crank_data/ONZ/ONZ111.ASC",
+      "condition": "cw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": -2.911859088800602,
+      "mean_ft_n": -0.3202859974984365,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 4.1649620348770355,
+        "velocity_nrmse": 1.4152383030514273,
+        "angle_rmse_rad": 32.45671335120402,
+        "final_angle_error_rad": -63.31167878370743,
+        "final_velocity_error_rad_s": -6.389398679417699
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.919536674539328,
+        "velocity_nrmse": 0.9920474891179726,
+        "angle_rmse_rad": 17.836447572328282,
+        "final_angle_error_rad": -39.807989387144396,
+        "final_velocity_error_rad_s": -6.0095785796623975
+      },
+      "implied_force_zero_offset_n": -0.07700059652596945,
+      "implied_force_zero_offset_pct_of_full_scale": 0.11540281815366955,
+      "steady_velocity_sensitivity_rad_s": 3.0163737836517175,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 2.919517160380997,
+        "velocity_nrmse": 0.9920408582809829,
+        "angle_rmse_rad": 17.83654722536962,
+        "final_angle_error_rad": -39.808130265305785,
+        "final_velocity_error_rad_s": -6.009550817193199
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.014334689547482677,
+      "native_vs_analytic_max_angle_diff_rad": 0.00020302373158642695
+    },
+    {
+      "name": "crank_data/ONZ/ONZ202.ASC",
+      "condition": "cw_fast",
+      "split": "train",
+      "mean_omega_rad_s": -9.453516427809745,
+      "mean_ft_n": -0.332953596491228,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.1122460790194784,
+        "velocity_nrmse": 0.3209604350101576,
+        "angle_rmse_rad": 5.126325108405775,
+        "final_angle_error_rad": 10.830301147597329,
+        "final_velocity_error_rad_s": 3.3526831390102787
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 4.170815712191822,
+        "velocity_nrmse": 0.4301288495008846,
+        "angle_rmse_rad": 7.308404834695434,
+        "final_angle_error_rad": 15.02341982689579,
+        "final_velocity_error_rad_s": 4.857789998380858
+      },
+      "implied_force_zero_offset_n": 0.13990890673339607,
+      "implied_force_zero_offset_pct_of_full_scale": 0.20968515635313825,
+      "steady_velocity_sensitivity_rad_s": 5.480705051780452
+    },
+    {
+      "name": "crank_data/ONZ/ONZ203.ASC",
+      "condition": "cw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": -10.235236631569567,
+      "mean_ft_n": -0.4621178383458647,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.2884673192223246,
+        "velocity_nrmse": 0.1246131502934416,
+        "angle_rmse_rad": 1.6495226517876755,
+        "final_angle_error_rad": 1.2975475622365877,
+        "final_velocity_error_rad_s": 1.5779518853775372
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.557859077712975,
+        "velocity_nrmse": 0.1506671721438922,
+        "angle_rmse_rad": 2.2578105954087686,
+        "final_angle_error_rad": 1.3898364465435264,
+        "final_velocity_error_rad_s": 0.6292875212254732
+      },
+      "implied_force_zero_offset_n": 0.014431215528362532,
+      "implied_force_zero_offset_pct_of_full_scale": 0.02162844207050207,
+      "steady_velocity_sensitivity_rad_s": 0.5653195189377431,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 1.557840207505801,
+        "velocity_nrmse": 0.15066534712596,
+        "angle_rmse_rad": 2.257713715172751,
+        "final_angle_error_rad": 1.3898671540322454,
+        "final_velocity_error_rad_s": 0.6292658208995814
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00019148021211989885,
+      "native_vs_analytic_max_angle_diff_rad": 0.00027095797184628623
+    },
+    {
+      "name": "crank_data/ONZ/ONZ205.ASC",
+      "condition": "cw_fast",
+      "split": "train",
+      "mean_omega_rad_s": -10.895142055947032,
+      "mean_ft_n": -0.4807393107769424,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.1846380819261808,
+        "velocity_nrmse": 0.10750139405144353,
+        "angle_rmse_rad": 0.5455085176032439,
+        "final_angle_error_rad": 2.120920251837191,
+        "final_velocity_error_rad_s": 2.8487140384282235
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 0.9636096800227639,
+        "velocity_nrmse": 0.08744390840068199,
+        "angle_rmse_rad": 0.35507267213753074,
+        "final_angle_error_rad": 0.666715157823802,
+        "final_velocity_error_rad_s": 2.2261598956152255
+      },
+      "implied_force_zero_offset_n": 0.024247051712400054,
+      "implied_force_zero_offset_pct_of_full_scale": 0.03633969379165788,
+      "steady_velocity_sensitivity_rad_s": 0.9498390196427141
+    },
+    {
+      "name": "crank_data/ONZ/ONZ206.ASC",
+      "condition": "cw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": -12.008858077385149,
+      "mean_ft_n": -0.4995697556390977,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.1392367519265933,
+        "velocity_nrmse": 0.09431786334964654,
+        "angle_rmse_rad": 2.5150890574510565,
+        "final_angle_error_rad": 4.054071961645917,
+        "final_velocity_error_rad_s": 0.7751098111720456
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 0.7492046637480494,
+        "velocity_nrmse": 0.06202695179628439,
+        "angle_rmse_rad": 1.504547526385716,
+        "final_angle_error_rad": 1.79048503140082,
+        "final_velocity_error_rad_s": -0.3357607198535195
+      },
+      "implied_force_zero_offset_n": 0.008274227268789014,
+      "implied_force_zero_offset_pct_of_full_scale": 0.012400801915088416,
+      "steady_velocity_sensitivity_rad_s": 0.32412946573905915,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 0.7492397857958236,
+        "velocity_nrmse": 0.06202985956457481,
+        "angle_rmse_rad": 1.5044919145309572,
+        "final_angle_error_rad": 1.7904686574901945,
+        "final_velocity_error_rad_s": -0.3357491487605291
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00015621733740722732,
+      "native_vs_analytic_max_angle_diff_rad": 0.00022105852321097075
+    },
+    {
+      "name": "crank_data/ONZ/ONZ207.ASC",
+      "condition": "cw_fast",
+      "split": "train",
+      "mean_omega_rad_s": -11.46699014959029,
+      "mean_ft_n": -0.566383596491228,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.012613214521702,
+        "velocity_nrmse": 0.08660269558414192,
+        "angle_rmse_rad": 1.3004011919776073,
+        "final_angle_error_rad": 2.190036578291057,
+        "final_velocity_error_rad_s": 0.7636128340599662
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.041450133615764,
+        "velocity_nrmse": 0.0890689431997897,
+        "angle_rmse_rad": 0.9455488379971363,
+        "final_angle_error_rad": 0.14516727721876777,
+        "final_velocity_error_rad_s": -0.3895273496316829
+      },
+      "implied_force_zero_offset_n": -0.002947986514932543,
+      "implied_force_zero_offset_pct_of_full_scale": 0.004418224884627892,
+      "steady_velocity_sensitivity_rad_s": 0.11548260194584718
+    },
+    {
+      "name": "crank_data/ONZ/ONZ208.ASC",
+      "condition": "cw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": -11.309617744931936,
+      "mean_ft_n": -0.5747528070175439,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.1595866276074727,
+        "velocity_nrmse": 0.10190522678851277,
+        "angle_rmse_rad": 1.0590804050360259,
+        "final_angle_error_rad": -2.63903909048679,
+        "final_velocity_error_rad_s": -1.7274042598588775
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.2455944681617614,
+        "velocity_nrmse": 0.19734430193042643,
+        "angle_rmse_rad": 2.592113261484512,
+        "final_angle_error_rad": -6.3226291931911405,
+        "final_velocity_error_rad_s": -3.4879658105690066
+      },
+      "implied_force_zero_offset_n": -0.07219367901509485,
+      "implied_force_zero_offset_pct_of_full_scale": 0.10819856451908813,
+      "steady_velocity_sensitivity_rad_s": 2.8280705676488593,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 2.245541605795095,
+        "velocity_nrmse": 0.19733965635127307,
+        "angle_rmse_rad": 2.592149047145786,
+        "final_angle_error_rad": -6.322723321271447,
+        "final_velocity_error_rad_s": -3.4878992922647054
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00019341668473238371,
+      "native_vs_analytic_max_angle_diff_rad": 0.00027369821689404716
+    },
+    {
+      "name": "crank_data/ONZ/ONZ210.ASC",
+      "condition": "cw_fast",
+      "split": "train",
+      "mean_omega_rad_s": -10.61053006557197,
+      "mean_ft_n": -0.43993953634085214,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.2690546424210263,
+        "velocity_nrmse": 0.1186324772227747,
+        "angle_rmse_rad": 2.6549218128561765,
+        "final_angle_error_rad": 4.63618542165522,
+        "final_velocity_error_rad_s": 1.1156260666336646
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.2750450969333298,
+        "velocity_nrmse": 0.11919247080754987,
+        "angle_rmse_rad": 2.772885150524634,
+        "final_angle_error_rad": 4.683355290787162,
+        "final_velocity_error_rad_s": 0.9746852256133316
+      },
+      "implied_force_zero_offset_n": 0.0385799574946811,
+      "implied_force_zero_offset_pct_of_full_scale": 0.057820796461406754,
+      "steady_velocity_sensitivity_rad_s": 1.5113074133406983
+    },
+    {
+      "name": "crank_data/ONZ/ONZ213.ASC",
+      "condition": "cw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": -11.141203214503049,
+      "mean_ft_n": -0.5529232706766917,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 0.3442969405545858,
+        "velocity_nrmse": 0.030655139581091798,
+        "angle_rmse_rad": 0.3624521543967992,
+        "final_angle_error_rad": 0.28180341835086864,
+        "final_velocity_error_rad_s": -0.7240899202123092
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 0.8355462313621024,
+        "velocity_nrmse": 0.07439446399843795,
+        "angle_rmse_rad": 0.742861203420588,
+        "final_angle_error_rad": -2.085997860832272,
+        "final_velocity_error_rad_s": -1.8993537903947892
+      },
+      "implied_force_zero_offset_n": -0.030784569386577625,
+      "implied_force_zero_offset_pct_of_full_scale": 0.04613764338384146,
+      "steady_velocity_sensitivity_rad_s": 1.2059356969703798,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 0.835513784429887,
+        "velocity_nrmse": 0.07439157502348966,
+        "angle_rmse_rad": 0.7428865694581797,
+        "final_angle_error_rad": -2.0860923459844614,
+        "final_velocity_error_rad_s": -1.8992870197555227
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00024475730910822335,
+      "native_vs_analytic_max_angle_diff_rad": 0.00034634881279327345
+    },
+    {
+      "name": "crank_data/ONZ/ONZ502.ASC",
+      "condition": "ccw_medium",
+      "split": "train",
+      "mean_omega_rad_s": 2.6375891396281403,
+      "mean_ft_n": 0.2486027861163227,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.4250162430194124,
+        "velocity_nrmse": 1.280832587244806,
+        "angle_rmse_rad": 27.417164494395745,
+        "final_angle_error_rad": 52.01825502824848,
+        "final_velocity_error_rad_s": 10.01414707745582
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.7000405159799463,
+        "velocity_nrmse": 0.6357538586689991,
+        "angle_rmse_rad": 8.764593552026803,
+        "final_angle_error_rad": 20.136431710315925,
+        "final_velocity_error_rad_s": 8.487397883308002
+      },
+      "implied_force_zero_offset_n": 0.05134177456168027,
+      "implied_force_zero_offset_pct_of_full_scale": 0.07694726717383296,
+      "steady_velocity_sensitivity_rad_s": 2.0112309486041244
+    },
+    {
+      "name": "crank_data/ONZ/ONZ503.ASC",
+      "condition": "ccw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": 2.6011466271631,
+      "mean_ft_n": 0.18121810975609756,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 2.2420029082868,
+        "velocity_nrmse": 0.8548754973492853,
+        "angle_rmse_rad": 14.72503212560295,
+        "final_angle_error_rad": 31.33749618321611,
+        "final_velocity_error_rad_s": 6.108407108909635
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.315895938064515,
+        "velocity_nrmse": 0.5017509970013404,
+        "angle_rmse_rad": 10.873534062970778,
+        "final_angle_error_rad": -11.405823546602434,
+        "final_velocity_error_rad_s": 3.993679547523126
+      },
+      "implied_force_zero_offset_n": -0.010851126498818739,
+      "implied_force_zero_offset_pct_of_full_scale": 0.016262868530938016,
+      "steady_velocity_sensitivity_rad_s": 0.4250753237098146,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 1.3155702507284763,
+        "velocity_nrmse": 0.5016268124508443,
+        "angle_rmse_rad": 10.870720440831773,
+        "final_angle_error_rad": -11.402596870192426,
+        "final_velocity_error_rad_s": 3.993585537329397
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.008131786071150983,
+      "native_vs_analytic_max_angle_diff_rad": 0.003226676410008622
+    },
+    {
+      "name": "crank_data/ONZ/ONZ505.ASC",
+      "condition": "ccw_medium",
+      "split": "train",
+      "mean_omega_rad_s": 2.8618489457324885,
+      "mean_ft_n": 0.15309475766103814,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.3005514209356637,
+        "velocity_nrmse": 0.44860904049114936,
+        "angle_rmse_rad": 9.766203584293043,
+        "final_angle_error_rad": 18.750791038936867,
+        "final_velocity_error_rad_s": 1.625967558673064
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.8277187766886445,
+        "velocity_nrmse": 0.6304488646116445,
+        "angle_rmse_rad": 17.388701083615192,
+        "final_angle_error_rad": -28.278454708757106,
+        "final_velocity_error_rad_s": -1.3150246594739632
+      },
+      "implied_force_zero_offset_n": -0.04910247317714476,
+      "implied_force_zero_offset_pct_of_full_scale": 0.07359116732357197,
+      "steady_velocity_sensitivity_rad_s": 1.923509940004797
+    },
+    {
+      "name": "crank_data/ONZ/ONZ506.ASC",
+      "condition": "ccw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": 2.8446010094925374,
+      "mean_ft_n": 0.17075886804252657,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.722031762422718,
+        "velocity_nrmse": 0.5990316369250405,
+        "angle_rmse_rad": 12.884023615596654,
+        "final_angle_error_rad": 25.259774731918043,
+        "final_velocity_error_rad_s": 2.3784183261076106
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.3637495153247312,
+        "velocity_nrmse": 0.4743983951674449,
+        "angle_rmse_rad": 12.587037020180615,
+        "final_angle_error_rad": -18.912611363780304,
+        "final_velocity_error_rad_s": -0.11142452240473588
+      },
+      "implied_force_zero_offset_n": -0.03105168921566811,
+      "implied_force_zero_offset_pct_of_full_scale": 0.04653798289356684,
+      "steady_velocity_sensitivity_rad_s": 1.2163996840810554,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 1.3632060817804414,
+        "velocity_nrmse": 0.47420935458602276,
+        "angle_rmse_rad": 12.581380157898838,
+        "final_angle_error_rad": -18.90566553860298,
+        "final_velocity_error_rad_s": -0.11141930985756376
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.013130685243631913,
+      "native_vs_analytic_max_angle_diff_rad": 0.007010587525790868
+    },
+    {
+      "name": "crank_data/ONZ/ONZ507.ASC",
+      "condition": "ccw_medium",
+      "split": "train",
+      "mean_omega_rad_s": 2.8928364815908503,
+      "mean_ft_n": 0.19246048936835522,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 2.0969538856054486,
+        "velocity_nrmse": 0.716407106485972,
+        "angle_rmse_rad": 14.886677692918896,
+        "final_angle_error_rad": 30.512703132363256,
+        "final_velocity_error_rad_s": 3.9474808920272997
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.1390723147591237,
+        "velocity_nrmse": 0.38915471947026103,
+        "angle_rmse_rad": 9.191575745301485,
+        "final_angle_error_rad": -11.091672989888671,
+        "final_velocity_error_rad_s": 1.9165390889509988
+      },
+      "implied_force_zero_offset_n": -0.013363511662656764,
+      "implied_force_zero_offset_pct_of_full_scale": 0.02002824621988348,
+      "steady_velocity_sensitivity_rad_s": 0.5234939475198349
+    },
+    {
+      "name": "crank_data/ONZ/ONZ509.ASC",
+      "condition": "ccw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": 2.854570828932723,
+      "mean_ft_n": 0.24882901500938084,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 3.4843153915944707,
+        "velocity_nrmse": 1.2150957186788538,
+        "angle_rmse_rad": 28.999011385926504,
+        "final_angle_error_rad": 54.11626204666202,
+        "final_velocity_error_rad_s": 4.38094478075976
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.7705179118299819,
+        "velocity_nrmse": 0.617438002225266,
+        "angle_rmse_rad": 11.991305483854402,
+        "final_angle_error_rad": 25.25725047246646,
+        "final_velocity_error_rad_s": 3.071406558004856
+      },
+      "implied_force_zero_offset_n": 0.04727179876632473,
+      "implied_force_zero_offset_pct_of_full_scale": 0.07084748746053107,
+      "steady_velocity_sensitivity_rad_s": 1.8517962319514156,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 1.7705068901445344,
+        "velocity_nrmse": 0.6174341585999639,
+        "angle_rmse_rad": 11.991316995465167,
+        "final_angle_error_rad": 25.25726836121796,
+        "final_velocity_error_rad_s": 3.0713939164068895
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 5.424739478954166e-05,
+      "native_vs_analytic_max_angle_diff_rad": 7.67638802567916e-05
+    },
+    {
+      "name": "crank_data/ONZ/ONZ510.ASC",
+      "condition": "ccw_medium",
+      "split": "train",
+      "mean_omega_rad_s": 2.670416823422362,
+      "mean_ft_n": 0.15615769699812382,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.4973209530699405,
+        "velocity_nrmse": 0.5518513001301839,
+        "angle_rmse_rad": 11.117769197657685,
+        "final_angle_error_rad": 21.765077563572426,
+        "final_velocity_error_rad_s": 2.273122826558241
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.5774131778134315,
+        "velocity_nrmse": 0.581370020391457,
+        "angle_rmse_rad": 14.927351202312456,
+        "final_angle_error_rad": -24.132161247030854,
+        "final_velocity_error_rad_s": -0.6743091505851879
+      },
+      "implied_force_zero_offset_n": -0.04286238554691191,
+      "implied_force_zero_offset_pct_of_full_scale": 0.06423898395689048,
+      "steady_velocity_sensitivity_rad_s": 1.679064603413468
+    },
+    {
+      "name": "crank_data/ONZ/ONZ512.ASC",
+      "condition": "ccw_medium",
+      "split": "holdout",
+      "mean_omega_rad_s": 2.769208465175617,
+      "mean_ft_n": 0.17733722639149466,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 2.0886016630088564,
+        "velocity_nrmse": 0.7420459814793838,
+        "angle_rmse_rad": 15.007008612800485,
+        "final_angle_error_rad": 28.55568279012553,
+        "final_velocity_error_rad_s": 1.9420458240060836
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.256985653700478,
+        "velocity_nrmse": 0.4465864265194358,
+        "angle_rmse_rad": 9.145370752064668,
+        "final_angle_error_rad": -11.820190918709827,
+        "final_velocity_error_rad_s": -0.8062980570974865
+      },
+      "implied_force_zero_offset_n": -0.02476623280752793,
+      "implied_force_zero_offset_pct_of_full_scale": 0.03711780414681153,
+      "steady_velocity_sensitivity_rad_s": 0.9701770990208802,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 1.256025952756541,
+        "velocity_nrmse": 0.44624546048388997,
+        "angle_rmse_rad": 9.13637453792921,
+        "final_angle_error_rad": -11.810234793531933,
+        "final_velocity_error_rad_s": -0.8062867512239966
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.012050193610335139,
+      "native_vs_analytic_max_angle_diff_rad": 0.010055774683362273
+    },
+    {
+      "name": "crank_data/ONZ/ONZ602.ASC",
+      "condition": "ccw_fast",
+      "split": "train",
+      "mean_omega_rad_s": 10.935065325741402,
+      "mean_ft_n": 0.4930835714285714,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.0720636498352871,
+        "velocity_nrmse": 0.09727931646946002,
+        "angle_rmse_rad": 1.2835904566415317,
+        "final_angle_error_rad": 2.1776252534726126,
+        "final_velocity_error_rad_s": -0.26261398609047326
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.9002355637530013,
+        "velocity_nrmse": 0.17242783747145246,
+        "angle_rmse_rad": 2.516728945503056,
+        "final_angle_error_rad": 5.179038499531146,
+        "final_velocity_error_rad_s": 1.0598284622377285
+      },
+      "implied_force_zero_offset_n": 0.0428720704350238,
+      "implied_force_zero_offset_pct_of_full_scale": 0.06425349895329363,
+      "steady_velocity_sensitivity_rad_s": 1.6794439932353176
+    },
+    {
+      "name": "crank_data/ONZ/ONZ604.ASC",
+      "condition": "ccw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": 10.567490997998158,
+      "mean_ft_n": 0.43791692982456143,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 0.6460132998107392,
+        "velocity_nrmse": 0.06049153063860385,
+        "angle_rmse_rad": 0.462605546553167,
+        "final_angle_error_rad": -1.0557603108647626,
+        "final_velocity_error_rad_s": -0.6717657945466531
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 0.5560271710016865,
+        "velocity_nrmse": 0.05206539038809058,
+        "angle_rmse_rad": 0.5527495600932095,
+        "final_angle_error_rad": 0.5814375502664859,
+        "final_velocity_error_rad_s": -0.37301661015754206
+      },
+      "implied_force_zero_offset_n": 0.0005018289859283236,
+      "implied_force_zero_offset_pct_of_full_scale": 0.0007521042929556394,
+      "steady_velocity_sensitivity_rad_s": 0.01965833857560059,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 0.5559807167884899,
+        "velocity_nrmse": 0.05206104049860426,
+        "angle_rmse_rad": 0.5527774237474111,
+        "final_angle_error_rad": 0.5814232548020968,
+        "final_velocity_error_rad_s": -0.373006507858495
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.0002346457994963913,
+      "native_vs_analytic_max_angle_diff_rad": 0.00033204031519407096
+    },
+    {
+      "name": "crank_data/ONZ/ONZ605.ASC",
+      "condition": "ccw_fast",
+      "split": "train",
+      "mean_omega_rad_s": 10.020717720026177,
+      "mean_ft_n": 0.3785656140350877,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 2.1009301305000747,
+        "velocity_nrmse": 0.200557016657851,
+        "angle_rmse_rad": 3.789438325813544,
+        "final_angle_error_rad": -7.722533517470424,
+        "final_velocity_error_rad_s": -2.966629424894827
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.398113879360093,
+        "velocity_nrmse": 0.22892649225596357,
+        "angle_rmse_rad": 4.505331676054582,
+        "final_angle_error_rad": -8.958574835861235,
+        "final_velocity_error_rad_s": -3.40788630728777
+      },
+      "implied_force_zero_offset_n": -0.09656799127232107,
+      "implied_force_zero_offset_pct_of_full_scale": 0.14472898703461712,
+      "steady_velocity_sensitivity_rad_s": 3.782894813230407
+    },
+    {
+      "name": "crank_data/ONZ/ONZ606.ASC",
+      "condition": "ccw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": 10.566203386956387,
+      "mean_ft_n": 0.4593281390977444,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.1532992936441744,
+        "velocity_nrmse": 0.10818062140095704,
+        "angle_rmse_rad": 2.3848888847926264,
+        "final_angle_error_rad": -3.715777480679577,
+        "final_velocity_error_rad_s": 0.3433251232495813
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 1.186290516766819,
+        "velocity_nrmse": 0.11127523095968488,
+        "angle_rmse_rad": 2.508914717191615,
+        "final_angle_error_rad": -3.6735029109048583,
+        "final_velocity_error_rad_s": 0.6463014219459318
+      },
+      "implied_force_zero_offset_n": -0.017417977852699357,
+      "implied_force_zero_offset_pct_of_full_scale": 0.026104781279996714,
+      "steady_velocity_sensitivity_rad_s": 0.6823211004786056,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 1.1863489903650521,
+        "velocity_nrmse": 0.11128071584138667,
+        "angle_rmse_rad": 2.508847843547908,
+        "final_angle_error_rad": -3.6733401783197266,
+        "final_velocity_error_rad_s": 0.6461864223033409
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.0002527793252351529,
+      "native_vs_analytic_max_angle_diff_rad": 0.0003577005298254221
+    },
+    {
+      "name": "crank_data/ONZ/ONZ607.ASC",
+      "condition": "ccw_fast",
+      "split": "train",
+      "mean_omega_rad_s": 10.816178957518229,
+      "mean_ft_n": 0.492734962406015,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.154703669096971,
+        "velocity_nrmse": 0.10346244845816467,
+        "angle_rmse_rad": 1.284550948985373,
+        "final_angle_error_rad": -3.0017621867071895,
+        "final_velocity_error_rad_s": -1.0282114535069233
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 0.9132709247752034,
+        "velocity_nrmse": 0.08182986554185769,
+        "angle_rmse_rad": 0.6226595217876422,
+        "final_angle_error_rad": -1.5136997085311776,
+        "final_velocity_error_rad_s": -0.5503941434620447
+      },
+      "implied_force_zero_offset_n": -0.018531404839290434,
+      "implied_force_zero_offset_pct_of_full_scale": 0.027773503573824954,
+      "steady_velocity_sensitivity_rad_s": 0.725937801178203
+    },
+    {
+      "name": "crank_data/ONZ/ONZ608.ASC",
+      "condition": "ccw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": 11.58486676690382,
+      "mean_ft_n": 0.5364639536340852,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 1.4414423439424169,
+        "velocity_nrmse": 0.12368991688641985,
+        "angle_rmse_rad": 2.859472029997914,
+        "final_angle_error_rad": 4.466178815207556,
+        "final_velocity_error_rad_s": 1.3950455152782002
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 2.6768396218347936,
+        "velocity_nrmse": 0.22969914248352896,
+        "angle_rmse_rad": 5.481087017660223,
+        "final_angle_error_rad": 9.78179396771823,
+        "final_velocity_error_rad_s": 3.1469355586941496
+      },
+      "implied_force_zero_offset_n": 0.09120450605385438,
+      "implied_force_zero_offset_pct_of_full_scale": 0.13669059074598766,
+      "steady_velocity_sensitivity_rad_s": 3.5727889577968055,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 2.676762432617489,
+        "velocity_nrmse": 0.22969251889021422,
+        "angle_rmse_rad": 5.481137765417515,
+        "final_angle_error_rad": 9.78177002996506,
+        "final_velocity_error_rad_s": 3.1469524749924034
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00031345104339308705,
+      "native_vs_analytic_max_angle_diff_rad": 0.00044355527969930364
+    },
+    {
+      "name": "crank_data/ONZ/ONZ609.ASC",
+      "condition": "ccw_fast",
+      "split": "train",
+      "mean_omega_rad_s": 11.479156066697168,
+      "mean_ft_n": 0.5879343170426065,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 2.4742484800006026,
+        "velocity_nrmse": 0.21370553676459286,
+        "angle_rmse_rad": 4.622041944981344,
+        "final_angle_error_rad": 8.392944492419737,
+        "final_velocity_error_rad_s": 1.4735485069827838
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 4.191885253359696,
+        "velocity_nrmse": 0.36206108455388314,
+        "angle_rmse_rad": 7.658746784705247,
+        "final_angle_error_rad": 14.874728494390567,
+        "final_velocity_error_rad_s": 3.8867761930233904
+      },
+      "implied_force_zero_offset_n": 0.13052086067138188,
+      "implied_force_zero_offset_pct_of_full_scale": 0.19561504493331955,
+      "steady_velocity_sensitivity_rad_s": 5.11294353695084
+    },
+    {
+      "name": "crank_data/ONZ/ONZ611.ASC",
+      "condition": "ccw_fast",
+      "split": "holdout",
+      "mean_omega_rad_s": 11.254375834230702,
+      "mean_ft_n": 0.48896889724310777,
+      "viscous_2param": {
+        "velocity_rmse_rad_s": 0.7856403033512209,
+        "velocity_nrmse": 0.06849528942365683,
+        "angle_rmse_rad": 0.48304148572516287,
+        "final_angle_error_rad": -1.3232275618626943,
+        "final_velocity_error_rad_s": -0.26325630333545647
+      },
+      "coulomb_3param": {
+        "velocity_rmse_rad_s": 0.49128433941122246,
+        "velocity_nrmse": 0.042832149615723306,
+        "angle_rmse_rad": 0.5377485968974827,
+        "final_angle_error_rad": 0.6396542272509507,
+        "final_velocity_error_rad_s": 0.8559436851922317
+      },
+      "implied_force_zero_offset_n": 0.012061650673012746,
+      "implied_force_zero_offset_pct_of_full_scale": 0.018077112932252715,
+      "steady_velocity_sensitivity_rad_s": 0.472495649632666,
+      "native_coulomb_3param": {
+        "velocity_rmse_rad_s": 0.4912221619233129,
+        "velocity_nrmse": 0.042826728731621716,
+        "angle_rmse_rad": 0.5378253560125751,
+        "final_angle_error_rad": 0.6396835423311558,
+        "final_velocity_error_rad_s": 0.8559229688507504
+      },
+      "native_vs_analytic_max_vel_diff_rad_s": 0.00030286346711072554,
+      "native_vs_analytic_max_angle_diff_rad": 0.0004285731144113569
+    }
+  ]
+}

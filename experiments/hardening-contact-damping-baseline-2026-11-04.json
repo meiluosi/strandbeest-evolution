@@ -1,0 +1,128 @@
+{
+  "created_utc": "2026-11-03T19:18:39.839611+00:00",
+  "kind": "confirmed_mass_normalisation_defect",
+  "mujoco": "3.17.0",
+  "primary_source": "https://mujoco.readthedocs.io/en/stable/modeling.html#reference",
+  "reference_equation": "direct damping = 2*zeta*sqrt(stiffness); stiffness [1/s^2], damping [1/s]",
+  "native_probe": {
+    "mass_kg": 0.7,
+    "contact_impedance": 0.9,
+    "position_residual_m": -0.002,
+    "velocity_m_s": 0.01,
+    "gravity": 0,
+    "other_forces": false
+  },
+  "rows": [
+    {
+      "body_mass_kg": 0.05,
+      "builder": "solo",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -76.40316140055985
+      ],
+      "effective_damping_ratio": 0.19100790350139962,
+      "native_probe_acceleration_m_s2": 79.23596838599445,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 0.05,
+      "builder": "herd",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -1264.9110640673518
+      ],
+      "effective_damping_ratio": 3.1622776601683795,
+      "native_probe_acceleration_m_s2": 67.35088935932654,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 0.35,
+      "builder": "solo",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -124.24750730698784
+      ],
+      "effective_damping_ratio": 0.3106187682674696,
+      "native_probe_acceleration_m_s2": 78.75752492693019,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 0.35,
+      "builder": "herd",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -1264.9110640673518
+      ],
+      "effective_damping_ratio": 3.1622776601683795,
+      "native_probe_acceleration_m_s2": 67.35088935932654,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 0.5,
+      "builder": "solo",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -142.2583673180597
+      ],
+      "effective_damping_ratio": 0.35564591829514924,
+      "native_probe_acceleration_m_s2": 78.57741632681946,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 0.5,
+      "builder": "herd",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -1264.9110640673518
+      ],
+      "effective_damping_ratio": 3.1622776601683795,
+      "native_probe_acceleration_m_s2": 67.35088935932654,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 50.0,
+      "builder": "solo",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -1266.5849529628877
+      ],
+      "effective_damping_ratio": 3.1664623824072193,
+      "native_probe_acceleration_m_s2": 67.33415047037118,
+      "analytical_expected_acceleration_m_s2": 76.0
+    },
+    {
+      "body_mass_kg": 50.0,
+      "builder": "herd",
+      "requested_damping_ratio": 1.0,
+      "solref": [
+        -40000.0,
+        -1264.9110640673518
+      ],
+      "effective_damping_ratio": 3.1622776601683795,
+      "native_probe_acceleration_m_s2": 67.35088935932654,
+      "analytical_expected_acceleration_m_s2": 76.0
+    }
+  ],
+  "regression_baseline": {
+    "passed": 1,
+    "failed": 14,
+    "log_sha256": "537dad7bd85b97b3d4300e9b1d075ce9c662b8f575231c3606af83b7741d7a37",
+    "initial_harness_errors": "First draft used unsupported generic scenario validator and zsh read-only variable status; corrected before this baseline."
+  },
+  "source_sha256": {
+    "packages/sim/src/strandbeest_sim/builder.py": "2548c27369a3087a3bce0e83307a9da7ce3a01f6c67fe458d6133c6a9525f69e",
+    "packages/sim-web/src/builder.ts": "e7ee04d42b365991973bc27416f47fcf892258169ad8df94fedff688bd7e5080",
+    "packages/sim/tests/test_contact_damping.py": "e7fdfebf9891a277026360108a90b1a80e7188818d2abcbe460d573cc1ee3e35",
+    "schemas/scenario.schema.json": "f43d8b999d344b73497ebd637744d995eae07b9bf8810cfedb080aa33d3fbe6c",
+    "schemas/scenario-v1.schema.json": "c74132bbe0eb49c7d5c9c414a53e28ae74cc0ed5c966e8480e82461a403eb64a"
+  },
+  "defaults_changed": false,
+  "audit_thresholds_changed": false
+}

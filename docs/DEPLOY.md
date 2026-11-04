@@ -1,16 +1,37 @@
 # Running the platform locally
 
 ## Without Docker
+Requires Node >= 22, Python >= 3.10 and Rust. The setup builds the local Python kernel extension and installs declared runtime dependencies (including Arrow telemetry and the optimizer). Browser kinematics and the GA worker require the generated WASM kernel. CI/containers use Rust 1.95.0 and wasm-bindgen-cli 0.2.105; the CLI version must match Cargo.lock.
+
 ```bash
-./scripts/setup-python.sh && source .venv/bin/activate
-strandbeest-api                       # http://127.0.0.1:8000
-pnpm install && pnpm --filter @strandbeest/web-demo dev   # http://localhost:5173
+rustup toolchain install 1.95.0 --profile minimal --target wasm32-unknown-unknown
+cargo +1.95.0 install --locked --version 0.2.105 wasm-bindgen-cli
+RUSTUP_TOOLCHAIN=1.95.0 ./scripts/build-kernel-wasm.sh
+./scripts/setup-python.sh
+source .venv/bin/activate
+strandbeest-api                       # http://127.0.0.1:8000; keep running in this terminal
+# In a second terminal at the repository root:
+pnpm install
+pnpm --filter @strandbeest/web-demo dev   # http://localhost:5173
 ```
+
+To verify a clean installation without using existing lab data:
+
+```bash
+STRANDBEEST_VENV=/tmp/beest-clean-env ./scripts/setup-python.sh
+/tmp/beest-clean-env/bin/python scripts/smoke-installed.py
+```
+
+The smoke check creates a temporary data directory, starts the API on a loopback-only ephemeral port, completes a seeded QD job and a short simulation, then decodes the returned Arrow stream. It stops the server and removes the temporary data on completion.
 
 ## With Docker
 ```bash
 docker compose up --build             # web http://localhost:8080, API http://localhost:8000
 ```
+
+The API image builds its native kernel wheel in a separate stage and installs it before Python packages. The web image builds WASM in a separate Rust stage; neither final runtime image needs a Rust toolchain. Generated WASM is excluded from the build context so a stale local artifact cannot satisfy this build.
+
+CI also builds the API container and runs `scripts/smoke-installed.py` with external networking disabled; this catches missing runtime dependencies that a developer's existing environment can conceal.
 Data (designs, runs, exports, measurements, the job database) lives in the named volume `strandbeest-data`, mounted at `/data` in the API container. `docker compose down -v` deletes it.
 
 ## Configuration (environment variables of the API)
@@ -30,7 +51,7 @@ Runs, sweeps and calibrations are jobs in `strandbeest.db` (SQLite).
 - Every simulation, including each sweep point, is stored as a run (`run.json` + `arrays.npz`) and indexed in the database; the index is rebuilt from the files on startup.
 
 ## Static demo (GitHub Pages)
-`VITE_STATIC=1 pnpm --filter @strandbeest/web-demo build` builds a backend-free version: the design tab (editing, evolver, share links, card export) and the simulation tab with **pre-recorded** replays of the default design, one per scene. Fabrication and calibration tabs are hidden.
+After building the WASM kernel as above, `VITE_STATIC=1 pnpm --filter @strandbeest/web-demo build` builds a backend-free version: the design tab (editing, evolver, share links, card export) and the simulation tab with **pre-recorded** replays of the default design, one per scene. Fabrication and calibration tabs are hidden.
 - Replays live in `apps/web-demo/public/gallery/<scene>.json` and are produced by `tsx scripts/bake-gallery.ts [scene ...]` against a running `strandbeest-api` (about 100 s per scene, 1.6-2 MB each, about 0.3 MB gzipped on the wire). Re-bake whenever the simulator or a scene in `contracts/scenes.json` changes; the replays are an output of the simulator, not a source.
 - CI builds it and `scripts/check-static-build.mjs` fails when a scene has no baked replay.
 - `.github/workflows/pages.yml` deploys it by hand (`workflow_dispatch`); enabling Pages (Source: GitHub Actions) is the repository owner's step.

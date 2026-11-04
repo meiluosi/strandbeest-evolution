@@ -1,21 +1,92 @@
-# Architecture
+# Architecture / 当前架构
 
-> The **target** architecture and the full design-to-print pipeline are in [PLATFORM.md](PLATFORM.md). This file describes what exists today.
+> 核对日期：2026-11-04。本文描述当前工作区实际执行路径，包含尚未完成验收的 M8 原型。目标架构见 [PLATFORM.md](PLATFORM.md)、[ENGINE.md](ENGINE.md)，加固验收见 [ACTIONS.md](ACTIONS.md) H 节。功能存在不等于物理验证通过。
 
+## 执行路径
+
+```text
+schemas + contracts ──────► TS/Python 类型、资产校验、共享语料
+          │
+          ├─► core (TS) ─────────────► web-demo (Svelte)
+          │    运动学/编辑操作/GA          │
+          │                             ├─► sim-web Worker ─► MuJoCo WASM
+          │                             │     浏览器仿真/静态模式
+          │                             └─► api (FastAPI + SQLite jobs)
+          │                                     │
+          └─► common (Python) ◄──────────────────┤
+                 │                              ├─► sim ─► PhysicsBackend
+                 ├─► fab                        │           ├ MuJoCo
+                 ├─► rig ─► Measurement          │           └ K2
+                 ├─► calib ─► Profile           ├─► opt
+                 └─► agent (MCP/预算/审计)       └─► fab / calib / rig
+
+beest-kernel (Rust) ─┬─► PyO3 ─► common 的运动学/步态
+                    └─► WASM ─► web 设计器 / GA worker / sim worker
 ```
-core (TS, pure)  ──►  web-demo (canvas UI, workers)  ──►  blog embeds component
-       ▲
-       └── sim-dynamics (physics; Python or TS) consumes core's linkage spec
-```
 
-- **Linkage spec** (M1): a plain JSON-serializable object: fixed pivots, crank, joints defined as circle-intersections of earlier points with a branch sign. The solver walks the list in order. This lets the GA mutate lengths and, later, topology.
-- **Evolution** (M2): genome = array of lengths; fitness is a pure function `(lengths) => score` built on trajectory metrics. Seeded RNG for reproducibility.
-- **Distribution**: `core` is consumed from the blog either by publishing to npm or via a git/workspace dependency; decide at M3.
+## 模块与成熟度
 
-## Today vs target
-| piece | today | target (see PLATFORM.md) |
+| 模块 | 当前能力 | 当前边界 / 未完成验收 |
 |---|---|---|
-| `packages/core` (TS) | kinematics, GA, reduced-order dynamics | unchanged role: live feedback in the browser |
-| `packages/sim` (Python/MuJoCo) | planar S1, motor drive, pydantic scenario | schema-first scenarios, sail/wind, sand, calibrated |
-| `apps/web-demo` | linkage viewer, GA, wind panel | grows into `apps/web` (designer, viewer, fab, lab) |
-| schemas, fab, calib, api, hardware | – | new packages per PLATFORM.md §7 |
+| `packages/core` | 无平台依赖的连杆运动学、步态、GA、编辑操作、结构守门、简化动力学、谱系 | 运动学通过可注入内核；Web使用Rust/WASM，TS reference明确隔离；编辑操作等仍有跨语言重复 |
+| `packages/common` | 资产校验/迁移、ID、哈希、操作、证据、出处、遥测与作业 DAG | 文件存在和 schema 合法不能单独证明出处真实或物理结论可靠 |
+| `packages/sim` | 场景/实体构建、MuJoCo 与独立 K2、风帆、地形、运行指标、能量/事件、快照及交互会话 | K2已补齐逐杆构型相关惯性/重力/耦合；64样本仍未通过完整审计，接触假设和独立动态验证未完成；多兽与气动模块需系统级集成 |
+| `packages/sim-web` | 浏览器 Worker 的 MJCF 构建、MuJoCo WASM 运行、遥测与诊断 | 通过共享语料对齐 Python 的受支持路径，不能据此认为所有新功能已自动跨端可用 |
+| `packages/opt` | ask/tell 优化器、稳健/多保真度优化、MAP-Elites 档案 | 优化机制与排名可信度分开；图鉴当前设计→任务→切片/加载及浏览器回归通过，含量化的SVG边缘颜色容差和细微错误对照（EXPERIMENTS §56） |
+| `packages/fab` | 层分配、可制造性检查、STL/BOM/装配包及激光切割相关工具 | 实际配合间隙和材料参数缺少打印反馈；不把导出成功当作制造验证 |
+| `packages/rig` | 原始采集转换、质量报告、串口/虚拟台、视频标记追踪 | 新多点追踪目前主要有合成视频测试，真实标定/误差证据仍缺 |
+| `packages/calib` | 测量对照、共享物理参数映射、工况驱动的曲线拟合；显式 Design/Scenario 的 MuJoCo 轨迹反演；Profile 应用后重新仿真 | 原独立孪生公式已替换；记录实现身份、原生仿真、代理误差、时间留出及可识别性。当前映射限 MuJoCo，杆柔度未支持；真实视频/动力学留出验证未完成（EXPERIMENTS §55） |
+| `packages/agent` | 工具注册、MCP、预算/审计、基准、证据解释 | 工具可用不保证物理模型正确；优化结论仍受证据门槛约束 |
+| `apps/api` | 资产、评估、持久化作业/取消/扫描、仿真回放、Arrow、校准、演化及交互 WebSocket | 缓存已核对Beest实现、后端和输入；旧记录/未知实现不复用。本地实验室服务，无完整多人身份/房间/共享世界；对外服务需 H3-05 的隔离与预算验收 |
+| `apps/web-demo` | 设计、制造、仿真、实验室、资产浏览、中英目录、静态画廊和浏览器仿真 | 新数字海滩使用独立规则模型，不是现有 PhysicsBackend；多人和真实风场待实现 |
+| `crates/beest-kernel` | Rust 运动学/步态与 Python/WASM 双端业务接入，跨端边界语料 | Python有速度收益，Web固定预算GA仍慢于TS reference；H3-01及当前浏览器旅程验收已通过；H5-02性能预算仍未完成 |
+| `hardware` | 固件逻辑、台架方案、实验协议 | 宿主测试不等于 Arduino 编译或硬件实测 |
+
+## 契约与可复现性
+
+- Design、Scenario、Run、Measurement、Profile 等文档是跨模块接口；数字字段用 schema 注解记录单位、范围与假设。schema 变更须同步模型、参考文档和迁移/往返测试。
+- 编辑操作日志、稳定资产 ID、输入哈希和出处边把设计与运行关联；真实校准必须引用实际存在的 Measurement。
+- Measurement ID 绑定不可覆盖的内容；完整文档导入保留条件、真实/合成标记和标定出处。Profile 保存源场景、设计内容哈希与物理映射版本；新 Run 记录 Profile 引用，重启后可追溯回测量。旧 Profile 可读，但不会猜测其物理单位并自动应用。
+- 曲线拟合使用测量转速、恒定风速和坡度；缺少所需条件、变化风场或无法表达的工况会被拒绝。轨迹反演要求显式时间原点、足端编号与坐标约定；与源场景冲突的测量条件被拒绝。合成恢复与实测验证分别记账。
+- 运行缓存的版本2身份覆盖实际安装的Python/原生实现、schema与数值依赖；进程内源码变化或身份不可核验时仍能计算，但停止复用。历史运行不补写新身份，详见 ADR-0004。
+- `contracts/` 同时约束运动学、MJCF 文本、运行轨迹/力/能量及事件。共享语料提供核对证据，物理验证仍需要外部数据。
+- 会话级快照保存场景、模型/数据与驱动状态，可回滚参数编辑；分叉配置独立。承诺同平台容差内一致，当前快照为进程内对象；气动或网络状态仍须额外纳入。
+- 遥测已有 Parquet/Arrow 存储与二进制接口；回放兼容层仍有数组重组，不能直接宣称整个渲染链零复制或零分配。性能以 H5-02 实测为准。
+
+## 检查与证据
+
+Web检查前先运行 `scripts/build-kernel-wasm.sh`。常规检查：`pnpm check`、`./scripts/test-python.sh`、`cargo test --workspace --locked`。普通与静态构建在 CI 中运行，慢测试单独执行。`pnpm test:browser` 将真实流程与视觉产物接入独立CI job；浏览器验收、性能趋势和完整可信度出口由 H2/H5 跟踪；本文件不以常规检查替代它们。
+
+H5-01 当前流程验收：实时/静态 × 中英共20项有效测试通过，12项模式不适用跳过；图鉴追加8次重复通过。图鉴截图的逐像素颜色容差为0.03，其他视图为0，超出容差的允许差异像素数仍为0；一个屏幕像素的位移和一个字符变化均能检出。制造下载还核对全部18个网格及破坏样本。固定环境、历史失败和比较规则见 EXPERIMENTS §56；未运行远端CI，未验证实体打印或材料性能。
+
+## 本轮验收台账
+
+2026-11-04 检查点，共17张卡，9张验收完成、4张进行中、4张待开展；卡的规模不同，**不换算为总体完成百分比**。验收以 ACTIONS 和 ADR-0012 为准。§77新增 `Run.audit_observation` 逐步支撑/峰值证据，原生、浏览器、保存/回放与Agent重审已接通；缺失覆盖不补造。40次对照运行保留旧轨迹和旧失败；两个K2样本在三种记录频率下统计一致，24个原生场景的旧运动/非峰值指标未改。十项旧峰值基线失败通过独立逐步重跑定位，新增补充记录且未放宽容差。最新全64结果仍是§76的1失败/63未验证，第61号时间收敛与独立动态对照未解决。当前证据和检查输出见 `experiments/hardening-audit-observation-validation-2026-11-04.json`；历史快照不覆盖。完整浏览器审计策略仍缺，14张图像基准未改。
+
+本轮 `pnpm check` 通过403项JS检查；常规Python共1,246项分批覆盖通过，3项相关优化慢测试通过。首轮完整Python脚本因十项旧峰值基线退出1，失败记录保留；定向修正复跑及其余六包/仓库/固件检查退出0，未将首轮脚本写成成功。
+
+`Run.audit` 是可选、版本化的数值审计记录，不提高E0–E3证据等级；旧运行可读但缺证据不自动通过。当前原生API/Agent使用v2；浏览器已共享有向几何内核并记录绝对相位，但尚未移植完整v2判定策略。几何适用性需要完整逐步轨迹、零滑移/闭环偏差/穿透及支撑次序核对；实际柔顺运行通常仍未验证。带出处的独立动力学/实测验证适配器尚未完成。
+
+| 卡 | 当前结果 | 证据 / 缺口 |
+|---|---|---|
+| H0-01 | ✅ 状态对齐 | 本文实际路径、REPORT/VALIDATION/ADR更正与逐卡入口；EXPERIMENTS §58 |
+| H1-01 | ✅ 分叉隔离 | §45；`sim/tests/test_interactive.py`、`api/tests/test_interactive_ws.py` 的实际接口/旧错误对照 |
+| H1-02 | ✅ 图鉴流程 | §45、§56；`web-demo/src/atlas.test.ts`、`tests/browser/flows.spec.ts` |
+| H1-03 | ✅ 校准回写与出处 | §55/§59；校准映射v2；`calib/tests/test_conditions.py`、`test_digital_twin_bayes.py`、`api/tests/test_calibration_application.py`；浏览器导入→校准→应用 |
+| H1-04 | ✅ 安装链 | §45；干净环境安装及API/Web容器构建/实际任务；CI配置已接线，远端未运行 |
+| H1-05 | ✅ 快照恢复 | §47、§49；参数回滚、继续轨迹、WebSocket恢复与错误对照 |
+| H1-06 | ✅ 实现身份与缓存 | §53/§60/§62；当前contact-v3-energy-v3；`api/tests/test_cache_identity.py`、`test_cache_process.py`、`test_scenario_roundtrip.py`；独立进程、历史记录保留及保存后精确复跑 |
+| H2-01 | ▶ 审计未通过 | §61–§78、ADR-0012；逐步支撑/峰值证据及浏览器 `sim-web` 完整 v2 审计已接通；64样本K2与MuJoCo队列在 `observation-v3` 下均为0通过/0失败/64未验证（中位步幅差4.21%，第61号差4.59%），第61/20号刚性双足静摩擦楔死已定位；法向接触柔度与独立动态验证适配器仍缺 |
+| H2-02 | ⬜ 排名复验待开展 | §38、§40、§41保留失败/修正；当前未有≥10种子的双后端复验，且H2-01未满足；K2实际范围见ADR-0010 |
+| H3-01 | ✅ Rust双端接入 | §49、§51；`hardening-h3-kernel-2026-11-03.json`，ADR-0009；Web固定预算GA变慢的负结果保留 |
+| H3-02 | ▶ 整机闭环已接，热壁/依赖待补 | §66、§78；Scenario v1/v2 `Pneumatics` 已统一，`PneumaticCoupler` 已接入 `runner.py` 与 `k2_backend.py`（覆盖打气储能、无风预充气行走、水感/沙锚反射、统一能量账与快照恢复，`sim/tests/test_pneumatics_coupling.py`）；容器壁热容ODE耦合与H2-01依赖未满足 |
+| H3-03 | ▶ 合成链已接，实测待补 | §55/§59；六组合成恢复及负结果；联合拟合置信区间漏真值，真实视频/动力学留出缺失，H4-01未满足 |
+| H3-04 | ⬜ 海滩集成待开展 | `sim/tests/test_herd_beach.py`、`web-demo/src/digital-beach.test.ts`是不同原型的检查；Web规则模型尚未使用物理后端/真实风场；H2-01/H3-02未满足 |
+| H3-05 | ⬜ 多人世界待开展 | 现有`api/app.py`的`/ws/sim`是每连接独立会话；没有房间/权威共享世界/操作归属/重连验收，H3-04未满足 |
+| H4-01 | ▶ 已有实测留出，模型未达标 | §71、§78；32份曲柄记录可追溯，引入干库仑摩擦后中速留出NRMSE降至51.42%/117.34%，残余漂移证实在力传感器 `0.031 N`（`0.046%` 满量程）零漂量级内（`calib/tests/test_crank_diagnostic.py`）；公开数据缺零漂标定且整机/起步实测仍缺 |
+| H5-01 | ✅ 当前用户旅程 | §62；既有20项通过，新增2项在测试断言修正后定向通过；整套初始2失败/14项不适用跳过记录保留；14张基准图不变，实际制造包及破坏对照通过 |
+| H5-02 | ⬜ 完整性能预算待开展 | §49内核基准只覆盖部分成本；6/12腿与多兽的首屏、帧时间、draw calls、分配/内存及退化阈值尚未齐备 |
+
+表内源码简写从 `packages/` 或 `apps/` 下对应模块定位；它们是审查入口，文件存在或测试通过不表示未完成卡已满足系统验收。历史实验的实现指纹和旧失败保留，当前路径优先看本文与各ADR末尾的实施记录。
+
+[EXPERIMENTS.md](EXPERIMENTS.md) 保留数值结论与负面结果；[VALIDATION.md](VALIDATION.md) 规定逐结果的 E0–E3 等级。历史任务卡完成、实现存在、系统验收、实测验证是不同事实，必须分别记录。

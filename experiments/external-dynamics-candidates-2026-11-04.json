@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-04",
+  "scope": "Additional public dynamics sources; bounded metadata and one raw-file inspection, no model fitting.",
+  "h4_01_accepted": false,
+  "accepted_measurement_assets_added": 0,
+  "physical_evidence_upgraded": false,
+  "crank_turning": {
+    "record": "https://zenodo.org/records/10059390",
+    "metadata_api": "https://zenodo.org/api/records/10059390",
+    "authors": [
+      "James Hermus",
+      "Joseph Doeringer",
+      "Dagmar Sternad",
+      "Neville Hogan"
+    ],
+    "license_id_verified_in_provider_api": "cc-by-4.0",
+    "archive": {
+      "key": "crank_data.zip",
+      "size": 839918057,
+      "checksum": "md5:09ee930ef4a888022dbaba8dd862bd98"
+    },
+    "archive_inventory_entries": 2144,
+    "asc_files": 2131,
+    "whole_archive_md5_verified": false,
+    "selected_entry_crc_verified": true,
+    "selected_sample": {
+      "archive_path": "crank_data/ONZ/ONZ212.ASC",
+      "local_path": "/private/tmp/beest-fluid-energy-2026-11-04/crank-ONZ212.ASC",
+      "bytes": 75663,
+      "crc32_checked_by_zipfile": true,
+      "sha256": "465a3c82160b8270a8febc22fd5b45cafbb433b35f0e62a0c11ffb919aa07260",
+      "first_lines": [
+        "  2.05563 0 0.166965 -1.50268 -3.61888 0.0763371 1.30056 0.0226184 0.09281876 0.6008793 ",
+        "2.03803 -0.56 0.22262 -1.44703 -3.50579 0.0650279 1.30339 0.028273 0.004885198 -1.92965 "
+      ],
+      "line_count": 801
+    },
+    "readme": {
+      "archive_path": "crank_data/ReadMe.txt",
+      "local_path": "/private/tmp/beest-fluid-energy-2026-11-04/crank-readme-0.txt",
+      "sha256": "4338deb1924075401f283d089a70cf9583ca455d5c243a9de1a4ed025244eb09"
+    },
+    "sample_selection": "First listed ASC entry in the provider ZIP, not chosen for model agreement; pilot IXN was not selected.",
+    "range_transfer_bytes_with_sample": 250736,
+    "sample_diagnostics": {
+      "shape": [
+        801,
+        10
+      ],
+      "mechanical_columns_finite": true,
+      "assumed_encoder_dt_from_readme_s": 0.005,
+      "derivative_velocity_comparison_rev_s": {
+        "max_abs": 200.00023612664646,
+        "median_abs": 4.9164538340251696e-05,
+        "meaning": "Naive differences, including angle wrap; not a measurement error estimate."
+      },
+      "force_sample_repeat_share": 0.5025,
+      "column_units_from_readme": [
+        "rad",
+        "rev/s",
+        "N",
+        "N",
+        "N",
+        "unknown",
+        "unknown",
+        "unknown"
+      ],
+      "moment_units_not_inferred": true,
+      "calibrated_measurement_asset_created": false,
+      "emg_columns_analyzed": false,
+      "angle_wrap_count": 7,
+      "wrap_aware_derivative_velocity_comparison_rev_s": {
+        "max_abs": 0.0003066460467511245,
+        "median_abs": 4.805095666982062e-05,
+        "assumptions": "Use stated 200 Hz encoder sampling and principal angle differences; synchronization/absolute uncertainty unverified."
+      }
+    },
+    "primary_methods_paper": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7444923/",
+    "methods_source_scope": "Primary paper search-index excerpt inspected; direct PMC page returned browser check. No absent-text claim from that response.",
+    "documented_apparatus": {
+      "crank_radius_m": 0.1029,
+      "encoder_resolution_degree_per_count": 0.0004,
+      "force_transducer": "ATI model 15/50",
+      "encoder_sample_hz": 200,
+      "force_sample_hz": 100
+    },
+    "limitations": [
+      "README marks moment units as unknown; no N*m interpretation applied.",
+      "No verified force calibration matrix/date, absolute uncertainty, crank inertia or force-axis/sign/time alignment for a Beest adapter.",
+      "Encoder resolution is not an absolute uncertainty estimate; finite data and velocity consistency do not validate dynamics.",
+      "No paired calibration/held-out fit, no new Measurement/Profile, no Jansen or wind-start validation."
+    ]
+  },
+  "pace": {
+    "dataset_doi": "https://doi.org/10.3929/ethz-c-000783505",
+    "publisher_record": "https://www.research-collection.ethz.ch/entities/researchdata/ea53e17a-76eb-460f-81ba-6e65f7078539",
+    "publisher_metadata_scope": "Primary publisher search-index snapshot only; direct page returned HTTP 403.",
+    "publisher_metadata_claims": {
+      "version": "1.0",
+      "date": "2025-09",
+      "archive_mb": 2206.97,
+      "license": "CC BY 4.0",
+      "content": "Raw/processed actuator, single-joint, single-leg and locomotion measurements plus analysis scripts."
+    },
+    "code_readme": "https://github.com/leggedrobotics/pace-sim2real/blob/main/README.md",
+    "readme_git_blob_sha": "7d54503a7f2aa6cbd9423bea774a956f830a0e1d",
+    "code_license": "Apache-2.0, as stated in the inspected README; distinct from dataset license.",
+    "simulation_example_is_not_physical_data": true,
+    "raw_data_acquired": false,
+    "limitations": [
+      "Actual raw arrays, license file, sensor calibration/uncertainty and held-out split not inspected.",
+      "README example writes anymal_d_sim/chirp_data.pt from a simulation; it cannot be counted as measured evidence.",
+      "Robot actuation and Isaac Lab identification need an explicitly scoped adapter before testing the Beest backend."
+    ]
+  },
+  "local_source_sha256": {
+    "/tmp/beest-fluid-energy-2026-11-04/crank-data-zenodo-metadata.json": "07d035e370cc4dfd26ec8b467c07ea7f54e3bde22d2bbf7a5dc1d0834c7cd746",
+    "/tmp/beest-fluid-energy-2026-11-04/crank-archive-inventory.json": "baa93f222219cd4afba3694b06d30062f5019a29bd7bd90f286155acfa7e6c64",
+    "/tmp/beest-fluid-energy-2026-11-04/crank-archive-inventory-with-sample.json": "fd38c205e2ef1e0e59056c72e485df5628302b21f43d4ed8214baeec7a2bc67e",
+    "/tmp/beest-fluid-energy-2026-11-04/crank-readme-0.txt": "4338deb1924075401f283d089a70cf9583ca455d5c243a9de1a4ed025244eb09",
+    "/tmp/beest-fluid-energy-2026-11-04/crank-ONZ212.ASC": "465a3c82160b8270a8febc22fd5b45cafbb433b35f0e62a0c11ffb919aa07260",
+    "/tmp/beest-fluid-energy-2026-11-04/crank-sample-diagnostics.json": "38f2a2f55b8eb8ca6815e16b8d0132b1ff48b22458599b3947bea14b6f4bf860",
+    "/tmp/beest-fluid-energy-2026-11-04/read-crank-archive.py": "3ad214d03ebe52ec4fa7b52c08c0581942bb5d4f80dfa832a3d759b79b62d84f"
+  },
+  "authors_contacted": false,
+  "access_restrictions_bypassed": false,
+  "published": false
+}

@@ -1,0 +1,117 @@
+{
+  "created_utc": "2026-11-04T05:34:58.647924+00:00",
+  "scope": "Diagnostic sensitivity only; H2-01 still requires the original full 64-case gate.",
+  "input_path": "experiments/hardening-g1-audit-energy-v3-solref05-2026-11-04.json",
+  "input_sha256": "f0efddd0bc54b5bd58928cd593f2a9c19a28890cd360b2c40d960b5745e00257",
+  "case_ids": [
+    53,
+    61
+  ],
+  "workers": 2,
+  "saturation_ratio": 0.99,
+  "saturation_ratio_meaning": "Reporting bin near the actual cone boundary, not an acceptance gate or physical parameter.",
+  "trials": [
+    {
+      "name": "baseline",
+      "category": "baseline",
+      "overrides": {},
+      "rationale": "Repeat the original strong-loop input exactly; all previous metrics must match."
+    },
+    {
+      "name": "half_dt",
+      "category": "numerical",
+      "overrides": {
+        "solver": {
+          "timestep": 5e-05
+        },
+        "run": {
+          "record_every": 40
+        }
+      },
+      "rationale": "Halve integration step, retaining a 2 ms telemetry interval."
+    },
+    {
+      "name": "quarter_dt",
+      "category": "numerical",
+      "overrides": {
+        "solver": {
+          "timestep": 2.5e-05
+        },
+        "run": {
+          "record_every": 80
+        }
+      },
+      "rationale": "Quarter integration step, retaining a 2 ms telemetry interval."
+    },
+    {
+      "name": "iterations400",
+      "category": "numerical",
+      "overrides": {
+        "solver": {
+          "iterations": 400
+        }
+      },
+      "rationale": "Test the Newton iteration cap; record actual counts and unchanged built-in tolerance."
+    },
+    {
+      "name": "elliptic",
+      "category": "contact_model",
+      "overrides": {
+        "solver": {
+          "cone": "elliptic"
+        }
+      },
+      "rationale": "Change friction-cone model only; this is not a pure numerical-convergence setting."
+    },
+    {
+      "name": "elliptic_impratio100",
+      "category": "contact_regularization",
+      "overrides": {
+        "solver": {
+          "cone": "elliptic",
+          "impratio": 100
+        }
+      },
+      "rationale": "Increase tangential-to-normal impedance relative to the elliptic trial; coefficient of friction unchanged."
+    },
+    {
+      "name": "elliptic_impratio100_noslip3",
+      "category": "contact_postprocessor",
+      "overrides": {
+        "solver": {
+          "cone": "elliptic",
+          "impratio": 100,
+          "noslip_iterations": 3
+        }
+      },
+      "rationale": "Add three NoSlip sweeps; retain energy audit and any instabilities."
+    },
+    {
+      "name": "long6",
+      "category": "observation_window",
+      "overrides": {
+        "run": {
+          "revolutions": 6.1
+        }
+      },
+      "rationale": "Report each whole cycle separately; never replace the original short-window acceptance result."
+    }
+  ],
+  "defaults_changed": false,
+  "original_thresholds_changed": false,
+  "automatic_candidate_promotion": false,
+  "comparison_rule": "Report every named trial and error, native metrics, original findings, per-cycle values, all-step decomposition, iteration counts and cone utilization. No best-case-only reporting.",
+  "raw_data": "All integration-step numeric rows retained; verbose contact JSON sampled at each Scenario record_every cadence.",
+  "sources": [
+    {
+      "url": "https://mujoco.readthedocs.io/en/stable/modeling.html#preventing-slip",
+      "retrieved": "2026-11-04",
+      "summary": "Soft contact can drift inside the friction cone; elliptic/impratio/NoSlip affect the model and can introduce costs or instability."
+    }
+  ],
+  "limits": [
+    "No real-world validation or independent dynamics solver in this study.",
+    "Step convergence cannot validate the contact-model assumptions.",
+    "Longer cycles cannot erase the prescribed original-window result."
+  ]
+}

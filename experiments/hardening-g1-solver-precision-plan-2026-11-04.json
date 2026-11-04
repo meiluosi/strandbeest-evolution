@@ -1,0 +1,126 @@
+{
+  "created_utc": "2026-11-04T06:41:44.296979+00:00",
+  "scope": "H2-01 E0 model-only diagnostics, never a passing original full cohort.",
+  "input_path": "experiments/hardening-g1-audit-energy-v3-solref05-2026-11-04.json",
+  "input_sha256": "f0efddd0bc54b5bd58928cd593f2a9c19a28890cd360b2c40d960b5745e00257",
+  "case_ids": [
+    53,
+    61
+  ],
+  "workers": 2,
+  "diagnostic_max_time_s": 30.0,
+  "cutoff_rationale": "Bound resource use before outcomes are known. Both previous baselines finished before 7.2 s. Any 30 s cutoff is stalled/incomplete, cannot count as a repair, and does not change the original 600 s audit.",
+  "trials": [
+    {
+      "name": "baseline",
+      "overrides": {},
+      "rationale": "Repeat strong-loop input; diagnostic cutoff changes only termination, all recorded metrics must exactly match the earlier completed run."
+    },
+    {
+      "name": "tolerance_1e10",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-10
+        }
+      },
+      "rationale": "Change only the Newton early-termination tolerance."
+    },
+    {
+      "name": "tolerance_1e12",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-12
+        }
+      },
+      "rationale": "Second precision level at the original time step."
+    },
+    {
+      "name": "tolerance_1e12_half_dt",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-12,
+          "timestep": 5e-05
+        },
+        "run": {
+          "record_every": 40
+        }
+      },
+      "rationale": "Precision plus step refinement; reference for the following single-factor compliance changes."
+    },
+    {
+      "name": "stiffer_loops",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-12,
+          "timestep": 5e-05,
+          "solref_time": 0.0002
+        },
+        "run": {
+          "record_every": 40
+        }
+      },
+      "rationale": "Change only loop time constant relative to tolerance_1e12_half_dt; >= 2 dt."
+    },
+    {
+      "name": "stiffer_contact",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-12,
+          "timestep": 5e-05,
+          "contact_stiffness": 1000000.0
+        },
+        "run": {
+          "record_every": 40
+        }
+      },
+      "rationale": "Change only mass-normalised contact stiffness relative to tolerance_1e12_half_dt; physical assumption, not only numerical precision."
+    },
+    {
+      "name": "stiffer_both",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-12,
+          "timestep": 5e-05,
+          "solref_time": 0.0002,
+          "contact_stiffness": 1000000.0
+        },
+        "run": {
+          "record_every": 40
+        }
+      },
+      "rationale": "Joint compliance sensitivity; not an isolated-factor attribution."
+    },
+    {
+      "name": "rigid_limit_probe",
+      "overrides": {
+        "solver": {
+          "tolerance": 1e-12,
+          "timestep": 2.5e-05,
+          "solref_time": 0.0001,
+          "contact_stiffness": 10000000.0
+        },
+        "run": {
+          "record_every": 80
+        }
+      },
+      "rationale": "Stronger joint/contact constraints with refined step; probes a limit, does not establish convergence."
+    }
+  ],
+  "defaults_changed": false,
+  "original_thresholds_changed": false,
+  "automatic_candidate_promotion": false,
+  "comparison_rule": "Retain every outcome and all native metrics/findings. Compare numerical precision separately from compliance changes. Check original baseline metrics bit-for-bit. Record whole-run iteration histogram and all standard runner telemetry with hashes. Never promote a stalled or short-window result.",
+  "sources": [
+    {
+      "url": "https://mujoco.readthedocs.io/en/stable/XMLreference.html#option-tolerance",
+      "retrieved": "2026-11-04",
+      "summary": "Constraint solver early-termination tolerance is distinct from its iteration cap; zero disables early termination."
+    }
+  ],
+  "limits": [
+    "No physical measurement or independent dynamics solver.",
+    "Two selected cases cannot establish a full-cohort pass.",
+    "Changing contact stiffness changes the assumed physical model.",
+    "NoSlip omitted because previous declared trials already retained its 600 s stall."
+  ]
+}

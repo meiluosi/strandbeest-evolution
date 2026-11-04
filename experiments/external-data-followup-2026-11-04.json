@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-04",
+  "goal": "H4-01",
+  "accepted_measurements_added": 0,
+  "physical_validation_completed": false,
+  "candidates": [
+    {
+      "repository": "https://github.com/MeghRaval30/compliant-linkage-toolkit",
+      "commit": "bb6137456a04d9afaa51240e9fc3e8540d269532",
+      "readme": "https://github.com/MeghRaval30/compliant-linkage-toolkit/blob/bb6137456a04d9afaa51240e9fc3e8540d269532/README.md",
+      "data_readme": "https://github.com/MeghRaval30/compliant-linkage-toolkit/blob/bb6137456a04d9afaa51240e9fc3e8540d269532/data/README.md",
+      "observed_data_directory": [
+        ".gitkeep",
+        "README.md"
+      ],
+      "author_statement": "No physical measurements exist yet.",
+      "data_release_plan": "Data README describes future Zenodo releases; this review did not retrieve an actual release.",
+      "assessment": "Excluded as a source of currently available measured calibration/validation samples; potentially useful future source."
+    },
+    {
+      "title": "Rancang Bangun dan Pengujian Kendaraan Berkaki Empat",
+      "authors": [
+        "Mohammad Rafif Fariansyah",
+        "Radite Praeko Agus Setiawan"
+      ],
+      "year": 2025,
+      "url": "https://repository.ipb.ac.id/handle/123456789/171642",
+      "review_scope": "Repository metadata/abstract only",
+      "fulltext_read": false,
+      "appendix_read": false,
+      "retrieval_result": "Linked fulltext, appendix and expanded metadata returned web-reader cache misses. No access restriction was bypassed.",
+      "assessment": "Candidate Jansen prototype study. Raw records, calibration, uncertainty, and reuse rights remain unverified; reported torque/power summaries are not accepted measurements."
+    }
+  ],
+  "bulk_content_or_data_copied": false,
+  "messages_sent_to_authors": false
+}

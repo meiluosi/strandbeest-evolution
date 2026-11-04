@@ -1,0 +1,192 @@
+{
+	"review_date": "2026-11-04",
+	"task": "H1-06",
+	"status": "acceptance_passed_local_not_published",
+	"implementation": {
+		"key_format": 2,
+		"simulation_semantics": "beest-run/energy-v2-observation-v2-events-v1-evidence-v2-ensemble-v1",
+		"status": "verified",
+		"implementation_hash": "sha256:787958e82f9eed6dd6e891703793360306f5d19e96a182f12e6f947fa3d1bf82",
+		"manifest": {
+			"files": {
+				"beest_kernel/__init__.py": "sha256:18ba0cfa1a872310615120055f24002450f0676b3a0444e2b0210cb2d70e45b0",
+				"beest_kernel/beest_kernel.cpython-313-darwin.so": "sha256:a473c4032681dd57e634d18b37d3f5adaaf9380c34d8a680ba00ffed8e6cb93a",
+				"schemas/atlas.schema.json": "sha256:f3a87e681cb22c5da98042177e914e1c20cba8ea82a128c74a7f40f1dbf50ef5",
+				"schemas/design.schema.json": "sha256:1f0ce522b9bbe4d3def221093f10efd5b42061d5a5d0285cbf18e6b27e9ce8c1",
+				"schemas/measurement.schema.json": "sha256:4f522b2c92c95d73d3584f098deef998618261d5f050f35b5818fab907f116f7",
+				"schemas/ops.schema.json": "sha256:b16fd6d4b84750889c26dee16977b19e98a5fd1d18a25fe2e06b149052303519",
+				"schemas/profile.schema.json": "sha256:e46efe8a87cb018150e58459a87d914b08104b33456281a55bee434cd8e33591",
+				"schemas/run.schema.json": "sha256:d088766a0d8b91486af681437649def501fde83777593fb21558b4f8f3485e1e",
+				"schemas/scenario-v1.schema.json": "sha256:8cb2ae53fca4e741abae0e589462eb44d383ede0ac60b6b684748cb0319893bb",
+				"schemas/scenario.schema.json": "sha256:3c771c43e43831a71e35af01e90658fa46b5c707ccf2d3e8a006873c4daeb698",
+				"strandbeest_api/__init__.py": "sha256:5abaf4212df43f25dcd2e0cef8da2b25a97b6756bdfe28f38f172d64f7c22a3e",
+				"strandbeest_api/app.py": "sha256:df0d6a3730df150ba8e3835ad1b6b3b8364fbfbd49ba9603fdc9cb95fc6f1936",
+				"strandbeest_api/execution.py": "sha256:488099913de4132f575a7ae5ee4b5f08c3daf6d5c6f3e3a9885a830370f0a17a",
+				"strandbeest_api/jobs.py": "sha256:bd0090b083317ff372ca330ddf51d7491cfad32c086f4e45c5fdcc310b196d20",
+				"strandbeest_api/pipeline.py": "sha256:69ce9bc297ea346e2067d804fe67d60bbde8261366e790678247d4d4f5474054",
+				"strandbeest_api/sweeps.py": "sha256:d9761c025a867825d5ed9a6694a440cc0e4aef16761356cc9fe15c22970e5f82",
+				"strandbeest_common/__init__.py": "sha256:a3d36399b6cc697676e2fb55ed3169b66c7154f8f5cab9ac0830c9743ff873ca",
+				"strandbeest_common/dag.py": "sha256:a7b702725fe4be881ea280c2f6ab775d772986c7ce4344d6e41b8a1da7920fb7",
+				"strandbeest_common/design.py": "sha256:0401b2eca4f0ead05cb99fb5a095866edf9a8e06c0450786223b6b2f04935354",
+				"strandbeest_common/evidence.py": "sha256:006ab6b842bede05cce65fb3995f260ad8e5ccc8a8f021527dce732fc3b65bdc",
+				"strandbeest_common/gait.py": "sha256:6ac340312516475f7e071f21a43322e2ad5ec2aecaa09c59fbe3419a71cc86ab",
+				"strandbeest_common/guard.py": "sha256:8d068c6bf982611f2168adabfa13e3a7369c849e06a9735c5b15e3872497ddcc",
+				"strandbeest_common/hashing.py": "sha256:b3838490d592669f929f9e1e34c63bc0a338663f19b8c64ae7cbd0fb59cc9f47",
+				"strandbeest_common/ids.py": "sha256:d15c44fce422882152f623ccd02bd590f5767b60cb34cba90dc74d571750b6a5",
+				"strandbeest_common/implementation.py": "sha256:4d23d92ac28be15fb98f0a1b6940b9c655e31d369ff7d3101fd10d074c8e90e6",
+				"strandbeest_common/jsonpatch.py": "sha256:e6a12912244037fcd08cb9dab9dceca74c4494ea8cc30697aae0fba9a7746d81",
+				"strandbeest_common/linkage.py": "sha256:8b7fc82fc8f31c0c5a2f700dee54a60069152b2d12fb164e490eada98cdd1fcf",
+				"strandbeest_common/migrate.py": "sha256:83c419b9a6fd54d3cdf5e8bbd3def8bea8e2d2042c6de1a66ada23ca2b2f0582",
+				"strandbeest_common/models/__init__.py": "sha256:0f9c60217938b6dc3854621e5369a0f2c4aa48ec607ed9d4e5f56a422c08079e",
+				"strandbeest_common/models/design.py": "sha256:2d3b3f7595dd563f98d197280013bad6916c37c496a2df54fb054c9d87eb35d4",
+				"strandbeest_common/models/ops.py": "sha256:2c9962a6aa57ddfc579cbaead4be06880abeb600aef02800511c633978773712",
+				"strandbeest_common/models/scenario.py": "sha256:549900ec8c4d9bf1922fc00b1cdf806c03109482a3b2f80b305718ff2279eda0",
+				"strandbeest_common/models/scenario_v1.py": "sha256:edcf45dce7079b97a0cd46717441bdc5c63b0d7caf1f77daad50a1eb51345954",
+				"strandbeest_common/ops.py": "sha256:ee0f0b4f1d72f2547a26cfd63ca9f198e1b270f10a350c0a322ffe8196c3951f",
+				"strandbeest_common/scenario.py": "sha256:ab0f8fcef6458db2becbceb727eda4e31a3110cd4c236aa06ef881e34ae9207a",
+				"strandbeest_common/schemas.py": "sha256:ebc928f886296348649e6c407a9b20bbbd4a825969987a5542fb164305c235e5",
+				"strandbeest_common/telemetry.py": "sha256:7cd9a827a059a65cca8deaba1b4ecddf88270c0d3f48cbc807dc069747af0dc0",
+				"strandbeest_common/validity.py": "sha256:99a0bd113f70e0570cd4fa68726391a5984f33fe4f923791d9f0bfadbecc2257",
+				"strandbeest_sim/__init__.py": "sha256:2db8461d540a1bd9a97dbc3fae601908eee76035398dc00d2eddb82ce9a0fd55",
+				"strandbeest_sim/backend.py": "sha256:ac138b066b2bf6f7c6e7c9f09690d6fd403362dfc1b44a34d64400350a64bdd3",
+				"strandbeest_sim/backends/__init__.py": "sha256:8d65cb119fc77824e7b87bac926a50d704fa622dd25d06d9a02f62f68ebfd7cb",
+				"strandbeest_sim/backends/k2_backend.py": "sha256:d2be700e7affe0c5cacea091a3e1cb222cb4037a392782bdebcbd68c0833261f",
+				"strandbeest_sim/backends/mujoco_backend.py": "sha256:98be74508960238bc787e379527c8ad342387a5faa08d2cb57aed445a0a988cd",
+				"strandbeest_sim/builder.py": "sha256:2548c27369a3087a3bce0e83307a9da7ce3a01f6c67fe458d6133c6a9525f69e",
+				"strandbeest_sim/cli.py": "sha256:aeb077ac961f2a676f8c815812290fa412a38cd2e1c57b19163edc49e5323374",
+				"strandbeest_sim/config.py": "sha256:4ea8c4887b41d8cb0aed6f0539fbab9bde2c7061e2c15f83571d55947b1733f2",
+				"strandbeest_sim/contract.py": "sha256:40248064844d6c74f1ff177e6350ed37c8e293fc6dc5487ce2696d17820aad30",
+				"strandbeest_sim/data/jansen.json": "sha256:e1ee0345023121c2624b77bb5e44a568efe23ce07291d425ca819d54fcebf488",
+				"strandbeest_sim/drives.py": "sha256:b91d2465c92dfeeaa7cb7ca2e6a2bae4aa42347fe8023ea4b3a5f0f423884c65",
+				"strandbeest_sim/dynamometer.py": "sha256:167c2bad621bcb7311c6b86959cdc779fb73d0ed9b07c582c0ef73e7cde3d9b7",
+				"strandbeest_sim/events.py": "sha256:7d6ead9406b7bff35dc6e3e4fb866e306951e15dc42e7cc1ac475222ae035fb6",
+				"strandbeest_sim/fluids/__init__.py": "sha256:a2fd2658abf545ca48070860c58aa5864d0057186bececa45f0f1ea70c4809ba",
+				"strandbeest_sim/fluids/anchor.py": "sha256:5cc7a5aa3215ecd038daacd68bd3b1f6d8d7fd6fe1195a7ab0620c491366f49f",
+				"strandbeest_sim/fluids/constants.py": "sha256:0555ff4f89e71c23d9fd0a00726fccfe4466972ff6d750d1c24431c086f5c801",
+				"strandbeest_sim/fluids/counter.py": "sha256:2709b29e781a90670f633bdf13ed519e03dea1493ac1685f8ee0b17e17d1bc43",
+				"strandbeest_sim/fluids/feeler.py": "sha256:0465feaab0bc8eb2a2299aad4deba9392f5cb7df296087d396670172490d16ea",
+				"strandbeest_sim/fluids/network.py": "sha256:2e81cc4335b47295c886a27cc95d2f6411bd807027ba153a31b0176cf2c26a19",
+				"strandbeest_sim/fluids/pump.py": "sha256:748ea65cdaae5faa551c77edef787e55fc26c4cef19cf6eb1f469d5f2139c6a8",
+				"strandbeest_sim/fluids/storage.py": "sha256:6336c32127192d73c3ca1b2a0b79110ef51e6d2c30f2ae430087f74d2dd74d4f",
+				"strandbeest_sim/fluids/tide.py": "sha256:00033a92699f0f0f6d5e30893c38758d7316c8a82701f1ac5e1f1810e0780536",
+				"strandbeest_sim/fluids/valves.py": "sha256:9c0db09580579b3adf9180997bbbd1c714bd0d81657f111f92159c1c640fa8df",
+				"strandbeest_sim/from_design.py": "sha256:391a38483079f094f172b5962822fe8e915c582a1f269f6b3d61fe946d5e253b",
+				"strandbeest_sim/interactive.py": "sha256:fa92156183dc4f4f184fa157c1e3b40823c4ca6d11576347e598a89c3fac8aa1",
+				"strandbeest_sim/linkage.py": "sha256:173463ba8a0dc001f88ec5d3f5b5403a0ac5672e72a8a18201c456447772180b",
+				"strandbeest_sim/metrics_builtin.py": "sha256:2c8a09a6226b84a1173307b78156d94ed3076bde2dbe5f04406da3c6c6ffeee4",
+				"strandbeest_sim/registry.py": "sha256:333c9b86c7c645b3d3c6c4a31884dfccbe2a43b068167acca138b504f3a19507",
+				"strandbeest_sim/runner.py": "sha256:eb87b9aa6a3cb791204fbed0606b9ecec2133db6c0a723db608de78a68640c77",
+				"strandbeest_sim/scenes.py": "sha256:5566ca0a0d45f281a6499b6278d67ad3f5c1bbc41b78f1a6232a639662da6e2a",
+				"strandbeest_sim/skeptic.py": "sha256:f42dfcac0451820dfc9eac4fe4f32d6d44d6033eb6eb13adce5c53956119b935",
+				"strandbeest_sim/startwind.py": "sha256:a7229bc7515fabbd0efc998e0a07411e033f7e8345981cab77b2e284aa2bb7ea",
+				"strandbeest_sim/terrains.py": "sha256:d17193486022b59c9f15414ff92e2231ec1ab0e6d07e1c1a815fb204b3c4cce8",
+				"strandbeest_sim/winds.py": "sha256:e6c47673a136a68a9feffe5b36ede7ebdf4ca62f378b09c9340ed3a4652531d9"
+			},
+			"runtime": {
+				"python": "3.13.5",
+				"python_implementation": "CPython",
+				"python_cache_tag": "cpython-313",
+				"python_optimize": "0",
+				"beest-kernel": "0.1.0",
+				"mujoco": "3.17.0",
+				"numpy": "2.5.4",
+				"scipy": "1.18.1",
+				"pydantic": "2.14.2",
+				"pydantic-core": "2.50.2",
+				"pyarrow": "26.0.0",
+				"jsonschema": "4.26.0",
+				"PyYAML": "6.0.3",
+				"env:OMP_NUM_THREADS": "",
+				"env:OPENBLAS_NUM_THREADS": "",
+				"env:MKL_NUM_THREADS": ""
+			}
+		}
+	},
+	"checks": {
+		"pnpm_check": {
+			"passed": 364,
+			"type_check": "passed",
+			"svelte_errors": 0,
+			"svelte_warnings": 0,
+			"biome": "passed"
+		},
+		"python_full": {
+			"passed": 881,
+			"by_package": {
+				"common": 245,
+				"sim": 262,
+				"fab": 21,
+				"calib": 47,
+				"rig": 32,
+				"agent": 16,
+				"opt": 197,
+				"api": 61
+			}
+		},
+		"api_slow": {
+			"passed": 1,
+			"deselected": 61
+		},
+		"targeted_cache_migration": {
+			"passed": 46,
+			"wall_s": 12.53
+		},
+		"repository_contract_checks": "passed"
+	},
+	"acceptance": {
+		"same_implementation_same_input": "cache hit, also after independent process restart",
+		"actual_source_change_same_label_and_mtime": "new key and actual new observation result; tested in copied installed layout without git",
+		"disk_change_after_loading_code": "cache disabled, computation reports unavailable identity, restart needed",
+		"legacy_v1_v2": "readable without filling identity or overwriting old record; rejected even with current input_key",
+		"unavailable_implementation": "computes without cache key",
+		"runtime_injected_observer": "old cached marker 1 replaced by new computed marker 2, not physical units",
+		"during_run_change": "result key removed",
+		"reindex": "does not restore legacy/incompatible cache hit",
+		"actual_backend": "native MuJoCo; installed Rust extension bytes included"
+	},
+	"observer_evidence": "experiments/hardening-cache-observer-fixed-2026-11-04.json",
+	"cost": {
+		"check_samples": 20,
+		"median_ms": 8.644833986181766,
+		"max_ms": 11.251083051320165,
+		"note": "Local macOS arm64, with a separate diagnostic simulation running; not a general performance budget."
+	},
+	"limitations": [
+		"Conservative invalidation includes comments and unrelated files in the covered packages.",
+		"Third-party numerical packages are identified by installed versions; Beest native kernel is additionally byte-hashed.",
+		"Runtime guard is not a security boundary against arbitrary memory or Run-file tampering.",
+		"Copied no-git installed layout uses the existing native/third-party environment; a new wheel/container build was not claimed for this change.",
+		"G1, physical calibration, external evidence, strict browser screenshots and wider integration remain open.",
+		"Remote CI and publication not performed."
+	],
+	"source_sha256": {
+		"packages/common/src/strandbeest_common/implementation.py": "4d23d92ac28be15fb98f0a1b6940b9c655e31d369ff7d3101fd10d074c8e90e6",
+		"packages/common/src/strandbeest_common/__init__.py": "a3d36399b6cc697676e2fb55ed3169b66c7154f8f5cab9ac0830c9743ff873ca",
+		"packages/common/src/strandbeest_common/hashing.py": "b3838490d592669f929f9e1e34c63bc0a338663f19b8c64ae7cbd0fb59cc9f47",
+		"packages/common/src/strandbeest_common/migrate.py": "83c419b9a6fd54d3cdf5e8bbd3def8bea8e2d2042c6de1a66ada23ca2b2f0582",
+		"apps/api/src/strandbeest_api/execution.py": "488099913de4132f575a7ae5ee4b5f08c3daf6d5c6f3e3a9885a830370f0a17a",
+		"apps/api/src/strandbeest_api/pipeline.py": "69ce9bc297ea346e2067d804fe67d60bbde8261366e790678247d4d4f5474054",
+		"apps/api/src/strandbeest_api/app.py": "df0d6a3730df150ba8e3835ad1b6b3b8364fbfbd49ba9603fdc9cb95fc6f1936",
+		"schemas/run.schema.json": "d088766a0d8b91486af681437649def501fde83777593fb21558b4f8f3485e1e",
+		"packages/common/tests/test_hashing.py": "fc138e6e9ef5cfdfd145c42145e2f97f965c997bffefcddc11a26db7bb3eacec",
+		"packages/common/tests/test_implementation.py": "7533f37eb648f3b7ac8eac4cdebfa4e0ed968d7a7491a7565c6dfa2f15bc1652",
+		"apps/api/tests/test_cache_identity.py": "5c412c9d2bf99d92364826f565bae01b955792f56c051f441cd1fb52d58a9d05",
+		"apps/api/tests/test_cache_process.py": "84deafe7e7c99962ea0f80b46273bb153929b40582914940458ed11df248b60a",
+		"apps/api/tests/cache_process_probe.py": "9ad29cd0fbfa9c3ab98a589d7c01d6c7e96313030419463a1226ab129be41783",
+		"apps/api/scripts/hardening_cache_identity.py": "8f565f0b8837680ee6a2868f69a2f7efebe620f80efd1318682574e2610644f9"
+	},
+	"logs": {
+		"pnpm_check": {
+			"path": "/tmp/beest-cache-pnpm-check-2026-11-04.log",
+			"sha256": "137e92d47b645f5f8118c29083bdd5e2e159c5920750dfc1fe1e74ba95ece22e"
+		},
+		"python_check": {
+			"path": "/tmp/beest-cache-python-check-2026-11-04.log",
+			"sha256": "194411908e46ebc1e850b9043abf966a3900a14f53bed0fb5a903f97153d33fc"
+		},
+		"api_slow": {
+			"path": "/tmp/beest-cache-api-slow-2026-11-04.log",
+			"sha256": "ed4167ed3a485aeb7a9e8740b990b190f64f1ad7b11d957cb2148d32552cf8a6"
+		}
+	}
+}

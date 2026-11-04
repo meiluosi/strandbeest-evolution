@@ -1,0 +1,229 @@
+{
+  "created_utc": "2026-11-04T10:17:02.941417+00:00",
+  "source_path": "experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json",
+  "source_sha256": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0",
+  "seed": 1,
+  "original_cases": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+  ],
+  "diagnostic_cases": [
+    20,
+    53,
+    56,
+    61
+  ],
+  "stages": {
+    "diagnostic": {
+      "timestep_s": 0.0001,
+      "max_time_s": 30.0
+    },
+    "coarse": {
+      "timestep_s": 0.0005,
+      "max_time_s": 30.0
+    },
+    "cohort": {
+      "timestep_s": 0.0001,
+      "max_time_s": 600.0
+    }
+  },
+  "full_cohort_condition": "Four diagnostic cases finish without execution errors; failing metrics are retained and do not exclude cases",
+  "numeric_thresholds": {
+    "energy_residual": 0.02,
+    "loop_open_m": 0.005,
+    "penetration_m": 0.005,
+    "stride_relative": 0.15
+  },
+  "static_probe": {
+    "cases": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63
+    ],
+    "phases": "Original 32 uniform phases plus 32 interior phases at +0.37*(2*pi/1440)",
+    "pitch_override": "free, to test the full four-coordinate mass; no dynamic acceptance inferred",
+    "position": [
+      0.12,
+      0.8,
+      0.23
+    ],
+    "velocity": [
+      0.2,
+      -0.13,
+      0.3,
+      1.7
+    ],
+    "gravity": [
+      -2.0,
+      0.0,
+      -9.0
+    ],
+    "armature": 0.00013,
+    "bounds": {
+      "mass": {
+        "rtol": 3e-06,
+        "atol": 3e-10
+      },
+      "bias_minus_gravity": {
+        "rtol": 3e-05,
+        "atol": 3e-07
+      },
+      "potential": {
+        "rtol": 1e-08,
+        "atol": 1e-09
+      },
+      "body_positions": {
+        "rtol": 1e-08,
+        "atol": 1e-09
+      },
+      "com": {
+        "rtol": 1e-08,
+        "atol": 1e-09
+      }
+    },
+    "oracle": "Native maximal-coordinate mass and bias projected with independent finite-difference joint-coordinate maps; independent assembly, shared declared geometry"
+  },
+  "prior_checkpoint": {
+    "path": "experiments/hardening-k2-energy-validation-2026-11-04.json",
+    "sha256": "4809fb0ea149a37e0a34134e67f0f2b30bd9d6e267fe19f768bb6b699ffe197d"
+  },
+  "prior_cohort": {
+    "path": "/tmp/beest-k2-energy-2026-11-04/cohort/result.json",
+    "sha256": "0387310e052df669699f2a42cefe1e04f855838e6c7f90e515380d3c4423de93"
+  },
+  "changes": [
+    "Full configuration-dependent mass, gravity and velocity bias from declared body geometries",
+    "Implicit velocity servo and viscous damping with actual work and configured torque limits",
+    "Actual hinge-friction projection, complete body poses and center of mass"
+  ],
+  "physical_parameters_retuned": false,
+  "numerical_error_offsets_audit": false,
+  "physical_validation_inferred": false,
+  "sources": [
+    "https://mujoco.readthedocs.io/en/stable/XMLreference.html#compiler-inertiafromgeom",
+    "https://github.com/google-deepmind/mujoco/blob/3.17.0/src/user/user_objects.cc#L3963"
+  ]
+}

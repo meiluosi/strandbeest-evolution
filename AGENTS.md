@@ -5,8 +5,9 @@ Strandbeest (Jansen linkage) evolution project: kinematics → dynamics → evol
 ## Layout
 
 - `packages/core` — pure TypeScript, no DOM, no Node-only APIs. Linkage kinematics, evolution (GA). Must run in browser and Node.
-- `packages/sim-dynamics` — (planned) physics layer; may use Python if needed, keep its interface documented.
-- `apps/web-demo` — (planned) standalone interactive demo, deployable to GitHub Pages.
+- `packages/sim` / `packages/sim-web` — Python physics backends and the browser MuJoCo path; shared input/output contracts, with backend-specific limits documented.
+- `crates/beest-kernel` — shared Rust kinematics/gait kernel with Python and WASM bindings.
+- `apps/api` / `apps/web-demo` — local API and interactive demo; static deployment is supported. See `docs/ARCHITECTURE.md` for current integration and validation limits.
 - `docs/` — roadmap, architecture, research notes (history of Theo Jansen's generations).
 
 ## Commands

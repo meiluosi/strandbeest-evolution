@@ -9,12 +9,12 @@
 | Schema | Reference | Fields | Assumptions (`x-assumption`) | Calibratable (`x-calibratable`) |
 | :--- | :--- | ---: | ---: | ---: |
 | `schemas/design.schema.json` | [design.md](design.md) | 63 | 14 | 4 |
-| `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 84 | 23 | 12 |
-| `schemas/run.schema.json` | [run.md](run.md) | 49 | 0 | 0 |
+| `schemas/scenario.schema.json` | [scenario.md](scenario.md) | 85 | 23 | 12 |
+| `schemas/run.schema.json` | [run.md](run.md) | 123 | 0 | 0 |
 | `schemas/measurement.schema.json` | [measurement.md](measurement.md) | 31 | 0 | 0 |
-| `schemas/profile.schema.json` | [profile.md](profile.md) | 14 | 0 | 0 |
+| `schemas/profile.schema.json` | [profile.md](profile.md) | 22 | 0 | 0 |
 | `schemas/ops.schema.json` | [ops.md](ops.md) | 4 | 0 | 0 |
-| `schemas/scenario-v1.schema.json` | [scenario-v1.md](scenario-v1.md) | 71 | 23 | 12 |
+| `schemas/scenario-v1.schema.json` | [scenario-v1.md](scenario-v1.md) | 80 | 23 | 12 |
 
 ## 2. Assumptions Inventory / 我们到底猜了哪些参数（`x-assumption: true`）
 
@@ -58,7 +58,7 @@ Total assumed parameters in `Design` and `Scenario`: **37**. Every physical gues
 | `scenario` | `entities[].components.drive.rotor_inertia` | `0.0001` | `kg·m²` | no | Our guess, not measured | 曲柄上的转动惯量<br>Rotational inertia at the crank |
 | `scenario` | `entities[].components.drive.crank_damping` | `0.001` | `N·m·s/rad` | yes (`calibratable`) | Our guess, not measured | 曲柄处的粘性损耗<br>Viscous loss at the crank |
 | `scenario` | `entities[].components.drive.crank_friction` | `0.002` | `N·m` | yes (`calibratable`) | Our guess, not measured | 曲柄处的库仑摩擦<br>Coulomb friction at the crank |
-| `scenario` | `solver.contact_stiffness` | `100000.0` | `1/s²` | yes (`calibratable`) | Order-of-magnitude guess for printed pads; calibrate against measured sinking | 接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref<br>Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref |
+| `scenario` | `solver.contact_stiffness` | `100000.0` | `1/s²` | yes (`calibratable`) | Order-of-magnitude guess for printed pads; calibrate against measured sinking | 接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref<br>Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces. |
 
 ## 3. Calibratable Parameters / 可被实测校准的参数（`x-calibratable: true`）
 
@@ -79,4 +79,4 @@ Total assumed parameters in `Design` and `Scenario`: **37**. Every physical gues
 | `scenario` | `entities[].components.drive.max_torque` | `null` | `N·m` | > 0 | 电机扭矩上限；null 表示不限（只适合理想的强制运动）。不设限时，脚被挡住会把连杆撑开<br>Motor torque limit; null = unlimited, only sensible for ideal prescribed motion. Without a limit a blocked foot forces the linkage open |
 | `scenario` | `entities[].components.drive.crank_damping` | `0.001` | `N·m·s/rad` | ≥ 0 | 曲柄处的粘性损耗<br>Viscous loss at the crank |
 | `scenario` | `entities[].components.drive.crank_friction` | `0.002` | `N·m` | ≥ 0 | 曲柄处的库仑摩擦<br>Coulomb friction at the crank |
-| `scenario` | `solver.contact_stiffness` | `100000.0` | `1/s²` | range `[10000.0, 10000000.0]`; > 0 | 接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref<br>Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref |
+| `scenario` | `solver.contact_stiffness` | `100000.0` | `1/s²` | range `[10000.0, 10000000.0]`; > 0 | 接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref<br>Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces. |

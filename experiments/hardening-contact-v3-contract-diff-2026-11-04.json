@@ -1,0 +1,1325 @@
+{
+  "created_utc": "2026-11-03T19:34:10.292599+00:00",
+  "intent": "Correct mass-normalised contact damping; retain original input parameters, G1 thresholds and historical corpora",
+  "native_mujoco": "3.17.0",
+  "wasm_mujoco": "3.14.0",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "corpora": [
+    {
+      "kind": "mjcf",
+      "old": "contracts/sim-mjcf/cases-v2.json",
+      "new": "contracts/sim-mjcf/cases-contact-v3.json",
+      "old_sha256": "a9615bf781196d7fe33565cc21536566531899abb3f8d27453cb8243f5e0d2c9",
+      "new_sha256": "691742c409ed5d328c06f86d5b6459ccd6ed87d450b65128570ec592f2f6a1e6",
+      "count": 38,
+      "inputs_unchanged": true,
+      "order_changed": false,
+      "rows": [
+        {
+          "name": "scene-flat",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-slope",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-step",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-bumps",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-wind",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-gusts",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-mars",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-titan",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-venus",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "scene-moon",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-legs12",
+          "old_solref": "-300000.0 -384.1375353698204",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-legs5",
+          "old_solref": "-300000.0 -332.391364508767",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-legs1",
+          "old_solref": "-300000.0 -298.8257081310107",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-longcrank",
+          "old_solref": "-300000.0 -340.3602571394022",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-petg-scaled",
+          "old_solref": "-300000.0 -390.5761307607008",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-sail",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "design-fourbar",
+          "old_solref": "-300000.0 -299.9636457972866",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-slope",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-step-defaults",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-step-params",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-bumps-seed17",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-bumps-defaults",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-soft",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-ramp-defaults",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-ramp-params",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-sand-defaults",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "terrain-sand-params",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "solver-no-contact-stiffness",
+          "old_solref": "0.015 1",
+          "new_solref": "0.015 1",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "solver-options",
+          "old_solref": "-300000.0 -238.18606863038818",
+          "new_solref": "-300000.0 -766.8115805072325",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "solver-tiny-timestep",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "walker-pitch-free",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "walker-pin-loss",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "walker-total-mass",
+          "old_solref": "-300000.0 -692.8203230275509",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "walker-too-heavy-legs",
+          "expected_error_unchanged": true
+        },
+        {
+          "name": "drive-no-torque-limit",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "drive-torque-limit",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "environment-gravity",
+          "old_solref": "-300000.0 -340.265812329126",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        },
+        {
+          "name": "linkage-param-override",
+          "old_solref": "-300000.0 -340.313038010594",
+          "new_solref": "-300000.0 -1095.4451150103323",
+          "only_default_geom_solref_changed": true
+        }
+      ]
+    },
+    {
+      "kind": "run",
+      "old": "contracts/sim-run/cases-energy-v2.json",
+      "new": "contracts/sim-run/cases-contact-v3.json",
+      "old_sha256": "8ef2cc67dfddcdde98f91a84aed705d7cd23c3a3712f6ef1966f798e3c62298c",
+      "new_sha256": "92614d8537c27ed46d99bdcf6824c5f210e62d549fdf6ae33e6492403ee4ca45",
+      "count": 13,
+      "inputs_unchanged": true,
+      "order_changed": true,
+      "rows": [
+        {
+          "name": "flat",
+          "old_metrics": {
+            "max_loop_violation": 0.0005499556334071787,
+            "max_penetration": 0.0005214561569046022,
+            "wind_only": false,
+            "energy_in_per_rev": 0.01853501712523426,
+            "energy_contact_share": 0.19206768952646008,
+            "energy_loops_share": -0.013093677728646773,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.00023593038493904494,
+            "energy_window_revs": 0.1497687933810582,
+            "stride_per_rev": 0.2650254748509839,
+            "mean_speed": 0.037165304853630704,
+            "mean_torque": 0.003546610772630207,
+            "peak_torque": 0.007416825804511973,
+            "torque_ptp": 0.011918734835326461,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0005735551409393747,
+            "max_penetration": 0.0005214129929811111,
+            "wind_only": false,
+            "energy_in_per_rev": 0.02429034877965699,
+            "energy_contact_share": 0.37795200727499767,
+            "energy_loops_share": -0.0034270505503420307,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.00017867020376513093,
+            "energy_window_revs": 0.14975870030755084,
+            "stride_per_rev": 0.27638510004075056,
+            "mean_speed": 0.03875568667273328,
+            "mean_torque": 0.0040777058104014725,
+            "peak_torque": 0.007803319077794413,
+            "torque_ptp": 0.010061425095965859,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 535,
+          "new_sample_count": 535,
+          "unchanged": false,
+          "old_diagnosis": [
+            "ok"
+          ],
+          "new_diagnosis": [
+            "ok"
+          ]
+        },
+        {
+          "name": "step",
+          "old_metrics": {
+            "max_loop_violation": 0.005839960301600833,
+            "max_penetration": 0.004488716459761143,
+            "wind_only": false,
+            "energy_in_per_rev": 0.8036439873930218,
+            "energy_contact_share": 0.7820060048279046,
+            "energy_loops_share": 0.15081055083093173,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -6.076533795210571e-06,
+            "energy_window_revs": 0.19983589339327532,
+            "stride_per_rev": 0.25825783116460765,
+            "mean_speed": 0.041958686517556125,
+            "mean_torque": 0.0765227731405177,
+            "peak_torque": 0.1927963078069368,
+            "torque_ptp": 0.2180726790956432,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.005644159758941503,
+            "max_penetration": 0.00446864073727065,
+            "wind_only": false,
+            "energy_in_per_rev": 0.8778260216563127,
+            "energy_contact_share": 0.7971866076432711,
+            "energy_loops_share": 0.14143447308122467,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -5.324892244064881e-06,
+            "energy_window_revs": 0.1997753802863587,
+            "stride_per_rev": 0.2609496517994203,
+            "mean_speed": 0.04238318367790823,
+            "mean_torque": 0.08813134863624242,
+            "peak_torque": 0.19730919386567436,
+            "torque_ptp": 0.22258271772174823,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 616,
+          "new_sample_count": 616,
+          "unchanged": false,
+          "old_diagnosis": [
+            "loop_constraints_opened"
+          ],
+          "new_diagnosis": [
+            "loop_constraints_opened"
+          ]
+        },
+        {
+          "name": "slope",
+          "old_metrics": {
+            "max_loop_violation": 0.0006846974439407411,
+            "max_penetration": 0.0005271995987915761,
+            "wind_only": false,
+            "energy_in_per_rev": 0.2165669984178722,
+            "energy_contact_share": 1.1414501692054133,
+            "energy_loops_share": -0.002324809025303625,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -7.419023147885832e-05,
+            "energy_window_revs": 0.11983495743135035,
+            "stride_per_rev": -0.06711793068235239,
+            "mean_speed": -0.008291829243505952,
+            "mean_torque": 0.03413719855912328,
+            "peak_torque": 0.03797847474453242,
+            "torque_ptp": 0.012310401294889792,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0008448436299087758,
+            "max_penetration": 0.0005259300148922601,
+            "wind_only": false,
+            "energy_in_per_rev": 0.22086696358205435,
+            "energy_contact_share": 0.37582335272256107,
+            "energy_loops_share": -0.001394839276044264,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -9.6634885320689e-05,
+            "energy_window_revs": 0.11982708796412637,
+            "stride_per_rev": 0.17537331070400416,
+            "mean_speed": 0.021664405286897667,
+            "mean_torque": 0.0346385518676216,
+            "peak_torque": 0.03834742826883186,
+            "torque_ptp": 0.012789410355369051,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 486,
+          "new_sample_count": 486,
+          "unchanged": false,
+          "old_diagnosis": [
+            "slipping"
+          ],
+          "new_diagnosis": [
+            "ok"
+          ]
+        },
+        {
+          "name": "soft",
+          "old_metrics": {
+            "max_loop_violation": 0.0005754007621723845,
+            "max_penetration": 0.009032146931771871,
+            "wind_only": false,
+            "energy_in_per_rev": 0.03132534051850116,
+            "energy_contact_share": 0.8983543380994263,
+            "energy_loops_share": 0.004112058282773441,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.000350223707644207,
+            "energy_window_revs": 0.11980239949306878,
+            "stride_per_rev": 0.19072029094923526,
+            "mean_speed": 0.023555410812099713,
+            "mean_torque": 0.003526558924308836,
+            "peak_torque": 0.009756829330481054,
+            "torque_ptp": 0.010461547388861289,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0005754007621723845,
+            "max_penetration": 0.009032146931771871,
+            "wind_only": false,
+            "energy_in_per_rev": 0.03132534051850116,
+            "energy_contact_share": 0.8983543380994263,
+            "energy_loops_share": 0.004112058282773441,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.000350223707644207,
+            "energy_window_revs": 0.11980239949306878,
+            "stride_per_rev": 0.19072029094923526,
+            "mean_speed": 0.023555410812099713,
+            "mean_torque": 0.003526558924308836,
+            "peak_torque": 0.009756829330481054,
+            "torque_ptp": 0.010461547388861289,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 486,
+          "new_sample_count": 486,
+          "unchanged": true,
+          "old_diagnosis": [
+            "deep_sinkage"
+          ],
+          "new_diagnosis": [
+            "deep_sinkage"
+          ]
+        },
+        {
+          "name": "audit-blocked-step",
+          "old_metrics": {
+            "max_loop_violation": 0.016323292611783446,
+            "max_penetration": 0.004385631563888185,
+            "wind_only": false,
+            "energy_in_per_rev": 0.6137224347419198,
+            "energy_contact_share": 0.9995628764094554,
+            "energy_loops_share": -0.028016811546748063,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -1.3842596316798746e-06,
+            "energy_window_revs": 0.7499644791836099,
+            "stride_per_rev": -0.05698966545306626,
+            "mean_speed": -0.014256245753945924,
+            "mean_torque": 0.07226215332318389,
+            "peak_torque": 0.3,
+            "torque_ptp": 0.6,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.02188487231428171,
+            "max_penetration": 0.004396719623500451,
+            "wind_only": false,
+            "energy_in_per_rev": 1.8379967871143128,
+            "energy_contact_share": 0.9545455451705248,
+            "energy_loops_share": 0.018459189336221184,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 1.4292241814326651e-05,
+            "energy_window_revs": 0.263832200931304,
+            "stride_per_rev": -0.16757451148756183,
+            "mean_speed": -0.014747015405511496,
+            "mean_torque": 0.21216187911840212,
+            "peak_torque": 0.3,
+            "torque_ptp": 0.6,
+            "steady_window": 0.0
+          },
+          "old_stalled": true,
+          "new_stalled": true,
+          "old_sample_count": 1500,
+          "new_sample_count": 1500,
+          "unchanged": false,
+          "old_diagnosis": [
+            "blocked_by_terrain_torque_limit",
+            "loop_constraints_opened",
+            "slipping"
+          ],
+          "new_diagnosis": [
+            "blocked_by_terrain_torque_limit",
+            "loop_constraints_opened",
+            "slipping"
+          ]
+        },
+        {
+          "name": "audit-torque-limit",
+          "old_metrics": {
+            "max_loop_violation": 0.00044730569442706593,
+            "max_penetration": 0.0005214199345544828,
+            "wind_only": false,
+            "energy_in_per_rev": 0.002513527690522846,
+            "energy_contact_share": 7.170064725914153,
+            "energy_loops_share": 1.7462966712505885,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -0.004091614718668056,
+            "energy_window_revs": 0.0002331830040318384,
+            "stride_per_rev": 0.2877410780378327,
+            "mean_speed": 2.238036322887889e-05,
+            "mean_torque": 0.0004000000000000001,
+            "peak_torque": 0.0004,
+            "torque_ptp": 0.0,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.00044703574349471656,
+            "max_penetration": 0.0005214055415376489,
+            "wind_only": false,
+            "energy_in_per_rev": 0.0025145516772511574,
+            "energy_contact_share": 6.855095898927672,
+            "energy_loops_share": 1.5569703498408134,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -0.004014639938053183,
+            "energy_window_revs": 0.00010850927574600853,
+            "stride_per_rev": 0.28358930816817973,
+            "mean_speed": 1.0264199612615503e-05,
+            "mean_torque": 0.0004000000000000001,
+            "peak_torque": 0.0004,
+            "torque_ptp": 0.0,
+            "steady_window": 0.0
+          },
+          "old_stalled": true,
+          "new_stalled": true,
+          "old_sample_count": 1500,
+          "new_sample_count": 1500,
+          "unchanged": false,
+          "old_diagnosis": [
+            "torque_limit_too_low"
+          ],
+          "new_diagnosis": [
+            "torque_limit_too_low"
+          ]
+        },
+        {
+          "name": "audit-soft-sinkage",
+          "old_metrics": {
+            "max_loop_violation": 0.0006263514323313069,
+            "max_penetration": 0.027516761231882653,
+            "wind_only": false,
+            "energy_in_per_rev": 0.049901368198502126,
+            "energy_contact_share": -0.7624967765717967,
+            "energy_loops_share": -0.0030161216349498176,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.0011626759868664633,
+            "energy_window_revs": 0.19936912253633537,
+            "stride_per_rev": 0.08015355225437931,
+            "mean_speed": 0.013034374699125169,
+            "mean_torque": 0.0035693360340361734,
+            "peak_torque": 0.026279376643140395,
+            "torque_ptp": 0.03713311020135901,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0011443925208156625,
+            "max_penetration": 0.02373622466703218,
+            "wind_only": false,
+            "energy_in_per_rev": 0.16658801908973334,
+            "energy_contact_share": 1.1192065400580464,
+            "energy_loops_share": 0.0010225912127460432,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 4.9825580391123946e-05,
+            "energy_window_revs": 0.19990701945397826,
+            "stride_per_rev": 0.09910086133477497,
+            "mean_speed": 0.016132701803549494,
+            "mean_torque": 0.016139396397086003,
+            "peak_torque": 0.05494770816847527,
+            "torque_ptp": 0.06308970483041912,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 614,
+          "new_sample_count": 615,
+          "unchanged": false,
+          "old_diagnosis": [
+            "slipping",
+            "deep_sinkage"
+          ],
+          "new_diagnosis": [
+            "slipping",
+            "deep_sinkage"
+          ]
+        },
+        {
+          "name": "audit-loose-loops",
+          "old_metrics": {
+            "max_loop_violation": 5.256694822188795,
+            "max_penetration": 0.0006795905156464482,
+            "wind_only": false,
+            "energy_window_revs": 0.14752310017484518,
+            "stride_per_rev": 0.154223906107315,
+            "mean_speed": 0.02146376297172327,
+            "mean_torque": -0.0039341803389468305,
+            "peak_torque": 0.06136120125967093,
+            "torque_ptp": 0.13399223074800926,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 3.846149062854606,
+            "max_penetration": 0.0005324481265617503,
+            "wind_only": false,
+            "energy_in_per_rev": 0.04245391901019909,
+            "energy_contact_share": 26.76813075732528,
+            "energy_loops_share": 134.2466682271454,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -0.06641551488368089,
+            "energy_window_revs": 0.1473667264647652,
+            "stride_per_rev": -0.2819680730578179,
+            "mean_speed": -0.03920067159821772,
+            "mean_torque": 0.007846769433496438,
+            "peak_torque": 0.09129797278818774,
+            "torque_ptp": 0.13993309421376043,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 107,
+          "new_sample_count": 107,
+          "unchanged": false,
+          "old_diagnosis": [
+            "loop_constraints_opened",
+            "slipping"
+          ],
+          "new_diagnosis": [
+            "loop_constraints_opened",
+            "slipping"
+          ]
+        },
+        {
+          "name": "sail-wind",
+          "old_metrics": {
+            "max_loop_violation": 0.000827310054472884,
+            "max_penetration": 0.0005337018076754223,
+            "wind_only": true,
+            "energy_in_per_rev": 0.06354321991332633,
+            "energy_contact_share": 0.1781321910074008,
+            "energy_loops_share": 0.002700238623187437,
+            "energy_friction_share": 0.47970045387080135,
+            "energy_residual_share": 3.434140823423477e-05,
+            "energy_window_revs": 0.2998695853869606,
+            "stride_per_rev": 0.267530819407592,
+            "mean_speed": 0.11902723426408807,
+            "mean_torque": 0.01206335170804064,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.15265314173354327,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0011566167965366466,
+            "max_penetration": 0.0005359894711086093,
+            "wind_only": true,
+            "energy_in_per_rev": 0.06939101898117848,
+            "energy_contact_share": 0.26687793105261487,
+            "energy_loops_share": 0.008139372045741652,
+            "energy_friction_share": 0.4343252573175255,
+            "energy_residual_share": 2.9371021102879e-05,
+            "energy_window_revs": 0.2991659180724802,
+            "stride_per_rev": 0.2776322524138482,
+            "mean_speed": 0.1210759587170942,
+            "mean_torque": 0.013246237716631332,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.15052912142569683,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 338,
+          "new_sample_count": 344,
+          "unchanged": false,
+          "old_diagnosis": [
+            "ok"
+          ],
+          "new_diagnosis": [
+            "ok"
+          ]
+        },
+        {
+          "name": "sail-gusts",
+          "old_metrics": {
+            "max_loop_violation": 0.000834454892899664,
+            "max_penetration": 0.0005395763611761566,
+            "wind_only": true,
+            "energy_in_per_rev": 0.09998131106670693,
+            "energy_contact_share": 0.15517964646205157,
+            "energy_loops_share": 0.0023277082793824577,
+            "energy_friction_share": 0.37267641787932554,
+            "energy_residual_share": 2.3764513330277982e-05,
+            "energy_window_revs": 0.2993661083820746,
+            "stride_per_rev": 0.26001655180872113,
+            "mean_speed": 0.15322862840533266,
+            "mean_torque": 0.019149097701876765,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.14968395156136485,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.001176167197560158,
+            "max_penetration": 0.0005413800841779764,
+            "wind_only": true,
+            "energy_in_per_rev": 0.10774584163932939,
+            "energy_contact_share": 0.23070521157546384,
+            "energy_loops_share": 0.008587114367751102,
+            "energy_friction_share": 0.3433889028121392,
+            "energy_residual_share": 2.0902688235825136e-05,
+            "energy_window_revs": 0.29919065934589295,
+            "stride_per_rev": 0.2754636634435069,
+            "mean_speed": 0.1603427141858063,
+            "mean_torque": 0.020769977259416757,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.14737080885218123,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 255,
+          "new_sample_count": 258,
+          "unchanged": false,
+          "old_diagnosis": [
+            "ok"
+          ],
+          "new_diagnosis": [
+            "ok"
+          ]
+        },
+        {
+          "name": "sail-lull",
+          "old_metrics": {
+            "max_loop_violation": 0.0011655768851034322,
+            "max_penetration": 0.0005705907778704982,
+            "wind_only": true,
+            "energy_in_per_rev": 0.07218803994348715,
+            "energy_contact_share": 0.19386429693971508,
+            "energy_loops_share": 0.005496625372371268,
+            "energy_friction_share": 0.5260930369311801,
+            "energy_residual_share": -1.3535752464523145e-05,
+            "energy_window_revs": 0.5993905254807649,
+            "stride_per_rev": 0.2710584962660092,
+            "mean_speed": 0.17247334873983472,
+            "mean_torque": 0.01351515786099311,
+            "peak_torque": 0.27647999999999995,
+            "torque_ptp": 0.2728792447270253,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0015784996404416309,
+            "max_penetration": 0.0005712240661150652,
+            "wind_only": true,
+            "energy_in_per_rev": 0.08223192265741383,
+            "energy_contact_share": 0.30323367612812235,
+            "energy_loops_share": 0.010832664930810738,
+            "energy_friction_share": 0.45566675085802844,
+            "energy_residual_share": -1.2187435792747941e-05,
+            "energy_window_revs": 0.5996360798682088,
+            "stride_per_rev": 0.27877061863321806,
+            "mean_speed": 0.17376395108074205,
+            "mean_torque": 0.015376813928696552,
+            "peak_torque": 0.27647999999999995,
+            "torque_ptp": 0.27015710338188287,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 472,
+          "new_sample_count": 482,
+          "unchanged": false,
+          "old_diagnosis": [
+            "ok"
+          ],
+          "new_diagnosis": [
+            "ok"
+          ]
+        },
+        {
+          "name": "sail-calm-stall",
+          "old_metrics": {
+            "max_loop_violation": 0.0004549925814754108,
+            "max_penetration": 0.0005328286657369213,
+            "wind_only": true,
+            "energy_in_per_rev": 0.011106965922920011,
+            "energy_contact_share": 0.10855031786464983,
+            "energy_loops_share": -0.014930107203671678,
+            "energy_friction_share": 0.6788188492252046,
+            "energy_residual_share": -4.29153266933748e-06,
+            "energy_window_revs": 0.2052431166910771,
+            "stride_per_rev": 0.281146985178947,
+            "mean_speed": 0.007212935435808176,
+            "mean_torque": 0.002667372173781707,
+            "peak_torque": 0.004319999999999999,
+            "torque_ptp": 0.004319999999999999,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0004552049045469797,
+            "max_penetration": 0.0005318813329868149,
+            "wind_only": true,
+            "energy_in_per_rev": 0.011460064667275631,
+            "energy_contact_share": 0.22110809635670556,
+            "energy_loops_share": -0.012761995192079526,
+            "energy_friction_share": 0.6136107135776303,
+            "energy_residual_share": -5.773233368562228e-06,
+            "energy_window_revs": 0.19937849077883504,
+            "stride_per_rev": 0.28121382055180644,
+            "mean_speed": 0.007008498390975812,
+            "mean_torque": 0.002669857550586363,
+            "peak_torque": 0.004319999999999999,
+            "torque_ptp": 0.004319999999999999,
+            "steady_window": 0.0
+          },
+          "old_stalled": true,
+          "new_stalled": true,
+          "old_sample_count": 4001,
+          "new_sample_count": 4001,
+          "unchanged": false,
+          "old_diagnosis": [
+            "sail_torque_insufficient"
+          ],
+          "new_diagnosis": [
+            "sail_torque_insufficient"
+          ]
+        },
+        {
+          "name": "sail-body-drag",
+          "old_metrics": {
+            "max_loop_violation": 0.0008231654597840015,
+            "max_penetration": 0.0005259999986508262,
+            "wind_only": true,
+            "energy_in_per_rev": 0.11919342865929049,
+            "energy_contact_share": 0.16033456352737088,
+            "energy_loops_share": 0.0019575777869035504,
+            "energy_friction_share": 0.2415726361025052,
+            "energy_residual_share": -7.537170316607627e-06,
+            "energy_window_revs": 0.09933266147339799,
+            "stride_per_rev": 0.2552770187811666,
+            "mean_speed": 0.10142938275411609,
+            "mean_torque": 0.020397822737813636,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.1496077070651896,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.001144128267196596,
+            "max_penetration": 0.0005277086751503107,
+            "wind_only": true,
+            "energy_in_per_rev": 0.1173991894630419,
+            "energy_contact_share": 0.1542002949358478,
+            "energy_loops_share": 0.009459084571336004,
+            "energy_friction_share": 0.24700255089464518,
+            "energy_residual_share": -8.395501709150302e-06,
+            "energy_window_revs": 0.09942629645472519,
+            "stride_per_rev": 0.2780065858893632,
+            "mean_speed": 0.11056466090001235,
+            "mean_torque": 0.021162931149265714,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.14903284033017372,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 126,
+          "new_sample_count": 126,
+          "unchanged": false,
+          "old_diagnosis": [
+            "ok"
+          ],
+          "new_diagnosis": [
+            "ok"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "golden",
+      "old": "contracts/sim-golden/runs-energy-v2.json",
+      "new": "contracts/sim-golden/runs-contact-v3.json",
+      "old_sha256": "521e6f18c3f44c6667c3f80694913fed8747f50b073d9857c178631807682806",
+      "new_sha256": "91eab8e8a3982a3f433abefd20ef78b5845dd20d7a8feaeb8a2ce940b7b203d4",
+      "count": 10,
+      "inputs_unchanged": true,
+      "order_changed": false,
+      "rows": [
+        {
+          "name": "flat-motor",
+          "old_metrics": {
+            "max_loop_violation": 0.000704047859771087,
+            "max_penetration": 0.000566274213899846,
+            "wind_only": false,
+            "energy_in_per_rev": 0.007861731852903082,
+            "energy_contact_share": 0.4959372918272989,
+            "energy_loops_share": -0.00043827442203436123,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -0.00020699748870248408,
+            "energy_window_revs": 0.6996669246253716,
+            "stride_per_rev": 0.2758378635380171,
+            "mean_speed": 0.0689759219717285,
+            "mean_torque": 0.002033092881770554,
+            "peak_torque": 0.01467008005873538,
+            "torque_ptp": 0.023385859588671565,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0007039354537310555,
+            "max_penetration": 0.0005646407003218317,
+            "wind_only": false,
+            "energy_in_per_rev": 0.015218017603577083,
+            "energy_contact_share": 0.733070273109639,
+            "energy_loops_share": 0.005361684602394113,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -7.816613840857658e-05,
+            "energy_window_revs": 0.6996628593630597,
+            "stride_per_rev": 0.27930023847155616,
+            "mean_speed": 0.06984131646526542,
+            "mean_torque": 0.0030021720662887948,
+            "peak_torque": 0.017098482778735047,
+            "torque_ptp": 0.023947020513659822,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": false
+        },
+        {
+          "name": "slope-5deg",
+          "old_metrics": {
+            "max_loop_violation": 0.002840294825175782,
+            "max_penetration": 0.0005668330914263258,
+            "wind_only": false,
+            "energy_in_per_rev": 0.12256325101950455,
+            "energy_contact_share": 0.4289869021613638,
+            "energy_loops_share": -0.012597812929777526,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -4.7480716195299057e-05,
+            "energy_window_revs": 0.6996593026244005,
+            "stride_per_rev": 0.16792796213955316,
+            "mean_speed": 0.04199155142305506,
+            "mean_torque": 0.020446633565941143,
+            "peak_torque": 0.13577332981277834,
+            "torque_ptp": 0.2290914516216418,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0009222300714477605,
+            "max_penetration": 0.0005674469849189217,
+            "wind_only": false,
+            "energy_in_per_rev": 0.13065254510190596,
+            "energy_contact_share": 0.19842634386959804,
+            "energy_loops_share": 0.0007431229502613756,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -4.8090910580284184e-05,
+            "energy_window_revs": 0.6996551201761199,
+            "stride_per_rev": 0.24540559215354696,
+            "mean_speed": 0.0613650032416364,
+            "mean_torque": 0.021466552424252962,
+            "peak_torque": 0.031482645714035584,
+            "torque_ptp": 0.017719917478132174,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": false
+        },
+        {
+          "name": "step-12mm-torque-capped",
+          "old_metrics": {
+            "max_loop_violation": 0.008425601144300465,
+            "max_penetration": 0.0006973285418651037,
+            "wind_only": false,
+            "energy_in_per_rev": 0.41709245629839026,
+            "energy_contact_share": 0.9836870310589999,
+            "energy_loops_share": 0.013443292195280484,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -2.9690749701012502e-06,
+            "energy_window_revs": 0.6997027156876691,
+            "stride_per_rev": 0.04374949020204836,
+            "mean_speed": 0.010932727537259757,
+            "mean_torque": 0.05523089542184316,
+            "peak_torque": 0.3,
+            "torque_ptp": 0.3597239865535357,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.00819075543465253,
+            "max_penetration": 0.0007094991385272458,
+            "wind_only": false,
+            "energy_in_per_rev": 0.8672712513458524,
+            "energy_contact_share": 0.9881036996345329,
+            "energy_loops_share": 0.009965078907210084,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -5.40917852519624e-07,
+            "energy_window_revs": 0.6999678090178226,
+            "stride_per_rev": 0.044768683020132184,
+            "mean_speed": 0.01112806710448097,
+            "mean_torque": 0.11822584491786879,
+            "peak_torque": 0.3,
+            "torque_ptp": 0.29959243111191397,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1401,
+          "new_sample_count": 1409,
+          "unchanged": false
+        },
+        {
+          "name": "bumps-seed3",
+          "old_metrics": {
+            "max_loop_violation": 0.0014819843144842082,
+            "max_penetration": 0.000678633574213848,
+            "wind_only": false,
+            "energy_in_per_rev": 0.043315075545204425,
+            "energy_contact_share": 0.22648813848341856,
+            "energy_loops_share": 0.008873186863098893,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.00017303566397084175,
+            "energy_window_revs": 0.6997912284989722,
+            "stride_per_rev": 0.25777863335267165,
+            "mean_speed": 0.06447148910459971,
+            "mean_torque": 0.006480667674764273,
+            "peak_torque": 0.04264423507135007,
+            "torque_ptp": 0.07717228256288422,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0018097583568561504,
+            "max_penetration": 0.0006769760253505161,
+            "wind_only": false,
+            "energy_in_per_rev": 0.05663245182087271,
+            "energy_contact_share": 0.3958654186710371,
+            "energy_loops_share": 0.01640087894799536,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 0.0001444201459010244,
+            "energy_window_revs": 0.6997567158363421,
+            "stride_per_rev": 0.2573527668582927,
+            "mean_speed": 0.06436180376989724,
+            "mean_torque": 0.008220628149331985,
+            "peak_torque": 0.07711473522445544,
+            "torque_ptp": 0.099628312036387,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": false
+        },
+        {
+          "name": "soft-ground",
+          "old_metrics": {
+            "max_loop_violation": 0.001040002851798505,
+            "max_penetration": 0.011409886082097377,
+            "wind_only": false,
+            "energy_in_per_rev": 0.10321332696868324,
+            "energy_contact_share": 1.0132382065178844,
+            "energy_loops_share": 0.00037484967110689354,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -6.370177928974969e-05,
+            "energy_window_revs": 0.6995609263254563,
+            "stride_per_rev": 0.17733193934634423,
+            "mean_speed": 0.044336846231676344,
+            "mean_torque": 0.014047863331508587,
+            "peak_torque": 0.04527975816650098,
+            "torque_ptp": 0.0447522911811408,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.001040002851798505,
+            "max_penetration": 0.011409886082097377,
+            "wind_only": false,
+            "energy_in_per_rev": 0.10321332696868324,
+            "energy_contact_share": 1.0132382065178844,
+            "energy_loops_share": 0.00037484967110689354,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -6.370177928974969e-05,
+            "energy_window_revs": 0.6995609263254563,
+            "stride_per_rev": 0.17733193934634423,
+            "mean_speed": 0.044336846231676344,
+            "mean_torque": 0.014047863331508587,
+            "peak_torque": 0.04527975816650098,
+            "torque_ptp": 0.0447522911811408,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": true
+        },
+        {
+          "name": "sail-wind-3",
+          "old_metrics": {
+            "max_loop_violation": 0.0008265489905401706,
+            "max_penetration": 0.0005669130666280092,
+            "wind_only": true,
+            "energy_in_per_rev": 0.04814869927560427,
+            "energy_contact_share": 0.17070715396181393,
+            "energy_loops_share": 0.003822554447495069,
+            "energy_friction_share": 0.6468476578800002,
+            "energy_residual_share": -5.773066665494381e-05,
+            "energy_window_revs": 0.6993118657464267,
+            "stride_per_rev": 0.27397194213844445,
+            "mean_speed": 0.12755780959988322,
+            "mean_torque": 0.00867183244093268,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.1531122438824173,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0011569829340300937,
+            "max_penetration": 0.0005675602483424507,
+            "wind_only": true,
+            "energy_in_per_rev": 0.05686394904479983,
+            "energy_contact_share": 0.3099627316061539,
+            "energy_loops_share": 0.007073884580414419,
+            "energy_friction_share": 0.5383248520383682,
+            "energy_residual_share": -3.8083200864001174e-05,
+            "energy_window_revs": 0.6996352218170718,
+            "stride_per_rev": 0.27902369956958695,
+            "mean_speed": 0.12627089776235792,
+            "mean_torque": 0.01011306294182694,
+            "peak_torque": 0.15551999999999996,
+            "torque_ptp": 0.1509858695921969,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 752,
+          "new_sample_count": 774,
+          "unchanged": false
+        },
+        {
+          "name": "sail-gusts",
+          "old_metrics": {
+            "max_loop_violation": 0.0007249637441326204,
+            "max_penetration": 0.0005719362631659824,
+            "wind_only": true,
+            "energy_in_per_rev": 0.05965492256180129,
+            "energy_contact_share": 0.14689479293419197,
+            "energy_loops_share": 0.0032803211019317943,
+            "energy_friction_share": 0.5858596161812888,
+            "energy_residual_share": -6.112163455666267e-05,
+            "energy_window_revs": 0.6994444857616211,
+            "stride_per_rev": 0.2716088743208864,
+            "mean_speed": 0.14658590233617383,
+            "mean_torque": 0.01080556351419257,
+            "peak_torque": 0.10799999999999997,
+            "torque_ptp": 0.10404725190391793,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0009246156612469306,
+            "max_penetration": 0.0005724810921761119,
+            "wind_only": true,
+            "energy_in_per_rev": 0.07063409517088479,
+            "energy_contact_share": 0.2878736601788298,
+            "energy_loops_share": 0.006595253666609924,
+            "energy_friction_share": 0.48779960405909867,
+            "energy_residual_share": -4.780674627269117e-05,
+            "energy_window_revs": 0.6989545941262594,
+            "stride_per_rev": 0.2784555271906368,
+            "mean_speed": 0.14722221633113597,
+            "mean_torque": 0.012507143745407859,
+            "peak_torque": 0.10799999999999997,
+            "torque_ptp": 0.10144584004921069,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 649,
+          "new_sample_count": 662,
+          "unchanged": false
+        },
+        {
+          "name": "mars-gravity",
+          "old_metrics": {
+            "max_loop_violation": 0.0005621048537489404,
+            "max_penetration": 0.0003863166861854655,
+            "wind_only": false,
+            "energy_in_per_rev": 0.0063822288911166225,
+            "energy_contact_share": 0.41862511532724667,
+            "energy_loops_share": -0.0010477959119986706,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -1.525091385028273e-05,
+            "energy_window_revs": 0.6996653635554586,
+            "stride_per_rev": 0.2758425349070788,
+            "mean_speed": 0.06897693619365246,
+            "mean_torque": 0.001544782066229777,
+            "peak_torque": 0.006166314603294865,
+            "torque_ptp": 0.008854036993671599,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.000561996701254619,
+            "max_penetration": 0.0003834302106489034,
+            "wind_only": false,
+            "energy_in_per_rev": 0.011251267463218455,
+            "energy_contact_share": 0.6622050971374237,
+            "energy_loops_share": 0.0023032160009710057,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -5.576733481253985e-05,
+            "energy_window_revs": 0.6996628765779855,
+            "stride_per_rev": 0.2801293839784444,
+            "mean_speed": 0.07004865282644629,
+            "mean_torque": 0.0021988515728693547,
+            "peak_torque": 0.011732453390933983,
+            "torque_ptp": 0.014802917275090977,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": false
+        },
+        {
+          "name": "four-legs-elliptic-cone",
+          "old_metrics": {
+            "max_loop_violation": 0.0007645666238200732,
+            "max_penetration": 0.0002722802450256783,
+            "wind_only": false,
+            "energy_in_per_rev": 0.008582203130078543,
+            "energy_contact_share": 0.4293901594664712,
+            "energy_loops_share": 0.012027492960604113,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 3.503869554981853e-05,
+            "energy_window_revs": 0.6996433571162257,
+            "stride_per_rev": 0.28084879347801994,
+            "mean_speed": 0.07022658781666288,
+            "mean_torque": 0.0011911191240029878,
+            "peak_torque": 0.021129474349482535,
+            "torque_ptp": 0.025892854215602057,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.0017497288847101444,
+            "max_penetration": 0.0002751761754415504,
+            "wind_only": false,
+            "energy_in_per_rev": 0.014688151782793268,
+            "energy_contact_share": 0.6516989103829989,
+            "energy_loops_share": 0.0243089412813335,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": 2.7803193119033654e-05,
+            "energy_window_revs": 0.6996406634045865,
+            "stride_per_rev": 0.2839766085236385,
+            "mean_speed": 0.07100842844134472,
+            "mean_torque": 0.0019828977468339263,
+            "peak_torque": 0.04066653463133463,
+            "torque_ptp": 0.05046015899056755,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": false
+        },
+        {
+          "name": "friction-impratio-10",
+          "old_metrics": {
+            "max_loop_violation": 0.0010639799141829442,
+            "max_penetration": 0.00011805545333159854,
+            "wind_only": false,
+            "energy_in_per_rev": 0.022549850826162756,
+            "energy_contact_share": 0.8238524565999646,
+            "energy_loops_share": 0.008443374010467004,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -4.9814209745610265e-05,
+            "energy_window_revs": 0.6996541938205169,
+            "stride_per_rev": 0.28383724214866174,
+            "mean_speed": 0.07097495240592577,
+            "mean_torque": 0.0035440861227397534,
+            "peak_torque": 0.020894526359100496,
+            "torque_ptp": 0.03290570828261252,
+            "steady_window": 0.0
+          },
+          "new_metrics": {
+            "max_loop_violation": 0.002944145524421682,
+            "max_penetration": 0.00011651684210900286,
+            "wind_only": false,
+            "energy_in_per_rev": 0.05176241707074344,
+            "energy_contact_share": 0.9059890880791317,
+            "energy_loops_share": 0.02350021308216748,
+            "energy_friction_share": 0.0,
+            "energy_residual_share": -1.8802751588679287e-05,
+            "energy_window_revs": 0.699646312825588,
+            "stride_per_rev": 0.2882893628757593,
+            "mean_speed": 0.07208741592669148,
+            "mean_torque": 0.007384792443695982,
+            "peak_torque": 0.030213720012341128,
+            "torque_ptp": 0.06595086222002067,
+            "steady_window": 0.0
+          },
+          "old_stalled": false,
+          "new_stalled": false,
+          "old_sample_count": 1400,
+          "new_sample_count": 1400,
+          "unchanged": false
+        }
+      ]
+    }
+  ],
+  "defaults_changed": false,
+  "g1_thresholds_changed": false,
+  "discarded_first_generation": {
+    "path": "/tmp/beest-contact-v3-invalid-generated-golden-2026-11-04.json",
+    "reason": "Generator rebuilt current defaults instead of replaying literal old inputs, and emitted forbidden pneumatics:null; all 10 load checks failed. Saved before correcting the generator; not used as a passing corpus.",
+    "sha256": "1f9ad6f457b94ffd385b829ab336c869793df5c422e88c4a651a8b24fbb8e15c"
+  }
+}

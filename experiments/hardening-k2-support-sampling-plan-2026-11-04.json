@@ -1,0 +1,186 @@
+{
+  "created_utc": "2026-11-04T12:01:19.713200+00:00",
+  "case": 16,
+  "source_run": "/tmp/beest-k2-contact-2026-11-04/coupled/cohort/result.json",
+  "source_sha256": "f11c6cc7e538ff4c5a157b8e4444cf68363bd5c755aa99e3f0b86c20878b3557",
+  "scenario": {
+    "schema_version": 1,
+    "name": "jansen-small-6leg",
+    "linkage": {
+      "spec": {
+        "params": {
+          "a": 38,
+          "b": 41.5,
+          "c": 39.3,
+          "d": 38.33799966945215,
+          "e": 59.956551087373725,
+          "f": 39.4,
+          "g": 36.7,
+          "h": 65.7,
+          "i": 52.72833889725219,
+          "j": 50,
+          "k": 61.9,
+          "l": 7.7147061228429195,
+          "m": 15
+        },
+        "crank": {
+          "x": "a",
+          "y": "l",
+          "length": "m"
+        },
+        "joints": [
+          {
+            "id": "K",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "b",
+              "j"
+            ],
+            "side": 1
+          },
+          {
+            "id": "L",
+            "centers": [
+              "G",
+              "K"
+            ],
+            "radii": [
+              "d",
+              "e"
+            ],
+            "side": 1
+          },
+          {
+            "id": "M",
+            "centers": [
+              "G",
+              "C"
+            ],
+            "radii": [
+              "c",
+              "k"
+            ],
+            "side": -1
+          },
+          {
+            "id": "N",
+            "centers": [
+              "L",
+              "M"
+            ],
+            "radii": [
+              "f",
+              "g"
+            ],
+            "side": -1
+          },
+          {
+            "id": "F",
+            "centers": [
+              "M",
+              "N"
+            ],
+            "radii": [
+              "i",
+              "h"
+            ],
+            "side": 1
+          }
+        ],
+        "foot": "F"
+      },
+      "params": {}
+    },
+    "walker": {
+      "legs": 6,
+      "mass": 50.0,
+      "body_mass": 0.35,
+      "unit": 0.002,
+      "direction": -1,
+      "tube_mass_per_m": 0.02232,
+      "min_bar_mass": 0.0001,
+      "lateral_spacing": 0.014,
+      "body_length": 0.25,
+      "pitch": "locked",
+      "bar_radius": 0.005,
+      "foot_radius": 0.002,
+      "foot_friction": 1.5,
+      "joint_friction": 0.0,
+      "joint_damping": 0.0,
+      "joint_friction_coeff": 0.0,
+      "joint_pin_radius": 0.003,
+      "body_drag_area": 0.0,
+      "body_drag_coeff": 1.1
+    },
+    "environment": {
+      "gravity": 9.81,
+      "air_density": 1.2
+    },
+    "wind": {
+      "kind": "constant",
+      "speed": 0.0,
+      "params": {}
+    },
+    "terrain": {
+      "kind": "flat",
+      "friction": 1.5,
+      "slope_deg": 0.0,
+      "params": {},
+      "water_level_m": null
+    },
+    "drive": {
+      "kind": "motor",
+      "omega": 2.0,
+      "kp": 25.505999999999997,
+      "max_torque": 0.3,
+      "kv": 2.5506,
+      "ramp": 1.0,
+      "sail_area": 0.03,
+      "sail_radius": 0.08,
+      "sail_drag_coeff": 1.2,
+      "sail_gear": 10.0,
+      "rotor_inertia": 0.0001,
+      "crank_damping": 0.001,
+      "crank_friction": 0.002,
+      "params": {}
+    },
+    "solver": {
+      "timestep": 0.0001,
+      "iterations": 100,
+      "tolerance": null,
+      "contact_solref": 0.02,
+      "contact_stiffness": 300000.0,
+      "contact_damping_ratio": 1.0,
+      "cone": "pyramidal",
+      "impratio": 1.0,
+      "noslip_iterations": 0,
+      "solref_time": 0.001,
+      "solimp": "0.9 0.95 0.001"
+    },
+    "run": {
+      "settle": 0.4,
+      "revolutions": 2.1,
+      "max_time": 600.0,
+      "record_every": 20,
+      "frame_rate": 0.0,
+      "give_up_after": 0.0
+    }
+  },
+  "changes": {
+    "run.record_every": 1
+  },
+  "support_thresholds_unchanged": {
+    "foot_load_N": 1e-06,
+    "airborne_share": 0.05
+  },
+  "acceptance_inferred": false,
+  "checks": [
+    "Verify every stored sparse sample is identical to the corresponding full-step sample",
+    "Compute support over all integration observations and all twenty decimation offsets",
+    "Preserve the original support failure regardless of the diagnostic outcome"
+  ],
+  "optional_followup": "Only if full-step support still fails, investigate timestep sensitivity separately; no change to original cohort"
+}

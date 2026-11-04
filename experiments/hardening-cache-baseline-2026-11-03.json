@@ -1,0 +1,216 @@
+{
+	"review_date": "2026-11-03",
+	"kind": "controlled_observation_algorithm_probe_not_physical_measurement",
+	"probe_metric": {
+		"name": "test_only_observation_revision",
+		"meaning": "Test-only observer revision marker; 1 and 2 have no physical interpretation."
+	},
+	"runtime": {
+		"mujoco_version": "3.17.0",
+		"python": "3.13.5",
+		"platform": "darwin-arm64"
+	},
+	"isolation": {
+		"storage": "TemporaryDirectory",
+		"repository_data_accessed": false,
+		"temporary_path": "/var/folders/yb/hs3lm0mn6zd7wk55nmjbwcl80000gn/T/beest-cache-semantic-nchuzvho",
+		"worker_process_restart": false,
+		"application_recreated_and_startup_reindex_executed": true,
+		"note": "Both application lifecycles run sequentially in this diagnostic process; workers are stopped/joined and SQLite connections closed between them.",
+		"temporary_directory_removed": true
+	},
+	"input": {
+		"design": {
+			"schema_version": 2,
+			"id": "0000000000YNGRWX0MDFYPZHXT",
+			"name": "jansen-small-6leg",
+			"notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+			"linkage": {
+				"params": {
+					"a": 38,
+					"b": 41.5,
+					"c": 39.3,
+					"d": 40.1,
+					"e": 55.8,
+					"f": 39.4,
+					"g": 36.7,
+					"h": 65.7,
+					"i": 49,
+					"j": 50,
+					"k": 61.9,
+					"l": 7.8,
+					"m": 15
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": [
+							"G",
+							"C"
+						],
+						"radii": [
+							"b",
+							"j"
+						],
+						"side": 1
+					},
+					{
+						"id": "L",
+						"centers": [
+							"G",
+							"K"
+						],
+						"radii": [
+							"d",
+							"e"
+						],
+						"side": 1
+					},
+					{
+						"id": "M",
+						"centers": [
+							"G",
+							"C"
+						],
+						"radii": [
+							"c",
+							"k"
+						],
+						"side": -1
+					},
+					{
+						"id": "N",
+						"centers": [
+							"L",
+							"M"
+						],
+						"radii": [
+							"f",
+							"g"
+						],
+						"side": -1
+					},
+					{
+						"id": "F",
+						"centers": [
+							"M",
+							"N"
+						],
+						"radii": [
+							"i",
+							"h"
+						],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"walker": {
+				"legs": 2,
+				"unit_m": 0.002,
+				"direction": -1,
+				"body_mass_kg": 0.35,
+				"lateral_spacing_m": 0.014,
+				"body_length_m": 0.25
+			},
+			"drive": {
+				"kind": "motor",
+				"motor_omega_rad_s": 2.0,
+				"sail": {
+					"area_m2": 0.03,
+					"radius_m": 0.08,
+					"drag_coeff": 1.2,
+					"gear": 10
+				}
+			},
+			"manufacturing": {
+				"process": "fdm",
+				"material": "PLA",
+				"bar_width_mm": 10,
+				"bar_thickness_mm": 3,
+				"pin_diameter_mm": 3,
+				"clearance_mm": 0.3,
+				"layer_height_mm": 0.2,
+				"min_wall_mm": 1.2,
+				"bed_mm": [
+					220,
+					220
+				],
+				"press_fit_offset_mm": -0.05,
+				"leg_gap_mm": 1.0,
+				"motor": {
+					"shaft_diameter_mm": 3,
+					"mount_hole_spacing_mm": 9,
+					"mount_hole_diameter_mm": 1.8
+				}
+			}
+		},
+		"ensemble": false,
+		"overrides": {
+			"run": {
+				"settle": 0.02,
+				"max_time": 0.1,
+				"revolutions": 2,
+				"frame_rate": 0
+			},
+			"drive": {
+				"omega": 4,
+				"ramp": 0.03
+			}
+		}
+	},
+	"keys_equal_across_controlled_algorithm_and_application_version_change": true,
+	"old_key": {
+		"key": "sha256:d088a201e3bdda05c816eb4949a3e4d3af51d578456b179dcb93c0ae4cee34ec",
+		"design_hash": "sha256:502749cbb7e589eee611e0d0b73c9807190ad477aa842f96acd8aad76a5fb933",
+		"world_hash": "sha256:5f25778aa4924f534bb5c330d445abcb38d773f5f9d674fcf1ac59368eff74f4",
+		"backend": "mujoco:3.17.0",
+		"platform": "darwin-arm64",
+		"seed": 0
+	},
+	"new_key": {
+		"key": "sha256:d088a201e3bdda05c816eb4949a3e4d3af51d578456b179dcb93c0ae4cee34ec",
+		"design_hash": "sha256:502749cbb7e589eee611e0d0b73c9807190ad477aa842f96acd8aad76a5fb933",
+		"world_hash": "sha256:5f25778aa4924f534bb5c330d445abcb38d773f5f9d674fcf1ac59368eff74f4",
+		"backend": "mujoco:3.17.0",
+		"platform": "darwin-arm64",
+		"seed": 0
+	},
+	"after_restart_cache_hit_from_old": true,
+	"cached_code_version": "probe-old-observer",
+	"new_algorithm_calls_at_cache_hit": 0,
+	"probe_values": {
+		"old": 1.0,
+		"cached": 1.0,
+		"forced_fresh": 2.0
+	},
+	"forced_fresh_code_version": "probe-new-observer",
+	"forced_fresh_uses_same_input_key": true,
+	"run_ids": {
+		"old": "01M6EYWR8M0XK78X6QSTYV3YBQ",
+		"cached": "01M6EYWR8M0XK78X6QSTYV3YBQ",
+		"forced_fresh": "01M6EYWRYZN5J4AXV6FJ5SNQM8"
+	},
+	"old_record_unchanged": true,
+	"native_calls": {
+		"old": 1,
+		"new": 1
+	},
+	"source_sha256": {
+		"apps/api/scripts/hardening_cache_identity.py": "fb02af214cd3ec9d58bf99e93ad8625f823af7ceaf052583773324d61ed84f04",
+		"apps/api/src/strandbeest_api/app.py": "900f54e6c3be896409fa0eac1c68a5a8f0825a20f4e4dd3d847656fc70a285e1",
+		"apps/api/src/strandbeest_api/pipeline.py": "bcc35124558c1d1649296cde18e47904a8058ffa37841f70589c4d33258e7a9a",
+		"apps/api/src/strandbeest_api/jobs.py": "bd0090b083317ff372ca330ddf51d7491cfad32c086f4e45c5fdcc310b196d20",
+		"packages/common/src/strandbeest_common/hashing.py": "829a1f34862d163b806c527d6098b5264975633cd406be7876ba5960e092b8c1",
+		"packages/common/src/strandbeest_common/migrate.py": "937e8c67c38c920eff778c2605cd6472c9a62b0636f4d72c33a14c6539713b74",
+		"packages/sim/src/strandbeest_sim/runner.py": "eb87b9aa6a3cb791204fbed0606b9ecec2133db6c0a723db608de78a68640c77",
+		"packages/sim/src/strandbeest_sim/builder.py": "2548c27369a3087a3bce0e83307a9da7ce3a01f6c67fe458d6133c6a9525f69e",
+		"packages/sim/src/strandbeest_sim/backends/mujoco_backend.py": "98be74508960238bc787e379527c8ad342387a5faa08d2cb57aed445a0a988cd",
+		"schemas/run.schema.json": "916ac40eadb5ce53c179779d80619f02c75822dfc740b96e5f18ff8d99bd6c04"
+	}
+}

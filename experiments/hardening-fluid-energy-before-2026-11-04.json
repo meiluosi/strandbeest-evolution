@@ -1,0 +1,115 @@
+{
+  "complete": true,
+  "h3_02_accepted": false,
+  "physical_measurements_added": 0,
+  "scope": "Gas-only standalone network and prescribed-motion pump, not the walker coupling.",
+  "assumptions": [
+    "Ideal gas with constant air cp/cv; quasi-steady orifice flow.",
+    "Empirical n defaults retained; its heat must be explicit.",
+    "Vessel-wall thermal capacity remains metadata, not a coupled thermal state."
+  ],
+  "primary_source": "https://web.mit.edu/16.unified/OldFiles/www/SPRING/thermodynamics/notes/node18.html",
+  "source_sha256": {
+    "/Users/meros/Documents/GitHub/strandbeest-evolution/packages/sim/src/strandbeest_sim/fluids/constants.py": "0555ff4f89e71c23d9fd0a00726fccfe4466972ff6d750d1c24431c086f5c801",
+    "/Users/meros/Documents/GitHub/strandbeest-evolution/packages/sim/src/strandbeest_sim/fluids/network.py": "2e81cc4335b47295c886a27cc95d2f6411bd807027ba153a31b0176cf2c26a19",
+    "/Users/meros/Documents/GitHub/strandbeest-evolution/packages/sim/src/strandbeest_sim/fluids/pump.py": "748ea65cdaae5faa551c77edef787e55fc26c4cef19cf6eb1f469d5f2139c6a8",
+    "/Users/meros/Documents/GitHub/strandbeest-evolution/packages/sim/src/strandbeest_sim/fluids/storage.py": "6336c32127192d73c3ca1b2a0b79110ef51e6d2c30f2ae430087f74d2dd74d4f",
+    "/Users/meros/Documents/GitHub/strandbeest-evolution/packages/sim/scripts/hardening_fluid_energy.py": "86cb153acbed02b4d3b186bb0aa1411742d33801ce38a18e9549acfa57b7e012"
+  },
+  "rigid_adiabatic_exchange": {
+    "input": {
+      "pressures_pa": [
+        200000.0,
+        100000.0
+      ],
+      "temperatures_k": [
+        400.0,
+        300.0
+      ],
+      "volumes_m3": [
+        0.001,
+        0.001
+      ],
+      "n": 1.4,
+      "conductance": 1e-08,
+      "duration_s": 0.05,
+      "dt_s": 0.0001
+    },
+    "initial_mass_flow_kg_s": 0.002061443500074644,
+    "initial_total_mass_rate_kg_s": 0.0,
+    "initial_total_gas_energy_rate_w": -207.10807484374948,
+    "expected_total_energy_rate_w": 0.0,
+    "expected_inflow_enthalpy_w": 828.4322993749975,
+    "actual_receiver_energy_rate_w": 621.324224531248,
+    "max_abs_total_energy_change_j": 9.002289402364568,
+    "ledger_available": false,
+    "ledger_final": {},
+    "max_abs_energy_residual_j": null,
+    "reported_mass_conservation_relative_error": 0.0
+  },
+  "prescribed_heat": [
+    {
+      "n": 1.0,
+      "supplied_w": 7.0,
+      "actual_internal_energy_rate_w": 0.0
+    },
+    {
+      "n": 1.25,
+      "supplied_w": 7.0,
+      "actual_internal_energy_rate_w": 4.375000000000001
+    },
+    {
+      "n": 1.4,
+      "supplied_w": 7.0,
+      "actual_internal_energy_rate_w": 6.999999999999999
+    }
+  ],
+  "fixed_temperature": {
+    "max_ideal_gas_relative_error": 0.007458440557338245,
+    "temperature_change_k": 0.0,
+    "ledger_available": false,
+    "ledger_final": {},
+    "max_abs_energy_residual_j": null,
+    "reported_mass_conservation_relative_error": 0.026628181051323547
+  },
+  "crank_virtual_work": {
+    "angle_rad": 0.7,
+    "pressure_difference_pa": 150000.0,
+    "finite_difference_rad": 1e-06,
+    "expected_gas_on_crank_torque_nm": -1.7076399356239034,
+    "actual_reaction_torque_nm": 1.7076399357981407
+  },
+  "charging_refinement": [
+    {
+      "dt_s": 0.0001,
+      "duration_s": 1.0,
+      "rpm": 60.0,
+      "bottle_final_pressure_pa": 101855.71624325382,
+      "ledger_available": false,
+      "ledger_final": {},
+      "max_abs_energy_residual_j": null,
+      "reported_mass_conservation_relative_error": 0.0043369724353952395
+    },
+    {
+      "dt_s": 5e-05,
+      "duration_s": 1.0,
+      "rpm": 60.0,
+      "bottle_final_pressure_pa": 101855.83363569908,
+      "ledger_available": false,
+      "ledger_final": {},
+      "max_abs_energy_residual_j": null,
+      "reported_mass_conservation_relative_error": 0.004329886708355778
+    },
+    {
+      "dt_s": 2.5e-05,
+      "duration_s": 1.0,
+      "rpm": 60.0,
+      "bottle_final_pressure_pa": 101855.67044136403,
+      "ledger_available": false,
+      "ledger_final": {},
+      "max_abs_energy_residual_j": null,
+      "reported_mass_conservation_relative_error": 0.0043239018843877226
+    }
+  ],
+  "source_drift": []
+}

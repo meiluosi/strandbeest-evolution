@@ -1,6 +1,13 @@
 {
+	"source_verification": {
+		"status": "unverified",
+		"reviewed_on": "2026-11-03",
+		"primary_url": "https://www.scientific.net/AMM.658.684",
+		"reason": "The publisher abstract confirms a CCD-tracked Jansen prototype driven by a DC motor, but not the numerical values below. No source plot, raster checksum, pixel coordinates, axis calibration, extraction log or uncertainty derivation is preserved in this repository. Historical numerical claims are retained for audit, not accepted as external validation.",
+		"eligible_for_evidence_upgrade": false
+	},
 	"source": "Pop, F., Dolga, V., & Pop, C. (2014). Analysis of the Trajectory Shape Described by a Robotic Leg during a Walking Sequence. Applied Mechanics and Materials, 658, 684-689. https://doi.org/10.4028/www.scientific.net/AMM.658.684",
-	"license_note": "Numerical coordinates digitized from published plot (Fig. 4/5) for scholarly replication and verification under fair use.",
+	"license_note": "[unverified] Historical claim: coordinates digitized from Fig. 4/5 under fair use. The publisher states all rights reserved; no source artifact or documented permission is retained. This note is not a verified license grant.",
 	"mechanism": "Theo Jansen 11-bar planar mechanism with standard sacred numbers",
 	"digitization_uncertainty_mm": 0.8,
 	"reported_metrics": {

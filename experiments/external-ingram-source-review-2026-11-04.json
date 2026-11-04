@@ -1,0 +1,50 @@
+{
+  "review_date": "2026-11-04",
+  "status": "candidate_only_not_validation",
+  "source": {
+    "author": "Anthony James Ingram",
+    "title": "A new type of mechanical walking machine",
+    "title_page_date": "November 2006",
+    "repository_display_date": "10/06/2008",
+    "repository_url": "https://ujcontent.uj.ac.za/esploro/outputs/doctoral/A-new-type-of-walking-machine/9910029207691",
+    "handle": "https://hdl.handle.net/10210/598",
+    "download_endpoint": "https://ujcontent.uj.ac.za/view/pdfCoverPage?download=true&filePid=135998570007691&instCode=27UOJ_INST",
+    "bytes": 3413323,
+    "sha256": "4976540c634f874837249a48b0e3a1b79d063585de7a6a119a910751d530a2ad",
+    "pdf_pages": 159,
+    "reviewed_pdf_pages_1_based": [
+      1,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154
+    ],
+    "visual_review_pdf_pages_1_based": [
+      147,
+      151
+    ],
+    "repository_files_listed": 1,
+    "reuse_license_verified": false,
+    "pdf_redistributed": false
+  },
+  "review": {
+    "power_to_torque_relation": "T = V I / omega, followed by suspended-walker loss subtraction",
+    "instrument_chain": "0.1 ohm shunt, voltage traces, crankshaft cam/switch timing, oscilloscope",
+    "detailed_records_reference": "accompanying CD ROM: Experiments/Kinetics",
+    "raw_time_series_obtained": false,
+    "experiment_specific_torque_calibration_verified": false,
+    "absolute_measurement_uncertainty_verified": false,
+    "independent_holdout_available": false
+  },
+  "our_assessment": {
+    "scale_warning": "Electrical input divided by crank speed is not calibrated mechanical output torque; subtracting no-load input does not establish load-dependent motor/transmission losses.",
+    "model_fit_performed": false,
+    "digitized_points": 0,
+    "evidence_upgrade": null,
+    "acceptance": "H4-01 remains open; no source quantities imported as Measurement or calibration targets."
+  }
+}

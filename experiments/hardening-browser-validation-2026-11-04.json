@@ -1,0 +1,602 @@
+{
+  "created_utc": "2026-11-03T18:54:47.390373+00:00",
+  "local_date": "2026-11-04",
+  "completed_task": "H5-01",
+  "worktree_changes_uncommitted": true,
+  "published": false,
+  "comparison_policy": {
+    "default_color_threshold": 0,
+    "atlas_color_threshold": 0.03,
+    "max_diff_pixels": 0,
+    "retries": 0,
+    "baseline_pngs_replaced": false,
+    "original_zero_threshold_repeat_failures": 2,
+    "recorded_noise": [
+      {
+        "previous": "/tmp/beest-h5-atlas-strict-baseline-2026-11-04/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-invalid-import-previous.png",
+        "actual": "/tmp/beest-h5-atlas-strict-baseline-2026-11-04/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-invalid-import-actual.png",
+        "previous_sha256": "5aa75a98d262e5d436d6654da9184a397472c28a2a7308192888e1b99fb52a9e",
+        "actual_sha256": "5536b2c02808bd1ff44c7d8aff8eacab8e7841e4cf8ea4644306b365460f51d2",
+        "rgb_different_pixels": 94,
+        "max_channel_difference": 10.0,
+        "max_normalized_yiq_difference": 0.02654276304986475,
+        "bounds": [
+          312,
+          600,
+          313,
+          698
+        ],
+        "pixels_over_0.02": 44,
+        "pixels_over_0.025": 43
+      },
+      {
+        "previous": "/tmp/beest-h5-atlas-strict-baseline-2026-11-04/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en-repeat1/atlas-invalid-import-previous.png",
+        "actual": "/tmp/beest-h5-atlas-strict-baseline-2026-11-04/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en-repeat1/atlas-invalid-import-actual.png",
+        "previous_sha256": "5536b2c02808bd1ff44c7d8aff8eacab8e7841e4cf8ea4644306b365460f51d2",
+        "actual_sha256": "5aa75a98d262e5d436d6654da9184a397472c28a2a7308192888e1b99fb52a9e",
+        "rgb_different_pixels": 94,
+        "max_channel_difference": 10.0,
+        "max_normalized_yiq_difference": 0.02654276304986475,
+        "bounds": [
+          312,
+          600,
+          313,
+          698
+        ],
+        "pixels_over_0.02": 44,
+        "pixels_over_0.025": 43
+      },
+      {
+        "previous": "test-results/atlas-empty/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-invalid-import-previous.png",
+        "actual": "test-results/atlas-empty/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-invalid-import-actual.png",
+        "previous_sha256": "5aa75a98d262e5d436d6654da9184a397472c28a2a7308192888e1b99fb52a9e",
+        "actual_sha256": "5536b2c02808bd1ff44c7d8aff8eacab8e7841e4cf8ea4644306b365460f51d2",
+        "rgb_different_pixels": 94,
+        "max_channel_difference": 10.0,
+        "max_normalized_yiq_difference": 0.02654276304986475,
+        "bounds": [
+          312,
+          600,
+          313,
+          698
+        ],
+        "pixels_over_0.02": 44,
+        "pixels_over_0.025": 43
+      }
+    ]
+  },
+  "full_suite": {
+    "exit_code": 0,
+    "passed": 20,
+    "mode_inapplicable_skipped": 12,
+    "failed": 0,
+    "seconds": 234.90101700000002,
+    "junit_sha256": "911257b8038b9aa79b89cdcc50e1e59e48054f49e5e49f70196d746f2703ff70",
+    "log_sha256": "8bb43071274da53de148822fcbeb7ef5cadfee412337e203a13835d9dad520da"
+  },
+  "atlas_repeat": {
+    "exit_code": 0,
+    "passed": 8,
+    "failed": 0,
+    "seconds": 52.840841,
+    "junit_sha256": "a9fa0c2a6fe3c74ed4640c80dcce932521855fe4c40f13e02635980a0f0d037a",
+    "log_sha256": "70dfe701b23945892cfacd8e3e2f3949d6151ed87be28c9b006a7657f205a421"
+  },
+  "visual_negative_controls": [
+    {
+      "mode": "cell-shift",
+      "exit_code": 1,
+      "expected_screenshot_failure": true,
+      "different_pixels_reported": [
+        53
+      ],
+      "files": {
+        "cell-shift/results.xml": "a97f561c995470dbb03282f9d88f933424aa54284f3739f0f9761138d3bb1bd8",
+        "cell-shift/command.log": "d2c360f386c19cd44f555cf058acaa5e8e3200f5513ee6841fa3b8c8885c15a1",
+        "cell-shift/artifacts/.last-run.json": "ca9468c840f651eaad0e8ff3e84fc5d53a154aadb47361c64ae54cc4c5d0c455",
+        "cell-shift/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/test-failed-1.png": "92c9d618c5974dc5de1b335d101d709ac7562a83483d1a748f3d820d5fb8eeb4",
+        "cell-shift/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-actual.png": "df27da56b78b6d4109f020549b38321c0b0e30ac4ed54ce79f3d89a02f93f11c",
+        "cell-shift/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-expected.png": "05544664aff1c2c054cc30dd1a34b47e68c532b08b552162e9babba42cfa507e",
+        "cell-shift/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/trace.zip": "483b9688a4b2bf4bf60de0aa30713941899ae8647c19cfbee9e224341b8f737c",
+        "cell-shift/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-diff.png": "cc561bce5f1d360a3a9aab376fdb90753d28b5751b987156014fb1fd54f59530",
+        "cell-shift/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/error-context.md": "9368e600a3a9357f14f2bbeee05ff3159817ac8e92e99c6bffeb0ac2655e72ee"
+      }
+    },
+    {
+      "mode": "label",
+      "exit_code": 1,
+      "expected_screenshot_failure": true,
+      "different_pixels_reported": [
+        694
+      ],
+      "files": {
+        "label/results.xml": "c1f2c0bc9159a5613f3cf0a61994a6f0506db637e998783338ada9b5fa3085a4",
+        "label/command.log": "4aba3c6c29175580855dee583ddcf98070713cb7353e0c7c5b5dacc44326b16a",
+        "label/artifacts/.last-run.json": "ca9468c840f651eaad0e8ff3e84fc5d53a154aadb47361c64ae54cc4c5d0c455",
+        "label/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/test-failed-1.png": "f3f130d2a0f4c155b32c754aa842e592e3253e8fc5ac46b9b7eb83b1a7ed178b",
+        "label/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-actual.png": "1a28b89f6b1c765864ac5fcb4ab902564836606acc621742cdc45cc74d0f9373",
+        "label/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-expected.png": "05544664aff1c2c054cc30dd1a34b47e68c532b08b552162e9babba42cfa507e",
+        "label/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/trace.zip": "4a58f6784d7b9776fa5ecc7a449f661c98351980a7e73c13fe493352450e9c89",
+        "label/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-diff.png": "16917bda0692e95499bb03d8c3c7a55a9c51984def645e298001ea9dbfd92efe",
+        "label/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/error-context.md": "238ad4351a9fdeeb2f30696226452f94de167332ae68cd352b201fbe1e105e47"
+      }
+    },
+    {
+      "mode": "color",
+      "exit_code": 1,
+      "expected_screenshot_failure": true,
+      "different_pixels_reported": [
+        55065
+      ],
+      "files": {
+        "color/results.xml": "898f160737985cac40aff34ceba88248864cba4a64e3299225ca3e7b9a87e93c",
+        "color/command.log": "a2863f28bd87e6f57e5b4df886e5c46d363f7c5996875196c3d3415e3b7ddd0c",
+        "color/artifacts/.last-run.json": "ca9468c840f651eaad0e8ff3e84fc5d53a154aadb47361c64ae54cc4c5d0c455",
+        "color/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/test-failed-1.png": "edcb46024f2885063c15513800aaab4783af1a9d0298098265eb54b9eea63dec",
+        "color/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-actual.png": "d0dbf4f77ebaa2caa78c0abed9c001974043e7a6f0c343ab23fa563ae3a53476",
+        "color/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-expected.png": "05544664aff1c2c054cc30dd1a34b47e68c532b08b552162e9babba42cfa507e",
+        "color/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/trace.zip": "3b06b4381c69825caa1dada94b22e44b581184aba8271d4b3be36eac8197149a",
+        "color/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/atlas-best-diff.png": "41225ccba11ea48486cfda783781f1b131247b4ffc39f08e4d1f4e5338bbade0",
+        "color/artifacts/flows-atlas-slices-locale--d4c40-g-and-invalid-import-visual-live-en/error-context.md": "02babbf4eff7a26a841ab3f939d7fbd3553e3d44fd2a61333104f27cb181e72f"
+      }
+    }
+  ],
+  "visual_control_source_directory": "/tmp/beest-h5-visual-controls-2026-11-04",
+  "baseline_png_sha256": {
+    "tests/browser/baselines/live-en/atlas-invalid-import.png": "5536b2c02808bd1ff44c7d8aff8eacab8e7841e4cf8ea4644306b365460f51d2",
+    "tests/browser/baselines/live-en/atlas-best.png": "05544664aff1c2c054cc30dd1a34b47e68c532b08b552162e9babba42cfa507e",
+    "tests/browser/baselines/static-en/baked-energy.png": "e4e03d6360c278f8e2b550bb653bc4df0562b625a5642b4ab852d7edd86dbedc",
+    "tests/browser/baselines/static-en/baked-replay.png": "66b16f5e69651951de05087ec0bd65d413fc37676017f807eda7b3c1253b57d2",
+    "tests/browser/baselines/static-en/atlas-invalid-import.png": "927b7cf8e7abcc4cbcd51c9425d8a52ef83048520a29a0aa45e3373ad26922c7",
+    "tests/browser/baselines/static-en/atlas-best.png": "09c63559d060eea585d41c11e613a2db428b96daac1267609584eca04a51c1b7",
+    "tests/browser/baselines/static-en/baked-metrics.png": "0d8f80b2255c143417e73c0facc565a4548f84e5718552b938278fc9691b55b8",
+    "tests/browser/baselines/static-zh/baked-energy.png": "1fd03fc9ee39615f74ac7f82ae875191ed9967c11f3caf8c87b1d7bbdf0fdcbf",
+    "tests/browser/baselines/static-zh/baked-replay.png": "ee816f03384a0a2917be9042b8640d8d4a9ca881d22f707184d9cd3a84724a6a",
+    "tests/browser/baselines/static-zh/atlas-invalid-import.png": "dd46605e406c5978fb1541914900e703a9bb39752560d2ac13eca803f13cdd42",
+    "tests/browser/baselines/static-zh/atlas-best.png": "866e16a12679c0c7134ec5d178ff1b00020aeb3a5e0e926e3d1093c1a269ca6f",
+    "tests/browser/baselines/static-zh/baked-metrics.png": "eb9339196e3fe1999e9d7f3f5ffd9f27af015cb7cfa8b1300269ce303469ad2e",
+    "tests/browser/baselines/live-zh/atlas-invalid-import.png": "04e990d77aa02f950e2c6e1d774909a32dcd1af592af90ac2c2a628b076cb870",
+    "tests/browser/baselines/live-zh/atlas-best.png": "e2f6f97944e09dd7e4cedd9756d606814e51d605df793a3648a73a772928132d"
+  },
+  "baseline_update_guards": [
+    {
+      "mode": "1",
+      "exit_code": 1,
+      "reason": "The negative visual control must never update baselines."
+    },
+    {
+      "mode": "color",
+      "exit_code": 1,
+      "reason": "The negative visual control must never update baselines."
+    },
+    {
+      "mode": "cell-shift",
+      "exit_code": 1,
+      "reason": "The negative visual control must never update baselines."
+    },
+    {
+      "mode": "label",
+      "exit_code": 1,
+      "reason": "The negative visual control must never update baselines."
+    }
+  ],
+  "manufacturing_downloads": [
+    {
+      "source": "/tmp/beest-h5-full-artifacts-2026-11-04/flows-manufacturing-previe-c3b82-ads-a-verifiable-local-pack-live-en",
+      "zip_sha256": "07f2b68605f21344915c9a371aa1bb3177ba714964994474c80b3226e9dab69f",
+      "input_sha256": "822a6831b075730dad9de356a5d60a2a91d085ac13ac8c39e55e8e1ac124bf4f",
+      "validation": {
+        "export_id": "cb3bc236d65c",
+        "parts": [
+          {
+            "name": "bar_83.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              93.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_100.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              110.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_80.2mm",
+            "triangles": 780,
+            "bounds_mm": [
+              90.19999694824219,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_111.6mm",
+            "triangles": 780,
+            "bounds_mm": [
+              121.5999984741211,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_78.6mm",
+            "triangles": 780,
+            "bounds_mm": [
+              88.5999984741211,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_123.8mm",
+            "triangles": 780,
+            "bounds_mm": [
+              133.8000030517578,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_78.8mm",
+            "triangles": 780,
+            "bounds_mm": [
+              88.80000305175781,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_73.4mm",
+            "triangles": 780,
+            "bounds_mm": [
+              83.4000015258789,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_98.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              108.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_131.4mm",
+            "triangles": 780,
+            "bounds_mm": [
+              141.39999389648438,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "crank_arm_30.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              40.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "frame_plate",
+            "triangles": 1052,
+            "bounds_mm": [
+              96.0,
+              35.60000038146973,
+              3.0
+            ],
+            "qty": 1
+          },
+          {
+            "name": "motor_bracket",
+            "triangles": 1572,
+            "bounds_mm": [
+              96.0,
+              35.60000038146973,
+              3.0
+            ],
+            "qty": 1
+          },
+          {
+            "name": "phase_jig",
+            "triangles": 728,
+            "bounds_mm": [
+              79.2745361328125,
+              80.0,
+              3.0
+            ],
+            "qty": 1
+          },
+          {
+            "name": "spacer_4.60mm",
+            "triangles": 512,
+            "bounds_mm": [
+              7.0,
+              7.0,
+              4.599999904632568
+            ],
+            "qty": 12
+          },
+          {
+            "name": "spacer_7.20mm",
+            "triangles": 512,
+            "bounds_mm": [
+              7.0,
+              7.0,
+              7.199999809265137
+            ],
+            "qty": 6
+          },
+          {
+            "name": "standoff_106.4mm",
+            "triangles": 512,
+            "bounds_mm": [
+              7.0,
+              7.0,
+              106.4000015258789
+            ],
+            "qty": 2
+          },
+          {
+            "name": "shaft_coupler",
+            "triangles": 640,
+            "bounds_mm": [
+              9.0,
+              9.0,
+              14.0
+            ],
+            "qty": 1
+          }
+        ],
+        "physical_validation": false,
+        "negative_controls_rejected": [
+          "truncated_archive",
+          "missing_bom",
+          "doubled_bar_size"
+        ]
+      }
+    },
+    {
+      "source": "/tmp/beest-h5-full-artifacts-2026-11-04/flows-manufacturing-previe-c3b82-ads-a-verifiable-local-pack-live-zh",
+      "zip_sha256": "7ca2c3a5f471cb48d924f2e816db60d32753a29f8eb16c0d093c95fd6c4582cd",
+      "input_sha256": "60c29b8a2768aeca9baf7188ea7fcf5011a6157ef6a4dfdeae3a9885ab1558b5",
+      "validation": {
+        "export_id": "35074a6f6b12",
+        "parts": [
+          {
+            "name": "bar_83.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              93.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_100.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              110.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_80.2mm",
+            "triangles": 780,
+            "bounds_mm": [
+              90.19999694824219,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_111.6mm",
+            "triangles": 780,
+            "bounds_mm": [
+              121.5999984741211,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_78.6mm",
+            "triangles": 780,
+            "bounds_mm": [
+              88.5999984741211,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_123.8mm",
+            "triangles": 780,
+            "bounds_mm": [
+              133.8000030517578,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_78.8mm",
+            "triangles": 780,
+            "bounds_mm": [
+              88.80000305175781,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_73.4mm",
+            "triangles": 780,
+            "bounds_mm": [
+              83.4000015258789,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_98.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              108.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "bar_131.4mm",
+            "triangles": 780,
+            "bounds_mm": [
+              141.39999389648438,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "crank_arm_30.0mm",
+            "triangles": 780,
+            "bounds_mm": [
+              40.0,
+              10.0,
+              3.0
+            ],
+            "qty": 6
+          },
+          {
+            "name": "frame_plate",
+            "triangles": 1052,
+            "bounds_mm": [
+              96.0,
+              35.60000038146973,
+              3.0
+            ],
+            "qty": 1
+          },
+          {
+            "name": "motor_bracket",
+            "triangles": 1572,
+            "bounds_mm": [
+              96.0,
+              35.60000038146973,
+              3.0
+            ],
+            "qty": 1
+          },
+          {
+            "name": "phase_jig",
+            "triangles": 728,
+            "bounds_mm": [
+              79.2745361328125,
+              80.0,
+              3.0
+            ],
+            "qty": 1
+          },
+          {
+            "name": "spacer_4.60mm",
+            "triangles": 512,
+            "bounds_mm": [
+              7.0,
+              7.0,
+              4.599999904632568
+            ],
+            "qty": 12
+          },
+          {
+            "name": "spacer_7.20mm",
+            "triangles": 512,
+            "bounds_mm": [
+              7.0,
+              7.0,
+              7.199999809265137
+            ],
+            "qty": 6
+          },
+          {
+            "name": "standoff_106.4mm",
+            "triangles": 512,
+            "bounds_mm": [
+              7.0,
+              7.0,
+              106.4000015258789
+            ],
+            "qty": 2
+          },
+          {
+            "name": "shaft_coupler",
+            "triangles": 640,
+            "bounds_mm": [
+              9.0,
+              9.0,
+              14.0
+            ],
+            "qty": 1
+          }
+        ],
+        "physical_validation": false,
+        "negative_controls_rejected": [
+          "truncated_archive",
+          "missing_bom",
+          "doubled_bar_size"
+        ]
+      }
+    }
+  ],
+  "regular_checks": {
+    "pnpm_tests": 364,
+    "python_tests": 922,
+    "affected_slow_tests": 2,
+    "all_passed": true,
+    "details": "experiments/hardening-calibration-validation-2026-11-04.json"
+  },
+  "source_sha256": {
+    "tests/browser/flows.spec.ts": "2e4f73fb3c57efa5b22f6cafa8eb0c5edecf8072672c38c9503983228ee90c5e",
+    "tests/browser/validate_manufacturing.py": "b6dd3260b354a3880301dc9a3623d5a08342b34b13b75dbbb0b77370f9a82b48",
+    "tests/browser/Dockerfile": "c416daacacc9f5c8792c6a76535e8f7ceab0085454103f7ae5b4f7eaf3f3ff89",
+    "tests/browser/screenshot.css": "b7cffca2c6e16c0732fc0d1d285b3b6a10b450cad3106600c2e826dd47355bc2",
+    "tests/browser/baselines/environment.json": "68d4fde9cf2a56999ef39c1d939ecee6709ead8250e5078e155227f6ec3dbfb1",
+    "scripts/test-browser.sh": "467c5be233f3fceb43d7df3aa701d57aa24f721828adf228d0662a303622611d",
+    "playwright.config.ts": "db6b16ff55bce78fe7202021c8f11d157f688d8b974149cf0246f332d7718af9",
+    ".github/workflows/ci.yml": "4fb58eaeaa1888338c740279a575b2546b71b92547019635938a117194bcaac7",
+    "apps/web-demo/src/ReplayViewport.svelte": "92f5a944d9d481d6a5ae325fa332eaca5626fb13d6ff3410774d1a108a6b2e0b"
+  },
+  "limitations": [
+    "Atlas comparison is not byte-identical; color distances up to 0.03 are intentionally tolerated.",
+    "A small finite negative-control set does not prove detection of every possible visual defect.",
+    "Manufacturing artifact checks are not physical print, material, wear or strength validation.",
+    "Remote CI has been configured but not triggered in this session.",
+    "H5-02 performance budgets and unfinished H3 systems are separate acceptance work."
+  ]
+}

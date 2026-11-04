@@ -1,0 +1,234 @@
+{
+	"review_date": "2026-11-04",
+	"kind": "controlled_observation_algorithm_probe_not_physical_measurement",
+	"probe_metric": {
+		"name": "test_only_observation_revision",
+		"meaning": "Test-only observer revision marker; 1 and 2 have no physical interpretation."
+	},
+	"runtime": {
+		"mujoco_version": "3.17.0",
+		"python": "3.13.5",
+		"platform": "darwin-arm64"
+	},
+	"isolation": {
+		"storage": "TemporaryDirectory",
+		"repository_data_accessed": false,
+		"temporary_path": "/var/folders/yb/hs3lm0mn6zd7wk55nmjbwcl80000gn/T/beest-cache-semantic-a97ftur8",
+		"worker_process_restart": false,
+		"application_recreated_and_startup_reindex_executed": true,
+		"note": "Both application lifecycles run sequentially in this diagnostic process; workers are stopped/joined and SQLite connections closed between them.",
+		"temporary_directory_removed": true
+	},
+	"input": {
+		"design": {
+			"schema_version": 2,
+			"id": "0000000000YNGRWX0MDFYPZHXT",
+			"name": "jansen-small-6leg",
+			"notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+			"linkage": {
+				"params": {
+					"a": 38,
+					"b": 41.5,
+					"c": 39.3,
+					"d": 40.1,
+					"e": 55.8,
+					"f": 39.4,
+					"g": 36.7,
+					"h": 65.7,
+					"i": 49,
+					"j": 50,
+					"k": 61.9,
+					"l": 7.8,
+					"m": 15
+				},
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": [
+							"G",
+							"C"
+						],
+						"radii": [
+							"b",
+							"j"
+						],
+						"side": 1
+					},
+					{
+						"id": "L",
+						"centers": [
+							"G",
+							"K"
+						],
+						"radii": [
+							"d",
+							"e"
+						],
+						"side": 1
+					},
+					{
+						"id": "M",
+						"centers": [
+							"G",
+							"C"
+						],
+						"radii": [
+							"c",
+							"k"
+						],
+						"side": -1
+					},
+					{
+						"id": "N",
+						"centers": [
+							"L",
+							"M"
+						],
+						"radii": [
+							"f",
+							"g"
+						],
+						"side": -1
+					},
+					{
+						"id": "F",
+						"centers": [
+							"M",
+							"N"
+						],
+						"radii": [
+							"i",
+							"h"
+						],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"walker": {
+				"legs": 2,
+				"unit_m": 0.002,
+				"direction": -1,
+				"body_mass_kg": 0.35,
+				"lateral_spacing_m": 0.014,
+				"body_length_m": 0.25
+			},
+			"drive": {
+				"kind": "motor",
+				"motor_omega_rad_s": 2.0,
+				"sail": {
+					"area_m2": 0.03,
+					"radius_m": 0.08,
+					"drag_coeff": 1.2,
+					"gear": 10
+				}
+			},
+			"manufacturing": {
+				"process": "fdm",
+				"material": "PLA",
+				"bar_width_mm": 10,
+				"bar_thickness_mm": 3,
+				"pin_diameter_mm": 3,
+				"clearance_mm": 0.3,
+				"layer_height_mm": 0.2,
+				"min_wall_mm": 1.2,
+				"bed_mm": [
+					220,
+					220
+				],
+				"press_fit_offset_mm": -0.05,
+				"leg_gap_mm": 1.0,
+				"motor": {
+					"shaft_diameter_mm": 3,
+					"mount_hole_spacing_mm": 9,
+					"mount_hole_diameter_mm": 1.8
+				}
+			}
+		},
+		"ensemble": false,
+		"overrides": {
+			"run": {
+				"settle": 0.02,
+				"max_time": 0.1,
+				"revolutions": 2,
+				"frame_rate": 0
+			},
+			"drive": {
+				"omega": 4,
+				"ramp": 0.03
+			}
+		}
+	},
+	"keys_equal_across_controlled_algorithm_and_application_version_change": true,
+	"old_key": {
+		"key": null,
+		"design_hash": "sha256:502749cbb7e589eee611e0d0b73c9807190ad477aa842f96acd8aad76a5fb933",
+		"world_hash": "sha256:5f25778aa4924f534bb5c330d445abcb38d773f5f9d674fcf1ac59368eff74f4",
+		"backend": "mujoco:3.17.0",
+		"platform": "darwin-arm64",
+		"seed": 0,
+		"execution_identity": {
+			"key_format": 2,
+			"simulation_semantics": "beest-run/energy-v2-observation-v2-events-v1-evidence-v2-ensemble-v1",
+			"status": "unavailable",
+			"reason": "runtime_bindings_changed"
+		}
+	},
+	"new_key": {
+		"key": null,
+		"design_hash": "sha256:502749cbb7e589eee611e0d0b73c9807190ad477aa842f96acd8aad76a5fb933",
+		"world_hash": "sha256:5f25778aa4924f534bb5c330d445abcb38d773f5f9d674fcf1ac59368eff74f4",
+		"backend": "mujoco:3.17.0",
+		"platform": "darwin-arm64",
+		"seed": 0,
+		"execution_identity": {
+			"key_format": 2,
+			"simulation_semantics": "beest-run/energy-v2-observation-v2-events-v1-evidence-v2-ensemble-v1",
+			"status": "unavailable",
+			"reason": "runtime_bindings_changed"
+		}
+	},
+	"after_restart_cache_hit_from_old": false,
+	"cached_code_version": "probe-new-observer",
+	"new_algorithm_calls_at_cache_hit": 1,
+	"probe_values": {
+		"old": 1.0,
+		"cached": 2.0,
+		"forced_fresh": 2.0
+	},
+	"forced_fresh_code_version": "probe-new-observer",
+	"forced_fresh_uses_same_input_key": false,
+	"execution_identity": {
+		"key_format": 2,
+		"simulation_semantics": "beest-run/energy-v2-observation-v2-events-v1-evidence-v2-ensemble-v1",
+		"status": "unavailable",
+		"reason": "runtime_bindings_changed"
+	},
+	"run_ids": {
+		"old": "01M6H8M2NA47GQYZ3Q62ETMJNE",
+		"cached": "01M6H8M35AY4NKVGTPVP0Q8AA3",
+		"forced_fresh": "01M6H8M3DBZHC76QAXJ0KRK8A9"
+	},
+	"old_record_unchanged": true,
+	"native_calls": {
+		"old": 1,
+		"new": 2
+	},
+	"source_sha256": {
+		"apps/api/scripts/hardening_cache_identity.py": "8f565f0b8837680ee6a2868f69a2f7efebe620f80efd1318682574e2610644f9",
+		"apps/api/src/strandbeest_api/app.py": "df0d6a3730df150ba8e3835ad1b6b3b8364fbfbd49ba9603fdc9cb95fc6f1936",
+		"apps/api/src/strandbeest_api/pipeline.py": "69ce9bc297ea346e2067d804fe67d60bbde8261366e790678247d4d4f5474054",
+		"apps/api/src/strandbeest_api/jobs.py": "bd0090b083317ff372ca330ddf51d7491cfad32c086f4e45c5fdcc310b196d20",
+		"packages/common/src/strandbeest_common/hashing.py": "b3838490d592669f929f9e1e34c63bc0a338663f19b8c64ae7cbd0fb59cc9f47",
+		"packages/common/src/strandbeest_common/migrate.py": "83c419b9a6fd54d3cdf5e8bbd3def8bea8e2d2042c6de1a66ada23ca2b2f0582",
+		"packages/sim/src/strandbeest_sim/runner.py": "eb87b9aa6a3cb791204fbed0606b9ecec2133db6c0a723db608de78a68640c77",
+		"packages/sim/src/strandbeest_sim/builder.py": "2548c27369a3087a3bce0e83307a9da7ce3a01f6c67fe458d6133c6a9525f69e",
+		"packages/sim/src/strandbeest_sim/backends/mujoco_backend.py": "98be74508960238bc787e379527c8ad342387a5faa08d2cb57aed445a0a988cd",
+		"schemas/run.schema.json": "d088766a0d8b91486af681437649def501fde83777593fb21558b4f8f3485e1e"
+	}
+}

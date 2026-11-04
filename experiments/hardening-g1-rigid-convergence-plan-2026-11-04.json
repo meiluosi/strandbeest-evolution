@@ -1,0 +1,156 @@
+{
+  "created_utc": "2026-11-04T06:59:05.028350+00:00",
+  "scope": "H2-01 model-only time-step/compliance grid; retains all original audit findings.",
+  "input_path": "experiments/hardening-g1-audit-energy-v3-solref05-2026-11-04.json",
+  "input_sha256": "f0efddd0bc54b5bd58928cd593f2a9c19a28890cd360b2c40d960b5745e00257",
+  "case_ids": [
+    20,
+    53,
+    56,
+    61
+  ],
+  "workers": 2,
+  "diagnostic_max_time_s": 30.0,
+  "cutoff_rationale": "Resource bound declared before outcomes, identical to the previous diagnostic. A cutoff is stalled, never passing. The original 600 s gate is unchanged.",
+  "trials": [
+    {
+      "name": "baseline",
+      "overrides": {},
+      "rationale": "Exact metric comparison with the earlier completed strong-loop run; time cutoff must not activate."
+    },
+    {
+      "name": "k1e7_dt25p0us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 10000000.0,
+          "solref_time": 0.0001,
+          "tolerance": 1e-12,
+          "timestep": 2.5e-05
+        },
+        "run": {
+          "record_every": 80
+        }
+      },
+      "rationale": "Fixed compliance time refinement"
+    },
+    {
+      "name": "k1e7_dt12p5us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 10000000.0,
+          "solref_time": 0.0001,
+          "tolerance": 1e-12,
+          "timestep": 1.25e-05
+        },
+        "run": {
+          "record_every": 160
+        }
+      },
+      "rationale": "Fixed compliance time refinement"
+    },
+    {
+      "name": "k1e7_dt6p25us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 10000000.0,
+          "solref_time": 0.0001,
+          "tolerance": 1e-12,
+          "timestep": 6.25e-06
+        },
+        "run": {
+          "record_every": 320
+        }
+      },
+      "rationale": "Fixed compliance time refinement"
+    },
+    {
+      "name": "k4e7_dt12p5us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 40000000.0,
+          "solref_time": 5e-05,
+          "tolerance": 1e-12,
+          "timestep": 1.25e-05
+        },
+        "run": {
+          "record_every": 160
+        }
+      },
+      "rationale": "Fixed compliance time refinement"
+    },
+    {
+      "name": "k4e7_dt6p25us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 40000000.0,
+          "solref_time": 5e-05,
+          "tolerance": 1e-12,
+          "timestep": 6.25e-06
+        },
+        "run": {
+          "record_every": 320
+        }
+      },
+      "rationale": "Fixed compliance time refinement"
+    },
+    {
+      "name": "k4e7_dt3p125us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 40000000.0,
+          "solref_time": 5e-05,
+          "tolerance": 1e-12,
+          "timestep": 3.125e-06
+        },
+        "run": {
+          "record_every": 640
+        }
+      },
+      "rationale": "Fixed compliance time refinement"
+    },
+    {
+      "name": "k16e7_dt6p25us",
+      "overrides": {
+        "solver": {
+          "contact_stiffness": 160000000.0,
+          "solref_time": 2.5e-05,
+          "tolerance": 1e-12,
+          "timestep": 6.25e-06
+        },
+        "run": {
+          "record_every": 320
+        }
+      },
+      "rationale": "Additional stronger compliance probe; no time-convergence claim at this level."
+    }
+  ],
+  "defaults_changed": false,
+  "original_thresholds_changed": false,
+  "automatic_candidate_promotion": false,
+  "comparison_rule": "Report every original metric/finding, raw trace, solver setting and source hash. Compare 3-level time refinement at each fixed compliance first; only then compare compliance levels. Signed geometric references are diagnostics, not substitute gates.",
+  "time_refinement_reporting_bound": {
+    "abs_m_per_rev": 1e-06,
+    "fraction_of_abs_signed_reference": 0.005,
+    "interpretation": "Successive two refined stride differences below this bound indicate observed stability only on this grid; not a formal convergence proof or physical threshold."
+  },
+  "compliance_levels": {
+    "k1e7": {
+      "contact_stiffness": 10000000.0,
+      "solref_time": 0.0001
+    },
+    "k4e7": {
+      "contact_stiffness": 40000000.0,
+      "solref_time": 5e-05
+    },
+    "k16e7": {
+      "contact_stiffness": 160000000.0,
+      "solref_time": 2.5e-05
+    }
+  },
+  "limits": [
+    "The original unsigned heuristic is retained in each audit result.",
+    "Contact stiffness above a UI suggested range is a declared mathematical-limit probe, not a material calibration.",
+    "No input geometry, friction coefficient, drive or goal threshold is changed.",
+    "No real-world dynamics claim."
+  ]
+}

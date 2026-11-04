@@ -14,7 +14,7 @@
 
 | 量 / quantity | 公开数据 / public data | 现状 |
 |---|---|---|
-| 扭矩、电流 / torque, current | 没找到 / none found | **缺口** |
+| 扭矩、电流 / torque, current | 已找到四连杆电流/运动候选数据；走兽扭矩的可追溯标定数据仍缺，见 RESEARCH-NOTES | **校准与独立验证缺口** |
 | 起步风速 / start wind speed | 只有 Jansen 官网的陈述（Aurum 期约 15 km/h，体型未知），只能做数量级检查 | **缺口** |
 
 `docs/VALIDATION.md` §3
@@ -28,7 +28,7 @@
 
 **EN**
 
-`docs/VALIDATION.md` §3 lists what public evidence exists for each quantity. Two rows are explicitly gaps: **torque/current** (nothing found) and **start wind speed** (only an artist statement of about 15 km/h for a machine of unknown size, which is no more than an order-of-magnitude check).
+`docs/VALIDATION.md` §3 lists what public evidence exists for each quantity. Two rows remain gaps: **torque/current** (a public four-bar current/motion dataset is a candidate, but calibrated walker torque validation is still missing; see RESEARCH-NOTES) and **start wind speed** (only an artist statement of about 15 km/h for a machine of unknown size, which is no more than an order-of-magnitude check).
 
 Two consequences. First, the numbers we cannot produce are exactly the numbers you can produce: a load-torque curve T(θ) and a start-wind speed are the two measurements this project wants most, and it has neither. Second, a well-made community measurement reaches **E3** — "verified by traceable physical measurement (own or community)" (`docs/VALIDATION.md` §2) — which is currently empty, the highest level the project defines. If yours is the first real torque curve, it is the project's first E3 torque data.
 
@@ -166,7 +166,7 @@ The project only consumes the quantities in this table (`packages/calib/src/stra
 
 **写在哪**：设计文件 `linkage.params`（13 个数）与 `walker.unit_m`。**写进 `build_note`**：你改了哪几个长度、实测多少、和你参考的设计差多少。
 
-**为什么重要**：足端轨迹是本项目已达 E2 的量（`docs/EXPERIMENTS.md` §30）。你的几何如果和参考设计不同，模拟器必须知道。
+**为什么重要**：足端轨迹依赖实际几何。原 §30 的 E2 声明已因数字化来源链不完整而撤回（`docs/EXPERIMENTS.md` §46）；你的几何如果和参考设计不同，模拟器必须知道。
 
 ---
 
@@ -422,6 +422,26 @@ Validate locally (§5), then submit the Measurement JSON **together with the raw
 Do not reinvent any of this: `hardware/README.md` (wiring, parts, the six-step calibration, the E0–E4 experiment protocols, safety), `packages/rig/src/strandbeest_rig/convert.py` (raw CSV → Measurement with a quality report), `packages/rig/src/strandbeest_rig/calibration.py` (hanging-mass torque calibration), `packages/rig/src/strandbeest_rig/video_track.py` (video → body position), `packages/rig/src/strandbeest_rig/cli.py` (the commands), `hardware/templates/lab-notebook.md` and `hardware/templates/rig-calibration.example.json` (templates), `packages/calib/src/strandbeest_calib/community.py` (this submission check), `packages/calib/src/strandbeest_calib/compare.py` (Measurement vs simulation), `docs/reference/measurement.md` (field reference), `docs/VALIDATION.md` (evidence levels and gaps) and `docs/CONVENTIONS.md` (frames, signs, units).
 
 ---
+
+## 12. 导入、校准与应用 · Import, calibrate and apply (2026-11-04)
+
+实验室可导入完整 Measurement JSON。完整文档的 ID、工况、合成标记和 `provenance` 原样保留；同一 ID 的不同内容会被拒绝。仅导入 CSV/通道数组时，才由表单新建文档。校准完成后，选择“应用校准并重新仿真”，会使用 Profile 的实际场景与参数产生新 Run，并更新测量对照；运行出处可追溯回 Profile 和原 Measurement。
+
+电机无风测量需填写正的 `conditions.omega_rad_s`；风扇校准需风帆 Design 和明确的恒定 `conditions.wind_m_s`。有坡度时填写 `slope_deg`。变化风速、混合电机/风扇实验和不能表达的坡面软接触组合会被拒绝，避免改用默认工况。地面描述会保留，但不会自动变成材料参数。
+
+| 支持的参数 / parameter | 实际作用 / actual mapping | 单位 / unit |
+|---|---|---|
+| `contact_stiffness` | MuJoCo 接触刚度 / normal contact stiffness | 1/s² |
+| `friction` | 足端与地面摩擦 / foot and ground friction | 1 |
+| `pin_friction` | 销轴库仑摩擦力矩 / joint Coulomb friction | N·m |
+| `sand_resistance` | 等效软地面刚度 / equivalent compliant ground | 1/s² |
+| `leg_mass_per_m` | 连杆线密度 / bar line density | kg/m |
+
+这些映射限于 MuJoCo。`sand_resistance` 不是颗粒流模型；杆柔性尚无前向自由度，`bar_flexibility` 及旧玩具参数名不能应用。没有物理映射版本或源场景的旧 Profile 可以阅读，但需要重新校准才能应用。
+
+视频轨迹反演的 Python 接口要求明确的 Design、Scenario、足端编号，以及测量出处中的时间原点和坐标对齐。前向结果来自同一 MuJoCo 后端。报告会分别给出代理独立检查、时间后段留出误差及不可辨识参数。Web 的曲线校准流程已接通；真实视频的完整流程仍在 H3-03 验收中。合成数据只能检查软件和模型内恢复能力。
+
+**EN:** full Measurement imports preserve identity, conditions, synthetic status and provenance. Conflicting content under an existing ID is rejected. Apply a fitted Profile to create a new Run with a traceable calibration reference. Motor fits require positive measured speed; fan fits require a sail Design and stated constant wind. Unsupported conditions are rejected. The table lists actual MuJoCo mappings; rigid bars have no elastic calibration parameter, and compliant ground is not granular flow. Legacy profiles remain readable but need recalibration before application. Trajectory inference requires explicit Design/Scenario and coordinate/time alignment; its native holdout and identifiability diagnostics do not establish physical validation. The complete real-video workflow remains open under H3-03.
 
 ## 附录 A：完整示例 · Appendix A: the complete example
 

@@ -1,0 +1,247 @@
+{
+  "schema": "hardening-kernel-evidence/1",
+  "recorded_at": "2026-11-02T19:32:31.022030+00:00",
+  "working_tree_uncommitted": true,
+  "source_sha256": {
+    "crates/beest-kernel/src/api.rs": "e0f369877a71028af875eeae3103a7f5df27717f812ead4ce382f2ace473daf3",
+    "crates/beest-kernel/src/kinematics.rs": "560e3da8b97206f848c93a78c54c0dc298b3e74058c4e840e17866262107d134",
+    "crates/beest-kernel/src/wasm.rs": "2d88f635b3548ee01c01763a17772bc21bc49b4213547cf4857cd9e1c4f2e8e1",
+    "crates/beest-kernel/src/python.rs": "a004b378e6296272cfbab49885cce12b7ca2dbdc4c3f7aab98b5ed89134ab792",
+    "packages/core/src/kernel.ts": "e4d53a9957c1049e6be9095a0d8ab9af7326950bec6c5e1515aa1a5f15e43253",
+    "packages/common/src/strandbeest_common/linkage.py": "8b7fc82fc8f31c0c5a2f700dee54a60069152b2d12fb164e490eada98cdd1fcf",
+    "packages/common/src/strandbeest_common/gait.py": "6ac340312516475f7e071f21a43322e2ad5ec2aecaa09c59fbe3419a71cc86ab"
+  },
+  "commands": [
+    "scripts/build-kernel-wasm.sh",
+    "node --import tsx scripts/benchmark-kernel.ts",
+    ".venv/bin/python scripts/benchmark-kernel.py"
+  ],
+  "build_environment": {
+    "rust": "1.95.0",
+    "wasm_bindgen_cli": "0.2.105",
+    "target": "wasm32-unknown-unknown",
+    "python_feature": "python",
+    "web_feature": "wasm",
+    "first_wasm_compile_seconds": 13.66,
+    "wasm_cli_install_build_seconds": 46.59,
+    "incremental_wasm_compile_seconds": 3.37,
+    "note": "Toolchain target download duration not measured; native Python build ran through maturin. No production publishing performed."
+  },
+  "initial_json_bridge_limitation": {
+    "jansen_trace180_ms": 0.919218545,
+    "typescript_reference_trace180_ms": 0.12667833499999973,
+    "wasm_bytes": 200663,
+    "wasm_gzip_bytes": 79783,
+    "note": "Initial JSON bridge measured before typed-array/owned-handle optimization; values retained as a negative result."
+  },
+  "warm_handle_measurement_before_container_builds": {
+    "jansen_wasm_trace180_ms": 0.15703437499999978,
+    "jansen_typescript_trace180_ms": 0.056534169999999904,
+    "jansen_python_reference_gait_ms": 0.5181395797990263,
+    "jansen_rust_python_gait_ms": 0.10450541478348896
+  },
+  "javascript": {
+    "node": "v24.7.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "wasm_bytes": 207709,
+    "wasm_gzip_bytes": 82680,
+    "init_ms": 0.46041700000000674,
+    "units": "milliseconds per operation, host+binding conversion included; local warm run",
+    "results": [
+      {
+        "file": "fourbar-crank-rocker.json",
+        "typescript-reference": {
+          "pose_ms": 0.0022902710000000043,
+          "trace180_ms": 0.028924169999999947,
+          "trace_and_gait_ms": 0.04503354000000002
+        },
+        "rust-wasm/0.1.0": {
+          "pose_ms": 0.0025843959999999984,
+          "trace180_ms": 0.0915683349999999,
+          "trace_and_gait_ms": 0.10459208500000003
+        }
+      },
+      {
+        "file": "jansen-long-crank.json",
+        "typescript-reference": {
+          "pose_ms": 0.0031372710000000126,
+          "trace180_ms": 0.08744520999999991,
+          "trace_and_gait_ms": 0.12923853999999976
+        },
+        "rust-wasm/0.1.0": {
+          "pose_ms": 0.004627333499999992,
+          "trace180_ms": 0.22015603999999997,
+          "trace_and_gait_ms": 0.21858854500000008
+        }
+      },
+      {
+        "file": "jansen.json",
+        "typescript-reference": {
+          "pose_ms": 0.0026450205000000154,
+          "trace180_ms": 0.091269585,
+          "trace_and_gait_ms": 0.09389603999999992
+        },
+        "rust-wasm/0.1.0": {
+          "pose_ms": 0.004798062499999986,
+          "trace180_ms": 0.22143666999999995,
+          "trace_and_gait_ms": 0.23005187500000035
+        }
+      },
+      {
+        "file": "sixbar-extra-dyad.json",
+        "typescript-reference": {
+          "pose_ms": 0.0017625835000000052,
+          "trace180_ms": 0.0451177100000001,
+          "trace_and_gait_ms": 0.04528791500000011
+        },
+        "rust-wasm/0.1.0": {
+          "pose_ms": 0.0024042914999999995,
+          "trace180_ms": 0.12378853999999989,
+          "trace_and_gait_ms": 0.13235187499999995
+        }
+      }
+    ],
+    "ga": {
+      "seed": 42,
+      "population": 50,
+      "generations": 19,
+      "objective": "flat",
+      "same_genome": true,
+      "fitness_absolute_difference": 2.220446049250313e-16,
+      "results": [
+        {
+          "kernel": "typescript-reference",
+          "elapsed_ms": 161.51012500000002,
+          "evaluations": 1000,
+          "best": [
+            40.117560915977506,
+            45.075360181282974,
+            37.79031899493937,
+            42.1818390191141,
+            58.99562452142206,
+            40.50879126192038,
+            38.09215068412466,
+            64.39879659808938,
+            48.57342678438495,
+            52.67566558985581,
+            60.50053996783183,
+            7.88339882740779,
+            15.791786882898876
+          ],
+          "best_fitness": 0.6227116663958286
+        },
+        {
+          "kernel": "rust-wasm/0.1.0",
+          "elapsed_ms": 394.9335830000001,
+          "evaluations": 1000,
+          "best": [
+            40.117560915977506,
+            45.075360181282974,
+            37.79031899493937,
+            42.1818390191141,
+            58.99562452142206,
+            40.50879126192038,
+            38.09215068412466,
+            64.39879659808938,
+            48.57342678438495,
+            52.67566558985581,
+            60.50053996783183,
+            7.88339882740779,
+            15.791786882898876
+          ],
+          "best_fitness": 0.6227116663958284
+        }
+      ]
+    }
+  },
+  "python": {
+    "python": "3.13.5",
+    "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+    "units": "milliseconds per operation, binding conversion included; local warm run",
+    "results": [
+      {
+        "file": "fourbar-crank-rocker.json",
+        "native_value_key_and_cache_hit_ms": 0.0002644374908413738,
+        "python-reference": {
+          "pose_ms": 0.0012007085024379194,
+          "trace180_ms": 0.27355479483958334,
+          "trace_and_gait_ms": 0.27795458503533155
+        },
+        "rust-python": {
+          "pose_ms": 0.001044728996930644,
+          "trace180_ms": 0.07139041495975107,
+          "trace_and_gait_ms": 0.0711529201362282
+        }
+      },
+      {
+        "file": "jansen-long-crank.json",
+        "native_value_key_and_cache_hit_ms": 0.00041539600351825356,
+        "python-reference": {
+          "pose_ms": 0.0046933334961067885,
+          "trace180_ms": 0.9932860400294885,
+          "trace_and_gait_ms": 0.7403612497728318
+        },
+        "rust-python": {
+          "pose_ms": 0.0023442290257662535,
+          "trace180_ms": 0.15311625000322238,
+          "trace_and_gait_ms": 0.14416521007660776
+        }
+      },
+      {
+        "file": "jansen.json",
+        "native_value_key_and_cache_hit_ms": 0.0003873959940392524,
+        "python-reference": {
+          "pose_ms": 0.0033916874963324517,
+          "trace180_ms": 0.6522779152146541,
+          "trace_and_gait_ms": 0.6923277099849656
+        },
+        "rust-python": {
+          "pose_ms": 0.0020264170016162097,
+          "trace180_ms": 0.14175291522406042,
+          "trace_and_gait_ms": 0.13697437476366758
+        }
+      },
+      {
+        "file": "sixbar-extra-dyad.json",
+        "native_value_key_and_cache_hit_ms": 0.0002800624934025109,
+        "python-reference": {
+          "pose_ms": 0.0017371670110151172,
+          "trace180_ms": 0.32992229505907744,
+          "trace_and_gait_ms": 0.35656916501466185
+        },
+        "rust-python": {
+          "pose_ms": 0.0012779164826497436,
+          "trace180_ms": 0.08247853984357789,
+          "trace_and_gait_ms": 0.08308729011332616
+        }
+      }
+    ]
+  },
+  "checks": {
+    "rust_tests": 10,
+    "core_tests": 188,
+    "real_wasm_tests": 23,
+    "web_tests": 58,
+    "common_tests": 232,
+    "web_typecheck_errors": 0,
+    "web_typecheck_warnings": 0,
+    "all_four_existing_kinematics_contracts": true,
+    "shared_boundary_cases": 15,
+    "fitness_corpus_cases": 123,
+    "memory_edit_iterations": 1000,
+    "memory_grew_after_warmup": false
+  },
+  "limits": [
+    "Timings are local warm macOS ARM64 measurements and include adapter conversion costs; other project builds/tests may compete for CPU.",
+    "WASM trace and GA are slower than the isolated TypeScript reference; this stage establishes one operational numerical kernel, not a speedup claim.",
+    "Initialization timing is synchronous Node compilation/instantiation only, excluding network/browser startup.",
+    "Exact tangent full-cycle behavior remains sensitive to floating-point rounding; the tangent fixtures assert theta=0, without silently widening the geometric feasibility threshold.",
+    "Standalone core consumers explicitly retain the isolated TypeScript reference; the web UI and workers require Rust/WASM and fail visibly on initialization/runtime error."
+  ],
+  "official_binding_references": [
+    "https://pyo3.rs/v0.23.5/features.html",
+    "https://wasm-bindgen.github.io/wasm-bindgen/examples/without-a-bundler.html",
+    "https://wasm-bindgen.github.io/wasm-bindgen/examples/synchronous-instantiation.html"
+  ]
+}

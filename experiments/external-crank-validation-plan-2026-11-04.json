@@ -1,0 +1,491 @@
+{
+  "created_utc": "2026-11-04T07:08:00.673253+00:00",
+  "scope": "H4-01 measured crank subsystem diagnostic with untouched whole-trial holdouts; not whole-walker validation or an accepted calibrated Measurement.",
+  "dataset": {
+    "doi": "10.5281/zenodo.10059390",
+    "url": "https://zenodo.org/records/10059390",
+    "license": "CC BY 4.0",
+    "metadata_path": "/tmp/beest-fluid-energy-2026-11-04/crank-data-zenodo-metadata.json",
+    "metadata_sha256": "07d035e370cc4dfd26ec8b467c07ea7f54e3bde22d2bbf7a5dc1d0834c7cd746",
+    "inventory_path": "/tmp/beest-fluid-energy-2026-11-04/crank-archive-inventory.json",
+    "inventory_sha256": "baa93f222219cd4afba3694b06d30062f5019a29bd7bd90f286155acfa7e6c64"
+  },
+  "analysis_source": {
+    "repository": "jameshermus/crankTurning-dynamicPrimitives",
+    "commit": "ec444fa3de1b1727383eaa776e74581691cfa587",
+    "file": "trialAnalysis.m",
+    "blob_sha1": "f6b8581d725c80a3ee99f77074e42927c323d81d",
+    "local_path": "/tmp/beest-rigid-convergence-2026-11-04/crank-code/trialAnalysis.m",
+    "sha256": "719b5b3842fc731c80559110006fe691d82a20059dd061ccf2b8538ed29b22d6",
+    "license": "MIT",
+    "license_path": "/tmp/beest-rigid-convergence-2026-11-04/crank-code/LICENSE"
+  },
+  "selection": "ONZ only; four signed medium/fast conditions. First eight non-blind trials after trial 1, excluding previously inspected ONZ212. Alternate selected trials into train and holdout before retrieving or analysing these raw files. No trial will be dropped based on outcome.",
+  "selected_trials": [
+    {
+      "name": "crank_data/ONZ/ONZ102.ASC",
+      "bytes": 309100,
+      "compressed_bytes": 309100,
+      "crc32": "d68e592e",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 2,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ104.ASC",
+      "bytes": 314053,
+      "compressed_bytes": 314053,
+      "crc32": "efdaf45d",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 4,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ105.ASC",
+      "bytes": 312170,
+      "compressed_bytes": 312170,
+      "crc32": "084dc165",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 5,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ106.ASC",
+      "bytes": 309665,
+      "compressed_bytes": 309665,
+      "crc32": "adf28c8f",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 6,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ107.ASC",
+      "bytes": 311060,
+      "compressed_bytes": 311060,
+      "crc32": "9041ccb3",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 7,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ108.ASC",
+      "bytes": 310834,
+      "compressed_bytes": 310834,
+      "crc32": "29cb9955",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 8,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ110.ASC",
+      "bytes": 310802,
+      "compressed_bytes": 310802,
+      "crc32": "e683bbbd",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 10,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ111.ASC",
+      "bytes": 310529,
+      "compressed_bytes": 310529,
+      "crc32": "46b33732",
+      "condition": "cw_medium",
+      "condition_index": 2,
+      "set": 1,
+      "trial": 11,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ202.ASC",
+      "bytes": 76124,
+      "compressed_bytes": 76124,
+      "crc32": "056d0081",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 2,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ203.ASC",
+      "bytes": 76456,
+      "compressed_bytes": 76456,
+      "crc32": "94797baa",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 3,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ205.ASC",
+      "bytes": 76088,
+      "compressed_bytes": 76088,
+      "crc32": "f5954c5e",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 5,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ206.ASC",
+      "bytes": 75740,
+      "compressed_bytes": 75740,
+      "crc32": "2e1f8dcc",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 6,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ207.ASC",
+      "bytes": 75208,
+      "compressed_bytes": 75208,
+      "crc32": "26fb63d9",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 7,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ208.ASC",
+      "bytes": 75948,
+      "compressed_bytes": 75948,
+      "crc32": "fa9c0eed",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 8,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ210.ASC",
+      "bytes": 76038,
+      "compressed_bytes": 76038,
+      "crc32": "976da0e4",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 10,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ213.ASC",
+      "bytes": 75720,
+      "compressed_bytes": 75720,
+      "crc32": "e9d0a5e4",
+      "condition": "cw_fast",
+      "condition_index": 3,
+      "set": 2,
+      "trial": 13,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ502.ASC",
+      "bytes": 311300,
+      "compressed_bytes": 311300,
+      "crc32": "487a9a88",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 2,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ503.ASC",
+      "bytes": 308210,
+      "compressed_bytes": 308210,
+      "crc32": "4ee27db4",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 3,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ505.ASC",
+      "bytes": 309206,
+      "compressed_bytes": 309206,
+      "crc32": "2340fd7c",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 5,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ506.ASC",
+      "bytes": 309500,
+      "compressed_bytes": 309500,
+      "crc32": "b5d78500",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 6,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ507.ASC",
+      "bytes": 309778,
+      "compressed_bytes": 309778,
+      "crc32": "307b8c68",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 7,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ509.ASC",
+      "bytes": 309951,
+      "compressed_bytes": 309951,
+      "crc32": "7e68d0e9",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 9,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ510.ASC",
+      "bytes": 308500,
+      "compressed_bytes": 308500,
+      "crc32": "447e4686",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 10,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ512.ASC",
+      "bytes": 311825,
+      "compressed_bytes": 311825,
+      "crc32": "778099fd",
+      "condition": "ccw_medium",
+      "condition_index": 5,
+      "set": 5,
+      "trial": 12,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ602.ASC",
+      "bytes": 75013,
+      "compressed_bytes": 75013,
+      "crc32": "5595394a",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 2,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ604.ASC",
+      "bytes": 75389,
+      "compressed_bytes": 75389,
+      "crc32": "96dbe443",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 4,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ605.ASC",
+      "bytes": 74737,
+      "compressed_bytes": 74737,
+      "crc32": "2c83513d",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 5,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ606.ASC",
+      "bytes": 74799,
+      "compressed_bytes": 74799,
+      "crc32": "bf7a682f",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 6,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ607.ASC",
+      "bytes": 74671,
+      "compressed_bytes": 74671,
+      "crc32": "a25526e1",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 7,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ608.ASC",
+      "bytes": 74775,
+      "compressed_bytes": 74775,
+      "crc32": "b37980ce",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 8,
+      "split": "holdout"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ609.ASC",
+      "bytes": 74640,
+      "compressed_bytes": 74640,
+      "crc32": "e2aa0981",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 9,
+      "split": "train"
+    },
+    {
+      "name": "crank_data/ONZ/ONZ611.ASC",
+      "bytes": 75051,
+      "compressed_bytes": 75051,
+      "crc32": "d677e524",
+      "condition": "ccw_fast",
+      "condition_index": 6,
+      "set": 6,
+      "trial": 11,
+      "split": "holdout"
+    }
+  ],
+  "source_parameters": {
+    "radius_m": 0.10286999999999999,
+    "radius_source_lines": [
+      843,
+      843
+    ],
+    "inertia_kg_m2": 0.003716,
+    "inertia_source_lines": [
+      30,
+      30,
+      118,
+      118
+    ],
+    "inertia_note": "Author code explicitly names kg-m^2 and says measured, outboard subtracted. This resolves the printed dimensional typo; original calibration method/uncertainty remain unverified.",
+    "baseline_damping_nm_s": 0.0,
+    "baseline_bias_nm": 0.0,
+    "row_frequency_hz": 200,
+    "transducer_frequency_hz": 100,
+    "angle_column_1based": 1,
+    "speed_column_1based": 2,
+    "tangential_force_column_1based": 4,
+    "normal_force_column_1based": 3,
+    "force_mapping_source_lines": [
+      206,
+      216,
+      419,
+      420
+    ]
+  },
+  "model": "I*domega/dt = r*F_t - b*omega - bias; b >= 0, bias is an unknown torque zero-offset, not a certified sensor correction.",
+  "fit": {
+    "impulse_window_s": 0.1,
+    "window_overlap": false,
+    "integration": "force left-held, omega trapezoidal",
+    "trial_weighting": "Equal weight per whole training trial; nonoverlapping windows within a trial have equal weight.",
+    "parameters": [
+      "viscous_damping_nm_s",
+      "torque_bias_nm"
+    ],
+    "bounds": {
+      "viscous_damping_nm_s": [
+        0,
+        null
+      ],
+      "torque_bias_nm": [
+        null,
+        null
+      ]
+    },
+    "bootstrap_replicates": 200,
+    "bootstrap_seed": 1,
+    "bootstrap_unit": "Whole training trials, stratified by condition",
+    "uncertainty_scope": "Conditional model/data resampling; not instrument calibration uncertainty."
+  },
+  "rollout": {
+    "initial_state": "Only the first retained measured angle and velocity are supplied. Thereafter use measured tangential force alone, with no measured-state resets.",
+    "state_update": "Exact linear response to each left-held force sample; unwrapped angle and rad/s velocity.",
+    "common_trim_samples_each_end": 1,
+    "measured_velocity_used_as_future_input": false,
+    "mujoco_primary_check": {
+      "enabled": true,
+      "timestep_s": 0.0001,
+      "integrator": "implicitfast",
+      "gravity": 0,
+      "solver": "Newton",
+      "tolerance": 1e-12,
+      "inertia_tensor_kg_m2": [
+        0.001858,
+        0.001858,
+        0.003716
+      ],
+      "body_mass_kg": 1.0,
+      "body_mass_note": "Axis-centred reference body; only the declared z-axis inertia enters this scalar model."
+    }
+  },
+  "sensitivity": {
+    "force_row_offsets": [
+      -1,
+      0,
+      1
+    ],
+    "offset_semantics": "Input row i uses force from row i+offset: +/-5 ms timing sensitivity, not a fitted latency.",
+    "inertia_multipliers": [
+      0.9,
+      1,
+      1.1
+    ],
+    "inertia_range_is_measured_uncertainty": false,
+    "primary_force_row_offset": 0,
+    "primary_inertia_multiplier": 1,
+    "selection": "Report all nine variants; never select one from holdout performance."
+  },
+  "reporting_checks": {
+    "all_four_primary_condition_velocity_nrmse_max": 0.1,
+    "primary_pooled_velocity_rmse_reduction_min": 0.2,
+    "interpretation": "Predeclared diagnostic adequacy checks only. Missing absolute instrument calibration/uncertainty still prevents H4 acceptance even if these pass."
+  },
+  "raw_download_limits": {
+    "max_single_request_bytes": 4000000,
+    "max_total_bytes": 8000000,
+    "max_entry_bytes": 1000000,
+    "full_archive_download": false
+  },
+  "h4_01_acceptance_automatic": false,
+  "full_walker_validation": false,
+  "measurement_profile_creation": false,
+  "limits": [
+    "One public participant/session is not cross-hardware generalization.",
+    "Only mechanical columns are analysed; no physiological inference.",
+    "No torsion-moment columns with unspecified units are used.",
+    "No scalar model fit is applied to a Jansen walker Profile.",
+    "Force calibration/uncertainty and sub-sample synchronization still require source evidence."
+  ]
+}

@@ -21,9 +21,14 @@
 
 ## 1. 环境
 
+需要 Node >= 22、Python 3.10+ 和 Rust。H3-01 接入中的 Python 运动学与浏览器/GA worker 使用仓库内 `beest-kernel`；Python 安装脚本会编译本地扩展，Web 检查和运行前需要生成 WASM。TS reference 路径保留作显式对照。CI/容器固定 Rust 1.95.0 与 wasm-bindgen-cli 0.2.105；未宣称已测更低 Rust 版本。
+
 ```bash
 git clone <this repo> && cd strandbeest-evolution
 pnpm install                 # Node >= 22
+rustup toolchain install 1.95.0 --profile minimal --target wasm32-unknown-unknown
+cargo +1.95.0 install --locked --version 0.2.105 wasm-bindgen-cli
+RUSTUP_TOOLCHAIN=1.95.0 ./scripts/build-kernel-wasm.sh
 ./scripts/setup-python.sh    # Python 3.10+（用 .venv/）
 ```
 
@@ -32,6 +37,7 @@ pnpm install                 # Node >= 22
 ```bash
 pnpm check                   # Biome + 类型检查 + TS 测试
 ./scripts/test-python.sh     # Python 测试 + 仓库级检查（含文档链接检查）
+cargo test --workspace --locked # Rust 内核测试
 ```
 
 `./scripts/test-python.sh` 里包含几个"仓库级"检查，它们会拦住大部分低级错误：
@@ -171,8 +177,13 @@ Two consequences:
 
 ## Setup
 
+Requires Node >= 22, Python 3.10+, and Rust. H3-01 connects Python kinematics and the browser/GA worker to the local `beest-kernel`; setup builds its Python extension, and web checks/startup require generated WASM. The TS reference remains an explicit comparison path. CI/containers pin Rust 1.95.0 and wasm-bindgen-cli 0.2.105; a lower tested Rust version is not claimed.
+
 ```bash
 pnpm install                 # Node >= 22
+rustup toolchain install 1.95.0 --profile minimal --target wasm32-unknown-unknown
+cargo +1.95.0 install --locked --version 0.2.105 wasm-bindgen-cli
+RUSTUP_TOOLCHAIN=1.95.0 ./scripts/build-kernel-wasm.sh
 ./scripts/setup-python.sh    # Python 3.10+ (into .venv/)
 ```
 

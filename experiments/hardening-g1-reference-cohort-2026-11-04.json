@@ -1,0 +1,4727 @@
+{
+  "complete": true,
+  "full_cohort_pass": false,
+  "changes_live_audit": false,
+  "inference_limit": "Point and sphere references are alternative ideal models, not replacements for the current acceptance gate. They do not predict compliant-contact loads or slip.",
+  "source_sha256": {
+    ".venv/lib/python3.13/site-packages/beest_kernel/__init__.py": "18ba0cfa1a872310615120055f24002450f0676b3a0444e2b0210cb2d70e45b0",
+    ".venv/lib/python3.13/site-packages/beest_kernel/beest_kernel.cpython-313-darwin.so": "a473c4032681dd57e634d18b37d3f5adaaf9380c34d8a680ba00ffed8e6cb93a",
+    "crates/beest-kernel/src/api.rs": "e0f369877a71028af875eeae3103a7f5df27717f812ead4ce382f2ace473daf3",
+    "crates/beest-kernel/src/envelope.rs": "f93dc26e5197f659d1d8d87770f3e5291260f8287b70adfe408ef91dca6cb676",
+    "crates/beest-kernel/src/gait.rs": "532d4fd89405921835a0c80f140e9af5347cd6d0803c0ad16d1f64f7de7ae130",
+    "crates/beest-kernel/src/kinematics.rs": "560e3da8b97206f848c93a78c54c0dc298b3e74058c4e840e17866262107d134",
+    "crates/beest-kernel/src/lib.rs": "f8371f43a42da5f1f74655856f1fac6ddb9eee3defd2ab0009f07d7bd23093e0",
+    "crates/beest-kernel/src/python.rs": "a004b378e6296272cfbab49885cce12b7ca2dbdc4c3f7aab98b5ed89134ab792",
+    "crates/beest-kernel/src/wasm.rs": "2d88f635b3548ee01c01763a17772bc21bc49b4213547cf4857cd9e1c4f2e8e1",
+    "crates/beest-kernel/tests/contracts.rs": "7c1e03aa291dcbc644fb545ed8ba8e49ea6f467ad023750eb440a6c8b3891e88",
+    "packages/common/src/strandbeest_common/__init__.py": "a3d36399b6cc697676e2fb55ed3169b66c7154f8f5cab9ac0830c9743ff873ca",
+    "packages/common/src/strandbeest_common/dag.py": "a7b702725fe4be881ea280c2f6ab775d772986c7ce4344d6e41b8a1da7920fb7",
+    "packages/common/src/strandbeest_common/design.py": "0401b2eca4f0ead05cb99fb5a095866edf9a8e06c0450786223b6b2f04935354",
+    "packages/common/src/strandbeest_common/evidence.py": "006ab6b842bede05cce65fb3995f260ad8e5ccc8a8f021527dce732fc3b65bdc",
+    "packages/common/src/strandbeest_common/gait.py": "6ac340312516475f7e071f21a43322e2ad5ec2aecaa09c59fbe3419a71cc86ab",
+    "packages/common/src/strandbeest_common/guard.py": "8d068c6bf982611f2168adabfa13e3a7369c849e06a9735c5b15e3872497ddcc",
+    "packages/common/src/strandbeest_common/hashing.py": "b3838490d592669f929f9e1e34c63bc0a338663f19b8c64ae7cbd0fb59cc9f47",
+    "packages/common/src/strandbeest_common/ids.py": "d15c44fce422882152f623ccd02bd590f5767b60cb34cba90dc74d571750b6a5",
+    "packages/common/src/strandbeest_common/implementation.py": "bdb447a2dc28a6884291c1c22301128c68e153c6b4cf7f963e4662e19199895a",
+    "packages/common/src/strandbeest_common/jsonpatch.py": "e6a12912244037fcd08cb9dab9dceca74c4494ea8cc30697aae0fba9a7746d81",
+    "packages/common/src/strandbeest_common/linkage.py": "8b7fc82fc8f31c0c5a2f700dee54a60069152b2d12fb164e490eada98cdd1fcf",
+    "packages/common/src/strandbeest_common/migrate.py": "ec4b6c9c97fcd5104ac7626492cab85bbb86f039b1571f99f53af4fbad045f57",
+    "packages/common/src/strandbeest_common/models/__init__.py": "0f9c60217938b6dc3854621e5369a0f2c4aa48ec607ed9d4e5f56a422c08079e",
+    "packages/common/src/strandbeest_common/models/design.py": "2d3b3f7595dd563f98d197280013bad6916c37c496a2df54fb054c9d87eb35d4",
+    "packages/common/src/strandbeest_common/models/ops.py": "2c9962a6aa57ddfc579cbaead4be06880abeb600aef02800511c633978773712",
+    "packages/common/src/strandbeest_common/models/scenario.py": "d0842446d243d9bceae5fd225be6151ae20fa66762c58cbde58daffd8a5d2c91",
+    "packages/common/src/strandbeest_common/models/scenario_v1.py": "7dcc03e048d931f51c18ffa3b8beaf23bd24a8b99d6656f37a00a309e74cefb4",
+    "packages/common/src/strandbeest_common/ops.py": "ee0f0b4f1d72f2547a26cfd63ca9f198e1b270f10a350c0a322ffe8196c3951f",
+    "packages/common/src/strandbeest_common/scenario.py": "ab0f8fcef6458db2becbceb727eda4e31a3110cd4c236aa06ef881e34ae9207a",
+    "packages/common/src/strandbeest_common/schemas.py": "ebc928f886296348649e6c407a9b20bbbd4a825969987a5542fb164305c235e5",
+    "packages/common/src/strandbeest_common/telemetry.py": "7cd9a827a059a65cca8deaba1b4ecddf88270c0d3f48cbc807dc069747af0dc0",
+    "packages/common/src/strandbeest_common/validity.py": "99a0bd113f70e0570cd4fa68726391a5984f33fe4f923791d9f0bfadbecc2257",
+    "packages/sim/scripts/hardening_g1_contact_diagnostic.py": "91d7258a07f0e16ac625ca0527f84b2b0716a8a1490078831df500f2c67b887a",
+    "packages/sim/src/strandbeest_sim/__init__.py": "2db8461d540a1bd9a97dbc3fae601908eee76035398dc00d2eddb82ce9a0fd55",
+    "packages/sim/src/strandbeest_sim/backend.py": "ac138b066b2bf6f7c6e7c9f09690d6fd403362dfc1b44a34d64400350a64bdd3",
+    "packages/sim/src/strandbeest_sim/backends/__init__.py": "8d65cb119fc77824e7b87bac926a50d704fa622dd25d06d9a02f62f68ebfd7cb",
+    "packages/sim/src/strandbeest_sim/backends/k2_backend.py": "d2be700e7affe0c5cacea091a3e1cb222cb4037a392782bdebcbd68c0833261f",
+    "packages/sim/src/strandbeest_sim/backends/mujoco_backend.py": "98be74508960238bc787e379527c8ad342387a5faa08d2cb57aed445a0a988cd",
+    "packages/sim/src/strandbeest_sim/builder.py": "0e5501acbcd05325183eaf0dbf6df77a6c17ca817a1301ab486b484e26f7c0bd",
+    "packages/sim/src/strandbeest_sim/cli.py": "aeb077ac961f2a676f8c815812290fa412a38cd2e1c57b19163edc49e5323374",
+    "packages/sim/src/strandbeest_sim/config.py": "4ea8c4887b41d8cb0aed6f0539fbab9bde2c7061e2c15f83571d55947b1733f2",
+    "packages/sim/src/strandbeest_sim/contract.py": "40248064844d6c74f1ff177e6350ed37c8e293fc6dc5487ce2696d17820aad30",
+    "packages/sim/src/strandbeest_sim/drives.py": "b91d2465c92dfeeaa7cb7ca2e6a2bae4aa42347fe8023ea4b3a5f0f423884c65",
+    "packages/sim/src/strandbeest_sim/dynamometer.py": "167c2bad621bcb7311c6b86959cdc779fb73d0ed9b07c582c0ef73e7cde3d9b7",
+    "packages/sim/src/strandbeest_sim/events.py": "d7da3edd30ec304386d303b6f8c64f68aab867503de22bb6ec8b583aac0d3f94",
+    "packages/sim/src/strandbeest_sim/fluids/__init__.py": "a2fd2658abf545ca48070860c58aa5864d0057186bececa45f0f1ea70c4809ba",
+    "packages/sim/src/strandbeest_sim/fluids/anchor.py": "5cc7a5aa3215ecd038daacd68bd3b1f6d8d7fd6fe1195a7ab0620c491366f49f",
+    "packages/sim/src/strandbeest_sim/fluids/constants.py": "0555ff4f89e71c23d9fd0a00726fccfe4466972ff6d750d1c24431c086f5c801",
+    "packages/sim/src/strandbeest_sim/fluids/counter.py": "2709b29e781a90670f633bdf13ed519e03dea1493ac1685f8ee0b17e17d1bc43",
+    "packages/sim/src/strandbeest_sim/fluids/feeler.py": "0465feaab0bc8eb2a2299aad4deba9392f5cb7df296087d396670172490d16ea",
+    "packages/sim/src/strandbeest_sim/fluids/network.py": "2e81cc4335b47295c886a27cc95d2f6411bd807027ba153a31b0176cf2c26a19",
+    "packages/sim/src/strandbeest_sim/fluids/pump.py": "748ea65cdaae5faa551c77edef787e55fc26c4cef19cf6eb1f469d5f2139c6a8",
+    "packages/sim/src/strandbeest_sim/fluids/storage.py": "6336c32127192d73c3ca1b2a0b79110ef51e6d2c30f2ae430087f74d2dd74d4f",
+    "packages/sim/src/strandbeest_sim/fluids/tide.py": "00033a92699f0f0f6d5e30893c38758d7316c8a82701f1ac5e1f1810e0780536",
+    "packages/sim/src/strandbeest_sim/fluids/valves.py": "9c0db09580579b3adf9180997bbbd1c714bd0d81657f111f92159c1c640fa8df",
+    "packages/sim/src/strandbeest_sim/from_design.py": "391a38483079f094f172b5962822fe8e915c582a1f269f6b3d61fe946d5e253b",
+    "packages/sim/src/strandbeest_sim/interactive.py": "fa92156183dc4f4f184fa157c1e3b40823c4ca6d11576347e598a89c3fac8aa1",
+    "packages/sim/src/strandbeest_sim/linkage.py": "173463ba8a0dc001f88ec5d3f5b5403a0ac5672e72a8a18201c456447772180b",
+    "packages/sim/src/strandbeest_sim/metrics_builtin.py": "b053b63c922e4900f0a251bf667ae381493de476037dd22bf67f3bc37a5ba746",
+    "packages/sim/src/strandbeest_sim/registry.py": "333c9b86c7c645b3d3c6c4a31884dfccbe2a43b068167acca138b504f3a19507",
+    "packages/sim/src/strandbeest_sim/runner.py": "eb87b9aa6a3cb791204fbed0606b9ecec2133db6c0a723db608de78a68640c77",
+    "packages/sim/src/strandbeest_sim/scenes.py": "5566ca0a0d45f281a6499b6278d67ad3f5c1bbc41b78f1a6232a639662da6e2a",
+    "packages/sim/src/strandbeest_sim/skeptic.py": "7a425336775d12deee74d6351ff75d331cbab601a37912f9813beac3f539a4de",
+    "packages/sim/src/strandbeest_sim/startwind.py": "a7229bc7515fabbd0efc998e0a07411e033f7e8345981cab77b2e284aa2bb7ea",
+    "packages/sim/src/strandbeest_sim/terrains.py": "d17193486022b59c9f15414ff92e2231ec1ab0e6d07e1c1a815fb204b3c4cce8",
+    "packages/sim/src/strandbeest_sim/winds.py": "e6c47673a136a68a9feffe5b36ede7ebdf4ca62f378b09c9340ed3a4652531d9",
+    "schemas/atlas.schema.json": "f3a87e681cb22c5da98042177e914e1c20cba8ea82a128c74a7f40f1dbf50ef5",
+    "schemas/design.schema.json": "1f0ce522b9bbe4d3def221093f10efd5b42061d5a5d0285cbf18e6b27e9ce8c1",
+    "schemas/examples/design-jansen-small-6leg.json": "34babce9abe2efa0e60f21781bf8e3e43cb2da4d1b0e55d04d0327fd873e7440",
+    "schemas/examples/measurement-community-example.json": "c5c2f9e8bf5b4e3715319890087fd09e8186a2060689369009d9ed362be27487",
+    "schemas/examples/measurement-example.json": "c3bf2984b3c25ee4d06b670e9b5068aaea44822379f8fb4e64044f9b6b814028",
+    "schemas/examples/measurement-rig-example.json": "05a9458c1e5ebac0f95d37813c60d94db1e3c332cc1364ebe94f39fe94d8edf4",
+    "schemas/examples/profile-example.json": "e9af2ad81b97e49f344d53f9328ae3ee9eadf9247cc7683d5ea5f42f22f482bf",
+    "schemas/examples/run-example.json": "26b7e5f0b94bc06ac1a1c881a890f4366a7608e3de1d6cb537e89bcd360f5dc5",
+    "schemas/measurement.schema.json": "4f522b2c92c95d73d3584f098deef998618261d5f050f35b5818fab907f116f7",
+    "schemas/ops.schema.json": "b16fd6d4b84750889c26dee16977b19e98a5fd1d18a25fe2e06b149052303519",
+    "schemas/profile.schema.json": "6c63cdddd32ebc00e8eb556525b6e99fde14c42a59c753246b429f30db87c827",
+    "schemas/run.schema.json": "ff1e334f022e6829204954ed2fb1d799fe49de9f9d4375f7a8d106016abf6354",
+    "schemas/scenario-v1.schema.json": "669ad7dcdbd7d6219b5cf36d1262b2bdcc6a802ae2b67e35b0d509157e2d3666",
+    "schemas/scenario.schema.json": "e2eaf90500433679823fcb9d8d509c0e972bb784214bca67b0c14dd6bb24791e"
+  },
+  "source_drift": [],
+  "script_sha256": "b260c2d3427493fd6fe6ed376a01483e5fc971fbc78515826bbab5016c6ca18e",
+  "input_sha256": {
+    "default": "4f1ef45480ca984d2045b5cfb639542223d3ca8c2807c07b9dbeb07de761c5a6",
+    "strong": "639142742e51c965d1e714a297e15ac0af07c604ebed0aacf2729e139a4872ac",
+    "half": "118b3bf9a497da0df345e68dadd39a6f99ff62b98f8e8548aeeb4aec29662556"
+  },
+  "threshold": 0.15,
+  "rows": [
+    {
+      "case": 0,
+      "terrain": "flat",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2619631061147639,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2646507555380596,
+          "rolling_m_per_rev": 0.0017449662308115026,
+          "contact_stride_m_per_rev": 0.2663957217688711,
+          "absolute_contact_travel_m_per_rev": 0.2663957217688711,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2646507555380596,
+          "rolling_m_per_rev": 0.0017449662308115026,
+          "contact_stride_m_per_rev": 0.2663957217688711,
+          "absolute_contact_travel_m_per_rev": 0.2663957217688711,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2680970151962585,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.023415163961322705,
+            "point": 0.013021915056287359,
+            "sphere": 0.006386339150234122
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.26719449020207586,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01996992692940558,
+            "point": 0.009611665981623885,
+            "sphere": 0.0029984281575579086
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2671906158107904,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.019955137093756736,
+            "point": 0.009597026343518333,
+            "sphere": 0.002983884413162441
+          }
+        }
+      }
+    },
+    {
+      "case": 1,
+      "terrain": "flat",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.16545721607982483,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.16831873261049926,
+          "rolling_m_per_rev": -0.0011500170092178035,
+          "contact_stride_m_per_rev": 0.16716871560128146,
+          "absolute_contact_travel_m_per_rev": 0.16845809780882604,
+          "cancellation_condition": 1.0077130592462042,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.16831873261049926,
+          "rolling_m_per_rev": -0.0011500170092178035,
+          "contact_stride_m_per_rev": 0.16716871560128146,
+          "absolute_contact_travel_m_per_rev": 0.16845809780882604,
+          "cancellation_condition": 1.0077130592462042,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.1710931877699931,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03406301534439704,
+            "point": 0.016483341553635178,
+            "sphere": 0.023476116057935092
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.16894808301610975,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.021098305767460523,
+            "point": 0.003739039593809501,
+            "sphere": 0.010644141210442104
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.16894117276896922,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02105654121161793,
+            "point": 0.0036979850597516073,
+            "sphere": 0.010602804246670816
+          }
+        }
+      }
+    },
+    {
+      "case": 2,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2602727905666529,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.25931748148627687,
+          "rolling_m_per_rev": 0.0011102123059781154,
+          "contact_stride_m_per_rev": 0.260427693792255,
+          "absolute_contact_travel_m_per_rev": 0.260427693792255,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2593174814862769,
+          "rolling_m_per_rev": 0.001110212305978118,
+          "contact_stride_m_per_rev": 0.26042769379225505,
+          "absolute_contact_travel_m_per_rev": 0.26042769379225505,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2625582174183394,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.008780890413902842,
+            "point": 0.012497174943579603,
+            "sphere": 0.008180864312318015
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.26148183030515315,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.004645279039226402,
+            "point": 0.008346328240083523,
+            "sphere": 0.004047712812520476
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2614781341616314,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.004631078002254041,
+            "point": 0.008332074887395624,
+            "sphere": 0.004033520222370468
+          }
+        }
+      }
+    },
+    {
+      "case": 3,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2633692690964432,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.26786379610773964,
+          "rolling_m_per_rev": 0.0013123097418516491,
+          "contact_stride_m_per_rev": 0.2691761058495913,
+          "absolute_contact_travel_m_per_rev": 0.2691761058495913,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.26786379610773964,
+          "rolling_m_per_rev": 0.0013123097418516496,
+          "contact_stride_m_per_rev": 0.2691761058495913,
+          "absolute_contact_travel_m_per_rev": 0.26917610584959134,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.27055343059216613,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.027277903456124797,
+            "point": 0.010041052667470796,
+            "sphere": 0.0051168165102457586
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.26969109799160557,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.024003669512586034,
+            "point": 0.006821757588811872,
+            "sphere": 0.0019132164067416912
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.26968917612862386,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.023996372294545765,
+            "point": 0.006814582811893066,
+            "sphere": 0.0019060766088920822
+          }
+        }
+      }
+    },
+    {
+      "case": 4,
+      "terrain": "bumps",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.26062125168843103,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.31565975002839364,
+          "rolling_m_per_rev": 0.0043394050681971295,
+          "contact_stride_m_per_rev": 0.31999915509659077,
+          "absolute_contact_travel_m_per_rev": 0.31999915509659077,
+          "cancellation_condition": 1.0,
+          "support_intervals": 13,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.3156597500283936,
+          "rolling_m_per_rev": 0.004339405068197128,
+          "contact_stride_m_per_rev": 0.3199991550965907,
+          "absolute_contact_travel_m_per_rev": 0.3199991550965907,
+          "cancellation_condition": 1.0,
+          "support_intervals": 13,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.28035555213019947,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07572022739481166,
+            "point": 0.11184257066356573,
+            "sphere": 0.12388658637059513
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2806254336335088,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07675575884729646,
+            "point": 0.11098759468615638,
+            "sphere": 0.12304320444595274
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2806239453276929,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07675004823925424,
+            "point": 0.1109923095914167,
+            "sphere": 0.12304785541390728
+          }
+        }
+      }
+    },
+    {
+      "case": 5,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.26479769654721214,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.32204918530814675,
+          "rolling_m_per_rev": 0.005391090062171509,
+          "contact_stride_m_per_rev": 0.3274402753703183,
+          "absolute_contact_travel_m_per_rev": 0.3274402753703183,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.32204918530814675,
+          "rolling_m_per_rev": 0.005391090062171509,
+          "contact_stride_m_per_rev": 0.3274402753703183,
+          "absolute_contact_travel_m_per_rev": 0.3274402753703183,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.28896702149638215,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09127467974352532,
+            "point": 0.10272394814509633,
+            "sphere": 0.11749701172351157
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2929790638551313,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10642602890956243,
+            "point": 0.09026609219706694,
+            "sphere": 0.10524426622904937
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2929761275625801,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10641494009500918,
+            "point": 0.0902752097253362,
+            "sphere": 0.10525323364317651
+          }
+        }
+      }
+    },
+    {
+      "case": 6,
+      "terrain": "slope",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2781417647561411,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.28833013978574784,
+          "rolling_m_per_rev": 0.0019426228542589112,
+          "contact_stride_m_per_rev": 0.29027276264000673,
+          "absolute_contact_travel_m_per_rev": 0.29027276264000673,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2883301397857478,
+          "rolling_m_per_rev": 0.0019426228542589075,
+          "contact_stride_m_per_rev": 0.2902727626400067,
+          "absolute_contact_travel_m_per_rev": 0.2902727626400067,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2753819545385576,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.009922315046800412,
+            "point": 0.04490749824770901,
+            "sphere": 0.05129936397069568
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2746686084070397,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01248700047670459,
+            "point": 0.04738155847619563,
+            "sphere": 0.05375686678642688
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2746785622829276,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.012451213417193463,
+            "point": 0.04734703598092249,
+            "sphere": 0.05372257532966973
+          }
+        }
+      }
+    },
+    {
+      "case": 7,
+      "terrain": "bumps",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.24862508759682034,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.25416376545710206,
+          "rolling_m_per_rev": 0.0011240171973626826,
+          "contact_stride_m_per_rev": 0.2552877826544647,
+          "absolute_contact_travel_m_per_rev": 0.2552877826544647,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.254163765457102,
+          "rolling_m_per_rev": 0.0011240171973626813,
+          "contact_stride_m_per_rev": 0.25528778265446467,
+          "absolute_contact_travel_m_per_rev": 0.25528778265446467,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.26195079834408064,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.053597611070004936,
+            "point": 0.03063785615929171,
+            "sphere": 0.026100017871338643
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.26118154788193104,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05050359320726616,
+            "point": 0.027611262416607163,
+            "sphere": 0.02308675004414007
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.261177658166708,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05048794830489278,
+            "point": 0.027595958444319724,
+            "sphere": 0.02307151345434888
+          }
+        }
+      }
+    },
+    {
+      "case": 8,
+      "terrain": "flat",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.1819312491873394,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.18217108150225345,
+          "rolling_m_per_rev": -0.0009759096419657021,
+          "contact_stride_m_per_rev": 0.18119517186028775,
+          "absolute_contact_travel_m_per_rev": 0.18119517186028772,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.18217108150225345,
+          "rolling_m_per_rev": -0.0009759096419657021,
+          "contact_stride_m_per_rev": 0.18119517186028775,
+          "absolute_contact_travel_m_per_rev": 0.18119517186028772,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.195426396078805,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07417717930122758,
+            "point": 0.0727630009507716,
+            "sphere": 0.0785408577524922
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.19288123473873697,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06018749170529847,
+            "point": 0.05879173109235247,
+            "sphere": 0.06449433921705094
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.19287132470343626,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.060133020385253255,
+            "point": 0.058737331485021915,
+            "sphere": 0.06443964661570312
+          }
+        }
+      }
+    },
+    {
+      "case": 9,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.26347252024249457,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.30439869914047235,
+          "rolling_m_per_rev": 0.005259629236762999,
+          "contact_stride_m_per_rev": 0.30965832837723534,
+          "absolute_contact_travel_m_per_rev": 0.3096583283772354,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.30439869914047235,
+          "rolling_m_per_rev": 0.005259629236762999,
+          "contact_stride_m_per_rev": 0.30965832837723534,
+          "absolute_contact_travel_m_per_rev": 0.3096583283772354,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2960636440834318,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.12369837966760633,
+            "point": 0.027382032448154958,
+            "sphere": 0.043902207846456154
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.29731356796781183,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.12844241856483052,
+            "point": 0.023275826055323967,
+            "sphere": 0.0398657464635821
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2973086368718911,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.12842370277649628,
+            "point": 0.023292025519824566,
+            "sphere": 0.03988167077586069
+          }
+        }
+      }
+    },
+    {
+      "case": 10,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.264141800665146,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.260661819853722,
+          "rolling_m_per_rev": 0.0013512278020322765,
+          "contact_stride_m_per_rev": 0.2620130476557543,
+          "absolute_contact_travel_m_per_rev": 0.2620130476557543,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2606618198537219,
+          "rolling_m_per_rev": 0.0013512278020322748,
+          "contact_stride_m_per_rev": 0.26201304765575417,
+          "absolute_contact_travel_m_per_rev": 0.26201304765575417,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.27147230366219643,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.027752150468389525,
+            "point": 0.04147321542733473,
+            "sphere": 0.03610223266007084
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2693695904786284,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01979160360199761,
+            "point": 0.03340639081624275,
+            "sphere": 0.028077009479847037
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.26956791137935765,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.020542415855983265,
+            "point": 0.0341672268329658,
+            "sphere": 0.028833921788236516
+          }
+        }
+      }
+    },
+    {
+      "case": 11,
+      "terrain": "bumps",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.21728467353686115,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.21451180619121674,
+          "rolling_m_per_rev": -0.00021513741415298514,
+          "contact_stride_m_per_rev": 0.21429666877706374,
+          "absolute_contact_travel_m_per_rev": 0.21429666877706377,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.21451180619121674,
+          "rolling_m_per_rev": -0.00021513741415298514,
+          "contact_stride_m_per_rev": 0.21429666877706374,
+          "absolute_contact_travel_m_per_rev": 0.21429666877706377,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.21410577089082533,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01463012827500021,
+            "point": 0.0018928342807829068,
+            "sphere": 0.0008908112633192466
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.21385239610508802,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.015796224261491076,
+            "point": 0.0030740037009474586,
+            "sphere": 0.0020731664869597655
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.21384996971007147,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.015807391155948203,
+            "point": 0.0030853149432498173,
+            "sphere": 0.002084489084881569
+          }
+        }
+      }
+    },
+    {
+      "case": 12,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.17479522143611004,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.1835743964906816,
+          "rolling_m_per_rev": -0.0010116991921997056,
+          "contact_stride_m_per_rev": 0.1825626972984819,
+          "absolute_contact_travel_m_per_rev": 0.1825626972984819,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.1835743964906816,
+          "rolling_m_per_rev": -0.0010116991921997056,
+          "contact_stride_m_per_rev": 0.1825626972984819,
+          "absolute_contact_travel_m_per_rev": 0.1825626972984819,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.18590698110135953,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06357015697543522,
+            "point": 0.012706481161147698,
+            "sphere": 0.018318549475689894
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.1838987020156013,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05208083209997083,
+            "point": 0.0017666163207903374,
+            "sphere": 0.007318059696144186
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.18390407408401513,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05211156559697194,
+            "point": 0.001795880033576669,
+            "sphere": 0.007347485578284019
+          }
+        }
+      }
+    },
+    {
+      "case": 13,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.27803844818108836,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.3033826823296262,
+          "rolling_m_per_rev": 0.00511033422579768,
+          "contact_stride_m_per_rev": 0.3084930165554238,
+          "absolute_contact_travel_m_per_rev": 0.30849301655542394,
+          "cancellation_condition": 1.0000000000000004,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.3033826823296261,
+          "rolling_m_per_rev": 0.00511033422579768,
+          "contact_stride_m_per_rev": 0.3084930165554238,
+          "absolute_contact_travel_m_per_rev": 0.3084930165554238,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.30537132151647006,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09830609224800302,
+            "point": 0.006554886955226102,
+            "sphere": 0.010119175707152261
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.3057231211087047,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09957138341379723,
+            "point": 0.007714477178152546,
+            "sphere": 0.008978794650353117
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.30572091901929177,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09956346332422927,
+            "point": 0.007707218723596032,
+            "sphere": 0.0089859328651416
+          }
+        }
+      }
+    },
+    {
+      "case": 14,
+      "terrain": "slope",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25299633350115275,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.21370737059594394,
+          "rolling_m_per_rev": -0.0003790279476570406,
+          "contact_stride_m_per_rev": 0.2133283426482869,
+          "absolute_contact_travel_m_per_rev": 0.21332834264828693,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.21370737059594394,
+          "rolling_m_per_rev": -0.0003790279476570406,
+          "contact_stride_m_per_rev": 0.2133283426482869,
+          "absolute_contact_travel_m_per_rev": 0.21332834264828693,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.19916496568297545,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.21277528837362392,
+            "point": 0.0680482141182851,
+            "sphere": 0.0663923826974202
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.19203761382403267,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.24094704786242416,
+            "point": 0.10139920168164074,
+            "sphere": 0.09980262612997526
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.1920752009612122,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.24079847994976167,
+            "point": 0.10122332034879433,
+            "sphere": 0.09962643230259671
+          }
+        }
+      }
+    },
+    {
+      "case": 15,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2196376283436012,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.24170716961462788,
+          "rolling_m_per_rev": 0.005905420451982454,
+          "contact_stride_m_per_rev": 0.24761259006661032,
+          "absolute_contact_travel_m_per_rev": 0.24761259006661035,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2417071696146277,
+          "rolling_m_per_rev": 0.0059054204519824564,
+          "contact_stride_m_per_rev": 0.24761259006661016,
+          "absolute_contact_travel_m_per_rev": 0.24761259006661018,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.24485849360732093,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11482943725955819,
+            "point": 0.0130377762385685,
+            "sphere": 0.011122602685704863
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.24481774463525707,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11464390906763966,
+            "point": 0.012869188057552439,
+            "sphere": 0.011287170133801538
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.24483950672368404,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11474299085335682,
+            "point": 0.012959222988918606,
+            "sphere": 0.011199282484707807
+          }
+        }
+      }
+    },
+    {
+      "case": 16,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.27620680484656907,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.28430592672308563,
+          "rolling_m_per_rev": 0.0016271808914992702,
+          "contact_stride_m_per_rev": 0.2859331076145849,
+          "absolute_contact_travel_m_per_rev": 0.2859331076145849,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.28430592672308563,
+          "rolling_m_per_rev": 0.0016271808914992691,
+          "contact_stride_m_per_rev": 0.2859331076145849,
+          "absolute_contact_travel_m_per_rev": 0.2859331076145849,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2871088592524685,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.039470622065069794,
+            "point": 0.009858860705752814,
+            "sphere": 0.004111981462001202
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2862370870301164,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03631439199739872,
+            "point": 0.006792543262426287,
+            "sphere": 0.0010631137403691593
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2862329669487593,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.036299475343338106,
+            "point": 0.006778051544281238,
+            "sphere": 0.0010487044913267685
+          }
+        }
+      }
+    },
+    {
+      "case": 17,
+      "terrain": "bumps",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.13981149748261967,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.12574804267095627,
+          "rolling_m_per_rev": 0.005451469228981643,
+          "contact_stride_m_per_rev": 0.13119951189993792,
+          "absolute_contact_travel_m_per_rev": 0.13583708441650263,
+          "cancellation_condition": 1.0353474830005591,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.12574804267095616,
+          "rolling_m_per_rev": 0.005451469228981642,
+          "contact_stride_m_per_rev": 0.1311995118999378,
+          "absolute_contact_travel_m_per_rev": 0.1358370844165026,
+          "cancellation_condition": 1.0353474830005598,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.00017898013561845117,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 6.2 mm",
+              "evidence": {
+                "opening_m": 0.0061716476631463735,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.9987198468020079,
+            "point": 0.998576676568344,
+            "sphere": 0.998635817061919
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.12554035708436484,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10207415452387181,
+            "point": 0.0016516009488495298,
+            "sphere": 0.04313396241816092
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.12561379053149657,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10154892270493032,
+            "point": 0.0010676280648826975,
+            "sphere": 0.04257425418397376
+          }
+        }
+      }
+    },
+    {
+      "case": 18,
+      "terrain": "slope",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2625665862330022,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.28591682625236453,
+          "rolling_m_per_rev": 0.0057822199750135785,
+          "contact_stride_m_per_rev": 0.29169904622737813,
+          "absolute_contact_travel_m_per_rev": 0.29169904622737813,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.28591682625236453,
+          "rolling_m_per_rev": 0.0057822199750135785,
+          "contact_stride_m_per_rev": 0.29169904622737813,
+          "absolute_contact_travel_m_per_rev": 0.29169904622737813,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.27370924394729634,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.04243745510103136,
+            "point": 0.04269627102776097,
+            "sphere": 0.06167247549400223
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.27336121960935533,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.041111984320708395,
+            "point": 0.04391349333154315,
+            "sphere": 0.0628655693434409
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.273416410125156,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.041322180585939616,
+            "point": 0.043720463363618345,
+            "sphere": 0.0626763657223991
+          }
+        }
+      }
+    },
+    {
+      "case": 19,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.27461200478803754,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.31412594266488475,
+          "rolling_m_per_rev": 0.004589816148482067,
+          "contact_stride_m_per_rev": 0.31871575881336683,
+          "absolute_contact_travel_m_per_rev": 0.31871575881336683,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.3141259426648847,
+          "rolling_m_per_rev": 0.004589816148482062,
+          "contact_stride_m_per_rev": 0.3187157588133668,
+          "absolute_contact_travel_m_per_rev": 0.31871575881336667,
+          "cancellation_condition": 0.9999999999999997,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.281703883354215,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 13.3 mm",
+              "evidence": {
+                "opening_m": 0.013339896016368868,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.02582508573014275,
+            "point": 0.10321356789451219,
+            "sphere": 0.11612816258898939
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2819874893009458,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.026857837182322486,
+            "point": 0.10231072636437666,
+            "sphere": 0.11523832285283475
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2820250620512001,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.026994658404990046,
+            "point": 0.10219111589879226,
+            "sphere": 0.11512043489400214
+          }
+        }
+      }
+    },
+    {
+      "case": 20,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.1340125395520839,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": -0.12490597839071482,
+          "rolling_m_per_rev": 0.0034684948959210022,
+          "contact_stride_m_per_rev": -0.12143748349479382,
+          "absolute_contact_travel_m_per_rev": 0.1586500179081894,
+          "cancellation_condition": 1.3064336755215364,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": -0.12490597839071482,
+          "rolling_m_per_rev": 0.0034684948959210022,
+          "contact_stride_m_per_rev": -0.12143748349479382,
+          "absolute_contact_travel_m_per_rev": 0.1586500179081894,
+          "cancellation_condition": 1.3064336755215364,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": -0.13669379535847262,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 7.3 mm",
+              "evidence": {
+                "opening_m": 0.007287378135017342,
+                "limit_m": 0.005
+              }
+            },
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -102% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.13669379535847262,
+                "nominal_m": 0.1340125395520839,
+                "ratio": -1.0200074994127446
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 2.0200074994127446,
+            "point": 0.0943735209445673,
+            "sphere": 0.12563099485121376
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": -0.1264921652217921,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -94% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.1264921652217921,
+                "nominal_m": 0.1340125395520839,
+                "ratio": -0.9438830548586911
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.943883054858691,
+            "point": 0.01269904652694498,
+            "sphere": 0.041623735781835425
+          }
+        },
+        "half": {
+          "actual_m_per_rev": -0.12644434642758534,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -94% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.12644434642758534,
+                "nominal_m": 0.1340125395520839,
+                "ratio": -0.9435262315765819
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.9435262315765818,
+            "point": 0.012316208212695745,
+            "sphere": 0.041229962847559865
+          }
+        }
+      }
+    },
+    {
+      "case": 21,
+      "terrain": "bumps",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.1547762423556455,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.16552674812554866,
+          "rolling_m_per_rev": -0.0012839668904675871,
+          "contact_stride_m_per_rev": 0.16424278123508107,
+          "absolute_contact_travel_m_per_rev": 0.16424278123508104,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.16552674812554866,
+          "rolling_m_per_rev": -0.0012839668904675871,
+          "contact_stride_m_per_rev": 0.16424278123508107,
+          "absolute_contact_travel_m_per_rev": 0.16424278123508104,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.1737069544262376,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.12231019297582524,
+            "point": 0.04941924126053898,
+            "sphere": 0.057623069458440535
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.17120551995544167,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10614857519311593,
+            "point": 0.0343072759792622,
+            "sphere": 0.04239296648535684
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.1712026082845276,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10612976306232791,
+            "point": 0.0342896856444852,
+            "sphere": 0.042375238638250545
+          }
+        }
+      }
+    },
+    {
+      "case": 22,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.1941576206721804,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2166270151986909,
+          "rolling_m_per_rev": 0.006016435023868967,
+          "contact_stride_m_per_rev": 0.22264345022255988,
+          "absolute_contact_travel_m_per_rev": 0.22264345022255988,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.21662701519869076,
+          "rolling_m_per_rev": 0.0060164350238689655,
+          "contact_stride_m_per_rev": 0.22264345022255974,
+          "absolute_contact_travel_m_per_rev": 0.22264345022255974,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.21840134878742717,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.12486621967921807,
+            "point": 0.008190730907264632,
+            "sphere": 0.019053340356035897
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.21914018466432397,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.12867156028000903,
+            "point": 0.011601366816267777,
+            "sphere": 0.01573486915844069
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.21915648779878144,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.1287555288329869,
+            "point": 0.011676625825133735,
+            "sphere": 0.015661643853850826
+          }
+        }
+      }
+    },
+    {
+      "case": 23,
+      "terrain": "bumps",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.17174952508006944,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.19334321461402218,
+          "rolling_m_per_rev": 0.005843073423958184,
+          "contact_stride_m_per_rev": 0.19918628803798036,
+          "absolute_contact_travel_m_per_rev": 0.19918628803798033,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.19334321461402218,
+          "rolling_m_per_rev": 0.005843073423958184,
+          "contact_stride_m_per_rev": 0.19918628803798036,
+          "absolute_contact_travel_m_per_rev": 0.19918628803798033,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.0001539756518155813,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 6.5 mm",
+              "evidence": {
+                "opening_m": 0.00653955048841226,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.9991034871756193,
+            "point": 0.9992036149180463,
+            "sphere": 0.9992269766491847
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.0003425715677453362,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.998005400203665,
+            "point": 0.9982281686562975,
+            "sphere": 0.9982801448276398
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.00015475277899199049,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.9990989624051663,
+            "point": 0.9991995955001528,
+            "sphere": 0.9992230751397783
+          }
+        }
+      }
+    },
+    {
+      "case": 24,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2717707153031992,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.28055453257900453,
+          "rolling_m_per_rev": 0.0018594561103249527,
+          "contact_stride_m_per_rev": 0.2824139886893295,
+          "absolute_contact_travel_m_per_rev": 0.2824139886893295,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.28055453257900453,
+          "rolling_m_per_rev": 0.001859456110324951,
+          "contact_stride_m_per_rev": 0.2824139886893295,
+          "absolute_contact_travel_m_per_rev": 0.28241398868932943,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.25143950226524026,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07481016862054668,
+            "point": 0.10377672406902017,
+            "sphere": 0.10967759269942834
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2508334950763902,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07704001589520237,
+            "point": 0.10593675756867293,
+            "sphere": 0.11182340421415715
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2508324039706013,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.0770440306978557,
+            "point": 0.10594064667279413,
+            "sphere": 0.11182726771183282
+          }
+        }
+      }
+    },
+    {
+      "case": 25,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.28498486315957283,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.30277125230740914,
+          "rolling_m_per_rev": 0.006124435525648773,
+          "contact_stride_m_per_rev": 0.30889568783305793,
+          "absolute_contact_travel_m_per_rev": 0.3088956878330579,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.30277125230740926,
+          "rolling_m_per_rev": 0.00612443552564877,
+          "contact_stride_m_per_rev": 0.30889568783305804,
+          "absolute_contact_travel_m_per_rev": 0.308895687833058,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.30728393954793837,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.0782465291003176,
+            "point": 0.014904609358180831,
+            "sphere": 0.005217775283385406
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.30675826833336656,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07640197073064203,
+            "point": 0.013168410129998698,
+            "sphere": 0.006919551110233235
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.3067627281912571,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07641762018598897,
+            "point": 0.013183140253339554,
+            "sphere": 0.006905113039174848
+          }
+        }
+      }
+    },
+    {
+      "case": 26,
+      "terrain": "slope",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.24818565989978922,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.27726959026300035,
+          "rolling_m_per_rev": 0.0031700286406458247,
+          "contact_stride_m_per_rev": 0.28043961890364616,
+          "absolute_contact_travel_m_per_rev": 0.2804396189036462,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.27726959026300035,
+          "rolling_m_per_rev": 0.0031700286406458247,
+          "contact_stride_m_per_rev": 0.28043961890364616,
+          "absolute_contact_travel_m_per_rev": 0.2804396189036462,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2650153583839793,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06781092223855922,
+            "point": 0.04419609040932848,
+            "sphere": 0.055000290543706365
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.264741904297215,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06670910964038268,
+            "point": 0.04518232942134903,
+            "sphere": 0.055975381323794315
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.26474179484174737,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06670866861785285,
+            "point": 0.04518272418323954,
+            "sphere": 0.055975771623382076
+          }
+        }
+      }
+    },
+    {
+      "case": 27,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.19722127932503966,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.18788510490734053,
+          "rolling_m_per_rev": -0.0007021869724607766,
+          "contact_stride_m_per_rev": 0.18718291793487976,
+          "absolute_contact_travel_m_per_rev": 0.18718291793487976,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.18788510490734064,
+          "rolling_m_per_rev": -0.0007021869724607713,
+          "contact_stride_m_per_rev": 0.18718291793487987,
+          "absolute_contact_travel_m_per_rev": 0.1871829179348799,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.1900651428211097,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03628480926815181,
+            "point": 0.011603037477846856,
+            "sphere": 0.015397905524864974
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.18871333555856992,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.04313907604487155,
+            "point": 0.004408176218321014,
+            "sphere": 0.008176053886618462
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.18873032215349536,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.04305294641938906,
+            "point": 0.004498585699869828,
+            "sphere": 0.008266802524971029
+          }
+        }
+      }
+    },
+    {
+      "case": 28,
+      "terrain": "flat",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2506221857508256,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.25425245585919143,
+          "rolling_m_per_rev": 0.00557824351782493,
+          "contact_stride_m_per_rev": 0.25983069937701636,
+          "absolute_contact_travel_m_per_rev": 0.25983069937701636,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2542524558591912,
+          "rolling_m_per_rev": 0.005578243517824927,
+          "contact_stride_m_per_rev": 0.25983069937701614,
+          "absolute_contact_travel_m_per_rev": 0.25983069937701614,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2589529262233331,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03324023548653465,
+            "point": 0.01848741381182606,
+            "sphere": 0.0033782503598983604
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2581479618491334,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.030028371493775463,
+            "point": 0.015321409489549298,
+            "sphere": 0.0064762844880045245
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2581569943430105,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03006441177428787,
+            "point": 0.015356935179346554,
+            "sphere": 0.006441521490796243
+          }
+        }
+      }
+    },
+    {
+      "case": 29,
+      "terrain": "bumps",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2441443839791328,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.25072535805257257,
+          "rolling_m_per_rev": 0.0010036968730857425,
+          "contact_stride_m_per_rev": 0.25172905492565834,
+          "absolute_contact_travel_m_per_rev": 0.25172905492565834,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.25072535805257257,
+          "rolling_m_per_rev": 0.0010036968730857425,
+          "contact_stride_m_per_rev": 0.25172905492565834,
+          "absolute_contact_travel_m_per_rev": 0.25172905492565834,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.25984504199546965,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.0643089050849468,
+            "point": 0.036373201393473886,
+            "sphere": 0.032240962697802855
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.25909597831811587,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06124078750163253,
+            "point": 0.03338561496355763,
+            "sphere": 0.029265288405556422
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2590927380605067,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.061227515610809746,
+            "point": 0.033372691429877754,
+            "sphere": 0.02925241640073306
+          }
+        }
+      }
+    },
+    {
+      "case": 30,
+      "terrain": "flat",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.1720592073297894,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.16588750573239303,
+          "rolling_m_per_rev": 0.005347732259359129,
+          "contact_stride_m_per_rev": 0.17123523799175216,
+          "absolute_contact_travel_m_per_rev": 0.19154982243629887,
+          "cancellation_condition": 1.1186355371873,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.16588750573239325,
+          "rolling_m_per_rev": 0.00534773225935913,
+          "contact_stride_m_per_rev": 0.1712352379917524,
+          "absolute_contact_travel_m_per_rev": 0.19154982243629887,
+          "cancellation_condition": 1.1186355371872987,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.16901990428275476,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01766428599900005,
+            "point": 0.018882667121504992,
+            "sphere": 0.012937370455865627
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.1690385160580013,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.017556115238856695,
+            "point": 0.01899486228149816,
+            "sphere": 0.012828679187264602
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.1690479852034976,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.017501081011724873,
+            "point": 0.019051944009591537,
+            "sphere": 0.012773380140132962
+          }
+        }
+      }
+    },
+    {
+      "case": 31,
+      "terrain": "bumps",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.22345481917009732,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2668135524513376,
+          "rolling_m_per_rev": 0.005100984246004374,
+          "contact_stride_m_per_rev": 0.27191453669734195,
+          "absolute_contact_travel_m_per_rev": 0.27191453669734195,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2668135524513376,
+          "rolling_m_per_rev": 0.005100984246004374,
+          "contact_stride_m_per_rev": 0.27191453669734195,
+          "absolute_contact_travel_m_per_rev": 0.27191453669734195,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": -3.783572356713803e-05,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 7.4 mm",
+              "evidence": {
+                "opening_m": 0.007368764784089876,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.0001693215823568,
+            "point": 1.0001418058536364,
+            "sphere": 1.0001391456449025
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": -2.445806654675992e-05,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 1.0001094541914002,
+            "point": 1.0000916672572366,
+            "sphere": 1.0000899476241463
+          }
+        },
+        "half": {
+          "actual_m_per_rev": -2.5009066917155296e-05,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 1.000111920015912,
+            "point": 1.000093732371116,
+            "sphere": 1.0000919739974954
+          }
+        }
+      }
+    },
+    {
+      "case": 32,
+      "terrain": "slope",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.24765956548115245,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.25450391502084696,
+          "rolling_m_per_rev": 0.0010827240755820013,
+          "contact_stride_m_per_rev": 0.255586639096429,
+          "absolute_contact_travel_m_per_rev": 0.2555866390964289,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.25450391502084696,
+          "rolling_m_per_rev": 0.0010827240755820013,
+          "contact_stride_m_per_rev": 0.255586639096429,
+          "absolute_contact_travel_m_per_rev": 0.2555866390964289,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.24111584577819437,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02642223687280143,
+            "point": 0.05260457090240023,
+            "sphere": 0.056617956906483635
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2404800663069452,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.028989387751928386,
+            "point": 0.05510268363751114,
+            "sphere": 0.059105487058673245
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.24047641346168028,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02900413721358497,
+            "point": 0.05511703644330057,
+            "sphere": 0.05911977906265997
+          }
+        }
+      }
+    },
+    {
+      "case": 33,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.27394013420198104,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2830123918788383,
+          "rolling_m_per_rev": 0.0015306403161126111,
+          "contact_stride_m_per_rev": 0.2845430321949509,
+          "absolute_contact_travel_m_per_rev": 0.2845430321949509,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2830123918788383,
+          "rolling_m_per_rev": 0.0015306403161126111,
+          "contact_stride_m_per_rev": 0.2845430321949509,
+          "absolute_contact_travel_m_per_rev": 0.2845430321949509,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2854924717808631,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.04217102985853227,
+            "point": 0.008763149505787604,
+            "sphere": 0.0033367170462346163
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2847960760326058,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.039628884107286266,
+            "point": 0.0063024948905103795,
+            "sphere": 0.0008892990128872569
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2847931929158506,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03961835948385484,
+            "point": 0.006292307644870432,
+            "sphere": 0.0008791665674254823
+          }
+        }
+      }
+    },
+    {
+      "case": 34,
+      "terrain": "slope",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2318225423999719,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.23871261782172065,
+          "rolling_m_per_rev": 0.0006231669786121543,
+          "contact_stride_m_per_rev": 0.2393357848003328,
+          "absolute_contact_travel_m_per_rev": 0.2393357848003328,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.23871261782172065,
+          "rolling_m_per_rev": 0.0006231669786121543,
+          "contact_stride_m_per_rev": 0.2393357848003328,
+          "absolute_contact_travel_m_per_rev": 0.2393357848003328,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.22542580130544218,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02759326607458734,
+            "point": 0.05566030249059373,
+            "sphere": 0.05811911288775762
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.22456504324805204,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.031306270204725095,
+            "point": 0.059266136422811755,
+            "sphere": 0.061715558183676245
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.22456094970627746,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.031323928288068514,
+            "point": 0.05928328483252687,
+            "sphere": 0.061732661943475486
+          }
+        }
+      }
+    },
+    {
+      "case": 35,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2272685934514037,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.22925194316467035,
+          "rolling_m_per_rev": 8.274655553440447e-05,
+          "contact_stride_m_per_rev": 0.22933468972020474,
+          "absolute_contact_travel_m_per_rev": 0.22933468972020482,
+          "cancellation_condition": 1.0000000000000004,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.22925194316467035,
+          "rolling_m_per_rev": 8.274655553440447e-05,
+          "contact_stride_m_per_rev": 0.22933468972020474,
+          "absolute_contact_travel_m_per_rev": 0.22933468972020482,
+          "cancellation_condition": 1.0000000000000004,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2308802180073768,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.015891437092672156,
+            "point": 0.007102556341417099,
+            "sphere": 0.0067391823236930826
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.23006035935437505,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01228399340434283,
+            "point": 0.0035263220827925768,
+            "sphere": 0.0031642384109253907
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2300591731328473,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.012278773934684795,
+            "point": 0.003521147768841937,
+            "sphere": 0.003159065963925789
+          }
+        }
+      }
+    },
+    {
+      "case": 36,
+      "terrain": "flat",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.21640992387297348,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.23283499183699172,
+          "rolling_m_per_rev": 0.005310984802315286,
+          "contact_stride_m_per_rev": 0.238145976639307,
+          "absolute_contact_travel_m_per_rev": 0.23814597663930698,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.23283499183699172,
+          "rolling_m_per_rev": 0.005310984802315286,
+          "contact_stride_m_per_rev": 0.238145976639307,
+          "absolute_contact_travel_m_per_rev": 0.23814597663930698,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.23699347711796015,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09511372157345543,
+            "point": 0.0178602247375248,
+            "sphere": 0.004839466690182315
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.23613712266049544,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09115662736012631,
+            "point": 0.014182279035685363,
+            "sphere": 0.00843538911368702
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.23614613411686977,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09119826804005937,
+            "point": 0.014220982223308587,
+            "sphere": 0.008397549060701448
+          }
+        }
+      }
+    },
+    {
+      "case": 37,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.10074545480075787,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.012292626206305855,
+          "rolling_m_per_rev": 0.00509237090511867,
+          "contact_stride_m_per_rev": 0.017384997111424525,
+          "absolute_contact_travel_m_per_rev": 0.17493602162884325,
+          "cancellation_condition": 10.06247056054351,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.012292626206305855,
+          "rolling_m_per_rev": 0.00509237090511867,
+          "contact_stride_m_per_rev": 0.017384997111424525,
+          "absolute_contact_travel_m_per_rev": 0.17493602162884325,
+          "cancellation_condition": 10.06247056054351,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": -0.00889169330046211,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 6.6 mm",
+              "evidence": {
+                "opening_m": 0.006567424242307496,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.0882590020368366,
+            "point": 1.7233355306859375,
+            "sphere": 1.5114578531979705
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": -0.00239455965261267,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 1.023768413744802,
+            "point": 1.1947964261196125,
+            "sphere": 1.1377371326129866
+          }
+        },
+        "half": {
+          "actual_m_per_rev": -0.0023610554535462716,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 1.0234358508601273,
+            "point": 1.1920708735400334,
+            "sphere": 1.1358099422400656
+          }
+        }
+      }
+    },
+    {
+      "case": 38,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25094844264819877,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.25630350578407657,
+          "rolling_m_per_rev": 0.001011931824003153,
+          "contact_stride_m_per_rev": 0.25731543760807973,
+          "absolute_contact_travel_m_per_rev": 0.2573154376080798,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.25630350578407657,
+          "rolling_m_per_rev": 0.001011931824003153,
+          "contact_stride_m_per_rev": 0.25731543760807973,
+          "absolute_contact_travel_m_per_rev": 0.2573154376080798,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.258599855561295,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.030489979664160227,
+            "point": 0.008959494214460628,
+            "sphere": 0.004991608607531672
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.25786176866516747,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02754879027745316,
+            "point": 0.006079756405687586,
+            "sphere": 0.0021231958026546316
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.25786006995864486,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.027542021131947925,
+            "point": 0.0060731286909496696,
+            "sphere": 0.0021165941524061704
+          }
+        }
+      }
+    },
+    {
+      "case": 39,
+      "terrain": "bumps",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25720737794700493,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.26320168830228013,
+          "rolling_m_per_rev": 0.0014091674321470005,
+          "contact_stride_m_per_rev": 0.2646108557344271,
+          "absolute_contact_travel_m_per_rev": 0.26461085573442716,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.26320168830228013,
+          "rolling_m_per_rev": 0.0014091674321470005,
+          "contact_stride_m_per_rev": 0.2646108557344271,
+          "absolute_contact_travel_m_per_rev": 0.26461085573442716,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.26453354477237534,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.028483501849157156,
+            "point": 0.005060212488324112,
+            "sphere": 0.0002921685198333801
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.26387702283363196,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02593100143496363,
+            "point": 0.0025658442227627365,
+            "sphere": 0.0027732531938585714
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.26387437866926683,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.025920721153012805,
+            "point": 0.0025557980700112726,
+            "sphere": 0.0027832458464948084
+          }
+        }
+      }
+    },
+    {
+      "case": 40,
+      "terrain": "bumps",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.1628204547416023,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.16546697636374194,
+          "rolling_m_per_rev": 0.0055039099541896045,
+          "contact_stride_m_per_rev": 0.17097088631793156,
+          "absolute_contact_travel_m_per_rev": 0.17503902366637558,
+          "cancellation_condition": 1.023794328005524,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.16546697636374197,
+          "rolling_m_per_rev": 0.0055039099541896045,
+          "contact_stride_m_per_rev": 0.1709708863179316,
+          "absolute_contact_travel_m_per_rev": 0.17503902366637553,
+          "cancellation_condition": 1.0237943280055235,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.16618371806419888,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 5.9 mm",
+              "evidence": {
+                "opening_m": 0.005913403968179409,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.020656270294381107,
+            "point": 0.004331629888983501,
+            "sphere": 0.027999903122866487
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.16492891872150622,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.012949625913095897,
+            "point": 0.0032517524285506916,
+            "sphere": 0.03533916052344688
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.16496745789380718,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.01318632327622593,
+            "point": 0.003018840864274397,
+            "sphere": 0.03511374686892976
+          }
+        }
+      }
+    },
+    {
+      "case": 41,
+      "terrain": "slope",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.26266651362185894,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2754778611002463,
+          "rolling_m_per_rev": 0.0033256242582108716,
+          "contact_stride_m_per_rev": 0.27880348535845717,
+          "absolute_contact_travel_m_per_rev": 0.2788034853584572,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2754778611002463,
+          "rolling_m_per_rev": 0.0033256242582108716,
+          "contact_stride_m_per_rev": 0.27880348535845717,
+          "absolute_contact_travel_m_per_rev": 0.2788034853584572,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.248326320255886,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.054594676604332704,
+            "point": 0.09856160758588095,
+            "sphere": 0.10931414671300377
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.24785874526605814,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05637478547082109,
+            "point": 0.10025893087698101,
+            "sphere": 0.11099122398923178
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.24785824553482305,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.056376688002012454,
+            "point": 0.10026074492923587,
+            "sphere": 0.1109930164031051
+          }
+        }
+      }
+    },
+    {
+      "case": 42,
+      "terrain": "bumps",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2021543107481929,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2440996493469748,
+          "rolling_m_per_rev": 0.0050693677305552465,
+          "contact_stride_m_per_rev": 0.24916901707753006,
+          "absolute_contact_travel_m_per_rev": 0.24916901707753003,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2440996493469748,
+          "rolling_m_per_rev": 0.0050693677305552465,
+          "contact_stride_m_per_rev": 0.24916901707753006,
+          "absolute_contact_travel_m_per_rev": 0.24916901707753009,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.21865421968418758,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08162036651569249,
+            "point": 0.10424197548361858,
+            "sphere": 0.12246625905277642
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.21684342796986641,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07266289384237057,
+            "point": 0.11166022339657322,
+            "sphere": 0.12973358199508966
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.21682061574315953,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.07255004823139899,
+            "point": 0.11175367796223079,
+            "sphere": 0.12982513521857808
+          }
+        }
+      }
+    },
+    {
+      "case": 43,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.21710944888327124,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.21228685835085132,
+          "rolling_m_per_rev": -0.0006026795249252724,
+          "contact_stride_m_per_rev": 0.21168417882592605,
+          "absolute_contact_travel_m_per_rev": 0.21168417882592605,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.21228685835085132,
+          "rolling_m_per_rev": -0.0006026795249252724,
+          "contact_stride_m_per_rev": 0.21168417882592605,
+          "absolute_contact_travel_m_per_rev": 0.21168417882592605,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.16722761935080876,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.22975430037262645,
+            "point": 0.21225637493571137,
+            "sphere": 0.21001361425161202
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.16568571438549534,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.23685627116774566,
+            "point": 0.2195196835422436,
+            "sphere": 0.21729760200102888
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.16572211690350105,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.23668860219620635,
+            "point": 0.21934820557941304,
+            "sphere": 0.21712563582855626
+          }
+        }
+      }
+    },
+    {
+      "case": 44,
+      "terrain": "slope",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.27161489894409,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2713436271661492,
+          "rolling_m_per_rev": 0.005691096363496571,
+          "contact_stride_m_per_rev": 0.27703472352964575,
+          "absolute_contact_travel_m_per_rev": 0.27703472352964575,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2713436271661492,
+          "rolling_m_per_rev": 0.005691096363496571,
+          "contact_stride_m_per_rev": 0.27703472352964575,
+          "absolute_contact_travel_m_per_rev": 0.27703472352964575,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.24553763338430135,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09600822952336097,
+            "point": 0.0951044771213525,
+            "sphere": 0.11369365451393998
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.24468420404913183,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09915028593664033,
+            "point": 0.09824967475905844,
+            "sphere": 0.11677424067402897
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2446921070063866,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09912118975198514,
+            "point": 0.09822054948592296,
+            "sphere": 0.11674571371843978
+          }
+        }
+      }
+    },
+    {
+      "case": 45,
+      "terrain": "bumps",
+      "legs": 4,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2649246525766545,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.29906502540457025,
+          "rolling_m_per_rev": 0.0048295406606607555,
+          "contact_stride_m_per_rev": 0.303894566065231,
+          "absolute_contact_travel_m_per_rev": 0.303894566065231,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.29906502540457025,
+          "rolling_m_per_rev": 0.0048295406606607555,
+          "contact_stride_m_per_rev": 0.303894566065231,
+          "absolute_contact_travel_m_per_rev": 0.303894566065231,
+          "cancellation_condition": 1.0,
+          "support_intervals": 5,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2895904529692239,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09310496457264406,
+            "point": 0.03168064344043331,
+            "sphere": 0.04706932829110444
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2884585673144648,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08883248315670023,
+            "point": 0.03546539109933444,
+            "sphere": 0.05079392813971173
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.28845837817885145,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08883176923441516,
+            "point": 0.035466023522377155,
+            "sphere": 0.050794550512187175
+          }
+        }
+      }
+    },
+    {
+      "case": 46,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25676922219620824,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2356771138562201,
+          "rolling_m_per_rev": 5.0099471918835894e-05,
+          "contact_stride_m_per_rev": 0.23572721332813892,
+          "absolute_contact_travel_m_per_rev": 0.2357272133281389,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2356771138562201,
+          "rolling_m_per_rev": 5.0099471918835894e-05,
+          "contact_stride_m_per_rev": 0.23572721332813892,
+          "absolute_contact_travel_m_per_rev": 0.2357272133281389,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.20762616971860562,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.19138996511057826,
+            "point": 0.11902277518014559,
+            "sphere": 0.11921001064232606
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2061391104340345,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.19718138852126577,
+            "point": 0.12533250657594985,
+            "sphere": 0.12551840102108602
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.20612682196437365,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.19722924655329832,
+            "point": 0.12538464770013358,
+            "sphere": 0.12557053106363536
+          }
+        }
+      }
+    },
+    {
+      "case": 47,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25641423030287075,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.28934117035808526,
+          "rolling_m_per_rev": 0.0039399277440423895,
+          "contact_stride_m_per_rev": 0.29328109810212766,
+          "absolute_contact_travel_m_per_rev": 0.2932810981021276,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 25,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.28934117035808504,
+          "rolling_m_per_rev": 0.003939927744042382,
+          "contact_stride_m_per_rev": 0.29328109810212744,
+          "absolute_contact_travel_m_per_rev": 0.29328109810212744,
+          "cancellation_condition": 1.0,
+          "support_intervals": 25,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2773561508952353,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08167222453928713,
+            "point": 0.041421756357787665,
+            "sphere": 0.05429926207295732
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2776163476674358,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08268697622406362,
+            "point": 0.040522483116173014,
+            "sphere": 0.05341206963578937
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2776144238869744,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08267947359654126,
+            "point": 0.040529131946890895,
+            "sphere": 0.05341862914635409
+          }
+        }
+      }
+    },
+    {
+      "case": 48,
+      "terrain": "bumps",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25006559105673687,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2528941519328459,
+          "rolling_m_per_rev": 0.0009066893609809396,
+          "contact_stride_m_per_rev": 0.25380084129382685,
+          "absolute_contact_travel_m_per_rev": 0.25380084129382685,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2528941519328459,
+          "rolling_m_per_rev": 0.0009066893609809396,
+          "contact_stride_m_per_rev": 0.25380084129382685,
+          "absolute_contact_travel_m_per_rev": 0.25380084129382685,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2585128197622276,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.033780052144695816,
+            "point": 0.0222174684010632,
+            "sphere": 0.01856565346426753
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2576955036153834,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.030511645070414373,
+            "point": 0.018985617681710698,
+            "sphere": 0.015345348351496035
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.257690743774753,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03049261070182996,
+            "point": 0.01896679620800712,
+            "sphere": 0.015326594116458203
+          }
+        }
+      }
+    },
+    {
+      "case": 49,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25050946661985823,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2588477124346505,
+          "rolling_m_per_rev": 0.0007989634096334051,
+          "contact_stride_m_per_rev": 0.2596466758442839,
+          "absolute_contact_travel_m_per_rev": 0.2596466758442839,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2588477124346505,
+          "rolling_m_per_rev": 0.0007989634096334051,
+          "contact_stride_m_per_rev": 0.2596466758442839,
+          "absolute_contact_travel_m_per_rev": 0.2596466758442839,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2610608558057886,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.04211972237337358,
+            "point": 0.008549982344143059,
+            "sphere": 0.0054465552347482404
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.26033894434384797,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.039237949194573574,
+            "point": 0.005761039551678282,
+            "sphere": 0.002666194347811457
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.26033932716029334,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03923947734618616,
+            "point": 0.005762518477034684,
+            "sphere": 0.002667668722340366
+          }
+        }
+      }
+    },
+    {
+      "case": 50,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.22190402790699693,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.21429768582612607,
+          "rolling_m_per_rev": -0.00047579689799229555,
+          "contact_stride_m_per_rev": 0.21382188892813378,
+          "absolute_contact_travel_m_per_rev": 0.21382188892813384,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.21429768582612607,
+          "rolling_m_per_rev": -0.00047579689799229555,
+          "contact_stride_m_per_rev": 0.21382188892813378,
+          "absolute_contact_travel_m_per_rev": 0.21382188892813384,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.21618916700527468,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.025753750193833413,
+            "point": 0.008826419062141877,
+            "sphere": 0.011071261642144448
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.21479847400789745,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03202084237099789,
+            "point": 0.0023368809599637608,
+            "sphere": 0.004567283006708056
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.21482778475583092,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.031888754872587355,
+            "point": 0.002473656809037772,
+            "sphere": 0.004704363209676821
+          }
+        }
+      }
+    },
+    {
+      "case": 51,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.21835771695438366,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": -0.26644413793231303,
+          "rolling_m_per_rev": -0.0027978885256628953,
+          "contact_stride_m_per_rev": -0.2692420264579759,
+          "absolute_contact_travel_m_per_rev": 0.2718715358502932,
+          "cancellation_condition": 1.0097663408157707,
+          "support_intervals": 13,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": -0.26644413793231325,
+          "rolling_m_per_rev": -0.002797888525662896,
+          "contact_stride_m_per_rev": -0.2692420264579761,
+          "absolute_contact_travel_m_per_rev": 0.27187153585029367,
+          "cancellation_condition": 1.0097663408157713,
+          "support_intervals": 13,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": -0.2620153848310589,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 5.2 mm",
+              "evidence": {
+                "opening_m": 0.005202771419206442,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 2.1999364551232947,
+            "point": 0.016621694647226293,
+            "sphere": 0.02684068947923024
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": -0.29744922702720605,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 2.362210739221757,
+            "point": 0.11636618968426782,
+            "sphere": 0.1047652216123569
+          }
+        },
+        "half": {
+          "actual_m_per_rev": -0.2974144689355629,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 2.362051559632741,
+            "point": 0.11623573798090936,
+            "sphere": 0.10463612552694856
+          }
+        }
+      }
+    },
+    {
+      "case": 52,
+      "terrain": "bumps",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2609915706573515,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.26419054552822935,
+          "rolling_m_per_rev": 0.0009449741359261322,
+          "contact_stride_m_per_rev": 0.2651355196641555,
+          "absolute_contact_travel_m_per_rev": 0.26513551966415544,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.26419054552822935,
+          "rolling_m_per_rev": 0.0009449741359261327,
+          "contact_stride_m_per_rev": 0.2651355196641555,
+          "absolute_contact_travel_m_per_rev": 0.26513551966415544,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.2751538036550014,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05426318161149779,
+            "point": 0.04149754149926843,
+            "sphere": 0.037785521923037635
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.27540636163804394,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.055230867971660214,
+            "point": 0.042453510542511674,
+            "sphere": 0.038738083780318844
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.27540292583621423,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.05521770355481315,
+            "point": 0.04244050552818446,
+            "sphere": 0.03872512511739035
+          }
+        }
+      }
+    },
+    {
+      "case": 53,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.10541111577700392,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.10733254288198377,
+          "rolling_m_per_rev": -0.002813954719864871,
+          "contact_stride_m_per_rev": 0.1045185881621189,
+          "absolute_contact_travel_m_per_rev": 0.1045185881621189,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.10733254288198377,
+          "rolling_m_per_rev": -0.002813954719864871,
+          "contact_stride_m_per_rev": 0.1045185881621189,
+          "absolute_contact_travel_m_per_rev": 0.1045185881621189,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.12119162428016604,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.14970440628430137,
+            "point": 0.1291228272996463,
+            "sphere": 0.1595222095057922
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.11766188019328093,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11621890467598672,
+            "point": 0.09623677063772407,
+            "sphere": 0.12575076129784168
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.11768714256470218,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11645856034450919,
+            "point": 0.09647213607995564,
+            "sphere": 0.12599246348561
+          }
+        }
+      }
+    },
+    {
+      "case": 54,
+      "terrain": "slope",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.25223939961173686,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2517102180236833,
+          "rolling_m_per_rev": 0.0009049680263663879,
+          "contact_stride_m_per_rev": 0.25261518605004973,
+          "absolute_contact_travel_m_per_rev": 0.2526151860500497,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2517102180236833,
+          "rolling_m_per_rev": 0.0009049680263663879,
+          "contact_stride_m_per_rev": 0.25261518605004973,
+          "absolute_contact_travel_m_per_rev": 0.2526151860500497,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.20854343593964061,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.17323211099993052,
+            "point": 0.1714939600901746,
+            "sphere": 0.17446199810678575
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.20720993287955056,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.1785187674942874,
+            "point": 0.17679173095764333,
+            "sphere": 0.1797407902528203
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.20723660730300453,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.1784130170703051,
+            "point": 0.17668575820984067,
+            "sphere": 0.17963519714153098
+          }
+        }
+      }
+    },
+    {
+      "case": 55,
+      "terrain": "bumps",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2779362288498639,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.3013889908586145,
+          "rolling_m_per_rev": 0.003926710894746396,
+          "contact_stride_m_per_rev": 0.30531570175336087,
+          "absolute_contact_travel_m_per_rev": 0.30531570175336087,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.3013889908586145,
+          "rolling_m_per_rev": 0.003926710894746394,
+          "contact_stride_m_per_rev": 0.30531570175336087,
+          "absolute_contact_travel_m_per_rev": 0.30531570175336087,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.29519365947270165,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.062091331865051336,
+            "point": 0.020555931284229056,
+            "sphere": 0.03315270791030578
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.29501963400126296,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.06146519732995004,
+            "point": 0.02113334279134127,
+            "sphere": 0.03372269324168342
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.29501756715371186,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.061457760920671456,
+            "point": 0.021140200532047793,
+            "sphere": 0.03372946278396127
+          }
+        }
+      }
+    },
+    {
+      "case": 56,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.22422272316360317,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2585556528827565,
+          "rolling_m_per_rev": 0.0052861916344096645,
+          "contact_stride_m_per_rev": 0.2638418445171662,
+          "absolute_contact_travel_m_per_rev": 0.26384184451716625,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.25855565288275645,
+          "rolling_m_per_rev": 0.005286191634409665,
+          "contact_stride_m_per_rev": 0.26384184451716614,
+          "absolute_contact_travel_m_per_rev": 0.26384184451716614,
+          "cancellation_condition": 1.0,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.25772060162536203,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.14939555629835644,
+            "point": 0.0032296770466397895,
+            "sphere": 0.023200424871976044
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.25924190076214115,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 116% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.25924190076214115,
+                "nominal_m": 0.22422272316360317,
+                "ratio": 1.1561803242082043
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.15618032420820427,
+            "point": 0.002654159256366695,
+            "sphere": 0.017434473911607684
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.2593093965092766,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 116% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.2593093965092766,
+                "nominal_m": 0.22422272316360317,
+                "ratio": 1.15648134520279
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.15648134520279,
+            "point": 0.0029152084594412653,
+            "sphere": 0.01717865494832327
+          }
+        }
+      }
+    },
+    {
+      "case": 57,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.27041323420010166,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2758325418686448,
+          "rolling_m_per_rev": 0.0014746530403239502,
+          "contact_stride_m_per_rev": 0.27730719490896877,
+          "absolute_contact_travel_m_per_rev": 0.27730719490896877,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2758325418686448,
+          "rolling_m_per_rev": 0.0014746530403239489,
+          "contact_stride_m_per_rev": 0.27730719490896877,
+          "absolute_contact_travel_m_per_rev": 0.27730719490896877,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.27897573462214803,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.03166450209944327,
+            "point": 0.011395293434956821,
+            "sphere": 0.006016936249082949
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2779213371373636,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.02776529395638261,
+            "point": 0.007572693397842389,
+            "sphere": 0.002214663880597989
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.27791695551517254,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.027749090525348574,
+            "point": 0.007556808317128683,
+            "sphere": 0.002198863272927065
+          }
+        }
+      }
+    },
+    {
+      "case": 58,
+      "terrain": "flat",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2747851030590651,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2967991768839291,
+          "rolling_m_per_rev": 0.005348729769051264,
+          "contact_stride_m_per_rev": 0.30214790665298036,
+          "absolute_contact_travel_m_per_rev": 0.3021479066529804,
+          "cancellation_condition": 1.0000000000000002,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2967991768839291,
+          "rolling_m_per_rev": 0.005348729769051263,
+          "contact_stride_m_per_rev": 0.30214790665298036,
+          "absolute_contact_travel_m_per_rev": 0.30214790665298047,
+          "cancellation_condition": 1.0000000000000004,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.300051512729571,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 9.3 mm",
+              "evidence": {
+                "opening_m": 0.0092714949900774,
+                "limit_m": 0.005
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 0.09194970684082104,
+            "point": 0.010958035260703491,
+            "sphere": 0.006938303649467681
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2997374137672234,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09080663555038049,
+            "point": 0.009899747412181581,
+            "sphere": 0.007977857309881764
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.29977619574618913,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.0909477712179767,
+            "point": 0.010030414819594657,
+            "sphere": 0.007849503023415472
+          }
+        }
+      }
+    },
+    {
+      "case": 59,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2572819339645872,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.24495487510432193,
+          "rolling_m_per_rev": 0.0007196685008418039,
+          "contact_stride_m_per_rev": 0.24567454360516372,
+          "absolute_contact_travel_m_per_rev": 0.24567454360516372,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.24495487510432193,
+          "rolling_m_per_rev": 0.0007196685008418039,
+          "contact_stride_m_per_rev": 0.24567454360516372,
+          "absolute_contact_travel_m_per_rev": 0.24567454360516372,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.23383382315064286,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09113780533526228,
+            "point": 0.04540041078563073,
+            "sphere": 0.04819677399523614
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.23239124281961085,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09674480738473601,
+            "point": 0.051289578455462226,
+            "sphere": 0.054068690189168156
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.23238501566947897,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09676901098906965,
+            "point": 0.05131500007701284,
+            "sphere": 0.05409403734170781
+          }
+        }
+      }
+    },
+    {
+      "case": 60,
+      "terrain": "slope",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.17807111146969165,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.1770248481462655,
+          "rolling_m_per_rev": -0.0011349522710957375,
+          "contact_stride_m_per_rev": 0.1758898958751698,
+          "absolute_contact_travel_m_per_rev": 0.17588989587516976,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.1770248481462655,
+          "rolling_m_per_rev": -0.0011349522710957375,
+          "contact_stride_m_per_rev": 0.1758898958751698,
+          "absolute_contact_travel_m_per_rev": 0.17588989587516976,
+          "cancellation_condition": 0.9999999999999999,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.16296964307138131,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.08480582995002339,
+            "point": 0.07939679215694728,
+            "sphere": 0.07345648105311331
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.16128857478519223,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09424626232737288,
+            "point": 0.08889301996785948,
+            "sphere": 0.08301398450050934
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.161265779153323,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.09437427653293995,
+            "point": 0.0890217907709866,
+            "sphere": 0.08314358621387574
+          }
+        }
+      }
+    },
+    {
+      "case": 61,
+      "terrain": "flat",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.09984973343417684,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": -0.001721996744450123,
+          "rolling_m_per_rev": 0.004867607292225179,
+          "contact_stride_m_per_rev": 0.0031456105477750563,
+          "absolute_contact_travel_m_per_rev": 0.1561515115137142,
+          "cancellation_condition": 49.641082118116245,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": -0.001721996744450123,
+          "rolling_m_per_rev": 0.004867607292225179,
+          "contact_stride_m_per_rev": 0.0031456105477750563,
+          "absolute_contact_travel_m_per_rev": 0.1561515115137142,
+          "cancellation_condition": 49.641082118116245,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": -0.005181803753769859,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 6.0 mm",
+              "evidence": {
+                "opening_m": 0.006003768256739761,
+                "limit_m": 0.005
+              }
+            },
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -5% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.005181803753769859,
+                "nominal_m": 0.09984973343417684,
+                "ratio": -0.05189601990460814
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.0518960199046081,
+            "point": 2.0091832464088304,
+            "sphere": 2.647312556678396
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": -0.0011186033131375419,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -1% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.0011186033131375419,
+                "nominal_m": 0.09984973343417684,
+                "ratio": -0.011202867295333842
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.011202867295334,
+            "point": 0.3504033519559643,
+            "sphere": 1.3556076940067323
+          }
+        },
+        "half": {
+          "actual_m_per_rev": -0.001073013541348356,
+          "stalled": false,
+          "original_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -1% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.001073013541348356,
+                "nominal_m": 0.09984973343417684,
+                "ratio": -0.010746283484629533
+              }
+            }
+          ],
+          "relative_errors": {
+            "legacy": 1.0107462834846295,
+            "point": 0.3768782985179242,
+            "sphere": 1.3411145547268453
+          }
+        }
+      }
+    },
+    {
+      "case": 62,
+      "terrain": "slope",
+      "legs": 6,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.30854401412498955,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.32032745856811995,
+          "rolling_m_per_rev": 0.006265503575805676,
+          "contact_stride_m_per_rev": 0.32659296214392564,
+          "absolute_contact_travel_m_per_rev": 0.32659296214392564,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.32032745856811995,
+          "rolling_m_per_rev": 0.006265503575805676,
+          "contact_stride_m_per_rev": 0.32659296214392564,
+          "absolute_contact_travel_m_per_rev": 0.32659296214392564,
+          "cancellation_condition": 1.0,
+          "support_intervals": 7,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.27154998681985215,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11989870362596411,
+            "point": 0.15227377623606042,
+            "sphere": 0.16853693038191286
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.2727105102462727,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.11613741391269028,
+            "point": 0.14865084790013772,
+            "sphere": 0.16498350590270094
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.27271170974105385,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.1161335263156984,
+            "point": 0.14864710331081488,
+            "sphere": 0.16497983315123288
+          }
+        }
+      }
+    },
+    {
+      "case": 63,
+      "terrain": "slope",
+      "legs": 8,
+      "direction": -1,
+      "legacy_nominal_m_per_rev": 0.2532377420822302,
+      "sphere_owner": {
+        "start": "N",
+        "end": "F",
+        "radius_m": 0.002,
+        "body": "bar0_F1"
+      },
+      "references": [
+        {
+          "brackets": 720,
+          "point_stride_m_per_rev": 0.2572532079281493,
+          "rolling_m_per_rev": 0.0009774643693152437,
+          "contact_stride_m_per_rev": 0.25823067229746455,
+          "absolute_contact_travel_m_per_rev": 0.2582306722974645,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        },
+        {
+          "brackets": 1440,
+          "point_stride_m_per_rev": 0.2572532079281493,
+          "rolling_m_per_rev": 0.0009774643693152437,
+          "contact_stride_m_per_rev": 0.25823067229746455,
+          "absolute_contact_travel_m_per_rev": 0.2582306722974645,
+          "cancellation_condition": 0.9999999999999998,
+          "support_intervals": 9,
+          "radius_m": 0.002,
+          "inference_limit": "Geometry-only prediction with explicit ideal assumptions; not an automatic replacement audit gate."
+        }
+      ],
+      "comparisons": {
+        "default": {
+          "actual_m_per_rev": 0.22871635441963734,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.0968314891017722,
+            "point": 0.11092904822583327,
+            "sphere": 0.1142943927428911
+          }
+        },
+        "strong": {
+          "actual_m_per_rev": 0.22767806701589768,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10093153909906882,
+            "point": 0.1149651005343807,
+            "sphere": 0.11831516763574967
+          }
+        },
+        "half": {
+          "actual_m_per_rev": 0.22767941467699712,
+          "stalled": false,
+          "original_findings": [],
+          "relative_errors": {
+            "legacy": 0.10092621737613627,
+            "point": 0.11495986187823226,
+            "sphere": 0.1183099488091578
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "default": {
+      "flat_nonstalled": 30,
+      "legacy_exceeds_original_15pct": [
+        20,
+        61
+      ],
+      "point_exceeds_original_15pct": [
+        61
+      ],
+      "sphere_exceeds_original_15pct": [
+        53,
+        61
+      ]
+    },
+    "strong": {
+      "flat_nonstalled": 30,
+      "legacy_exceeds_original_15pct": [
+        20,
+        56,
+        61
+      ],
+      "point_exceeds_original_15pct": [
+        61
+      ],
+      "sphere_exceeds_original_15pct": [
+        61
+      ]
+    },
+    "half": {
+      "flat_nonstalled": 30,
+      "legacy_exceeds_original_15pct": [
+        20,
+        56,
+        61
+      ],
+      "point_exceeds_original_15pct": [
+        61
+      ],
+      "sphere_exceeds_original_15pct": [
+        61
+      ]
+    }
+  },
+  "wall_s": 4.40877487504622
+}

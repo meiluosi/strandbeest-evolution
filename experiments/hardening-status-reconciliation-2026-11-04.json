@@ -1,0 +1,222 @@
+{
+  "created_utc": "2026-11-03T19:10:50.353849+00:00",
+  "local_date": "2026-11-04",
+  "task": "H0-01",
+  "status": "accepted_documentation_scope_only",
+  "goal_completed": false,
+  "published": false,
+  "worktree_changes_uncommitted": true,
+  "card_counts": {
+    "accepted": 9,
+    "in_progress": 3,
+    "not_started": 5
+  },
+  "cards": {
+    "H0-01": {
+      "status": "accepted",
+      "record": "✅ 2026-11-04：ARCHITECTURE逐卡台账、EXPERIMENTS §58；同步能量修正后10/4/4、Rust/K2实际范围、公开数据候选与剩余目标；当前源码指纹和常规检查可复核"
+    },
+    "H1-01": {
+      "status": "accepted",
+      "record": "✅ 2026-11-03：EXPERIMENTS §45；会话隔离/真实WS对照及回注旧错误检查通过；统一DoD通过。参数回滚仍在H1-05"
+    },
+    "H1-02": {
+      "status": "accepted",
+      "record": "✅ 2026-11-03：EXPERIMENTS §45；18个新回归+真实浏览器200次演化/切片/加载/中英通过；持续浏览器回归框架仍在H5-01"
+    },
+    "H1-03": {
+      "status": "accepted",
+      "record": "✅ 2026-11-04：EXPERIMENTS §55；物理映射/工况、源文档保留、重启出处与实际回写通过；922项Python、364项JS、2项相关慢测试及整套浏览器20过/12项模式不适用跳过。实测验证仍属H3/H4"
+    },
+    "H1-04": {
+      "status": "accepted",
+      "record": "✅ 2026-11-03：EXPERIMENTS §45；全新venv安装、Rust对拍、API容器HTTP演化/Arrow及Web容器构建通过；CI已接线，未远端执行"
+    },
+    "H1-05": {
+      "status": "accepted",
+      "record": "✅ 2026-11-03：EXPERIMENTS §47/§49；定向/WS/旧错误回注通过，完整常规检查及全部适用慢测试通过"
+    },
+    "H1-06": {
+      "status": "accepted",
+      "record": "✅ 2026-11-04：EXPERIMENTS §53；实现清单/版本2键、五次独立进程重启与同标签源码变化、旧记录兼容及运行中变化检查通过；364项JS、881项Python及API慢测试通过"
+    },
+    "H2-01": {
+      "status": "in_progress",
+      "record": "▶ EXPERIMENTS §48/§54：三组全64仍为10/4/4失败；六个固定案例复跑一致，滑移/有限足端/近零净步幅问题已量化；原G1门槛/默认未改，未验收"
+    },
+    "H2-02": {
+      "status": "not_started",
+      "record": "⬜"
+    },
+    "H3-01": {
+      "status": "accepted",
+      "record": "✅ 2026-11-03：EXPERIMENTS §49/§51；双端业务接入、共享/边界语料、性能/构建成本、ADR及常规/慢/容器检查通过。后续浏览器验收见§56，独立于本卡内核验收"
+    },
+    "H3-02": {
+      "status": "not_started",
+      "record": "⬜"
+    },
+    "H3-03": {
+      "status": "in_progress",
+      "record": "▶ 2026-11-04：实际MuJoCo前向、合成追踪往返、原生灵敏度与独立留出诊断已接入；六案例中保留不可辨识/代理失准结果。真实视频、材料柔度与外部动力学验证仍缺（EXPERIMENTS §55）"
+    },
+    "H3-04": {
+      "status": "not_started",
+      "record": "⬜"
+    },
+    "H3-05": {
+      "status": "not_started",
+      "record": "⬜"
+    },
+    "H4-01": {
+      "status": "in_progress",
+      "record": "▶ EXPERIMENTS §46/§55/§57及RESEARCH-NOTES：四连杆原始数据、社区风扇实验和Ingram走兽论文已筛查；仍缺适用的标定、误差或原始记录，动力学/起步独立验证未完成"
+    },
+    "H5-01": {
+      "status": "accepted",
+      "record": "✅ 2026-11-04：EXPERIMENTS §56；整套20过/12项模式不适用跳过、图鉴重复8/8、三种真实视觉改动均检出。每包18网格及3个制造错误对照通过；常规922项Python/364项JS通过。图鉴颜色容差0.03，其余仍0，基准PNG未改"
+    },
+    "H5-02": {
+      "status": "not_started",
+      "record": "⬜"
+    }
+  },
+  "prior_evidence_sha256": {
+    "hardening-h1-validation-2026-11-03.json": "833d625e2ead9c2b4d4d5218b51cd488704ea2f9283d562e724dff84be240b1f",
+    "hardening-h2-h3-validation-2026-11-03.json": "873a2546eae41a11166a48126a5f7fcb563e8fdf62340735cba9e56b07f336b9",
+    "hardening-g1-energy-v2-summary-2026-11-03.json": "9929e5ae266b13d22f096871ead06bdb7ef47fa336d7faf3e130a3d8d98740d5",
+    "hardening-g1-contact-diagnostic-2026-11-04.json": "38fede80c20ed8140f215e6fc3092bdcc34ae55855c70ce175bc98e46061dc17",
+    "hardening-cache-validation-2026-11-04.json": "e20f5735fb1ec7f5f715a4c3092ebbebcbcb4bd634e16e34a157d86b92bb5be0",
+    "hardening-h3-kernel-2026-11-03.json": "6a67871612ead14470ddcb7a92a031b04d69cbd7ef0cd6014add777afb440376",
+    "hardening-calibration-validation-2026-11-04.json": "82ab660be3d8e0e715647d53ff046f03510760ecede50080a1b515440c030c3d",
+    "hardening-browser-validation-2026-11-04.json": "9904ad185b0a74c65523ed95f828a6276b26e005f00b60cc4a7234b8939f70e2",
+    "external-fourbar-source-review-2026-11-03.json": "9112b3f2e081f6c5c5af972996c1495266ff973783d95088d09a0b3fe941428a",
+    "external-ingram-source-review-2026-11-04.json": "76d2bdf265de850703128bd6aa0e5b24ce69a94515a13c659c2551d0dc21c613"
+  },
+  "source_manifest_rechecks": [
+    {
+      "manifest": "experiments/hardening-calibration-validation-2026-11-04.json",
+      "source_files": 41,
+      "mismatches": []
+    },
+    {
+      "manifest": "experiments/hardening-browser-validation-2026-11-04.json",
+      "source_files": 9,
+      "mismatches": []
+    }
+  ],
+  "source_checkpoint": {
+    "path": "/tmp/beest-calibration-browser-checkpoint-2026-11-04.tar.gz",
+    "sha256": "96394c53e1440b6cf8a38b89f9a80a83bd6528c728bd148757769a749b770ea3",
+    "bytes": 10241205,
+    "file_count": 567,
+    "unchanged_files": 556,
+    "changed_markdown_only": [
+      "AGENTS.md",
+      "contracts/README.md",
+      "docs/ACTIONS.md",
+      "docs/ARCHITECTURE.md",
+      "docs/EXPERIMENTS.md",
+      "docs/REPORT.md",
+      "docs/RESEARCH-NOTES.md",
+      "docs/ROADMAP.md",
+      "docs/VALIDATION.md",
+      "docs/adr/0010-k2-independent-solver.md",
+      "docs/adr/README.md"
+    ],
+    "interpretation": "Prior implementation/tests/baselines remain byte-identical; this archive predates the prose reconciliation."
+  },
+  "documents_sha256": {
+    "AGENTS.md": "d2ac44fbd1283cb16b37ef69672b085989a512571c656ec48d8c52e22664d4d5",
+    "contracts/README.md": "9f13fa73498508f612a33be451fe76eeb99856290abb6a14353331e1cf5f71ac",
+    "docs/ACTIONS.md": "aa72a7575f8f5e2c1da111f0c9a658b0f55136857ed2bdf987995f4712fdd76a",
+    "docs/ARCHITECTURE.md": "0ff8223e4125193c2a2f2caf28c393954e686ef4ff1e19d427400e664c10f4e0",
+    "docs/EXPERIMENTS.md": "81127a0bb883116426743b25c1c9f861146b3c1b10fc423970ba32cf595e4ff9",
+    "docs/REPORT.md": "205e802db6b819db924b7905918b205e5a7315c252d6c7db544497452ef6118e",
+    "docs/RESEARCH-NOTES.md": "280898b3c2aaf56514876258abd2ab92c45ddbce84801e552bbd3f7dba3d31f2",
+    "docs/ROADMAP.md": "9f46d6662c679212134a769f57cac05f0fe4813bb27064993f5cdfd81e1bf92b",
+    "docs/VALIDATION.md": "79456da4f4e75e95e820ff3a8c73c653ebb17d3fd3b6793292595d0076178302",
+    "docs/adr/README.md": "ec4df6e40905f8f362912b6cb7e64af7f377c2add93abdf25291ef38bab9fbde",
+    "docs/adr/0010-k2-independent-solver.md": "7ba6865d7a21b5c7cdb7d92a2f557ec027eabdd645add8228c4fe896a40d1774"
+  },
+  "reviewed_code_sha256": {
+    "packages/sim/src/strandbeest_sim/backends/k2_backend.py": "d2be700e7affe0c5cacea091a3e1cb222cb4037a392782bdebcbd68c0833261f",
+    "packages/sim/src/strandbeest_sim/runner.py": "eb87b9aa6a3cb791204fbed0606b9ecec2133db6c0a723db608de78a68640c77",
+    "packages/sim/src/strandbeest_sim/drives.py": "b91d2465c92dfeeaa7cb7ca2e6a2bae4aa42347fe8023ea4b3a5f0f423884c65",
+    "apps/web-demo/src/digital-beach-sim.ts": "c55535a75a0234abf3c40152287946e6debcbd2b6ec8eb58842c2c65c0eacd7b",
+    "apps/api/src/strandbeest_api/app.py": "b5b7ff42716f84df146dffcc5a6451fc266d8d4338120cacbb659a50354d0161"
+  },
+  "prior_checks_reused_without_rerun": {
+    "pnpm_check": {
+      "exit_code": 0,
+      "tests": 364,
+      "svelte_errors": 0,
+      "svelte_warnings": 0,
+      "log_sha256": "9f7d2ffd81be2bcb947e69865ad358591aa1d273195cf23d564e72e05d823895"
+    },
+    "python_check": {
+      "exit_code": 0,
+      "tests": 922,
+      "package_counts": {
+        "common": 246,
+        "sim": 262,
+        "fab": 21,
+        "calib": 81,
+        "rig": 32,
+        "agent": 16,
+        "opt": 197,
+        "api": 67
+      },
+      "repository_checks_and_firmware_passed": true,
+      "log_sha256": "def7f92ab04b3cfaa74e57e6ffcd0d3608d1f8f7cd5755a46f823a4e4d5c8a5f"
+    },
+    "affected_slow": {
+      "exit_code": 0,
+      "passed": 2,
+      "deselected": 148,
+      "not_all_repository_slow_tests": true,
+      "log_sha256": "aa476b11d4745e5f1eb17a01641b4670a07fdcb3cdb756042bded3278b0feb20"
+    },
+    "full_browser": {
+      "exit_code": 0,
+      "passed": 20,
+      "mode_inapplicable_skipped": 12,
+      "failures": 0,
+      "junit_sha256": "911257b8038b9aa79b89cdcc50e1e59e48054f49e5e49f70196d746f2703ff70"
+    }
+  },
+  "checks": {
+    "initial_document_reference_check": {
+      "broken": 2,
+      "reason": "status record referenced before it was written"
+    },
+    "final_document_reference_check": {
+      "command": [
+        ".venv/bin/python",
+        "scripts/check_doc_refs.py",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "output": "0 broken reference(s) in 48 document(s)\n"
+    },
+    "diff_check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "output": ""
+    }
+  },
+  "new_findings": [
+    "K2 design text described an unimplemented configuration-dependent full link inertia matrix and separate static/kinetic friction coefficients.",
+    "K2 has no browser implementation; shared Rust kinematics is not independent solver evidence."
+  ],
+  "limits": [
+    "Documentation reconciliation does not close the original 64-case gate (10/4/4 failures).",
+    "No new physical model fit or held-out validation; public sources remain candidates.",
+    "Pneumatic coupling, real-data beach, multiplayer and full performance budgets remain incomplete.",
+    "No fresh all-repository slow-test run or remote CI execution."
+  ]
+}

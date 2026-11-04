@@ -1,0 +1,39 @@
+{
+  "created_utc": "2026-11-04T08:15:48.977613+00:00",
+  "decision": "ADR-0012 accepted explicitly by user in this chat",
+  "inputs": [
+    {
+      "name": "default",
+      "path": "experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json",
+      "sha256": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0",
+      "original_failed_cases": 10
+    },
+    {
+      "name": "strong",
+      "path": "experiments/hardening-g1-audit-energy-v3-solref05-2026-11-04.json",
+      "sha256": "f0efddd0bc54b5bd58928cd593f2a9c19a28890cd360b2c40d960b5745e00257",
+      "original_failed_cases": 3
+    },
+    {
+      "name": "half",
+      "path": "experiments/hardening-g1-audit-energy-v3-solref05-dt005-2026-11-04.json",
+      "sha256": "227b372d41446a6ffad242325652727a2426c96880e11697db261de7645019a8",
+      "original_failed_cases": 3
+    }
+  ],
+  "corpus": {
+    "n": 64,
+    "seed": 1,
+    "cases": "all 0..63 in every cohort"
+  },
+  "thresholds": {
+    "energy_residual": 0.02,
+    "loop_open_m": 0.005,
+    "penetration_m": 0.005,
+    "stride_relative": 0.15
+  },
+  "dynamics_rerun": false,
+  "retune_physical_parameters": false,
+  "missing_applicability_is_pass": false,
+  "scope": "Post-hoc current/legacy comparison of immutable historical metrics. Missing traces and independent dynamics stay unverified."
+}

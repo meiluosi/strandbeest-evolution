@@ -1,0 +1,124 @@
+{
+  "created_utc": "2026-11-04T09:38:02.311447+00:00",
+  "source_path": "experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json",
+  "source_sha256": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0",
+  "seed": 1,
+  "original_cases": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+  ],
+  "diagnostic_cases": [
+    20,
+    53,
+    56,
+    61
+  ],
+  "stages": {
+    "diagnostic": {
+      "timestep_s": 0.0001,
+      "max_time_s": 30.0
+    },
+    "coarse": {
+      "timestep_s": 0.0005,
+      "max_time_s": 30.0
+    },
+    "cohort": {
+      "timestep_s": 0.0001,
+      "max_time_s": 600.0
+    }
+  },
+  "run_full_cohort_if": "All four diagnostic cases complete without execution errors; energy failure is preserved and does not exclude cases",
+  "thresholds": {
+    "energy_residual": 0.02,
+    "loop_open_m": 0.005,
+    "penetration_m": 0.005,
+    "stride_relative": 0.15
+  },
+  "physical_parameters_retuned": false,
+  "numerical_error_offsets_audit": false,
+  "independent_dynamics_acceptance_inferred": false,
+  "input_and_motion_comparison": "Compare diagnostic and coarse runs to immutable final-quintic baselines, all non-energy arrays and original Scenario fields must be identical",
+  "checks": [
+    "Signed external work, normal/tangent impulse transfer, applied joint friction and gravity integration defect",
+    "Analytic impacts, sticking, sliding, braking, gravity and relative-motor virtual work",
+    "Raw snapshot restores body forces, load history, inertial configuration and work",
+    "Optional diagnostics survive storage/replay and cannot cancel an energy failure",
+    "Original full 64 cases retained; failures and unverified cases are not passes"
+  ],
+  "prior_checkpoint": {
+    "path": "experiments/hardening-k2-contract-validation-2026-11-04.json",
+    "sha256": "e56367ffdb3fd53aa18163c468d11a82689f25af22709b22de6bf70ae5b65b5e"
+  },
+  "baselines": [
+    {
+      "path": "/tmp/beest-k2-contract-2026-11-04/quintic/fixed-requested.json",
+      "sha256": "a029d53bb8d8b1b86bf1d0b449918b5645f33c3b0159605159e64c5f563cb4e8"
+    },
+    {
+      "path": "/tmp/beest-k2-contract-2026-11-04/quintic/fixed-dt500us.json",
+      "sha256": "df1370177741dab5bf42e4b2adae41717560b0da56cf2c51c9b72cc771d14049"
+    }
+  ]
+}

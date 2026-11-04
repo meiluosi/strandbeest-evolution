@@ -1,0 +1,675 @@
+{
+	"date": "2026-11-03",
+	"reason": "Synchronize browser builder with existing Python named torso geometry and body-body collision masks; no other MJCF or metadata changes.",
+	"old_source_sha256": "33bcb23383885a5279b7a2fa614b5760ed76740446ee0e0e2e14a325f052bb67",
+	"new_source_sha256": "a9615bf781196d7fe33565cc21536566531899abb3f8d27453cb8243f5e0d2c9",
+	"unchanged_case_count": 1,
+	"changes": [
+		{
+			"case": "scene-flat",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-slope",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-step",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-bumps",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-wind",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-gusts",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-mars",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-titan",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-venus",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "scene-moon",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-legs12",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-legs5",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-legs1",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-longcrank",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-petg-scaled",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-sail",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "design-fourbar",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-slope",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-step-defaults",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-step-params",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-bumps-seed17",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-bumps-defaults",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-soft",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-ramp-defaults",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-ramp-params",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-sand-defaults",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "terrain-sand-params",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "solver-no-contact-stiffness",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "solver-options",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "solver-tiny-timestep",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "walker-pitch-free",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "walker-pin-loss",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "walker-total-mass",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "drive-no-torque-limit",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "drive-torque-limit",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "environment-gravity",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		},
+		{
+			"case": "linkage-param-override",
+			"element": "worldbody/body[name=torso]/geom",
+			"changed_attributes": {
+				"name": {
+					"old": null,
+					"new": "torso_geom"
+				},
+				"contype": {
+					"old": "0",
+					"new": "4"
+				},
+				"conaffinity": {
+					"old": "0",
+					"new": "4"
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,312 @@
+{
+  "created_utc": "2026-11-03T18:52:17.265013+00:00",
+  "local_date": "2026-11-04",
+  "base_commit": "44581a1815641142ab7a6d070ae11125cd33f60a",
+  "worktree_changes_uncommitted": true,
+  "completed_task": "H1-03",
+  "scope": "Physical mapping, conditions, Measurement retention and Profile application; H3-03/H4 physical validation remain open",
+  "checks": {
+    "pnpm_check": {
+      "exit_code": 0,
+      "tests": 364,
+      "svelte_errors": 0,
+      "svelte_warnings": 0,
+      "log_sha256": "9f7d2ffd81be2bcb947e69865ad358591aa1d273195cf23d564e72e05d823895"
+    },
+    "python_check": {
+      "exit_code": 0,
+      "tests": 922,
+      "package_counts": {
+        "common": 246,
+        "sim": 262,
+        "fab": 21,
+        "calib": 81,
+        "rig": 32,
+        "agent": 16,
+        "opt": 197,
+        "api": 67
+      },
+      "repository_checks_and_firmware_passed": true,
+      "log_sha256": "def7f92ab04b3cfaa74e57e6ffcd0d3608d1f8f7cd5755a46f823a4e4d5c8a5f"
+    },
+    "affected_slow": {
+      "exit_code": 0,
+      "passed": 2,
+      "deselected": 148,
+      "not_all_repository_slow_tests": true,
+      "log_sha256": "aa476b11d4745e5f1eb17a01641b4670a07fdcb3cdb756042bded3278b0feb20"
+    },
+    "full_browser": {
+      "exit_code": 0,
+      "passed": 20,
+      "mode_inapplicable_skipped": 12,
+      "failures": 0,
+      "junit_sha256": "911257b8038b9aa79b89cdcc50e1e59e48054f49e5e49f70196d746f2703ff70",
+      "cases": [
+        {
+          "name": "measurement import preserves provenance, calibration applies to a real run",
+          "seconds": 44.781,
+          "skipped": false
+        },
+        {
+          "name": "manufacturing previews real parts and downloads a verifiable local pack",
+          "seconds": 4.079,
+          "skipped": false
+        },
+        {
+          "name": "atlas slices, locale switching and invalid import @visual",
+          "seconds": 4.8,
+          "skipped": false
+        },
+        {
+          "name": "evolves the current design through the real API and loads its elite",
+          "seconds": 5.694,
+          "skipped": false
+        },
+        {
+          "name": "saves a design, simulates it and replays real telemetry",
+          "seconds": 11.008,
+          "skipped": false
+        },
+        {
+          "name": "backend failures are visible and preserve the atlas",
+          "seconds": 3.72,
+          "skipped": false
+        },
+        {
+          "name": "GA worker uses Rust WASM and exposes an initialization failure",
+          "seconds": 4.408,
+          "skipped": false
+        },
+        {
+          "name": "static mode plays the baked scene without backend requests @visual",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "measurement import preserves provenance, calibration applies to a real run",
+          "seconds": 46.391,
+          "skipped": false
+        },
+        {
+          "name": "manufacturing previews real parts and downloads a verifiable local pack",
+          "seconds": 5.828,
+          "skipped": false
+        },
+        {
+          "name": "atlas slices, locale switching and invalid import @visual",
+          "seconds": 6.305,
+          "skipped": false
+        },
+        {
+          "name": "evolves the current design through the real API and loads its elite",
+          "seconds": 7.341,
+          "skipped": false
+        },
+        {
+          "name": "saves a design, simulates it and replays real telemetry",
+          "seconds": 9.894,
+          "skipped": false
+        },
+        {
+          "name": "backend failures are visible and preserve the atlas",
+          "seconds": 6.273,
+          "skipped": false
+        },
+        {
+          "name": "GA worker uses Rust WASM and exposes an initialization failure",
+          "seconds": 5.998,
+          "skipped": false
+        },
+        {
+          "name": "static mode plays the baked scene without backend requests @visual",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "measurement import preserves provenance, calibration applies to a real run",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "manufacturing previews real parts and downloads a verifiable local pack",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "atlas slices, locale switching and invalid import @visual",
+          "seconds": 5.903,
+          "skipped": false
+        },
+        {
+          "name": "evolves the current design through the real API and loads its elite",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "saves a design, simulates it and replays real telemetry",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "backend failures are visible and preserve the atlas",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "GA worker uses Rust WASM and exposes an initialization failure",
+          "seconds": 4.364,
+          "skipped": false
+        },
+        {
+          "name": "static mode plays the baked scene without backend requests @visual",
+          "seconds": 14.336,
+          "skipped": false
+        },
+        {
+          "name": "measurement import preserves provenance, calibration applies to a real run",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "manufacturing previews real parts and downloads a verifiable local pack",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "atlas slices, locale switching and invalid import @visual",
+          "seconds": 5.353,
+          "skipped": false
+        },
+        {
+          "name": "evolves the current design through the real API and loads its elite",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "saves a design, simulates it and replays real telemetry",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "backend failures are visible and preserve the atlas",
+          "seconds": 0.0,
+          "skipped": true
+        },
+        {
+          "name": "GA worker uses Rust WASM and exposes an initialization failure",
+          "seconds": 4.014,
+          "skipped": false
+        },
+        {
+          "name": "static mode plays the baked scene without backend requests @visual",
+          "seconds": 12.827,
+          "skipped": false
+        }
+      ]
+    }
+  },
+  "parameter_mapping_version": "beest-physical-v1",
+  "backend": "mujoco",
+  "supported_parameters": [
+    "friction",
+    "contact_stiffness",
+    "pin_friction",
+    "sand_resistance",
+    "leg_mass_per_m"
+  ],
+  "unsupported": [
+    "bar_flexibility",
+    "legacy toy aliases",
+    "conflicting or inactive contact models",
+    "sloped sand not expressible by backend"
+  ],
+  "studies": [
+    {
+      "path": "experiments/hardening-physical-calibration-study-2026-11-04.json",
+      "sha256": "15cebaa376d7422217a3289bfc33bca6b2efd1c4b0bcb69f3c3bca6dc7a61bce",
+      "bytes": 1057925
+    },
+    {
+      "path": "experiments/hardening-physical-calibration-study-verified-2026-11-04.json",
+      "sha256": "5e84b68704d5479d43e070c4ef5f4a59e8598c7fb0a4d61ad8219e471379d9ec",
+      "bytes": 1057926
+    }
+  ],
+  "annotation_only_repeat": [
+    {
+      "case": "pin-low-noise",
+      "identical_estimate_uncertainty_and_diagnostics": true
+    },
+    {
+      "case": "pin-video-scale-noise",
+      "identical_estimate_uncertainty_and_diagnostics": true
+    },
+    {
+      "case": "contact",
+      "identical_estimate_uncertainty_and_diagnostics": true
+    },
+    {
+      "case": "sand",
+      "identical_estimate_uncertainty_and_diagnostics": true
+    },
+    {
+      "case": "friction",
+      "identical_estimate_uncertainty_and_diagnostics": true
+    },
+    {
+      "case": "pin-contact",
+      "identical_estimate_uncertainty_and_diagnostics": true
+    }
+  ],
+  "source_sha256": {
+    "apps/api/src/strandbeest_api/__init__.py": "5abaf4212df43f25dcd2e0cef8da2b25a97b6756bdfe28f38f172d64f7c22a3e",
+    "apps/api/src/strandbeest_api/app.py": "b5b7ff42716f84df146dffcc5a6451fc266d8d4338120cacbb659a50354d0161",
+    "apps/api/src/strandbeest_api/execution.py": "488099913de4132f575a7ae5ee4b5f08c3daf6d5c6f3e3a9885a830370f0a17a",
+    "apps/api/src/strandbeest_api/jobs.py": "94aefac0b41f2ce1cfc7d8a763599f0e560d8c2144ad1bb40e15466f20bb8fd1",
+    "apps/api/src/strandbeest_api/pipeline.py": "0b3220b5586a31513d72bbffa4ecf86103edffb895cadc91274b2107274ad35d",
+    "apps/api/src/strandbeest_api/sweeps.py": "d9761c025a867825d5ed9a6694a440cc0e4aef16761356cc9fe15c22970e5f82",
+    "apps/api/tests/test_calibration_application.py": "bfed41fa2de579051cf4afa2143dc6615c4a8fa8e0588befeeaeda921f791cf7",
+    "apps/web-demo/src/LabTab.svelte": "38bcddb794b54135cb2723aadc056598a08462ca3696e40823c75e229978b543",
+    "apps/web-demo/src/api.ts": "95f6c9c4633db1cd17e2da75ba4b1e62abf5839e0f730fdc1c8889d509bf0fae",
+    "apps/web-demo/src/i18n/en.json": "49bdee614efa7110f0d815fd3a3622c764d8b2b57041db3572ec689fbe2ccff4",
+    "apps/web-demo/src/i18n/zh.json": "8e1bace7019b5fdafd7ef2c6df609d7442386a4a9266146fe8b4580b37860bcd",
+    "packages/calib/scripts/bayes_study.py": "035c412218549e14507a15cef454041a417566062258c76cbc9022c01d01372f",
+    "packages/calib/scripts/validate_physical_calibration.py": "622cbaaf79c41a7c2ae5c359de4222780c631a783b09ba256ba06e9e1c10a618",
+    "packages/calib/src/strandbeest_calib/__init__.py": "509f721a218ae3c4af9bc85c3ced5e17336cc9ea2e34bae117fcf55183267612",
+    "packages/calib/src/strandbeest_calib/bayes.py": "a7116d6526edf846c8b0a6b09591e3aef73d6efc704968a203fbf0317597d167",
+    "packages/calib/src/strandbeest_calib/bayes_job.py": "219436d64b29e37545c554abf003f4eb7f1926cdea197062ed704563d6ad7d9d",
+    "packages/calib/src/strandbeest_calib/calibrate.py": "806b2d4dda57708a790bec79f6bf48be438bfb07604f305cfb53f0a44bceffe8",
+    "packages/calib/src/strandbeest_calib/community.py": "efbf59071e39eed735a60afcc1907c7eb9187951e80f81d0900b886353e50e54",
+    "packages/calib/src/strandbeest_calib/compare.py": "f464aad413586c0fb2d07f7cc948cd442437370d78b979d2d9185255654367dc",
+    "packages/calib/src/strandbeest_calib/conditions.py": "5fe91df2fa6edc259afd213af6f2eb14513e5b84d826074dce1105369c25d881",
+    "packages/calib/src/strandbeest_calib/forward.py": "56b70a23c030db973016bfaddacb581a7106ecb997280fe6763619df53c8a11b",
+    "packages/calib/src/strandbeest_calib/identity.py": "ddbb36dc686f2196c58bae5344ce424493e08c8f3820300afa79fca36a4e442e",
+    "packages/calib/src/strandbeest_calib/physical_inference.py": "dc3e63570c2b83377c4c4def69c5e8abf94e10ecc50044da6be37e86c9dd703f",
+    "packages/calib/tests/test_bayes.py": "1db9c68620fa8e5ba2750e117d5d893e4c0ab7032efa8d3aa4d7dfbed2d56521",
+    "packages/calib/tests/test_community.py": "e8d305fb75b271de1d59a11d6fa8cee3987ff91d4db8551f20b6c2b9b42956cb",
+    "packages/calib/tests/test_compare.py": "c52c2d87e6527efef522c8277d30d28ac32260f5b31f468d9df22e6da06825ce",
+    "packages/calib/tests/test_conditions.py": "912cf30ea357985cf4721a1937fc0ffc5ce2987f8731ef87947791b42999e0ac",
+    "packages/calib/tests/test_digital_twin_bayes.py": "abb1253654f5a052c6044f504d3b1b6e745fee243d04bfe2395ec30eb3ae96bc",
+    "packages/calib/tests/test_synthetic_recovery.py": "2a2477f2c4cb008bc16ba89eb01b4360bdf0055b5e6aeaccd9c26a20c0b48ac2",
+    "packages/common/src/strandbeest_common/migrate.py": "ec4b6c9c97fcd5104ac7626492cab85bbb86f039b1571f99f53af4fbad045f57",
+    "packages/common/tests/test_annotations_checker.py": "b521006dac4c06f4f0ef1c419a0794d5b587f13b52c49d08b03263651fb78dea",
+    "schemas/atlas.schema.json": "f3a87e681cb22c5da98042177e914e1c20cba8ea82a128c74a7f40f1dbf50ef5",
+    "schemas/design.schema.json": "1f0ce522b9bbe4d3def221093f10efd5b42061d5a5d0285cbf18e6b27e9ce8c1",
+    "schemas/measurement.schema.json": "4f522b2c92c95d73d3584f098deef998618261d5f050f35b5818fab907f116f7",
+    "schemas/ops.schema.json": "b16fd6d4b84750889c26dee16977b19e98a5fd1d18a25fe2e06b149052303519",
+    "schemas/profile.schema.json": "6b07f9a63c5ea56efcc965ef6a239a14d54c60aa544b6d42bb45fe8351a60dd1",
+    "schemas/run.schema.json": "ff1e334f022e6829204954ed2fb1d799fe49de9f9d4375f7a8d106016abf6354",
+    "schemas/scenario-v1.schema.json": "c74132bbe0eb49c7d5c9c414a53e28ae74cc0ed5c966e8480e82461a403eb64a",
+    "schemas/scenario.schema.json": "f43d8b999d344b73497ebd637744d995eae07b9bf8810cfedb080aa33d3fbe6c",
+    "scripts/check_schema_annotations.py": "7e984ea3576903de840d97cef3eded7dfa0c8bce2dfb9654efbf9c2fab9fd908",
+    "tests/browser/flows.spec.ts": "2e4f73fb3c57efa5b22f6cafa8eb0c5edecf8072672c38c9503983228ee90c5e"
+  },
+  "limitations": [
+    "No accepted external physical calibration validation.",
+    "No bar elasticity or granular sand physics.",
+    "K2 soft-contact semantics differ; these stiffness values are not portable.",
+    "Short-window synthetic recovery and one MCMC chain are not physical validity or convergence certificates.",
+    "H5 fine visual negative controls are tracked separately; this checkpoint does not declare H5-01 complete."
+  ]
+}

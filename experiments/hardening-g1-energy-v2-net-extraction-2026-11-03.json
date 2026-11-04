@@ -1,0 +1,121 @@
+{
+  "definition": "Signed energy balance; magnitude normalized by absolute net input. Separate from unchanged legacy audit.",
+  "rows": [
+    {
+      "cohort": "experiments/hardening-g1-energy-v2-default-2026-11-03.json",
+      "case": 11,
+      "legacy_metric_missing": true,
+      "window": {
+        "first": 1871,
+        "last": 3441,
+        "t_start": 3.7420000000034723,
+        "t_end": 6.8819999999973
+      },
+      "energy_delta_j": {
+        "e_in": -0.01169410420490639,
+        "e_contact": 0.00603266072999637,
+        "e_loops": 0.00037972498261713996,
+        "e_friction": 0.0,
+        "kinetic": 9.888103431837745e-07,
+        "potential": -0.01810730261063276
+      },
+      "residual_j": -1.761172303271774e-07,
+      "residual_over_abs_net_input": -1.5060343848593847e-05,
+      "threshold": 0.02,
+      "passed": true
+    },
+    {
+      "cohort": "experiments/hardening-g1-energy-v2-solref05-2026-11-03.json",
+      "case": 11,
+      "legacy_metric_missing": true,
+      "window": {
+        "first": 1871,
+        "last": 3441,
+        "t_start": 3.7420000000034723,
+        "t_end": 6.8819999999973
+      },
+      "energy_delta_j": {
+        "e_in": -0.012286719481364715,
+        "e_contact": 0.006507753892677773,
+        "e_loops": -0.0006932650286082029,
+        "e_friction": 0.0,
+        "kinetic": 1.936819060429631e-06,
+        "potential": -0.0181030564773782
+      },
+      "residual_j": -8.868711651524586e-08,
+      "residual_over_abs_net_input": -7.218128211501673e-06,
+      "threshold": 0.02,
+      "passed": true
+    },
+    {
+      "cohort": "experiments/hardening-g1-energy-v2-solref05-2026-11-03.json",
+      "case": 51,
+      "legacy_metric_missing": true,
+      "window": {
+        "first": 1871,
+        "last": 3441,
+        "t_start": 3.7420000000034723,
+        "t_end": 6.8819999999973
+      },
+      "energy_delta_j": {
+        "e_in": -0.03107384805422342,
+        "e_contact": 0.15247961063980342,
+        "e_loops": -0.00021902167629739554,
+        "e_friction": 0.0,
+        "kinetic": -2.1565936053545304e-05,
+        "potential": -0.18331290148585888
+      },
+      "residual_j": 3.040418298377867e-08,
+      "residual_over_abs_net_input": 9.784492390747297e-07,
+      "threshold": 0.02,
+      "passed": true
+    },
+    {
+      "cohort": "experiments/hardening-g1-energy-v2-solref05-dt005-2026-11-03.json",
+      "case": 11,
+      "legacy_metric_missing": true,
+      "window": {
+        "first": 1871,
+        "last": 3441,
+        "t_start": 3.7419999999979483,
+        "t_end": 6.88199999999063
+      },
+      "energy_delta_j": {
+        "e_in": -0.011655359327492985,
+        "e_contact": 0.006370985433497988,
+        "e_loops": 7.469453276439465e-05,
+        "e_friction": 0.0,
+        "kinetic": 1.9294485417407654e-06,
+        "potential": -0.018102921704770125
+      },
+      "residual_j": -4.703752698280439e-08,
+      "residual_over_abs_net_input": -4.0356994290043865e-06,
+      "threshold": 0.02,
+      "passed": true
+    },
+    {
+      "cohort": "experiments/hardening-g1-energy-v2-solref05-dt005-2026-11-03.json",
+      "case": 51,
+      "legacy_metric_missing": true,
+      "window": {
+        "first": 1871,
+        "last": 3441,
+        "t_start": 3.7419999999979483,
+        "t_end": 6.88199999999063
+      },
+      "energy_delta_j": {
+        "e_in": -0.030561745777826735,
+        "e_contact": 0.15251864726801034,
+        "e_loops": 0.0003036837944429446,
+        "e_friction": 0.0,
+        "kinetic": -2.1566930983845344e-05,
+        "potential": -0.18336251619387656
+      },
+      "residual_j": 6.284580380405691e-09,
+      "residual_over_abs_net_input": 2.0563551657331374e-07,
+      "threshold": 0.02,
+      "passed": true
+    }
+  ],
+  "all_checked_pass": true
+}

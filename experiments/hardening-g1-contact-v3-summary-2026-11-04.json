@@ -1,0 +1,523 @@
+{
+  "created_utc": "2026-11-03T19:40:02.456506+00:00",
+  "study": "H2-01 contact-v3 full original cohorts",
+  "groups": [
+    {
+      "group": "default",
+      "old": "experiments/hardening-g1-energy-v2-default-2026-11-03.json",
+      "new": "experiments/hardening-g1-contact-v3-default-2026-11-04.json",
+      "old_sha256": "8dcd4a95ca879780ec6804609ec704c1dea1f51a91c365114b33c7ce0fcfdc87",
+      "new_sha256": "4f1ef45480ca984d2045b5cfb639542223d3ca8c2807c07b9dbeb07de761c5a6",
+      "inputs_and_thresholds_equal": true,
+      "old_summary": {
+        "completed": 64,
+        "failed_cases": [
+          17,
+          19,
+          20,
+          23,
+          31,
+          40,
+          53,
+          56,
+          58,
+          61
+        ],
+        "findings": {
+          "loop_closure": 6,
+          "stride_vs_kinematics": 4
+        }
+      },
+      "new_summary": {
+        "completed": 64,
+        "failed_cases": [
+          17,
+          19,
+          20,
+          23,
+          31,
+          37,
+          40,
+          51,
+          58,
+          61
+        ],
+        "findings": {
+          "loop_closure": 10,
+          "stride_vs_kinematics": 2
+        }
+      },
+      "strata": {
+        "legs:4": {
+          "n": 16,
+          "failed": 0
+        },
+        "legs:4/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:4/terrain:flat": {
+          "n": 6,
+          "failed": 0
+        },
+        "legs:4/terrain:slope": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:6": {
+          "n": 29,
+          "failed": 5
+        },
+        "legs:6/terrain:bumps": {
+          "n": 5,
+          "failed": 1
+        },
+        "legs:6/terrain:flat": {
+          "n": 16,
+          "failed": 1
+        },
+        "legs:6/terrain:slope": {
+          "n": 8,
+          "failed": 3
+        },
+        "legs:8": {
+          "n": 19,
+          "failed": 5
+        },
+        "legs:8/terrain:bumps": {
+          "n": 5,
+          "failed": 3
+        },
+        "legs:8/terrain:flat": {
+          "n": 8,
+          "failed": 2
+        },
+        "legs:8/terrain:slope": {
+          "n": 6,
+          "failed": 0
+        },
+        "terrain:bumps": {
+          "n": 15,
+          "failed": 4
+        },
+        "terrain:flat": {
+          "n": 30,
+          "failed": 3
+        },
+        "terrain:slope": {
+          "n": 19,
+          "failed": 3
+        }
+      },
+      "changed_findings": [
+        {
+          "case": 20,
+          "old_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -94% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.1254573273144464,
+                "nominal_m": 0.1340125395520839,
+                "ratio": -0.9361611065185992
+              }
+            }
+          ],
+          "new_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 7.3 mm",
+              "evidence": {
+                "opening_m": 0.007287378135017342,
+                "limit_m": 0.005
+              }
+            },
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -102% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.13669379535847262,
+                "nominal_m": 0.1340125395520839,
+                "ratio": -1.0200074994127446
+              }
+            }
+          ]
+        },
+        {
+          "case": 37,
+          "old_findings": [],
+          "new_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 6.6 mm",
+              "evidence": {
+                "opening_m": 0.006567424242307496,
+                "limit_m": 0.005
+              }
+            }
+          ]
+        },
+        {
+          "case": 51,
+          "old_findings": [],
+          "new_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 5.2 mm",
+              "evidence": {
+                "opening_m": 0.005202771419206442,
+                "limit_m": 0.005
+              }
+            }
+          ]
+        },
+        {
+          "case": 53,
+          "old_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 122% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.12842603687642046,
+                "nominal_m": 0.10541111577700392,
+                "ratio": 1.2183348589925218
+              }
+            }
+          ],
+          "new_findings": []
+        },
+        {
+          "case": 56,
+          "old_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 115% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.2582537700578516,
+                "nominal_m": 0.22422272316360317,
+                "ratio": 1.1517734082170514
+              }
+            }
+          ],
+          "new_findings": []
+        },
+        {
+          "case": 61,
+          "old_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 3% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.0030317141464937182,
+                "nominal_m": 0.09984973343417684,
+                "ratio": 0.03036276655152306
+              }
+            }
+          ],
+          "new_findings": [
+            {
+              "check": "loop_closure",
+              "message": "a loop opened by 6.0 mm",
+              "evidence": {
+                "opening_m": 0.006003768256739761,
+                "limit_m": 0.005
+              }
+            },
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is -5% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": -0.005181803753769859,
+                "nominal_m": 0.09984973343417684,
+                "ratio": -0.05189601990460814
+              }
+            }
+          ]
+        }
+      ],
+      "metrics_ranges": {
+        "max_loop_violation": {
+          "min": 0.0006006325151952652,
+          "max": 0.013339896016368868
+        },
+        "max_penetration": {
+          "min": 0.0005271319877418728,
+          "max": 0.0008516598575622879
+        },
+        "energy_residual_share": {
+          "min": -0.0005384637715726716,
+          "max": 0.0001735728157474482
+        },
+        "stride_per_rev": {
+          "min": -0.2620153848310589,
+          "max": 0.30728393954793837
+        }
+      },
+      "wall_s": 176.38881270796992
+    },
+    {
+      "group": "solref05",
+      "old": "experiments/hardening-g1-energy-v2-solref05-frozen-repeat-2026-11-03.json",
+      "new": "experiments/hardening-g1-contact-v3-solref05-2026-11-04.json",
+      "old_sha256": "d19403db4b2aa7d9daab520b8fb544a5ea4a619c0965fbba65b7af2db751ad84",
+      "new_sha256": "639142742e51c965d1e714a297e15ac0af07c604ebed0aacf2729e139a4872ac",
+      "inputs_and_thresholds_equal": true,
+      "old_summary": {
+        "completed": 64,
+        "failed_cases": [
+          20,
+          53,
+          56,
+          61
+        ],
+        "findings": {
+          "stride_vs_kinematics": 4
+        }
+      },
+      "new_summary": {
+        "completed": 64,
+        "failed_cases": [
+          20,
+          56,
+          61
+        ],
+        "findings": {
+          "stride_vs_kinematics": 3
+        }
+      },
+      "strata": {
+        "legs:4": {
+          "n": 16,
+          "failed": 0
+        },
+        "legs:4/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:4/terrain:flat": {
+          "n": 6,
+          "failed": 0
+        },
+        "legs:4/terrain:slope": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:6": {
+          "n": 29,
+          "failed": 1
+        },
+        "legs:6/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:6/terrain:flat": {
+          "n": 16,
+          "failed": 1
+        },
+        "legs:6/terrain:slope": {
+          "n": 8,
+          "failed": 0
+        },
+        "legs:8": {
+          "n": 19,
+          "failed": 2
+        },
+        "legs:8/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:8/terrain:flat": {
+          "n": 8,
+          "failed": 2
+        },
+        "legs:8/terrain:slope": {
+          "n": 6,
+          "failed": 0
+        },
+        "terrain:bumps": {
+          "n": 15,
+          "failed": 0
+        },
+        "terrain:flat": {
+          "n": 30,
+          "failed": 3
+        },
+        "terrain:slope": {
+          "n": 19,
+          "failed": 0
+        }
+      },
+      "changed_findings": [
+        {
+          "case": 53,
+          "old_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 117% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.12309732372781095,
+                "nominal_m": 0.10541111577700392,
+                "ratio": 1.167783139571561
+              }
+            }
+          ],
+          "new_findings": []
+        }
+      ],
+      "metrics_ranges": {
+        "max_loop_violation": {
+          "min": 0.00021531524464180052,
+          "max": 0.004649937468617971
+        },
+        "max_penetration": {
+          "min": 0.0005401115874209116,
+          "max": 0.0011561794449170392
+        },
+        "energy_residual_share": {
+          "min": -0.0006424544094014223,
+          "max": 0.00017767927860631624
+        },
+        "stride_per_rev": {
+          "min": -0.29744922702720605,
+          "max": 0.30675826833336656
+        }
+      },
+      "wall_s": 169.22837662504753
+    },
+    {
+      "group": "solref05-dt005",
+      "old": "experiments/hardening-g1-energy-v2-solref05-dt005-frozen-repeat-2026-11-03.json",
+      "new": "experiments/hardening-g1-contact-v3-solref05-dt005-2026-11-04.json",
+      "old_sha256": "569015f2632ee5f335d531cfb3aa241840f6430972c60201108b4d412aa428df",
+      "new_sha256": "118b3bf9a497da0df345e68dadd39a6f99ff62b98f8e8548aeeb4aec29662556",
+      "inputs_and_thresholds_equal": true,
+      "old_summary": {
+        "completed": 64,
+        "failed_cases": [
+          20,
+          53,
+          56,
+          61
+        ],
+        "findings": {
+          "stride_vs_kinematics": 4
+        }
+      },
+      "new_summary": {
+        "completed": 64,
+        "failed_cases": [
+          20,
+          56,
+          61
+        ],
+        "findings": {
+          "stride_vs_kinematics": 3
+        }
+      },
+      "strata": {
+        "legs:4": {
+          "n": 16,
+          "failed": 0
+        },
+        "legs:4/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:4/terrain:flat": {
+          "n": 6,
+          "failed": 0
+        },
+        "legs:4/terrain:slope": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:6": {
+          "n": 29,
+          "failed": 1
+        },
+        "legs:6/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:6/terrain:flat": {
+          "n": 16,
+          "failed": 1
+        },
+        "legs:6/terrain:slope": {
+          "n": 8,
+          "failed": 0
+        },
+        "legs:8": {
+          "n": 19,
+          "failed": 2
+        },
+        "legs:8/terrain:bumps": {
+          "n": 5,
+          "failed": 0
+        },
+        "legs:8/terrain:flat": {
+          "n": 8,
+          "failed": 2
+        },
+        "legs:8/terrain:slope": {
+          "n": 6,
+          "failed": 0
+        },
+        "terrain:bumps": {
+          "n": 15,
+          "failed": 0
+        },
+        "terrain:flat": {
+          "n": 30,
+          "failed": 3
+        },
+        "terrain:slope": {
+          "n": 19,
+          "failed": 0
+        }
+      },
+      "changed_findings": [
+        {
+          "case": 53,
+          "old_findings": [
+            {
+              "check": "stride_vs_kinematics",
+              "message": "stride is 117% of the kinematic stride on flat ground",
+              "evidence": {
+                "stride_m": 0.12343599541612507,
+                "nominal_m": 0.10541111577700392,
+                "ratio": 1.170996004607831
+              }
+            }
+          ],
+          "new_findings": []
+        }
+      ],
+      "metrics_ranges": {
+        "max_loop_violation": {
+          "min": 0.0002163787021106367,
+          "max": 0.004647417270342125
+        },
+        "max_penetration": {
+          "min": 0.0005401928852978837,
+          "max": 0.0011551499642155055
+        },
+        "energy_residual_share": {
+          "min": -0.000316329807083118,
+          "max": 8.852018020143977e-05
+        },
+        "stride_per_rev": {
+          "min": -0.2974144689355629,
+          "max": 0.3067627281912571
+        }
+      },
+      "wall_s": 283.1546780830249
+    }
+  ],
+  "defaults_changed": false,
+  "g1_thresholds_changed": false,
+  "g1_accepted": false,
+  "all_failures_retained": true,
+  "physical_evidence_level_changed": false,
+  "serialization_note": "The first two v3 reports retain the initial optional pneumatics:null serialization; their design+overrides replay inputs are valid and preserved. The third report omits unset fields and explicitly checks Scenario reload equality. No computed metrics or old reports were rewritten."
+}

@@ -3,7 +3,7 @@
 
 > Metadata and metrics of one simulation run. Time series live next to it in an arrays file.
 
-- **Fields documented**: 49
+- **Fields documented**: 123
 - **Assumed parameters (`x-assumption: true`)**: 0
 - **Calibratable parameters (`x-calibratable: true`)**: 0
 
@@ -16,9 +16,12 @@
 | `design_id` | `Ulid` (`string`) | *(required)* | – | – | – | 稳定的资产 ID（ULID，26 个字符，按创建时间可排序）<br>Stable asset id (ULID: 26 characters, sortable by creation time) |
 | `design_name` | `string` | – | – | – | – | 运行时设计的名字（只是显示用的快照）<br>The design's name at run time (a display snapshot only) |
 | `scenario` | `object` | *(required)* | – | – | – | the fully resolved scenario that was run |
-| `metrics` | map<string, `number` \| `boolean` \| `null`> | *(required)* | `1` | – | – | – |
+| `metrics` | `object` | *(required)* | `1` | – | – | – |
+| `metrics.energy_contact_normal_share` | `number` \| `null` | – | `1` | – | – | 法向接触有向能量转移占输入功的比例；穿透修正注入能量时可为负，与总接触功使用相同统计窗口<br>Signed normal contact transfer divided by input work over the same energy window; stabilization injection may be negative |
+| `metrics.energy_contact_tangent_share` | `number` \| `null` | – | `1` | – | – | 切向接触有向能量转移占输入功的比例；冲量后滑移速度为零仍可能存在能量损失<br>Signed tangent contact transfer divided by input work; a sticking impulse can remove energy even when final slip is zero |
+| `metrics.energy_numerical_share` | `number` \| `null` | – | `1` | – | – | 积分方法引入的有向机械能变化占输入功的比例，仅供诊断，禁止用于抵消能量审计残差；缺失不代表零<br>Signed mechanical energy change introduced by integration divided by input work; diagnostic only, never offsets the audit residual; absence does not mean zero |
 | `stalled` | `boolean` | – | – | – | – | – |
-| `arrays_file` | `string` | – | – | – | – | – |
+| `arrays_file` | `string` | – | – | – | – | 原始时间序列路径；K2可选列e_contact_normal、e_contact_tangent为累计有向接触转移，e_numerical为累计积分能量误差，单位均为J；后者不抵消审计残差。NPZ/Parquet及遥测保留符号，缺失列不补零<br>Raw time-series path. Optional K2 columns e_contact_normal and e_contact_tangent are cumulative signed contact transfers; e_numerical is cumulative integration energy error, all in J. Numerical error never offsets audit residuals. NPZ/Parquet and telemetry preserve signs; missing columns are not filled with zero |
 | `parquet_file` | `string` | – | – | – | – | – |
 | `frames_parquet_file` | `string` | – | – | – | – | – |
 | `provenance` | `object` | *(required)* | – | – | – | – |
@@ -32,6 +35,16 @@
 | `provenance.platform` | `string` | – | – | – | – | – |
 | `provenance.seed` | `integer` | – | `1` | – | – | – |
 | `provenance.cache_hit_from` | `Ulid` (`string`) | – | – | – | – | 稳定的资产 ID（ULID，26 个字符，按创建时间可排序）<br>Stable asset id (ULID: 26 characters, sortable by creation time) |
+| `provenance.execution_identity` | `ExecutionIdentity` | – | – | – | – | 实际执行实现的身份；旧运行缺省，禁止用当前版本补写。<br>Identity of the executed implementation; absent in legacy runs and never backfilled from the current build. |
+| `provenance.execution_identity.key_format` | const `2` | *(required)* | – | – | – | 实现感知的缓存键版本<br>Implementation-aware cache key format |
+| `provenance.execution_identity.simulation_semantics` | `string` | *(required)* | – | – | – | 能量、观测、事件、证据与多配置汇总的语义版本<br>Semantic version for energy, observations, events, evidence and ensemble aggregation |
+| `provenance.execution_identity.status` | enum `"verified"` \| `"unavailable"` | *(required)* | – | – | – | 能否核验实际执行的实现<br>Whether the executing implementation can be verified |
+| `provenance.execution_identity.implementation_hash` | `string` | – | – | – | – | 已安装文件与运行依赖清单的内容哈希<br>Content hash of the installed files and runtime manifest |
+| `provenance.execution_identity.manifest` | `object` | – | – | – | – | – |
+| `provenance.execution_identity.manifest.files` | map<string, `string`> | *(required)* | – | – | – | 相对安装路径到文件内容哈希；不包含本机绝对路径<br>Installation-relative file names and content hashes, without host absolute paths |
+| `provenance.execution_identity.manifest.runtime` | map<string, `string`> | *(required)* | – | – | – | Python、数值依赖版本及计算线程配置<br>Python and numerical dependency versions, and numerical thread settings |
+| `provenance.execution_identity.reason` | enum `"implementation_unavailable"` \| `"implementation_changed_since_import"` \| `"runtime_bindings_changed"` \| `"implementation_changed_during_run"` | – | – | – | – | 无法安全复用缓存的原因代码<br>Reason code explaining why cache reuse is unavailable |
+| `provenance.calibration_profile_id` | `Ulid` (`string`) | – | – | – | – | 本次仿真实际应用的校准档案 ID。<br>ID of the calibration Profile actually applied in this run. |
 | `ensemble` | `object` | – | – | – | – | Same scenario re-run under several friction-regularisation settings (docs/EXPERIMENTS.md section 8). Torque level depends on these numerical choices, so report ranges, not single numbers. |
 | `ensemble.variants` | array<`object`> | *(required)* | – | – | – | – |
 | `ensemble.variants[].name` | `string` | *(required)* | – | – | – | – |
@@ -60,3 +73,64 @@
 | `evidence.downgraded` | `boolean` | – | – | – | – | 是否已被降级<br>Whether the evidence level has been downgraded |
 | `evidence.downgrade_reason` | `string` | – | – | – | – | 降级原因<br>Reason for evidence downgrade |
 | `evidence.claims` | map<string, `object`> | – | – | – | – | Per-metric or per-claim evidence levels and downgrade status |
+| `audit` | `SimulationAudit` | – | – | – | – | 版本化仿真审计；缺少参考适用性证据保持未验证，并保留旧审计对照。<br>Versioned simulation audit; missing applicability stays unverified, with the legacy result retained. |
+| `audit.version` | const `2` | *(required)* | – | – | – | – |
+| `audit.status` | enum `"passed"` \| `"failed"` \| `"unverified"` | *(required)* | – | – | – | – |
+| `audit.passed` | `boolean` | *(required)* | – | – | – | – |
+| `audit.scope` | const `"numerical_invariants_and_applicable_geometric_reference"` | *(required)* | – | – | – | – |
+| `audit.physical_validation_implied` | const `false` | *(required)* | – | – | – | – |
+| `audit.thresholds` | `object` | *(required)* | – | – | – | – |
+| `audit.thresholds.energy_residual` | const `0.02` | *(required)* | – | – | – | – |
+| `audit.thresholds.loop_open_m` | const `0.005` | *(required)* | – | – | – | – |
+| `audit.thresholds.penetration_m` | const `0.005` | *(required)* | – | – | – | – |
+| `audit.thresholds.stride_relative` | const `0.15` | *(required)* | – | – | – | – |
+| `audit.findings` | array<`object`> | *(required)* | – | – | – | – |
+| `audit.findings[].check` | `string` | *(required)* | – | – | – | – |
+| `audit.findings[].message` | `string` | *(required)* | – | – | – | – |
+| `audit.findings[].evidence` | `object` | *(required)* | – | – | – | – |
+| `audit.stride_reference` | `object` | *(required)* | – | – | – | – |
+| `audit.stride_reference.model` | const `"lowest-foot-sphere-v1"` | *(required)* | – | – | – | – |
+| `audit.stride_reference.signed_stride_m_per_rev` | `number` \| `null` | *(required)* | `m` | – | – | – |
+| `audit.stride_reference.numerically_resolved` | `boolean` | *(required)* | – | – | – | – |
+| `audit.stride_reference.error` | `string` | – | – | – | – | – |
+| `audit.stride_reference.owners` | array<`object`> | – | – | – | – | – |
+| `audit.stride_reference.owners[].leg` | `integer` | *(required)* | `count` | ≥ 0 | – | – |
+| `audit.stride_reference.owners[].start` | `string` | *(required)* | – | – | – | – |
+| `audit.stride_reference.owners[].end` | `string` | *(required)* | – | – | – | – |
+| `audit.stride_reference.owners[].radius_m` | `number` | *(required)* | `m` | – | – | – |
+| `audit.stride_reference.resolutions` | array<`integer`> | – | – | – | – | – |
+| `audit.stride_reference.samples` | array<`object`> | – | – | – | – | – |
+| `audit.stride_reference.resolution_relative_difference` | `number` \| `null` | – | `1` | – | – | – |
+| `audit.stride_reference.resolution_relative_tolerance` | `number` | – | `1` | – | – | – |
+| `audit.stride_reference.applicability` | enum `"verified"` \| `"unverified"` | *(required)* | – | – | – | – |
+| `audit.stride_reference.conditions` | array<`object`> | *(required)* | – | – | – | – |
+| `audit.stride_reference.conditions[].code` | `string` | *(required)* | – | – | – | – |
+| `audit.stride_reference.conditions[].status` | enum `"verified"` \| `"unverified"` | *(required)* | – | – | – | – |
+| `audit.stride_reference.conditions[].evidence` | `object` | *(required)* | – | – | – | – |
+| `audit.stride_reference.comparison` | `object` | *(required)* | – | – | – | – |
+| `audit.stride_reference.comparison.relative_error` | `number` \| `null` | *(required)* | `1` | – | – | – |
+| `audit.stride_reference.comparison.relative_tolerance` | const `0.15` | *(required)* | – | – | – | – |
+| `audit.stride_reference.comparison.diagnostic_only` | `boolean` | *(required)* | – | – | – | – |
+| `audit.legacy` | `object` | *(required)* | – | – | – | – |
+| `audit.legacy.version` | const `1` | *(required)* | – | – | – | – |
+| `audit.legacy.passed` | `boolean` | *(required)* | – | – | – | – |
+| `audit.legacy.findings` | array<`object`> | *(required)* | – | – | – | – |
+| `audit.legacy.findings[].check` | `string` | *(required)* | – | – | – | – |
+| `audit.legacy.findings[].message` | `string` | *(required)* | – | – | – | – |
+| `audit.legacy.findings[].evidence` | `object` | *(required)* | – | – | – | – |
+| `audit_observation` | `AuditObservation` | – | – | – | – | 驱动阶段逐步累计的支撑与峰值证据，不依赖轨迹记录频率。旧记录缺失时保持未知，不补造。<br>Support and peak evidence accumulated at every driven step, independently of telemetry cadence. Missing historical coverage remains unknown and is never synthesized. |
+| `audit_observation.version` | const `1` | *(required)* | – | – | – | 逐步审计观测格式版本<br>All-step audit observation format version |
+| `audit_observation.scope` | const `"driven_steps_excluding_settle"` | *(required)* | – | – | – | 驱动阶段每个积分步，不包括预静置<br>Every driven integration step, excluding settling |
+| `audit_observation.boundary` | enum `"force_evaluation"` \| `"post_step"` | *(required)* | – | – | – | 观测所属的力求值边界或步后边界<br>Force-evaluation or post-step observation boundary |
+| `audit_observation.timestep_s` | `number` | *(required)* | `s` | ≥ 0, > 0 | – | 实际积分时间步<br>Actual integration timestep |
+| `audit_observation.legs` | `integer` | *(required)* | `count` | ≥ 1 | – | 每步必须观测的足数量<br>Required foot observations per step |
+| `audit_observation.support_force_N` | const `1e-06` | *(required)* | `N` | – | – | 原支撑判据：法向力严格大于此值<br>Historical support rule: normal force strictly exceeds this value |
+| `audit_observation.integration_steps` | `integer` | *(required)* | `count` | ≥ 0 | – | 驱动阶段实际完成的积分步数<br>Integration steps completed during driving |
+| `audit_observation.observed_steps` | `integer` | *(required)* | `count` | ≥ 0 | – | 实际纳入统计的步数<br>Steps submitted to the accumulator |
+| `audit_observation.invalid_steps` | `integer` | *(required)* | `count` | ≥ 0 | – | 存在缺失或无效观测的步数<br>Steps with missing or invalid observations |
+| `audit_observation.time_gap_steps` | `integer` | *(required)* | `count` | ≥ 0 | – | 观测时间与预期步边界不符的次数<br>Observations inconsistent with the expected step boundary |
+| `audit_observation.airborne_steps` | `integer` | *(required)* | `count` | ≥ 0 | – | 所有足法向力均未超过支撑门槛的步数<br>Steps with no foot above the support-force threshold |
+| `audit_observation.first_time_s` | `number` \| `null` | *(required)* | `s` | ≥ 0 | – | 第一条观测相对驱动开始的时间；无观测时为空<br>First observation time since driving began; null if absent |
+| `audit_observation.last_time_s` | `number` \| `null` | *(required)* | `s` | ≥ 0 | – | 最后一条观测相对驱动开始的时间；无观测时为空<br>Last observation time since driving began; null if absent |
+| `audit_observation.max_loop_residual_m` | `number` \| `null` | *(required)* | `m` | ≥ 0 | – | 所有观测步的最大闭环误差；无有效观测时为空<br>Maximum loop residual over observed steps; null without valid observations |
+| `audit_observation.max_penetration_m` | `number` \| `null` | *(required)* | `m` | ≥ 0 | – | 所有观测步的最大接触重叠深度；无有效观测时为空<br>Maximum contact overlap over observed steps; null without valid observations |

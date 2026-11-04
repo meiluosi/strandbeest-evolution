@@ -1,0 +1,28 @@
+{
+  "source_path": "experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json",
+  "source_sha256": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0",
+  "cases": [
+    20,
+    53,
+    56,
+    61
+  ],
+  "seed": 1,
+  "variants": [
+    "before",
+    "fixed-dt500us",
+    "fixed-requested"
+  ],
+  "diagnostic_max_time_s": 30.0,
+  "original_full_cohort_max_time_s": 600.0,
+  "physical_parameters_retuned": false,
+  "full_h2_cohort": false,
+  "scope": "K2 time-step and sphere contact kinematics correction; four fixed diagnostic cases, no acceptance inferred",
+  "planned_checks": [
+    "Scenario time step is actually executed and recorded",
+    "sphere owner and material contact velocity are correct",
+    "periodic position and derivative agree",
+    "signed strides and all failure evidence reported at both resolutions"
+  ],
+  "independent_physics_validation_inferred": false
+}

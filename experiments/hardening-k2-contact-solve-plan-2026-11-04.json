@@ -1,0 +1,143 @@
+{
+  "created_utc": "2026-11-04T11:13:59.360599+00:00",
+  "source_path": "experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json",
+  "source_sha256": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0",
+  "seed": 1,
+  "original_cases": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+  ],
+  "diagnostic_cases": [
+    20,
+    53,
+    56,
+    61
+  ],
+  "stages": {
+    "diagnostic": {
+      "timestep_s": 0.0001,
+      "max_time_s": 30.0
+    },
+    "coarse": {
+      "timestep_s": 0.0005,
+      "max_time_s": 30.0
+    },
+    "cohort": {
+      "timestep_s": 0.0001,
+      "max_time_s": 600.0
+    }
+  },
+  "numeric_thresholds": {
+    "energy_residual": 0.02,
+    "loop_open_m": 0.005,
+    "penetration_m": 0.005,
+    "stride_relative": 0.15
+  },
+  "prior_checkpoint": {
+    "path": "experiments/hardening-k2-inertia-validation-2026-11-04.json",
+    "sha256": "77ed9bad2de7542ee104fb3a5d4bba925d9134e3df60eab7d386799cc3abe972"
+  },
+  "baselines": [
+    {
+      "stage": "diagnostic",
+      "path": "/tmp/beest-k2-inertia-2026-11-04/refined/diagnostic/result.json",
+      "sha256": "49c663aa0d11f3155b3fc74fb928c035e84d926a30d85e9f78907ee1952b5adf"
+    },
+    {
+      "stage": "coarse",
+      "path": "/tmp/beest-k2-inertia-2026-11-04/refined/coarse/result.json",
+      "sha256": "a39afded918881a3d678b1ab645c06425cd074d760f3f1aaddafe617de4bf165"
+    },
+    {
+      "stage": "cohort",
+      "path": "/tmp/beest-k2-inertia-2026-11-04/refined/cohort/result.json",
+      "sha256": "001315b7c36ee22e665ebf019d84aa2db2803298a729b2204dc6cc80baeee3fc"
+    }
+  ],
+  "corpus_recorded_iterations": 100,
+  "previous_actual_iterations": 12,
+  "change": "Use the recorded iteration budget with coupled active-mode corrections; report a failure instead of silently integrating an unconverged contact solution",
+  "physical_parameters_retuned": false,
+  "independent_validation_accepted": false,
+  "physical_evidence_upgraded": false,
+  "full_cohort_condition": "Four diagnostics finish without execution errors; no sample excluded for failed metrics",
+  "frozen_step_checks": "Independent mode enumeration checks Coulomb/contact and bounded motor equations; only static solve consistency, no dynamic or physical acceptance",
+  "frozen_oracle": {
+    "admissibility_atol": 1e-09,
+    "velocity_comparison_atol": 1e-07,
+    "units": "Each component uses its native unit: m/s, rad/s, N s or N m s. Diagnostic only; no change to the original audit gates.",
+    "states": "Per diagnostic retain maxima of normal fixed-point residual, tangent fixed-point residual, motor force-law residual, and active-contact count. Keep failures and non-unique/unsolved systems."
+  },
+  "previous_plan": {
+    "path": "experiments/hardening-k2-contact-plan-2026-11-04.json",
+    "sha256": "48b768f236ae2e31e01f3061be458e730c90f8ae0f3d8e4c4f1a902b836dd633"
+  },
+  "initial_100_iteration_diagnostics": {
+    "path": "/tmp/beest-k2-contact-2026-11-04/diagnostic/result.json",
+    "sha256": "a2535d9f980e284650ac3bf4f808d239aff24cc488d91f0dab43fd944e05b901"
+  },
+  "failure_reason": "Cases 20 and 61 retain contact residuals after 100 PGS sweeps despite a feasible independently enumerated solution",
+  "new_numerical_gate": "Contact projection and motor residuals must meet componentwise floating-point roundoff bounds; no physical threshold is relaxed"
+}

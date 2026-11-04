@@ -1,0 +1,2918 @@
+{
+  "study": "H2-01",
+  "evidence_level": "E0",
+  "started_utc": "2026-11-02T18:50:18.031032+00:00",
+  "git_head": "44581a1815641142ab7a6d070ae11125cd33f60a",
+  "platform": "macOS-26.2-arm64-arm-64bit-Mach-O",
+  "python": "3.13.5",
+  "mujoco": "3.17.0",
+  "numpy": "2.5.4",
+  "source_hashes": {
+    "packages/sim/src/strandbeest_sim/__init__.py": "2db8461d540a1bd9a97dbc3fae601908eee76035398dc00d2eddb82ce9a0fd55",
+    "packages/sim/src/strandbeest_sim/backend.py": "e1806bbc928aae3d1df763e88a1c9807fb2904489543b92d043c7669847c61d9",
+    "packages/sim/src/strandbeest_sim/backends/__init__.py": "8d65cb119fc77824e7b87bac926a50d704fa622dd25d06d9a02f62f68ebfd7cb",
+    "packages/sim/src/strandbeest_sim/backends/k2_backend.py": "c559537626c39fb1332c90732ff532b2ccd2c994c4f791b18444792a5a3c22e2",
+    "packages/sim/src/strandbeest_sim/backends/mujoco_backend.py": "7edcdf4688cb95d04bf148e25c2c1bc283a5290c9adf3b1aaf97f43579bede7e",
+    "packages/sim/src/strandbeest_sim/builder.py": "2548c27369a3087a3bce0e83307a9da7ce3a01f6c67fe458d6133c6a9525f69e",
+    "packages/sim/src/strandbeest_sim/cli.py": "aeb077ac961f2a676f8c815812290fa412a38cd2e1c57b19163edc49e5323374",
+    "packages/sim/src/strandbeest_sim/config.py": "4ea8c4887b41d8cb0aed6f0539fbab9bde2c7061e2c15f83571d55947b1733f2",
+    "packages/sim/src/strandbeest_sim/contract.py": "40248064844d6c74f1ff177e6350ed37c8e293fc6dc5487ce2696d17820aad30",
+    "packages/sim/src/strandbeest_sim/drives.py": "0f988c51c045b354f844d6c4d6305838a4e2f04b4242f99245bf6f747dc4fc3d",
+    "packages/sim/src/strandbeest_sim/dynamometer.py": "167c2bad621bcb7311c6b86959cdc779fb73d0ed9b07c582c0ef73e7cde3d9b7",
+    "packages/sim/src/strandbeest_sim/events.py": "7d6ead9406b7bff35dc6e3e4fb866e306951e15dc42e7cc1ac475222ae035fb6",
+    "packages/sim/src/strandbeest_sim/fluids/__init__.py": "a2fd2658abf545ca48070860c58aa5864d0057186bececa45f0f1ea70c4809ba",
+    "packages/sim/src/strandbeest_sim/fluids/anchor.py": "5cc7a5aa3215ecd038daacd68bd3b1f6d8d7fd6fe1195a7ab0620c491366f49f",
+    "packages/sim/src/strandbeest_sim/fluids/constants.py": "0555ff4f89e71c23d9fd0a00726fccfe4466972ff6d750d1c24431c086f5c801",
+    "packages/sim/src/strandbeest_sim/fluids/counter.py": "2709b29e781a90670f633bdf13ed519e03dea1493ac1685f8ee0b17e17d1bc43",
+    "packages/sim/src/strandbeest_sim/fluids/feeler.py": "0465feaab0bc8eb2a2299aad4deba9392f5cb7df296087d396670172490d16ea",
+    "packages/sim/src/strandbeest_sim/fluids/network.py": "2e81cc4335b47295c886a27cc95d2f6411bd807027ba153a31b0176cf2c26a19",
+    "packages/sim/src/strandbeest_sim/fluids/pump.py": "748ea65cdaae5faa551c77edef787e55fc26c4cef19cf6eb1f469d5f2139c6a8",
+    "packages/sim/src/strandbeest_sim/fluids/storage.py": "6336c32127192d73c3ca1b2a0b79110ef51e6d2c30f2ae430087f74d2dd74d4f",
+    "packages/sim/src/strandbeest_sim/fluids/tide.py": "00033a92699f0f0f6d5e30893c38758d7316c8a82701f1ac5e1f1810e0780536",
+    "packages/sim/src/strandbeest_sim/fluids/valves.py": "9c0db09580579b3adf9180997bbbd1c714bd0d81657f111f92159c1c640fa8df",
+    "packages/sim/src/strandbeest_sim/from_design.py": "391a38483079f094f172b5962822fe8e915c582a1f269f6b3d61fe946d5e253b",
+    "packages/sim/src/strandbeest_sim/interactive.py": "f180af5122ec65ca98f2b15d61bb4ef25e2b7fbc746076a95ebab7895167edce",
+    "packages/sim/src/strandbeest_sim/linkage.py": "173463ba8a0dc001f88ec5d3f5b5403a0ac5672e72a8a18201c456447772180b",
+    "packages/sim/src/strandbeest_sim/metrics_builtin.py": "2c8a09a6226b84a1173307b78156d94ed3076bde2dbe5f04406da3c6c6ffeee4",
+    "packages/sim/src/strandbeest_sim/registry.py": "333c9b86c7c645b3d3c6c4a31884dfccbe2a43b068167acca138b504f3a19507",
+    "packages/sim/src/strandbeest_sim/runner.py": "eea6b744ad0929e10b25a72f14220dd8c08e60ce8336642a3a488c48d11d6712",
+    "packages/sim/src/strandbeest_sim/scenes.py": "5566ca0a0d45f281a6499b6278d67ad3f5c1bbc41b78f1a6232a639662da6e2a",
+    "packages/sim/src/strandbeest_sim/skeptic.py": "f42dfcac0451820dfc9eac4fe4f32d6d44d6033eb6eb13adce5c53956119b935",
+    "packages/sim/src/strandbeest_sim/startwind.py": "a7229bc7515fabbd0efc998e0a07411e033f7e8345981cab77b2e284aa2bb7ea",
+    "packages/sim/src/strandbeest_sim/terrains.py": "d17193486022b59c9f15414ff92e2231ec1ab0e6d07e1c1a815fb204b3c4cce8",
+    "packages/sim/src/strandbeest_sim/winds.py": "5f9579827fedc236f5a0201bc24ab83b0a4f55c97fc3a087d6a792d04b7d00b3",
+    "packages/common/src/strandbeest_common/__init__.py": "ff674852582a8242e049cefa23995ce4be04a63a78cf61005417ccc9a3c0f1e3",
+    "packages/common/src/strandbeest_common/dag.py": "a7b702725fe4be881ea280c2f6ab775d772986c7ce4344d6e41b8a1da7920fb7",
+    "packages/common/src/strandbeest_common/design.py": "0401b2eca4f0ead05cb99fb5a095866edf9a8e06c0450786223b6b2f04935354",
+    "packages/common/src/strandbeest_common/evidence.py": "455203e409c49d7d86e241ed1658ee73806a9651146591ef008a7877b09b1888",
+    "packages/common/src/strandbeest_common/gait.py": "50fb82c5a66f3b53d511a150b98a7a818ab42d909acf0dbe9894ae90666ed1f7",
+    "packages/common/src/strandbeest_common/guard.py": "8d068c6bf982611f2168adabfa13e3a7369c849e06a9735c5b15e3872497ddcc",
+    "packages/common/src/strandbeest_common/hashing.py": "829a1f34862d163b806c527d6098b5264975633cd406be7876ba5960e092b8c1",
+    "packages/common/src/strandbeest_common/ids.py": "d15c44fce422882152f623ccd02bd590f5767b60cb34cba90dc74d571750b6a5",
+    "packages/common/src/strandbeest_common/jsonpatch.py": "e6a12912244037fcd08cb9dab9dceca74c4494ea8cc30697aae0fba9a7746d81",
+    "packages/common/src/strandbeest_common/linkage.py": "048cd62bc0731e2ce5cef7228eb9dc238e1b3a84d2eefde497fcb05bbabc3639",
+    "packages/common/src/strandbeest_common/migrate.py": "937e8c67c38c920eff778c2605cd6472c9a62b0636f4d72c33a14c6539713b74",
+    "packages/common/src/strandbeest_common/models/__init__.py": "0f9c60217938b6dc3854621e5369a0f2c4aa48ec607ed9d4e5f56a422c08079e",
+    "packages/common/src/strandbeest_common/models/design.py": "2d3b3f7595dd563f98d197280013bad6916c37c496a2df54fb054c9d87eb35d4",
+    "packages/common/src/strandbeest_common/models/ops.py": "2c9962a6aa57ddfc579cbaead4be06880abeb600aef02800511c633978773712",
+    "packages/common/src/strandbeest_common/models/scenario.py": "549900ec8c4d9bf1922fc00b1cdf806c03109482a3b2f80b305718ff2279eda0",
+    "packages/common/src/strandbeest_common/models/scenario_v1.py": "edcf45dce7079b97a0cd46717441bdc5c63b0d7caf1f77daad50a1eb51345954",
+    "packages/common/src/strandbeest_common/ops.py": "ee0f0b4f1d72f2547a26cfd63ca9f198e1b270f10a350c0a322ffe8196c3951f",
+    "packages/common/src/strandbeest_common/scenario.py": "ab0f8fcef6458db2becbceb727eda4e31a3110cd4c236aa06ef881e34ae9207a",
+    "packages/common/src/strandbeest_common/schemas.py": "ebc928f886296348649e6c407a9b20bbbd4a825969987a5542fb164305c235e5",
+    "packages/common/src/strandbeest_common/telemetry.py": "7cd9a827a059a65cca8deaba1b4ecddf88270c0d3f48cbc807dc069747af0dc0",
+    "packages/common/src/strandbeest_common/validity.py": "99a0bd113f70e0570cd4fa68726391a5984f33fe4f923791d9f0bfadbecc2257",
+    "schemas/scenario.schema.json": "3c771c43e43831a71e35af01e90658fa46b5c707ccf2d3e8a006873c4daeb698",
+    "schemas/scenario-v1.schema.json": "8cb2ae53fca4e741abae0e589462eb44d383ede0ac60b6b684748cb0319893bb",
+    "packages/sim/scripts/hardening_g1_study.py": "cc6cb584bce4c0a8a0996025460d785b89e4682c1c95ca61d0b0e6b7ae4ad2f3"
+  },
+  "n": 64,
+  "seed": 1,
+  "selected_cases": [
+    3,
+    6,
+    12,
+    19,
+    20,
+    53,
+    56,
+    61
+  ],
+  "workers": 4,
+  "overrides": {
+    "solver": {
+      "solref_time": 0.0005,
+      "timestep": 5e-05
+    },
+    "run": {
+      "record_every": 40
+    }
+  },
+  "thresholds": {
+    "energy_residual_share": 0.02,
+    "loop_open_m": 0.005,
+    "penetration_m": 0.005,
+    "stride_relative_error": 0.15
+  },
+  "complete": true,
+  "full_cohort_pass": false,
+  "rows": [
+    {
+      "case": 3,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 38,
+            "b": 41.5,
+            "c": 39.3,
+            "d": 39.11001386077136,
+            "e": 55.8,
+            "f": 39.4,
+            "g": 36.7,
+            "h": 67.55903185090294,
+            "i": 49.41441907813685,
+            "j": 50,
+            "k": 61.9,
+            "l": 7.8,
+            "m": 15
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 6,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "flat",
+            "friction": 1.5,
+            "slope_deg": 0.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 38,
+                    "b": 41.5,
+                    "c": 39.3,
+                    "d": 39.11001386077136,
+                    "e": 55.8,
+                    "f": 39.4,
+                    "g": 36.7,
+                    "h": 67.55903185090294,
+                    "i": 49.41441907813685,
+                    "j": 50,
+                    "k": 61.9,
+                    "l": 7.8,
+                    "m": 15
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 6,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 25.505999999999997,
+                "max_torque": 0.3,
+                "kv": 2.5506,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.00029128406318257305,
+        "max_penetration": 0.000674083575804783,
+        "wind_only": false,
+        "energy_in_per_rev": 0.0018128541203484348,
+        "energy_contact_share": 0.9812576428893077,
+        "energy_loops_share": 0.018957242923514386,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 0.00119713101715864,
+        "energy_window_revs": 0.9994940436824016,
+        "stride_per_rev": 0.26934358767206285,
+        "mean_speed": 0.08573481260602006,
+        "mean_torque": 0.00029829430284269314,
+        "peak_torque": 0.013431590165822627,
+        "torque_ptp": 0.029806035180968138,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [],
+      "completed": true,
+      "simulated_s": 7.196049999989898,
+      "wall_s": 18.926853749959264
+    },
+    {
+      "case": 6,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 38,
+            "b": 41.5,
+            "c": 39.3,
+            "d": 39.2474665024362,
+            "e": 55.8,
+            "f": 39.4,
+            "g": 38.94740244531822,
+            "h": 67.43178389914821,
+            "i": 49,
+            "j": 50,
+            "k": 61.9,
+            "l": 7.8,
+            "m": 15
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 8,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "terrain": {
+          "kind": "slope",
+          "slope_deg": 2
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "slope",
+            "friction": 1.5,
+            "slope_deg": 2.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 38,
+                    "b": 41.5,
+                    "c": 39.3,
+                    "d": 39.2474665024362,
+                    "e": 55.8,
+                    "f": 39.4,
+                    "g": 38.94740244531822,
+                    "h": 67.43178389914821,
+                    "i": 49,
+                    "j": 50,
+                    "k": 61.9,
+                    "l": 7.8,
+                    "m": 15
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 8,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 29.43,
+                "max_torque": 0.3,
+                "kv": 2.943,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.0002821579006151431,
+        "max_penetration": 0.000705265363473288,
+        "wind_only": false,
+        "energy_in_per_rev": 0.05316688425302861,
+        "energy_contact_share": 0.17285153528211442,
+        "energy_loops_share": 0.0006476077665939378,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 6.96987246170815e-05,
+        "energy_window_revs": 0.9994932425691706,
+        "stride_per_rev": 0.24320885477285611,
+        "mean_speed": 0.07741579836911561,
+        "mean_torque": 0.008463788762170686,
+        "peak_torque": 0.015934417780357535,
+        "torque_ptp": 0.016971735027055956,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [],
+      "completed": true,
+      "simulated_s": 7.196049999989898,
+      "wall_s": 22.144994167028926
+    },
+    {
+      "case": 12,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 38.30859809185208,
+            "b": 41.5,
+            "c": 39.620871211917326,
+            "d": 38.05191010204131,
+            "e": 55.8,
+            "f": 39.4,
+            "g": 36.7,
+            "h": 65.7,
+            "i": 49,
+            "j": 50,
+            "k": 57.85522034004137,
+            "l": 7.8,
+            "m": 15
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 6,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "flat",
+            "friction": 1.5,
+            "slope_deg": 0.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 38.30859809185208,
+                    "b": 41.5,
+                    "c": 39.620871211917326,
+                    "d": 38.05191010204131,
+                    "e": 55.8,
+                    "f": 39.4,
+                    "g": 36.7,
+                    "h": 65.7,
+                    "i": 49,
+                    "j": 50,
+                    "k": 57.85522034004137,
+                    "l": 7.8,
+                    "m": 15
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 6,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 25.505999999999997,
+                "max_torque": 0.3,
+                "kv": 2.5506,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.0004044032290604349,
+        "max_penetration": 0.0006748715356670581,
+        "wind_only": false,
+        "energy_in_per_rev": 0.009473241325300476,
+        "energy_contact_share": 0.9953208064707254,
+        "energy_loops_share": 0.005849930487485063,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 4.677011243371794e-05,
+        "energy_window_revs": 0.999492565977971,
+        "stride_per_rev": 0.18295436925385988,
+        "mean_speed": 0.0582361566824356,
+        "mean_torque": 0.0015260646914642003,
+        "peak_torque": 0.02690938994837211,
+        "torque_ptp": 0.04476885308568512,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [],
+      "completed": true,
+      "simulated_s": 7.196049999989898,
+      "wall_s": 18.78560441598529
+    },
+    {
+      "case": 19,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 36.84701085430706,
+            "b": 43.11911166794969,
+            "c": 39.3,
+            "d": 42.400228431183685,
+            "e": 59.721967122103806,
+            "f": 39.4,
+            "g": 36.7,
+            "h": 65.7,
+            "i": 49,
+            "j": 50,
+            "k": 61.9,
+            "l": 7.8,
+            "m": 15
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 6,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "terrain": {
+          "kind": "slope",
+          "slope_deg": 2
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "slope",
+            "friction": 1.5,
+            "slope_deg": 2.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 36.84701085430706,
+                    "b": 43.11911166794969,
+                    "c": 39.3,
+                    "d": 42.400228431183685,
+                    "e": 59.721967122103806,
+                    "f": 39.4,
+                    "g": 36.7,
+                    "h": 65.7,
+                    "i": 49,
+                    "j": 50,
+                    "k": 61.9,
+                    "l": 7.8,
+                    "m": 15
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 6,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 25.505999999999997,
+                "max_torque": 0.3,
+                "kv": 2.5506,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.004629706520465682,
+        "max_penetration": 0.0006448315615980148,
+        "wind_only": false,
+        "energy_in_per_rev": 0.16608261209138805,
+        "energy_contact_share": 0.27371789690361464,
+        "energy_loops_share": 0.49427454477750954,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -0.026123689221768883,
+        "energy_window_revs": 0.9985667196528925,
+        "stride_per_rev": 0.25712781201939633,
+        "mean_speed": 0.08182258629073694,
+        "mean_torque": 0.06628500578029445,
+        "peak_torque": 0.3,
+        "torque_ptp": 0.6,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [
+        {
+          "check": "energy_closure",
+          "message": "energy does not close: residual -2.6% of the input work",
+          "evidence": {
+            "residual_share": -0.026123689221768883,
+            "limit": 0.02
+          }
+        }
+      ],
+      "completed": true,
+      "simulated_s": 7.200049999989889,
+      "wall_s": 19.150229207996745
+    },
+    {
+      "case": 20,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 39.94203779252581,
+            "b": 41.5,
+            "c": 39.3,
+            "d": 40.1,
+            "e": 55.8,
+            "f": 39.4,
+            "g": 36.7,
+            "h": 65.7,
+            "i": 52.62365682141761,
+            "j": 47.37213676142175,
+            "k": 61.9,
+            "l": 7.8,
+            "m": 15.168673368588433
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 8,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "flat",
+            "friction": 1.5,
+            "slope_deg": 0.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 39.94203779252581,
+                    "b": 41.5,
+                    "c": 39.3,
+                    "d": 40.1,
+                    "e": 55.8,
+                    "f": 39.4,
+                    "g": 36.7,
+                    "h": 65.7,
+                    "i": 52.62365682141761,
+                    "j": 47.37213676142175,
+                    "k": 61.9,
+                    "l": 7.8,
+                    "m": 15.168673368588433
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 8,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 29.43,
+                "max_torque": 0.3,
+                "kv": 2.943,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.0008727954414595729,
+        "max_penetration": 0.0007167169734298273,
+        "wind_only": false,
+        "energy_in_per_rev": 0.07641561616122976,
+        "energy_contact_share": 0.9949797050945708,
+        "energy_loops_share": 0.005070257665148203,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -0.0001899230815267139,
+        "energy_window_revs": 0.9994908190112873,
+        "stride_per_rev": -0.12420746969867204,
+        "mean_speed": -0.03953637758494736,
+        "mean_torque": 0.012332849380132413,
+        "peak_torque": 0.10522507061540409,
+        "torque_ptp": 0.11963673870087632,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is -93% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": -0.12420746969867204,
+            "nominal_m": 0.1340125395520839,
+            "ratio": -0.9268346836334587
+          }
+        }
+      ],
+      "completed": true,
+      "simulated_s": 7.196049999989898,
+      "wall_s": 17.48970683402149
+    },
+    {
+      "case": 53,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 38,
+            "b": 41.5,
+            "c": 39.3,
+            "d": 42.09256330935524,
+            "e": 55.8,
+            "f": 39.4,
+            "g": 33.90581256190924,
+            "h": 65.7,
+            "i": 49,
+            "j": 53.232142436954334,
+            "k": 61.9,
+            "l": 7.8,
+            "m": 14.291572170568362
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 8,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "flat",
+            "friction": 1.5,
+            "slope_deg": 0.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 38,
+                    "b": 41.5,
+                    "c": 39.3,
+                    "d": 42.09256330935524,
+                    "e": 55.8,
+                    "f": 39.4,
+                    "g": 33.90581256190924,
+                    "h": 65.7,
+                    "i": 49,
+                    "j": 53.232142436954334,
+                    "k": 61.9,
+                    "l": 7.8,
+                    "m": 14.291572170568362
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 8,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 29.43,
+                "max_torque": 0.3,
+                "kv": 2.943,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.0005108994430305103,
+        "max_penetration": 0.0007163143045866276,
+        "wind_only": false,
+        "energy_in_per_rev": 0.02438061446367257,
+        "energy_contact_share": 0.9932889796807761,
+        "energy_loops_share": 0.009267804136991265,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -0.0001696083024371113,
+        "energy_window_revs": 0.9994935641844186,
+        "stride_per_rev": 0.12343599548092882,
+        "mean_speed": 0.03929091817585123,
+        "mean_torque": 0.003929976501486875,
+        "peak_torque": 0.04191805805947979,
+        "torque_ptp": 0.07230922454931488,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is 117% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": 0.12343599548092882,
+            "nominal_m": 0.10541111577700321,
+            "ratio": 1.1709960052226103
+          }
+        }
+      ],
+      "completed": true,
+      "simulated_s": 7.196049999989898,
+      "wall_s": 17.668038584000897
+    },
+    {
+      "case": 56,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 38,
+            "b": 41.5,
+            "c": 39.3,
+            "d": 41.52620050401054,
+            "e": 55.8,
+            "f": 39.4,
+            "g": 39.605646700726396,
+            "h": 65.7,
+            "i": 49,
+            "j": 50,
+            "k": 62.463424352216606,
+            "l": 7.969145130712606,
+            "m": 15
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 8,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "flat",
+            "friction": 1.5,
+            "slope_deg": 0.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 38,
+                    "b": 41.5,
+                    "c": 39.3,
+                    "d": 41.52620050401054,
+                    "e": 55.8,
+                    "f": 39.4,
+                    "g": 39.605646700726396,
+                    "h": 65.7,
+                    "i": 49,
+                    "j": 50,
+                    "k": 62.463424352216606,
+                    "l": 7.969145130712606,
+                    "m": 15
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 8,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 29.43,
+                "max_torque": 0.3,
+                "kv": 2.943,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.0001873956849644011,
+        "max_penetration": 0.0007022894963737963,
+        "wind_only": false,
+        "energy_in_per_rev": 0.0076339748856420935,
+        "energy_contact_share": 0.9913351426411245,
+        "energy_loops_share": 0.006111924946756982,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 0.0005572645667677896,
+        "energy_window_revs": 0.9994930758784409,
+        "stride_per_rev": 0.25915492628356074,
+        "mean_speed": 0.082491577834653,
+        "mean_torque": 0.0012148613554271944,
+        "peak_torque": 0.0070827299113034314,
+        "torque_ptp": 0.016274261636624487,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is 116% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": 0.25915492628356074,
+            "nominal_m": 0.22422272316360323,
+            "ratio": 1.1557924309681555
+          }
+        }
+      ],
+      "completed": true,
+      "simulated_s": 7.196049999989898,
+      "wall_s": 17.557222875009757
+    },
+    {
+      "case": 61,
+      "design": {
+        "schema_version": 2,
+        "id": "0000000000YNGRWX0MDFYPZHXT",
+        "name": "jansen-small-6leg",
+        "notes": "Small FDM-printable Jansen walker (1 length unit = 2 mm). Motor-driven for bench tests.",
+        "linkage": {
+          "params": {
+            "a": 38,
+            "b": 41.5,
+            "c": 40.83897332037926,
+            "d": 40.1,
+            "e": 51.74122459830258,
+            "f": 39.4,
+            "g": 36.7,
+            "h": 65.35418282846028,
+            "i": 49,
+            "j": 50,
+            "k": 61.9,
+            "l": 7.8,
+            "m": 15.02467421469623
+          },
+          "crank": {
+            "x": "a",
+            "y": "l",
+            "length": "m"
+          },
+          "joints": [
+            {
+              "id": "K",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "b",
+                "j"
+              ],
+              "side": 1
+            },
+            {
+              "id": "L",
+              "centers": [
+                "G",
+                "K"
+              ],
+              "radii": [
+                "d",
+                "e"
+              ],
+              "side": 1
+            },
+            {
+              "id": "M",
+              "centers": [
+                "G",
+                "C"
+              ],
+              "radii": [
+                "c",
+                "k"
+              ],
+              "side": -1
+            },
+            {
+              "id": "N",
+              "centers": [
+                "L",
+                "M"
+              ],
+              "radii": [
+                "f",
+                "g"
+              ],
+              "side": -1
+            },
+            {
+              "id": "F",
+              "centers": [
+                "M",
+                "N"
+              ],
+              "radii": [
+                "i",
+                "h"
+              ],
+              "side": 1
+            }
+          ],
+          "foot": "F"
+        },
+        "walker": {
+          "legs": 6,
+          "unit_m": 0.002,
+          "direction": -1,
+          "body_mass_kg": 0.35,
+          "lateral_spacing_m": 0.014,
+          "body_length_m": 0.25
+        },
+        "drive": {
+          "kind": "motor",
+          "motor_omega_rad_s": 2.0,
+          "sail": {
+            "area_m2": 0.03,
+            "radius_m": 0.08,
+            "drag_coeff": 1.2,
+            "gear": 10
+          }
+        },
+        "manufacturing": {
+          "process": "fdm",
+          "material": "PLA",
+          "bar_width_mm": 10,
+          "bar_thickness_mm": 3,
+          "pin_diameter_mm": 3,
+          "clearance_mm": 0.3,
+          "layer_height_mm": 0.2,
+          "min_wall_mm": 1.2,
+          "bed_mm": [
+            220,
+            220
+          ],
+          "press_fit_offset_mm": -0.05,
+          "leg_gap_mm": 1.0,
+          "motor": {
+            "shaft_diameter_mm": 3,
+            "mount_hole_spacing_mm": 9,
+            "mount_hole_diameter_mm": 1.8
+          }
+        }
+      },
+      "overrides": {
+        "run": {
+          "revolutions": 2.1,
+          "settle": 0.4,
+          "frame_rate": 0,
+          "record_every": 40
+        },
+        "solver": {
+          "solref_time": 0.0005,
+          "timestep": 5e-05
+        }
+      },
+      "scenario": {
+        "schema_version": 2,
+        "name": "jansen-small-6leg",
+        "world": {
+          "gravity": 9.81,
+          "atmosphere": {
+            "air_density": 1.2
+          },
+          "wind": {
+            "kind": "constant",
+            "speed": 0.0,
+            "params": {}
+          },
+          "terrain": {
+            "kind": "flat",
+            "friction": 1.5,
+            "slope_deg": 0.0,
+            "params": {},
+            "water_level_m": null
+          }
+        },
+        "entities": [
+          {
+            "name": "walker",
+            "kind": "walker",
+            "components": {
+              "linkage": {
+                "spec": {
+                  "params": {
+                    "a": 38,
+                    "b": 41.5,
+                    "c": 40.83897332037926,
+                    "d": 40.1,
+                    "e": 51.74122459830258,
+                    "f": 39.4,
+                    "g": 36.7,
+                    "h": 65.35418282846028,
+                    "i": 49,
+                    "j": 50,
+                    "k": 61.9,
+                    "l": 7.8,
+                    "m": 15.02467421469623
+                  },
+                  "crank": {
+                    "x": "a",
+                    "y": "l",
+                    "length": "m"
+                  },
+                  "joints": [
+                    {
+                      "id": "K",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "b",
+                        "j"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "L",
+                      "centers": [
+                        "G",
+                        "K"
+                      ],
+                      "radii": [
+                        "d",
+                        "e"
+                      ],
+                      "side": 1
+                    },
+                    {
+                      "id": "M",
+                      "centers": [
+                        "G",
+                        "C"
+                      ],
+                      "radii": [
+                        "c",
+                        "k"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "N",
+                      "centers": [
+                        "L",
+                        "M"
+                      ],
+                      "radii": [
+                        "f",
+                        "g"
+                      ],
+                      "side": -1
+                    },
+                    {
+                      "id": "F",
+                      "centers": [
+                        "M",
+                        "N"
+                      ],
+                      "radii": [
+                        "i",
+                        "h"
+                      ],
+                      "side": 1
+                    }
+                  ],
+                  "foot": "F"
+                },
+                "params": {}
+              },
+              "body": {
+                "legs": 6,
+                "mass": 50.0,
+                "body_mass": 0.35,
+                "unit": 0.002,
+                "direction": -1,
+                "tube_mass_per_m": 0.02232,
+                "min_bar_mass": 0.0001,
+                "lateral_spacing": 0.014,
+                "body_length": 0.25,
+                "pitch": "locked",
+                "bar_radius": 0.005,
+                "foot_radius": 0.002,
+                "foot_friction": 1.5,
+                "joint_friction": 0.0,
+                "joint_damping": 0.0,
+                "joint_friction_coeff": 0.0,
+                "joint_pin_radius": 0.003,
+                "body_drag_area": 0.0,
+                "body_drag_coeff": 1.1
+              },
+              "drive": {
+                "kind": "motor",
+                "omega": 2.0,
+                "kp": 25.505999999999997,
+                "max_torque": 0.3,
+                "kv": 2.5506,
+                "ramp": 1.0,
+                "sail_area": 0.03,
+                "sail_radius": 0.08,
+                "sail_drag_coeff": 1.2,
+                "sail_gear": 10.0,
+                "rotor_inertia": 0.0001,
+                "crank_damping": 0.001,
+                "crank_friction": 0.002,
+                "params": {}
+              },
+              "pneumatics": null
+            }
+          }
+        ],
+        "solver": {
+          "timestep": 5e-05,
+          "iterations": 100,
+          "contact_solref": 0.02,
+          "contact_stiffness": 300000.0,
+          "contact_damping_ratio": 1.0,
+          "cone": "pyramidal",
+          "impratio": 1.0,
+          "noslip_iterations": 0,
+          "solref_time": 0.0005,
+          "solimp": "0.9 0.95 0.001"
+        },
+        "run": {
+          "settle": 0.4,
+          "revolutions": 2.1,
+          "max_time": 600.0,
+          "record_every": 40,
+          "frame_rate": 0.0,
+          "give_up_after": 0.0
+        }
+      },
+      "metrics": {
+        "max_loop_violation": 0.0007923510122722632,
+        "max_penetration": 0.0006878554494471872,
+        "wind_only": false,
+        "energy_in_per_rev": 0.07546275360403347,
+        "energy_contact_share": 0.9961939712623091,
+        "energy_loops_share": 0.0038489984373552472,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -0.00019329522396763538,
+        "energy_window_revs": 0.999492074394415,
+        "stride_per_rev": 0.00024565847842062825,
+        "mean_speed": 7.819544655725529e-05,
+        "mean_torque": 0.012130310042361137,
+        "peak_torque": 0.09910950280084307,
+        "torque_ptp": 0.1072401326829322,
+        "steady_window": 1.0
+      },
+      "stalled": false,
+      "findings": [
+        {
+          "check": "stride_vs_kinematics",
+          "message": "stride is 0% of the kinematic stride on flat ground",
+          "evidence": {
+            "stride_m": 0.00024565847842062825,
+            "nominal_m": 0.09984973343417687,
+            "ratio": 0.0024602817651243076
+          }
+        }
+      ],
+      "completed": true,
+      "simulated_s": 7.198049999989894,
+      "wall_s": 14.276907542021945
+    }
+  ],
+  "wall_s": 37.275260958005674,
+  "summary": {
+    "completed": 8,
+    "failed_cases": [
+      19,
+      20,
+      53,
+      56,
+      61
+    ],
+    "findings": {
+      "energy_closure": 1,
+      "stride_vs_kinematics": 4
+    }
+  },
+  "sources_changed_during_run": []
+}

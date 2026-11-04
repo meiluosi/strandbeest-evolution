@@ -1,0 +1,235 @@
+{
+	"review_date": "2026-11-03",
+	"status": "candidate_only_not_a_walker_validation",
+	"source_doi": "10.18419/DARUS-4152",
+	"source_version": "1.0",
+	"citation": "Röder, Benedict; Ebel, Henrik; Eberhard, Peter (2024). Motion and Motor-Current Data of a Four-Bar Linkage. DaRUS. https://doi.org/10.18419/DARUS-4152",
+	"license": {
+		"name": "CC BY 4.0",
+		"uri": "http://creativecommons.org/licenses/by/4.0",
+		"iconUri": "https://licensebuttons.net/l/by/4.0/88x31.png"
+	},
+	"metadata_sha256": "dcf475153e82647d99a0489d3319eb215cd7061a6faf7c2f6dd07640b0dac405",
+	"metadata_source_url": "https://darus.uni-stuttgart.de/api/datasets/:persistentId/?persistentId=doi:10.18419/DARUS-4152",
+	"files_inspected": [
+		{
+			"file_id": 290208,
+			"path": "Experiments_Data/output_empty/Bridge_0_output_00.txt",
+			"source_url": "https://darus.uni-stuttgart.de/api/access/datafile/290208",
+			"bytes": 464968,
+			"source_checksum": {
+				"type": "MD5",
+				"value": "72d4f7bc519d30f35c3c3cee7d463d8d"
+			},
+			"sha256": "c72b5fac7cb41fac27a35f9a36d67a5f254b51cf2a84a4fd1cded30414240d54",
+			"observed": {
+				"header": "% Time [s], Goal Current [mA], Pres. Current [mA], Pres. Voltage [V], Pres. Position [rad], Pres. Velocity [rad/s]",
+				"samples": 7496,
+				"duration_s": 29.995617,
+				"dt_s": {
+					"min": 0.003282999999999703,
+					"median": 0.0040000000000000036,
+					"max": 0.009024999999999395
+				},
+				"time_strictly_increasing": true
+			}
+		},
+		{
+			"file_id": 290241,
+			"path": "Experiments_Data/output_empty/Bridge_0_output_01.txt",
+			"source_url": "https://darus.uni-stuttgart.de/api/access/datafile/290241",
+			"bytes": 465073,
+			"source_checksum": {
+				"type": "MD5",
+				"value": "010da59b628161e40db8c88af3eb8cdc"
+			},
+			"sha256": "fed97a2919fecc70a3f4a34dc7c7bb314c4896488d80882491c4eba0b0a984a1",
+			"observed": {
+				"header": "% Time [s], Goal Current [mA], Pres. Current [mA], Pres. Voltage [V], Pres. Position [rad], Pres. Velocity [rad/s]",
+				"samples": 7500,
+				"duration_s": 29.998663999999998,
+				"dt_s": {
+					"min": 0.0034320000000001016,
+					"median": 0.0040000000000000036,
+					"max": 0.005044000000001603
+				},
+				"time_strictly_increasing": true
+			}
+		},
+		{
+			"file_id": 290254,
+			"path": "Experiments_Data/output_empty/Bridge_0_output_02.txt",
+			"source_url": "https://darus.uni-stuttgart.de/api/access/datafile/290254",
+			"bytes": 465117,
+			"source_checksum": {
+				"type": "MD5",
+				"value": "ba44003db9f8ccbfbed433917034883a"
+			},
+			"sha256": "69e56007009ae0fdf4a6f466b1060604899179cf16bb619a6fec1eabef4de8d2",
+			"observed": {
+				"header": "% Time [s], Goal Current [mA], Pres. Current [mA], Pres. Voltage [V], Pres. Position [rad], Pres. Velocity [rad/s]",
+				"samples": 7500,
+				"duration_s": 29.998617999999997,
+				"dt_s": {
+					"min": 0.003343000000000984,
+					"median": 0.0040000000000000036,
+					"max": 0.005055000000000476
+				},
+				"time_strictly_increasing": true
+			}
+		},
+		{
+			"file_id": 290266,
+			"path": "Experiments_Data/input/Bridge_0.txt",
+			"source_url": "https://darus.uni-stuttgart.de/api/access/datafile/290266",
+			"bytes": 106,
+			"source_checksum": {
+				"type": "MD5",
+				"value": "7594f95f26c279a8ec09f69e868cc60f"
+			},
+			"sha256": "38fa99b9c7d8ee46bcfdc13725a1e6cd42dff8396b22b251de2d20aa943821cf"
+		},
+		{
+			"file_id": 290222,
+			"path": "Experiments_Data/README.md",
+			"source_url": "https://darus.uni-stuttgart.de/api/access/datafile/290222",
+			"bytes": 3661,
+			"source_checksum": {
+				"type": "MD5",
+				"value": "8fac8406e2ad53d787b131c7cc601ac9"
+			},
+			"sha256": "6b679e833151923f3fbd35d0bce00b12f79034415239050c6749165a14802612"
+		}
+	],
+	"validation_performed": false,
+	"evidence_upgrade": null,
+	"gaps": [
+		"Four-bar hardware is not a Jansen walker or wind-start experiment.",
+		"Readme and dataset metadata do not supply an output-torque calibration or absolute instrument uncertainty.",
+		"Link mass and inertia are not specified by the metadata/readme.",
+		"No forward model fit or independent held-out validation has been carried out."
+	],
+	"raw_files_redistributed": false,
+	"followup": {
+		"review_date": "2026-11-03",
+		"status": "public_source_review_only_no_dynamics_validation",
+		"primary_sources": [
+			{
+				"kind": "direct_application_paper",
+				"citation": "Wohlleben, M.; Röder, B.; Ebel, H.; Muth, L.; Sextro, W.; Eberhard, P. (2024). Hybrid modeling of multibody systems: Comparison of two discrepancy models for trajectory prediction. PAMM 24, e202400027.",
+				"doi": "10.1002/pamm.202400027",
+				"source_url": "https://doi.org/10.1002/pamm.202400027",
+				"download_url": "https://d-nb.info/1347963278/34",
+				"reviewed_sections": [
+					"3.1 System description (page 4)",
+					"3.2 Physical model and Figure 2 (page 5)",
+					"3.3 preprocessing",
+					"5.3 sensor-resolution limitation"
+				],
+				"pages": 16,
+				"bytes": 1474697,
+				"sha256": "4dbf68c5da43203b332cd8ed235479b260cc9a3753a55ed109e6bc894e09b7db",
+				"redistributed": false
+			},
+			{
+				"kind": "dataset_tutorial",
+				"file_id": 290242,
+				"path": "Experiments_Data/tutorial.ipynb",
+				"source_url": "https://darus.uni-stuttgart.de/api/access/datafile/290242",
+				"bytes": 323979,
+				"source_checksum": {
+					"type": "MD5",
+					"value": "831201fbdc3bf1ec5fcda84fecd96890"
+				},
+				"provider_checksum_verified": true,
+				"sha256": "2c3c03772a29f3ae0298f01703faf560b65fa331b0c1c6922ce745acb4885b04",
+				"redistributed": false
+			},
+			{
+				"kind": "manufacturer_manual",
+				"instrument": "Dynamixel XH430-W350-T/R",
+				"source_url": "https://emanual.robotis.com/docs/en/dxl/x/xh430-w350/",
+				"reviewed_sections": [
+					"Specifications",
+					"Control Table of RAM Area",
+					"Goal Current",
+					"Present Current",
+					"Present Velocity",
+					"Present Position"
+				]
+			}
+		],
+		"source_facts": {
+			"kinematic_joint_distances_mm": {
+				"crank": 30,
+				"coupler": 104,
+				"rocker": 60,
+				"ground": 95
+			},
+			"physical_moving_link_lengths_mm": {
+				"crank": 50,
+				"coupler": 124,
+				"rocker": 80
+			},
+			"materials": "aluminum links; paper reports ball bearings at A, B, D",
+			"dataset_inventory": {
+				"file_count": 75,
+				"input_trajectories": 10,
+				"output_files": 60,
+				"photos": 3,
+				"readme": 1,
+				"plotting_notebook": 1,
+				"cad_or_model_or_calibration_attachment_listed": false
+			},
+			"paper_model": "Three rigid bodies; masses and inertias supplied to Neweul-M2, but numerical values are not reported in the reviewed paper.",
+			"paper_condition": "All paper experiments use a paddle stirrer in honey; the previously inspected Bridge_0 files are empty-load trials.",
+			"tutorial_scope": "Input/output parsing and signal visualization only; no mass/inertia or torque-calibration model.",
+			"nominal_manufacturer_specifications": {
+				"position_counts_per_revolution": 4096,
+				"velocity_increment_rpm": 0.229,
+				"current_increment_mA": 2.69,
+				"voltage_increment_V": 0.1,
+				"gear_ratio": 353.5,
+				"backlash_deg": 0.25,
+				"interpretation": "Nominal resolution/backlash are not calibrated standard uncertainties; stall-torque ratings are not an experiment-specific current-to-shaft-torque calibration."
+			}
+		},
+		"not_found_in_reviewed_public_material": [
+			"Numerical per-link mass, center of mass and inertia, including attached hardware/stirrer contributions.",
+			"Experiment-specific current-to-output-shaft-torque calibration and associated uncertainty.",
+			"Instrument calibration date, absolute accuracy/standard uncertainty and time-synchronization uncertainty.",
+			"Recorded controller/firmware configuration, identified current-loop response, transmission efficiency and reflected motor inertia."
+		],
+		"our_inferences_not_source_claims": [
+			"For an ideal horizontal mechanism with unknown absolute inertia, torque gain and friction, scaling these together preserves angular dynamics; recorded current and angular motion alone generally identify ratios rather than each absolute scale.",
+			"Repeated trials can estimate repeatability, but do not supply absolute calibration or remove the overall scale ambiguity.",
+			"Using measured current as a model input permits an angular-motion prediction check, not an independent prediction check of that same current. Predicting current from commanded current requires an electrical/controller model.",
+			"Coupler positions reconstructed from measured shaft angle and nominal geometry are derived observations, not independently measured foot trajectories."
+		],
+		"current_software_gaps_read_only_review": [
+			{
+				"path": "packages/sim/src/strandbeest_sim/builder.py",
+				"gap": "The walker torso always has tx/tz slide joints; no fixed-base option."
+			},
+			{
+				"path": "packages/sim/src/strandbeest_sim/builder.py",
+				"gap": "Bar mass comes from global line density/minimum mass and capsule inertia; no independent per-link mass/COM/inertia contract."
+			},
+			{
+				"path": "packages/sim/src/strandbeest_sim/drives.py",
+				"gap": "Existing motor is a prescribed-motion servo; no time-varying current input, torque-gain/electrical-control contract."
+			}
+		],
+		"candidate_validation_plan": {
+			"scope": "A dedicated fixed-base four-bar adapter using the same MuJoCo backend; no claim of Jansen, walking/contact or wind-start validation.",
+			"conditions": "Begin with empty-load data; honey requires additional stirrer/fluid assumptions.",
+			"split": "Reserve complete input waveforms and independent repetitions; fit only training data and freeze all parameters/preprocessing before held-out prediction.",
+			"outputs": "Actual shaft angle and velocity; current is either an explicitly measured input or a separately modeled output, never both for the same accuracy claim.",
+			"uncertainty": "Report repeatability and quantization separately; any quantization-noise distribution or missing-parameter prior must be labelled an assumption.",
+			"readiness": "Blocked for traceable absolute physical-parameter validation by missing calibration/parameters and the unimplemented model adapter."
+		},
+		"validation_performed": false,
+		"evidence_upgrade": null,
+		"raw_files_redistributed": false
+	}
+}

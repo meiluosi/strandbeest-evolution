@@ -2,20 +2,44 @@
 
 # Technical Report: How Much Wind Does a Wind-Only Walker Need?
 
-> **状态**：已发布（2026-10-28）。同步发表于博客系列第五篇（中英双语）。
-> **Status**: published (2026-10-28). Also published as Part 5 of the blog series (bilingual).
+> **状态**：2026-10-28 发布版本的工作区修订稿（2026-11-04 核对）。正文实验数值保留各自的历史版本与适用范围；当前状态以本页更正、[ARCHITECTURE.md](ARCHITECTURE.md) 和 H 任务卡为准。更正尚未同步发布到博客；发布须用户确认。
+> **Status**: local revision checked on 2026-11-04. Historical experiments retain their original scope and versions; the updates here and the architecture/task ledger describe current status. No corrections have been republished.
 
-> **最重要的一句话**：**本报告里的每一个数字都来自本仓库的仿真器（MuJoCo，以及一个独立实现的平面刚体求解器 K2），没有一个来自实物走兽。** 项目接受 E3（可追溯实测）暂时为空（见 [VALIDATION.md](VALIDATION.md) §2、§3）。下文按该文件的 E0–E3 给每个结论标等级，并逐处写明"模型内"还是"实测"。
+> **2026-11-04 软件补充**：校准已接入实际 MuJoCo 场景，完整测量出处、Profile 应用和中英文浏览器流程已打通；六组短时合成实验含无法辨识及代理模型失准的负结果，见 [EXPERIMENTS.md](EXPERIMENTS.md) §55。它们没有补上本文的实测证据缺口，本文原数值未据此改写。
+> **Software update, 2026-11-04:** physical calibration and Profile application now use the actual MuJoCo scenario. Six short synthetic cases include unidentifiable parameters and the historical failed emulator check (§55); current-model refits are retained separately in §59; these do not establish physical validation or revise this report's historical numerical results.
+
+> **当前审计**：用户接受 ADR-0012 后，§72将版本2审计接入原生API/Agent；对原192条结果重审为 **0通过、10失败、182未验证**，旧版 **10/3/3** 失败逐条保留。新参考须核对适用条件，缺少完整轨迹或独立对照不能通过；数值阈值和物理默认参数未改。此次重审没有重新运行192次动力学。旧风速阈值和优化排名仍待H2-02复核；气动闭环、真实风场/多人海滩、外部动力学验证及完整性能预算尚未验收。
+> **Current audit:** accepted ADR-0012 is implemented in the native API/Agent audit policy. Re-auditing 192 saved results gives 0 passes, 10 failures and 182 unverified outcomes; every legacy finding (10/3/3 failed cases) is preserved. Missing applicability or independent evidence cannot pass. Numeric thresholds and physical defaults are unchanged; this is a posthoc audit, not 192 new dynamic runs. Physical validation, integration and performance work remain open.
+
+> **§64补充**：有向步幅的理想几何诊断已统一到Rust，原64例的Python/WASM及三种分辨率对照通过；它未替换原验收参考，候选第61号仍与理想预测相差135.56%。/ The shared signed geometric diagnostic agrees across all 64 inputs, both bindings and three resolutions; it leaves the original audit intact, and candidate case 61 still differs from its ideal prediction by 135.56%.
+
+> **§65–66补充**：16组接触敏感性实验仍未修复第61号，NoSlip使其停滞，未推广新默认值。另修复了独立气体网络中不同温度节点传输能量的错误、恒温一致性和泵反力方向；新增热/焓/功账不等于整机储气驱动已实现，更不构成实测验证。/ Sixteen contact trials did not resolve case 61; NoSlip stalled it and no default was promoted. Standalone gas-energy transport, isothermal consistency and pump-reaction signs are repaired. The new heat/enthalpy/work ledger does not establish integrated pneumatic walking or physical validation.
+
+> **§68–69补充**：共享场景现可显式指定求解精度，396项JS/1058项常规Python及完整检查通过。另16组实验中，收紧求解精度不改变步幅，较硬约束使第61号恢复正向；原步幅审计仍失败，未推广默认值。曲柄完整论文核到惯量但原文单位有疑点，未产生实测校准结论。/ Solver precision is now explicit in Scenario; 396 JS and 1,058 regular Python tests and full checks pass. Sixteen additional trials isolate compliance effects; case 61 still fails the original stride audit. The crank paper supplies an inertia value with an unresolved printed unit, not an accepted calibration result.
+
+> **§70–71补充**：32组步长/刚度细化确认数值稳定不等于模型准确，未推广默认值。公开曲柄数据已取得32份，作者代码补齐单位、力坐标和分组依据；16份独立留出总体误差下降94.7%，但两个中速工况仍失败，未作为走兽校准或实测验收。/ Thirty-two refinement trials preserve unresolved model/reference discrepancies. Thirty-two public crank records and pinned author code now support an independent 16-trial holdout. Pooled velocity error falls 94.7%, but medium-speed adequacy fails; no walker calibration or physical acceptance is claimed.
+
+> **§73补充**：K2此前忽略场景时间步，并漏掉球足随所属杆件转动的接触速度；现已修复，原64样本4,096相位的接触运动核对通过。四个难例的最终能量残差仍为31.56%、101.61%、43.62%、13.38%，均超过2%门槛；不能接受为独立动力学验证。/ K2 now executes the recorded Scenario timestep and includes sphere-owner rotation in contact velocity. All 4,096 kinematic probes across the original 64 inputs pass, but all four dynamic diagnostic cases still fail the 2% energy audit. No independent dynamics acceptance follows.
+
+> **§74补充**：K2离散驱动功、法向碰撞和切向冲量记账已修复。原64样本全量复跑无数值检查失败，最大能量残差0.458%；完整审计仍为0通过、0失败、64未验证。四个难例的运动轨迹未改变，第61号与理想参考的步幅差异仍为84.66%。积分误差单独记录，不抵消残差；完整惯性、接触机制与独立验证仍缺。/ K2 discrete work accounting is repaired. All original 64 cases complete without numeric-check failures (maximum energy residual 0.458%), but all remain unverified in audit v2. Motion is bitwise unchanged in the four paired diagnostics; case 61 still differs from the ideal stride by 84.66%. Integration error is diagnostic only; full inertia, contact adequacy and independent validation remain open.
+
+> **§75补充**：K2已补齐逐杆惯性、重力和运动耦合，4,096次独立惯性组装及6,144次接触运动核对通过；六处初版插值失败保留。最终原64样本复跑无数值检查失败，最大能量残差0.769%；完整审计仍为64未验证。第61号理想步幅差异由84.66%降至33.36%，仍需接触模型核对与独立动力学证据。/ K2 now includes configuration-dependent rigid-body inertia, gravity and coupling. All 4,096 independent inertia-assembly probes and 6,144 contact-motion probes pass; six initial interpolation failures are retained. The final original 64-case run has no numerical-check failures (maximum energy residual 0.769%), but all cases remain unverified. Case 61's ideal-stride difference falls to 33.36%; contact adequacy and independent dynamics validation remain open.
+
+> **证据边界**：**下文的走兽性能数值来自本仓库的仿真器（MuJoCo，以及独立实现的平面求解器 K2），没有来自实物走兽的验收结果。** §71另有公开曲柄实测对照，但工况失败和标定误差缺口仍在；项目验收通过的E3结果仍为空（见 [VALIDATION.md](VALIDATION.md) §2、§3）。下文按该文件的E0–E3给结论标等级。
 
 **图例 / Legend**
 
 | 标记 | 含义 |
 |---|---|
 | **模型内**（model against model） | 数字由本仓库的仿真器算出，最多与另一个模型或文献对照过；**没有实物** |
-| **实测** | 数字来自可追溯的真实测量（本仓库目前**没有**这样的数字） |
+| **实测** | 数字来自可追溯的真实测量；已有公开曲柄对照，尚无验收通过的走兽实测结果 |
 | **E0 / E1 / E2 / E3** | 证据等级，定义见 [VALIDATION.md](VALIDATION.md) §2 |
 | **§N** | 数字的出处：[EXPERIMENTS.md](EXPERIMENTS.md) 的第 N 节（那是原始记录，本文是建立在它上面的论证） |
 | **假设** / `[unverified]` | 这个值是猜的，来源已写明或标记为未核实 |
+
+> **§76补充**：K2迭代预算和耦合接触求解已修复，64个最终冻结状态通过独立单步核对。原64样本审计为0通过、1失败、63未验证，最大能量残差0.768%。第16号支撑失败受日志采样影响（5.58%对逐步3.10%），原记录保留；第61号在0.025 ms诊断中未完成，不能宣称时间收敛或动力学验证通过。/ K2 now executes the recorded iteration budget and solves coupled contact modes; 64 final frozen states agree with independent mode enumeration. The original cohort remains 0 passed / 1 failed / 63 unverified. Case 16 reveals logging-cadence bias; its failure is preserved. Case 61 does not finish the 0.025 ms diagnostic, so dynamic convergence and validation remain open.
+
+> **§77补充**：逐步支撑/峰值证据已贯通原生、浏览器、保存和重审，修复日志采样造成的判定差异。40次对照保留旧运动轨迹和全部失败，仍未取得完整64样本或独立动力学验收。/ All-step support and peak evidence now survives native/browser execution, storage and re-audit. Forty comparisons preserve prior motion and failures; full-cohort and independent dynamic acceptance remain unmet.
 
 ---
 
@@ -31,14 +55,14 @@
 
 **头条答案（每条带证据等级）**
 
-1. **运动学站得住（E2，§30）**：我们的 Jansen 足端轨迹与 Pop 等 2014 年发表的实验轨迹在毫米级一致——步长差 0.033 %，步高差 0.191 %，形状距离 0.0295（落撑相位点对点误差 < 0.54 mm）。
+1. **运动学文献验证尚待补证（§30、§46）**：旧版 E2 结论撤回。用于对照的 24 点及精确步长/步高缺少可复核的原图、坐标标定和提取记录；保留历史数值，但不能据此宣称与发表实验一致。
 2. **步幅站得住（E1，§31）**：两个**互相独立**的求解器在慢速平地步幅上差 **0.58 %**（MuJoCo 0.2760 m/rev，K2 0.2776 m/rev）；起步风速在 15 s 判据下差 4.4 %。但要当心：**"起步风速的量级"到 E1，"门限在 0.50 m/s"这句话不是 E1**（两个 5 % 区间在 L = 1 处完全分开）。
 3. **旗舰结论是负面的（E0，§36）**：在同一台机器上，只把"每个销轴的摩擦"这个**没人测过的假设**从 0 改到 0.002 N·m，起步风速就变 **2.59 倍**（L = 1：0.50 → 1.30 m/s）。"低于某个尺寸走不动"这条边界**真实存在**，但它是**摩擦假设划出来的，不是尺度划出来的**：在该假设下最小可行尺度是 **L ∈ (0.03, 0.1]**（上下界都有），而在理想销轴下测到的最小尺度只要 0.80 m/s 就起步。
 4. **尺度曲线是非单调的（E0，§36）**：质量指数 p = 3（实心体）时曲线是**非单调的 V 形**，最小值在 L ≈ 0.6（0.415 m/s）；p = 1（薄壁）时是"越大越省风"（L = 0.35 要 0.80 m/s，L = 3 只要 0.39 m/s）。这**否证**了 [WIND.md](WIND.md) §3 里"大机体对风更有利"的说法。
-5. **E3 层是空的（§36 §11、§39 §7）**：扭矩、电流、起步风速，**一条实测都没有**。社区数据入口（提交格式 + 校验器 + 指南）已经开门，**数据未到**。
+5. **E3 层是空的（§36 §11、§39 §7）**：本项目尚无通过验收的扭矩/起步实测验证。已取得公开四连杆原始电流/运动候选，另有走兽实验论文，但标定、误差或原始记录仍不齐，未完成独立留出比较，见 [RESEARCH-NOTES.md](RESEARCH-NOTES.md)。
 6. **让帆参与优化没有带来好处（E0，§40）**：把帆面积与传动比做成基因之后，在同权重、同预算下**固定帆在起步风速、阵风稳健性、名义距离三项上全赢**自由帆（低 4.4 %、高 11.8 %、高 29.4 %）。而且这条排名只有一个求解器、一个种子、2 代预算，优化循环里用的廉价代理**把排名弄反了**（ρ = 0.303）——所以它连"排名结论"都算不上，只能算机制演示。
 
-**一句话**：我们的运动学可以被已发表数据支持，我们的步幅可以被两个独立求解器支持；但**每一个关于"风要多大""走不走得动"的结论，目前都由我们自己设定的假设参数决定，而不是由现实决定**。这份报告的价值不在于结论有多漂亮，而在于它把每一个结论的承重墙标了出来。
+**当前判断**：运动学的外部验证尚待补证，慢速步幅有两个独立求解器的对照；**每一个关于"风要多大""走不走得动"的结论，目前都由我们自己设定的假设参数决定，而不是由现实决定**。这份报告的价值不在于结论有多漂亮，而在于它把每一个结论的承重墙标了出来。
 
 ### 0.2 English Abstract
 
@@ -48,14 +72,14 @@
 
 **Answers, with their evidence levels.**
 
-1. *The kinematics holds (E2, §30).* Our Jansen foot trajectory agrees with the published experimental trajectory of Pop et al. (2014) to within a millimetre: 0.033 % on stroke length, 0.191 % on step lift, shape distance 0.0295, and under 0.54 mm point-to-curve error on the stance phase.
+1. *The literature kinematics claim is pending provenance verification (§30, §46).* The former E2 upgrade is withdrawn: the retained 24 points and precise gait metrics lack a reproducible source plot, axis calibration and extraction record. Historical numerical agreement does not establish external validation.
 2. *The stride holds (E1, §31).* Two independent solvers agree on slow flat-ground stride to **0.58 %** (MuJoCo 0.2760 m/rev, K2 0.2776 m/rev) and on start wind to 4.4 % under a 15 s criterion. The careful part: the *magnitude* of the start wind is E1; the statement "the threshold is 0.50 m/s" is **not** — at L = 1 the two 5 % intervals do not overlap at all.
 3. *The flagship result is a negative one (E0, §36).* On the same machine, changing one **untested** assumption — the Coulomb friction of each printed pin — from 0 to 0.002 N·m changes the start wind by a factor of **2.59** (L = 1: 0.50 → 1.30 m/s). A "below this size it cannot walk" boundary does exist, but it is drawn by that friction assumption, not by scale: under it the minimum viable scale is **L ∈ (0.03, 0.1]** (bounded on both sides), while with ideal pins the smallest scale tested starts at 0.80 m/s.
 4. *The scale curve is not monotonic (E0, §36).* At mass exponent p = 3 (solid body) the curve is a **non-monotonic V**, minimised near L ≈ 0.6; at p = 1 (thin-walled) bigger is cheaper in wind (0.80 m/s at L = 0.35, 0.39 m/s at L = 3). This **refutes** the "big bodies are more favourable to the wind" claim in [WIND.md](WIND.md) §3.
 5. *The E3 tier is empty (§36 §11, §39 §7).* Torque, current, start wind: **no measurement exists**. The community data intake (format, validator, guide) is open; the data has not arrived.
 6. *Letting the sail into the optimisation bought nothing (E0, §40).* With the sail area and gear ratio turned into genes, the **fixed** sail beat the free one on all three measures at the same weight and budget (start wind 4.4 % lower, gust robustness 11.8 % higher, nominal distance 29.4 % higher). And that ranking rests on one solver, one seed and two generations, with a cheap proxy inside the search loop that **got the ranking backwards** (ρ = 0.303) — so it is not even a ranking conclusion, only a mechanism demonstration.
 
-**In one sentence.** Our kinematics is supported by published data and our stride by two independent solvers, but every statement about *how much wind* and *whether it walks at all* currently rests on assumption parameters we set ourselves rather than on reality. The value of this report is not that the conclusions look impressive; it is that it names the load-bearing wall under each one.
+**Current assessment.** External kinematics validation remains unverified; slow-ground stride has a two-solver comparison, while every statement about *how much wind* and *whether it walks at all* currently rests on assumption parameters we set ourselves rather than on reality. The value of this report is not that the conclusions look impressive; it is that it names the load-bearing wall under each one.
 
 ---
 
@@ -113,7 +137,7 @@
 
 ### 2.2 契约语料库：两套实现怎么互相盯着
 
-本项目有两套实现：TypeScript（`packages/core/`，浏览器与 Node）与 Python（`packages/common/`、`packages/sim/`）。它们**必须**对同一批输入给出同样的答案，否则"跨语言一致"就只是嘴上说说。办法是 `contracts/` 下的契约语料库：
+本项目有 TypeScript 与 Python 两条业务路径。2026-11-03 后运动学/步态由共享 Rust 内核提供，reference 实现单独保留；编辑、构建与运行仍需跨端契约核对。下面的语料职责沿用，当前使用的能量版本见 [contracts/README.md](../contracts/README.md)：
 
 | 语料库 | 放什么 | 谁必须通过 |
 |---|---|---|
@@ -126,9 +150,11 @@
 
 期望值不只由"对方"生成，还用**与实现无关的不变量**独立检验（每个关节到它两个圆心的距离等于给定的杆长），所以语料库证明的是"两边都满足几何定义"，不只是"两边一样"（`contracts/README.md`）。
 
-**重复实现的次数是被跟踪的，不是被遗忘的**：`contracts/duplicated-modules.json` 列出所有在 TS 与 Python 各写一遍的模块、它们对应的语料库，以及**上限**。ADR-0009 的触发线是"超过 3 个重复模块，或第二次'两边不一致'事故，就要评估换成单一内核"。现实是：上限被五次提高（3 → 6 → 7 → 8 → 10），每次都带书面理由，**当前是 10 个模块对上限 10，记录在案的分歧事故 0 次**。`scripts/check_duplication_trigger.py` 每次 CI 都检查这个数字：上限被改动而没有对应的 `limit_history` 条目，脚本直接失败。最后两次提高上限是当作"要不要换单一内核"的决策交给项目所有者的。
+**历史登记与当前实现分开计数**：`contracts/duplicated-modules.json` 仍有10项、上限10，保留3 → 6 → 7 → 8 → 10的历史及旧事故计数。运动学/步态两项现在调用共享 Rust；登记项数不能解释为10个仍独立实现的数值内核。原生 Python 基准有收益，Web 固定预算 GA 的 WASM 路径反而更慢，见 [ADR-0009](adr/0009-single-source-of-kinematics.md) 和 EXPERIMENTS §49。触发线检查继续运行，但这份历史计数不是“从未发生分歧”的证明。
 
 **这套机制真的抓到过东西**：§26 的 NaN 适应度角落，就是 TS 返回 `NaN`（0/0）而 Python 返回 −5.05 的分歧——因为任何与 NaN 的比较都是 false，TypeScript 的遗传算法对这类腿**任意排序**。修好之后（金标 GA 运行的最好适应度 0.6469557 → 0.6776223，§26），所有受影响的已提交实验都重跑并留痕。
+
+**K2 的当前边界**：§75已将恒定对角质量矩阵替换为逐杆构型相关惯性，补齐重力、运动耦合与实际质心/位姿，并通过独立惯性组装核对。§76接触求解已执行记录的预算、加入耦合模式修正并在不收敛时拒绝推进；单步数值一致不证明整机时间收敛。单个摩擦系数、软地面单位/阻尼缺陷、零速销轴锁定及整机独立对照仍待处理。当前没有浏览器 K2 后端。历史步幅/起步对照仅支撑已测场景，不能由原方案文字推导更广的精度承诺，详见 [ADR-0010 的实施核对](adr/0010-k2-independent-solver.md)。
 
 ### 2.3 证据阶梯：核对 ≠ 验证
 
@@ -141,7 +167,7 @@
 |---|---|---|
 | **E0** | 只有一个模型算过 | 旗舰尺度表（23 个 MuJoCo 格子）、多保真度筛选的相关系数、稳健优化的排名 |
 | **E1** | 至少两个**独立**求解器在约定容差内一致 | 慢速平地步幅（差 0.58 %，§31）；起步风速的**量级**（约定容差 25 %，实测 13.9 % / 4.2 %，§36 §7） |
-| **E2** | 与**公开数据或文献**在不确定度内相符 | Jansen 足端轨迹对 Pop 等 2014（§30） |
+| **E2** | 与**公开数据或文献**在不确定度内相符 | 当前无已复核的足端轨迹 E2；原§30已撤回（§46） |
 | **E3** | 被**可追溯的实测**验证 | **暂无。一个都没有。** |
 
 两条经常被忽略的规则：**等级跟着结果走，不跟着代码走**（同一个求解器，步幅可以是 E1，扭矩仍是 E0）；**优化器和智能体基准不信 E0 的排名**（要过排名稳定性检查，§33、§37）——这条正是 §4.2 那条负面结果的法律依据。
@@ -150,21 +176,11 @@
 
 ## 3. 结果
 
-### 3.1 运动学：与已发表的实验轨迹对照（E2）
+### 3.1 运动学：文献验证待补证（原 E2 撤回）
 
-对照对象：Pop, Dolga & Pop (2014), *Analysis of the Trajectory Shape Described by a Robotic Leg during a Walking Sequence*, Applied Mechanics and Materials 658: 684–689（CCD 相机追踪实验台 + CAD；出处与许可记在 [RESEARCH-NOTES.md](RESEARCH-NOTES.md)）。我们的轨迹来自闭式解析解（`contracts/kinematics/jansen.json`），数字化数据在 `experiments/literature-jansen-amm2014.json`，比对脚本 `scripts/verify_literature_kinematics.py`。**模型内对已发表数据**。
+2026-11-03 核对 [Pop, Dolga & Pop (2014) 的出版商页面](https://www.scientific.net/AMM.658.684)后，能确认 CCD 追踪的实物 Jansen 机构与 DC 电机，无法从已核对来源确认旧报告的 57.1 mm、22.5 mm、0.43，以及 24 个数字化坐标。仓库未保存原图、轴标定、像素坐标或误差推导；原来的“300 dpi、±0.8 mm”说明也缺可追溯依据。
 
-| 量 | 文献（Pop 2014） | 我们的解析运动学 | 偏差 | 相对误差 |
-|---|---|---|---|---|
-| 步长 L_stroke | 57.1 mm | 57.081 mm | −0.019 mm | **0.033 %** |
-| 步高 H_lift | 22.5 mm | 22.457 mm | −0.043 mm | **0.191 %** |
-| 占空比 D | 0.43 | 0.433 | +0.003 | 0.77 % |
-| 足端环宽 W | ~65.55 mm（数字化） | 67.899 mm | +2.35 mm | 3.46 % |
-| 高宽比 H/W | 0.344 | 0.331 | −0.013 | 3.9 % |
-
-不确定度不是编的：数字化的像素不确定度是 **±0.80 mm（路径宽的 ±0.0118）**，来自会议论文 PDF 的有限线宽与 300 dpi 栅格。形状距离（对称最近点距离，定义与 §1 相同）**0.0295**（宽的 2.95 %）；落撑相位的点对曲线距离 **0.00–0.54 mm**，低于数字化阈值；摆动相位 Pop 的 CAD 有约 1.0° 的倾斜（dx = −4.5 mm，dy = −0.5 mm），补偿后平均物理误差 **1.387 mm（宽的 2.04 %）**。原始形状距离 0.0295 < 0.035、平均误差 1.387 mm < 2.0 mm，都落在实验复现容差内。
-
-**这条把运动学从 E0 抬到 E2**（§30）。它**不**说明步幅在动力学上正确，也不说明任何扭矩或起步风速正确。
+旧数据及数值比对保留在 `experiments/literature-jansen-amm2014.json` 和 EXPERIMENTS §30，均标记 **[unverified]**。`scripts/verify_literature_kinematics.py` 默认拒绝验证；显式 `--unverified-preview` 只供审查历史数字。**撤回 E2 升级，不据此授予其他等级**；算法的几何不变量、跨实现测试与其他独立证据仍分别判断。完整更正见 EXPERIMENTS §46 与 [RESEARCH-NOTES.md](RESEARCH-NOTES.md)。
 
 ### 3.2 两个独立求解器：步幅一致（E1）
 
@@ -336,12 +352,16 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 | 摩擦锥：椭圆 vs 锥形 | 17.9 vs 8.9 | **×2.0** |
 | 摩擦阻抗比 10 vs 1 | 21.7 vs 8.9 | **×2.4** |
 | no-slip 迭代 10 vs 0 | 13.7 vs 8.9 | ×1.5 |
-| 管质量 0.05 / 0.12 / 0.2 kg/m | 4.8 / 8.9 / 12.4 | 腿越重扭矩越高，**原因不明**（开放问题 S-01） |
+| 管质量 0.05 / 0.12 / 0.2 kg/m | 4.8 / 8.9 / 12.4 | 原记录原因不明；后续 S-01 已定位质量缩放约束正则化耦合（见下文更正） |
 | 接触刚度 1e4 → 1e6 (1/s²) | 6.1 → 11.5，峰峰值 6.2 → 23.9 | 一直在涨，没有"平台" |
 
 **步幅在所有设置下都在 3 % 以内**——步幅是运动学量，所以它稳；**扭矩不是**。诚实的说法是：把一个扭矩写成**跨摩擦正则化选择的区间**，在实测之前不要写成单值。
 
+**2026-11-03 同步更正**：[EXPERIMENTS.md](EXPERIMENTS.md) §42（2026-10-28）已完成 S-01 的受控干预。冻结 MuJoCo 的逆惯量权重后，重腿平均扭矩从 12.434 N·m 回到 4.816 N·m，与轻腿一致，定位为质量缩放约束正则化的建模耦合。上述历史数字保留；“原因不明”不再是当前结论。这仍是模型内机制核对，没有新增实测证据。
+
 **能量账解释了为什么（§9、§14）**：平地电机驱动时，接触耗散占输入功的绝大部分——§14 的表给 **96.5 %**（输入 4.06 mJ/圈），§9 的叙述给 **97 %**（输入 4.05 mJ/圈、接触 3.91 mJ）。两者是**同一族测量**（3.91/4.05 = 96.5 %，§9 的 97 % 是四舍五入），不是两个模型。能量账在所有场景下闭合到 0.4 % 以内（验收线 2 %）。**帆驱动时分配完全不同**：4 m/s 风下输入 47 mJ，**关节摩擦与阻尼吃掉 82 %**（接触只有 17 %）——而这两个值是**假设值**，所以风驱动的起步结论大半取决于猜测。
+
+**2026-11-03 能量统计更正**：上段比例是历史运行记录。当前加固发现 `mj_step` 后积分态与缓存观测不在同一时刻，已重做能量记账及跨端对照；旧能量分配不能直接当作新口径结果，完整前后差异由 H2-01 记录。
 
 另有一条容易被忽略的差别：**占空因子有两个数**。连杆足端轨迹在 43.3 % 的周期里是平的（运动学占空比 0.433），而在仿真里每只脚只有 **34.8 %** 的时间接触地面；差的那一段是足端"几乎离地"（垫片压缩 0.6 mm）。UI 两个数都显示。
 
@@ -364,6 +384,10 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 - **机理测试排除了时间步**（0.05 ms 毫无变化：9/12 → 9/12）、求解器迭代、接触刚度、电机扭矩上限（减半仍是 9/12，只把最差从 13.2 mm 降到 8.4 mm）；**指向两个旋钮**：环路约束的保持刚度（时间常数 0.5 ms：9/12 → 1/12）与曲柄转速（减半：9/12 → 3/12）。两者都符合"**动力学张开**"——链条被推得比软约束跟得上更快。**但这是从两个旋钮推出来的推断，不是对机理的测量。**
 - **而且刚化不是到处都更好**：有案例从 1.3 mm 变成 2.6 mm、另一个从 0.6 mm 变成 1.9 mm；刚化后最差的一例是 4.63 mm，仍贴近 5 mm 限。
 - **默认设置没有改**：刚化只在 12 个失败走兽上试过，**没有**在 64 个、金标运行或 §20 的 16 个上跑过（可能制造新失败）。所以它是一个**候选，不是一个修复**。
+
+**2026-11-03 后续实验**：上述段落保留 §27 当时的调查范围。现已补做三组完整64样本，见 [EXPERIMENTS.md](EXPERIMENTS.md) §44：默认仍12失败；仅刚化增至28失败；刚化并减半步长后为7失败。候选确实制造了新的能量审计失败，尚未通过 G1，默认仍未改。
+
+**2026-11-04 当前结论**：上段是修正观测时刻前的历史结果。§48 修正能量记账后，同三组完整样本分别 **10/4/4** 失败；候选中的旧能量报警消失，步幅失败仍在，默认还存在闭环失败。§54 的接触分解只诊断原因，没有降低门槛或把诊断重算当作独立验证。随后 §59 修正 MuJoCo 质量归一化接触阻尼，三组全64样本为 **10/3/3** 失败；独立接触实验已通过，但候选的20/56/61仍未通过原步幅门槛。默认参数值和原G1门槛未改，G1仍未通过。
 
 ### 4.7 E3 层是空的（§36 §11、§39 §7）
 
@@ -417,7 +441,9 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 
 ---
 
-## 6. 下一步
+## 6. 历史建议与当前下一步
+
+下表保留原报告的建议及当时状态。当前工作按 [ACTIONS.md](ACTIONS.md) H 卡推进：H2-01 的完整审计、H4-01 的可追溯公开数据仍是主要缺口；H3 系统集成和 H5-02 性能预算也在用户授权范围内。第6项已有三组全64样本及能量修正后的复验，第7项已由§42的受控干预定位模型内原因，第8项已筛到候选但未验收；不应再把它们描述为完全未开展。
 
 按"对结论的影响"排序（排序依据是 §36 §11 给出的建议，加上各处留下的缺口）：
 
@@ -433,7 +459,7 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 | 8 | **公开视频测量（V-05）与社区实测（V-06 的实际数据）** | 这是把任何东西从 E0 抬到 E3 的唯一途径；社区入口已就位，**等数据** | 任务卡 V-05、V-06、§39 |
 | 9 | **给帆基因的优化做第二个求解器的交叉核对，并把廉价代理换成可信的** | W-08 已经把帆做成基因，结论是**没好处**；但那条排名只有一个求解器、一个种子、2 代预算，而且循环里用的测力计代理**把排名弄反了**（ρ = 0.303）。换求解器后结论可能变——就像 §38 那样 | §40 §7.3 |
 
-**明确不在计划里的**：沙地/气动储能/3D/柔性（阶段 E 的条件项），要等有 E3 数据再校准（[ROADMAP.md](ROADMAP.md) 阶段表）。
+**历史范围的变更**：原报告把沙地/气动储能/3D/柔性列为条件项。2026-11-03 的全层面加固已把气动机械闭环、孪生及海滩集成纳入 H3；实现和核对可以推进，实测校准仍须对应数据。当前不能据此宣布全部功能或真实世界验证完成。
 
 ---
 
@@ -468,7 +494,7 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 |---|---|
 | 起步风速随尺度（25 格） | `experiments/start-wind-vs-scale.json` |
 | 起步风速敏感性 | `experiments/start-wind-sensitivity.json` |
-| 文献轨迹对照（数字化数据） | `experiments/literature-jansen-amm2014.json` |
+| 历史文献轨迹对照（来源未核实） | `experiments/literature-jansen-amm2014.json` |
 | 排名稳定性（V-04） | `experiments/ranking_stability_v04.json` |
 | 多保真度筛选 | `experiments/multifidelity-ranking.json` |
 | 稳健优化（含抽样场景、逐场景结果、三个敏感性检查、MuJoCo 核对） | `experiments/robust-optimization.json` |
@@ -486,8 +512,8 @@ WIND.md §5 要求的"阵风稳健性"被实现成 CVaR（Rockafellar & Uryasev 
 
 | 数字 | 含义 | 出处 | 等级 | 性质 |
 |---|---|---|---|---|
-| 0.033 % / 0.191 % | 步长 / 步高与 Pop 2014 的相对差 | §30 | E2 | 模型内 vs 文献 |
-| 0.0295 | 足端环形状距离 | §30 | E2 | 模型内 vs 文献 |
+| 0.033 % / 0.191 % | 历史数据中的步长 / 步高相对差，来源未核实 | §30、§46 | E2撤回 | 历史比对，不能作外部验证 |
+| 0.0295 | 与来源未核实的24点的形状距离 | §30、§46 | E2撤回 | 历史比对，不能作外部验证 |
 | ±0.80 mm | 数字化像素不确定度 | §30 | – | 文献自身的不确定度 |
 | 0.2760 / 0.2776 m/rev | MuJoCo / K2 步幅 | §31 | E1 | 模型内（两解） |
 | 0.58 % | 两解步幅差 | §31 | E1 | 模型内（两解） |

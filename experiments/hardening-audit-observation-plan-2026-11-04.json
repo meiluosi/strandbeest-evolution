@@ -1,0 +1,57 @@
+{
+  "created_utc": "2026-11-04T12:19:35.150485+00:00",
+  "task": "H2-01",
+  "prior_checkpoint": "experiments/hardening-k2-contact-validation-2026-11-04.json",
+  "prior_sha256": "26fc558a0ff19bb554308be625cdda69ea26d357a577609b0adbb7dababd3bfa",
+  "scope": "All-driven-step coverage for support, loop and penetration; logging cadence must not alter these checks",
+  "preserve": {
+    "original_cases": 64,
+    "seed": 1,
+    "energy_residual": 0.02,
+    "loop_m": 0.005,
+    "penetration_m": 0.005,
+    "stride_relative": 0.15,
+    "support_airborne_share": 0.05,
+    "support_force_N": 1e-06,
+    "historical_failures": true,
+    "legacy_support_check": true
+  },
+  "physical_changes": false,
+  "independent_validation_accepted": false,
+  "h2_01_accepted": false,
+  "contract": {
+    "field": "Run.audit_observation",
+    "version": 1,
+    "scope": "driven_steps_excluding_settle",
+    "missing_or_invalid": "unverified; never inferred from decimated logs",
+    "compatibility": "optional field, migration preserves absence and present content"
+  },
+  "verification": [
+    "Injected violations between log samples are detected; exact threshold equality remains accepted for that numeric check",
+    "Incomplete counts, time gaps, invalid observations and forged summary/trace inconsistency cannot certify coverage",
+    "Same scenario at record_every=1,20,37 has identical all-step aggregates and matching raw samples",
+    "Native and WASM use the same aggregation contract and shared fixtures",
+    "Old raw-trajectory fixtures remain immutable; changed peak metrics/derived diagnosis use a separately verified companion fixture",
+    "Persisted Run and Agent re-audit consume the same coverage; old documents stay readable without inventing coverage"
+  ],
+  "diagnostic_cases": [
+    16,
+    61
+  ],
+  "diagnostic_backend": "k2",
+  "diagnostic_timestep_s": 0.0001,
+  "diagnostic_max_time_s": 30,
+  "record_every": [
+    1,
+    20,
+    37
+  ],
+  "native_browser_corpus": "contracts/sim-run/cases-contact-v3.json",
+  "signed_energy_fixture": "contracts/sim-run/signed-energy-v3.json",
+  "limitations": [
+    "No all-64 independent dynamic reference or physical-evidence upgrade",
+    "Energy/gait metrics still use the established recorded window; this change targets support and peak invariants",
+    "The geometric reference still needs every-step raw conditions or future independent validation",
+    "No automatic acceptance of H2-01 from single-step coverage"
+  ]
+}

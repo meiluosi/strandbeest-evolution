@@ -1,0 +1,32 @@
+{
+  "created_utc": "2026-11-04T12:43:15.154428+00:00",
+  "reason": "The first full Python run exposed ten old peak expectations in the separate native golden corpus; all failures retained",
+  "source": "contracts/sim-golden/runs-contact-v3.json",
+  "source_sha256": "91eab8e8a3982a3f433abefd20ef78b5845dd20d7a8feaeb8a2ce940b7b203d4",
+  "cases": [
+    "flat-motor",
+    "slope-5deg",
+    "step-12mm-torque-capped",
+    "bumps-seed3",
+    "soft-ground",
+    "sail-wind-3",
+    "sail-gusts",
+    "mars-gravity",
+    "four-legs-elliptic-cone",
+    "friction-impratio-10"
+  ],
+  "original_scenarios_unchanged": true,
+  "additional_run_change": {
+    "run.record_every": 1
+  },
+  "new_dynamic_runs": 20,
+  "requirements": [
+    "Preserve every old golden file and every failed assertion",
+    "Compare all old fingerprints and non-peak metrics exactly for the original scenarios",
+    "Dense every-step trajectories decimated at the original cadence must match every original-run column bitwise",
+    "Dense raw support and maximum loop/penetration must reproduce streaming aggregates exactly",
+    "Retain the original relative 1e-7 and absolute 1e-12 test bounds for the new companion peaks",
+    "Do not infer H2 acceptance or independent physics validation"
+  ],
+  "companion": "contracts/sim-golden/observation-v3.json"
+}

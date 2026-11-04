@@ -3,7 +3,7 @@
 
 > The flat scenario of schema version 1 (one walker, its environment, drive and solver in one object). The simulator still runs on this shape internally; scenarios are written as schema version 2 (World + Entities) and migrated with strandbeest_common.migrate.
 
-- **Fields documented**: 71
+- **Fields documented**: 80
 - **Assumed parameters (`x-assumption: true`)**: 23
 - **Calibratable parameters (`x-calibratable: true`)**: 12
 
@@ -47,7 +47,7 @@
 | `terrain.kind` | `string` | `"flat"` | – | – | `group.terrain`<br>affects: `sim` | 地形类型：flat、slope、step、bumps、ramp、sand……<br>Terrain kind: flat, slope, step, bumps, ramp, sand, ... |
 | `terrain.friction` | `number` | `1.5` | `1` | range `[0.2, 3.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.terrain`<br>affects: `sim` | 地面摩擦系数<br>Ground friction coefficient<br>*Source*: Smooth-floor guess; a calibration target |
 | `terrain.slope_deg` | `number` | `0.0` | `deg` | – | `group.terrain`<br>affects: `sim` | 坡度（用倾斜重力实现）<br>Slope angle (implemented by tilting gravity) |
-| `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand 用 stiffness（N/m）、damping（N·s/m）<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) |
+| `terrain.params` | `object` | `{}` | – | – | `group.terrain`<br>affects: `sim` | 随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand/soft 在 MuJoCo 中用质量归一的 stiffness（1/s²）、damping（1/s）。K2 的 stiffness 是 N/m，不可直接复用校准值。均非颗粒流模型。<br>Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg). MuJoCo sand/soft uses mass-normalised stiffness (1/s^2), damping (1/s). K2 stiffness is N/m; calibrated values are not interchangeable. Neither is granular flow. |
 | `terrain.water_level_m` | `number` \| `null` | `null` | `m` | – | `group.terrain`<br>affects: `sim` | 潮水或水面高度（Z轴米数，为 null 表示干燥沙滩）<br>Water or tide surface height (Z in metres, null for dry beach) |
 | `drive` | `Drive` | `{}` | – | – | `group.drive` | 驱动<br>Drive |
 | `drive.kind` | `string` | `"motor"` | – | – | `group.drive`<br>affects: `sim` | 驱动类型：motor（位置伺服）或 sail（风帆）<br>Drive kind: motor (position servo) or sail |
@@ -64,12 +64,21 @@
 | `drive.crank_damping` | `number` | `0.001` | `N·m·s/rad` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.drive`<br>affects: `sim` | 曲柄处的粘性损耗<br>Viscous loss at the crank<br>*Source*: Our guess, not measured |
 | `drive.crank_friction` | `number` | `0.002` | `N·m` | ≥ 0 | `assumption`<br>`calibratable`<br>`group.drive`<br>affects: `sim` | 曲柄处的库仑摩擦<br>Coulomb friction at the crank<br>*Source*: Our guess, not measured |
 | `drive.params` | `object` | `{}` | – | – | `group.drive`<br>affects: `sim` | 随类型而定的参数<br>Kind-specific parameters |
+| `pneumatics` | `Pneumatics` | – | – | – | `group.pneumatics` | 气动系统<br>Pneumatic system |
+| `pneumatics.bottle_count` | `integer` | `4` | `count` | ≥ 1 | `group.pneumatics`<br>affects: `sim` | PET 瓶数量<br>Number of PET bottles |
+| `pneumatics.bottle_volume_l` | `number` | `2.0` | `1` | ≥ 0.1 | `group.pneumatics`<br>affects: `sim` | 单瓶容积 (升)<br>Volume per bottle (L) |
+| `pneumatics.precharge_pa` | `number` | `101325` | `Pa` | ≥ 0 | `group.pneumatics`<br>affects: `sim` | 预充气压<br>Precharge pressure |
+| `pneumatics.pump_bore_m` | `number` | `0.03` | `m` | ≥ 0.005 | `group.pneumatics`<br>affects: `sim` | 气泵缸径<br>Pump bore diameter |
+| `pneumatics.pump_stroke_m` | `number` | `0.05` | `m` | ≥ 0.005 | `group.pneumatics`<br>affects: `sim` | 气泵冲程<br>Pump stroke length |
+| `pneumatics.feeler_enabled` | `boolean` | `true` | – | – | `group.pneumatics`<br>affects: `sim` | 启用潮水水感反射<br>Enable water feeler reflex |
+| `pneumatics.anchor_enabled` | `boolean` | `true` | – | – | `group.pneumatics`<br>affects: `sim` | 启用暴风沙锚反射<br>Enable storm anchor reflex |
 | `solver` | `Solver` | `{}` | – | – | `group.solver` | 求解器<br>Solver |
 | `solver.timestep` | `number` | `0.00025` | `s` | > 0 | `group.solver`<br>affects: `sim` | 时间步长；峰值扭矩需要 ≤ 0.25 ms 才收敛（docs/EXPERIMENTS.md §8）<br>Time step; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8) |
-| `solver.iterations` | `integer` | `100` | `count` | ≥ 1 | `group.solver`<br>affects: `sim` | 求解器迭代次数<br>Solver iterations |
-| `solver.contact_solref` | `number` | `0.02` | `s` | > 0 | `group.solver`<br>affects: `sim` | 脚-地面接触时间常数，仅在未设 contact_stiffness 时使用；取决于有效质量，是数值旋钮而非物理量<br>Foot/terrain contact time constant, used only when contact_stiffness is unset; depends on effective mass, so a numerical knob |
-| `solver.contact_stiffness` | `number` \| `null` | `100000.0` | `1/s²` | range `[10000.0, 10000000.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.solver`<br>affects: `sim` | 接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref<br>Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref<br>*Source*: Order-of-magnitude guess for printed pads; calibrate against measured sinking |
-| `solver.contact_damping_ratio` | `number` | `1.0` | `1` | > 0 | `group.solver`<br>affects: `sim` | 由刚度推导接触阻尼用的阻尼比<br>Damping ratio used to derive contact damping from the stiffness |
+| `solver.iterations` | `integer` | `100` | `count` | ≥ 1 | `group.solver`<br>affects: `sim` | 约束求解迭代次数上限；K2 使用耦合接触模式修正，投影残差在预算内未收敛时拒绝推进该步<br>Maximum constraint-solver iterations; K2 uses coupled contact-mode corrections and rejects a step if its projection residuals do not converge within the budget |
+| `solver.tolerance` | `number` \| `null` | `null` | `1` | ≥ 0 | `group.solver`<br>affects: `sim` | MuJoCo 约束求解器提前停止阈值；null 沿用所记录后端版本的默认值，0 禁用提前停止。K2 不支持显式数值<br>MuJoCo constraint-solver early-termination tolerance; null retains the recorded backend version's default, 0 disables early termination. K2 rejects explicit numeric values<br>*Source*: https://mujoco.readthedocs.io/en/stable/XMLreference.html#option-tolerance |
+| `solver.contact_solref` | `number` | `0.02` | `s` | > 0 | `group.solver`<br>affects: `sim` | MuJoCo 接触时间常数，仅在 contact_stiffness 为 null 时使用；该分支固定临界阻尼，contact_damping_ratio 不参与换算<br>MuJoCo contact time constant, used when contact_stiffness is null; this branch fixes critical damping and does not use contact_damping_ratio |
+| `solver.contact_stiffness` | `number` \| `null` | `100000.0` | `1/s²` | range `[10000.0, 10000000.0]`; > 0 | `assumption`<br>`calibratable`<br>`group.solver`<br>affects: `sim` | 接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref<br>Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces.<br>*Source*: Order-of-magnitude guess for printed pads; calibrate against measured sinking |
+| `solver.contact_damping_ratio` | `number` | `1.0` | `1` | > 0 | `group.solver`<br>affects: `sim` | 无量纲阻尼比 ζ；由质量归一化刚度 k 换算为 damping = 2ζ√k（1/s），不再乘质量；仅在 contact_stiffness 非 null 时使用<br>Dimensionless damping ratio zeta: damping = 2*zeta*sqrt(k) in 1/s for mass-normalised stiffness k, with no mass factor; used only when contact_stiffness is non-null |
 | `solver.cone` | enum `"pyramidal"` \| `"elliptic"` | `"pyramidal"` | – | – | `group.solver`<br>affects: `sim` | 摩擦锥类型<br>Friction cone type |
 | `solver.impratio` | `number` | `1.0` | `1` | ≥ 1 | `group.solver`<br>affects: `sim` | 摩擦与法向约束阻抗之比<br>Friction-vs-normal constraint impedance ratio |
 | `solver.noslip_iterations` | `integer` | `0` | `count` | ≥ 0 | `group.solver`<br>affects: `sim` | noslip 后处理迭代次数<br>Number of noslip post-processing iterations |

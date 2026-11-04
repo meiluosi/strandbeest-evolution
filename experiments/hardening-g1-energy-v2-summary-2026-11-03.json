@@ -1,0 +1,85 @@
+{
+  "study": "H2-01 energy-v2",
+  "seed": 1,
+  "n": 64,
+  "defaults_changed": false,
+  "audit_thresholds_changed": false,
+  "trajectories_changed": false,
+  "cohorts": [
+    {
+      "configuration": "default",
+      "old_evidence": "hardening-g1-baseline-2026-11-03.json",
+      "new_evidence": "hardening-g1-energy-v2-default-2026-11-03.json",
+      "failed_cases": [
+        17,
+        19,
+        20,
+        23,
+        31,
+        40,
+        53,
+        56,
+        58,
+        61
+      ],
+      "findings": {
+        "loop_closure": 6,
+        "stride_vs_kinematics": 4
+      },
+      "max_abs_energy_residual_before": 0.03286391980010915,
+      "max_abs_energy_residual_after": 0.0006384442059617095,
+      "legacy_energy_metric_count": 63,
+      "max_loop_mm": 13.190819959248756,
+      "sources_changed_during_run": []
+    },
+    {
+      "configuration": "solref05",
+      "old_evidence": "hardening-g1-solref05-2026-11-03.json",
+      "new_evidence": "hardening-g1-energy-v2-solref05-frozen-repeat-2026-11-03.json",
+      "failed_cases": [
+        20,
+        53,
+        56,
+        61
+      ],
+      "findings": {
+        "stride_vs_kinematics": 4
+      },
+      "max_abs_energy_residual_before": 375.29642363911233,
+      "max_abs_energy_residual_after": 0.0007312534832175591,
+      "legacy_energy_metric_count": 62,
+      "max_loop_mm": 4.6283090168026675,
+      "sources_changed_during_run": []
+    },
+    {
+      "configuration": "solref05_dt005",
+      "old_evidence": "hardening-g1-solref05-dt005-2026-11-03.json",
+      "new_evidence": "hardening-g1-energy-v2-solref05-dt005-frozen-repeat-2026-11-03.json",
+      "failed_cases": [
+        20,
+        53,
+        56,
+        61
+      ],
+      "findings": {
+        "stride_vs_kinematics": 4
+      },
+      "max_abs_energy_residual_before": 0.026123689221768883,
+      "max_abs_energy_residual_after": 0.0003584035246321584,
+      "legacy_energy_metric_count": 62,
+      "max_loop_mm": 4.629706520465682,
+      "sources_changed_during_run": []
+    }
+  ],
+  "frozen_repeat_metrics_exactly_equal": true,
+  "net_extraction_evidence": "hardening-g1-energy-v2-net-extraction-2026-11-03.json",
+  "validation": {
+    "python_analytic_energy_events_including_slow": 34,
+    "python_golden_v2": 10,
+    "wasm_analytic_and_run_corpus": 32,
+    "typecheck": "pass",
+    "biome_changed_ts": "pass"
+  },
+  "remaining": "Original stride oracle still fails cases20/53/56/61; default also has6loop failures. Signed net-extraction coverage remains supplemental to unchanged legacy audit.",
+  "half_step_frozen_repeat_metrics_exactly_equal": true
+}
