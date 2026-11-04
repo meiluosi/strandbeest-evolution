@@ -50,3 +50,15 @@ def test_migrate_any_recognises_and_upgrades_a_flat_scenario():
     assert v2["entities"][0]["components"]["body"]["legs"] == 4 and v2["name"] == "x"
     assert migrate_any(v2) == v2  # already v2
     assert detect_kind(v2) == "scenario"
+
+
+@pytest.mark.parametrize("solver", [{}, {"tolerance": None}, {"tolerance": 0.0}, {"tolerance": 1e-12}])
+def test_solver_precision_migrates_and_round_trips_without_changing_old_defaults(solver):
+    old = {"schema_version": 1, "solver": solver}
+    migrated = to_v2(old)
+    V2.validate(migrated)
+    expected = solver.get("tolerance")
+    assert migrated["solver"]["tolerance"] == expected
+    reloaded = Scenario.model_validate_json(json.dumps(migrated)).model_dump(mode="json", exclude_unset=True)
+    assert flatten(reloaded)["solver"]["tolerance"] == expected
+    assert to_v2(flatten(reloaded)) == migrated

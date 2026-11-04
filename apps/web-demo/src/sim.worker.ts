@@ -2,6 +2,7 @@
 import loadMujoco from "@mujoco/mujoco";
 import wasmUrl from "@mujoco/mujoco/mujoco.wasm?url";
 import { type Replay, runPreview, type SimConfig } from "@strandbeest/sim-web";
+import { initializeKernel } from "./kernel-loader";
 
 export type SimRequest = { config: SimConfig };
 export type SimMessage =
@@ -20,6 +21,7 @@ self.onmessage = async (e: MessageEvent<SimRequest>) => {
 	try {
 		const t0 = performance.now();
 		post({ type: "progress", phase: "load", fraction: 0, simTime: 0 });
+		await initializeKernel();
 		const mj = await loadMujoco({ locateFile: () => wasmUrl });
 		const replay = await runPreview(mj, e.data.config, {
 			onProgress: (p) => post({ type: "progress", ...p }),

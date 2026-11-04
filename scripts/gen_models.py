@@ -213,7 +213,7 @@ class PyGen:
                 "",
                 "from typing import Annotated, Any, ClassVar, Literal, Union",
                 "",
-                "from pydantic import BaseModel, ConfigDict, Field, model_validator",
+                "from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator",
             ]
         )
         base = (
@@ -227,6 +227,13 @@ class PyGen:
             "            for key in cls.__non_nullable__:\n"
             "                if key in data and data[key] is None:\n"
             "                    raise ValueError(f\"{key}: null is not allowed; omit the field instead\")\n"
+            "        return data\n\n"
+            "    @model_serializer(mode=\"wrap\")\n"
+            "    def _omit_absent_non_nullable(self, handler: Any) -> dict[str, Any]:\n"
+            "        data = handler(self)\n"
+            "        for key in self.__non_nullable__:\n"
+            "            if data.get(key) is None:\n"
+            "                data.pop(key, None)\n"
             "        return data"
         )
         parts = [base, *(["\n".join(early)] if early else []), *extra, *classes, *(["\n".join(late)] if late else [])]

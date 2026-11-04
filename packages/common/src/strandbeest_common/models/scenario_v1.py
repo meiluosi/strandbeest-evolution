@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, ClassVar, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 
 class _Strict(BaseModel):
@@ -18,6 +18,14 @@ class _Strict(BaseModel):
             for key in cls.__non_nullable__:
                 if key in data and data[key] is None:
                     raise ValueError(f"{key}: null is not allowed; omit the field instead")
+        return data
+
+    @model_serializer(mode="wrap")
+    def _omit_absent_non_nullable(self, handler: Any) -> dict[str, Any]:
+        data = handler(self)
+        for key in self.__non_nullable__:
+            if data.get(key) is None:
+                data.pop(key, None)
         return data
 
 
@@ -73,7 +81,7 @@ class Terrain(_Strict):
     kind: str = Field(default='flat', description='Terrain kind: flat, slope, step, bumps, ramp, sand, ...')
     friction: float = Field(default=1.5, gt=0, description='Ground friction coefficient')
     slope_deg: float = Field(default=0.0, description='Slope angle (implemented by tilting gravity)')
-    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)')
+    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg). MuJoCo sand/soft uses mass-normalised stiffness (1/s^2), damping (1/s). K2 stiffness is N/m; calibrated values are not interchangeable. Neither is granular flow.')
     water_level_m: Union[float, None] = Field(default=None, description='Water or tide surface height (Z in metres, null for dry beach)')
 
 
@@ -96,14 +104,27 @@ class Drive(_Strict):
     params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters')
 
 
+class Pneumatics(_Strict):
+    """Pneumatic system"""
+
+    bottle_count: int = Field(default=4, ge=1, description='Number of PET bottles')
+    bottle_volume_l: float = Field(default=2.0, ge=0.1, description='Volume per bottle (L)')
+    precharge_pa: float = Field(default=101325, ge=0, description='Precharge pressure')
+    pump_bore_m: float = Field(default=0.03, ge=0.005, description='Pump bore diameter')
+    pump_stroke_m: float = Field(default=0.05, ge=0.005, description='Pump stroke length')
+    feeler_enabled: bool = Field(default=True, description='Enable water feeler reflex')
+    anchor_enabled: bool = Field(default=True, description='Enable storm anchor reflex')
+
+
 class Solver(_Strict):
     """Solver"""
 
     timestep: float = Field(default=0.00025, gt=0, description='Time step; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8)')
-    iterations: int = Field(default=100, ge=1, description='Solver iterations')
-    contact_solref: float = Field(default=0.02, gt=0, description='Foot/terrain contact time constant, used only when contact_stiffness is unset; depends on effective mass, so a numerical knob')
-    contact_stiffness: Union[float, None] = Field(default=100000.0, gt=0, description="Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref")
-    contact_damping_ratio: float = Field(default=1.0, gt=0, description='Damping ratio used to derive contact damping from the stiffness')
+    iterations: int = Field(default=100, ge=1, description='Maximum constraint-solver iterations; K2 uses coupled contact-mode corrections and rejects a step if its projection residuals do not converge within the budget')
+    tolerance: Union[float, None] = Field(default=None, ge=0, description="MuJoCo constraint-solver early-termination tolerance; null retains the recorded backend version's default, 0 disables early termination. K2 rejects explicit numeric values")
+    contact_solref: float = Field(default=0.02, gt=0, description='MuJoCo contact time constant, used when contact_stiffness is null; this branch fixes critical damping and does not use contact_damping_ratio')
+    contact_stiffness: Union[float, None] = Field(default=100000.0, gt=0, description="Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces.")
+    contact_damping_ratio: float = Field(default=1.0, gt=0, description='Dimensionless damping ratio zeta: damping = 2*zeta*sqrt(k) in 1/s for mass-normalised stiffness k, with no mass factor; used only when contact_stiffness is non-null')
     cone: Literal['pyramidal', 'elliptic'] = Field(default='pyramidal', description='Friction cone type')
     impratio: float = Field(default=1.0, ge=1, description='Friction-vs-normal constraint impedance ratio')
     noslip_iterations: int = Field(default=0, ge=0, description='Number of noslip post-processing iterations')
@@ -125,6 +146,8 @@ class Run(_Strict):
 class ScenarioV1(_Strict):
     """The flat scenario of schema version 1 (one walker, its environment, drive and solver in one object). The simulator still runs on this shape internally; scenarios are written as schema version 2 (World + Entities) and migrated with strandbeest_common.migrate."""
 
+    __non_nullable__: ClassVar[tuple[str, ...]] = ('pneumatics', )
+
     schema_version: Literal[1] = 1
     name: str = Field(default='unnamed', description='Scenario name')
     linkage: Linkage = Field(default_factory=Linkage)
@@ -133,5 +156,6 @@ class ScenarioV1(_Strict):
     wind: Wind = Field(default_factory=Wind)
     terrain: Terrain = Field(default_factory=Terrain)
     drive: Drive = Field(default_factory=Drive)
+    pneumatics: Union[Pneumatics, None] = None
     solver: Solver = Field(default_factory=Solver)
     run: Run = Field(default_factory=Run)

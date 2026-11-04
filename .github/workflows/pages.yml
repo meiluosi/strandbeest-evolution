@@ -1,6 +1,8 @@
 # Manual deploy of the web demo to GitHub Pages. Enable Pages (Source: GitHub Actions) in repo settings first.
 name: Deploy demo
 on: workflow_dispatch
+env:
+  RUSTUP_TOOLCHAIN: "1.95.0"
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
 jobs:
@@ -13,6 +15,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: rustup toolchain install 1.95.0 --profile minimal --target wasm32-unknown-unknown
+      - run: cargo install --locked --version 0.2.105 wasm-bindgen-cli
+      - run: ./scripts/build-kernel-wasm.sh
       - run: pnpm check
       - run: pnpm --filter @strandbeest/web-demo build
         env: { VITE_STATIC: "1" }

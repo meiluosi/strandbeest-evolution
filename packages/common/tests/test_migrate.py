@@ -20,6 +20,21 @@ FILES = {
 }
 
 
+@pytest.mark.parametrize('present', [False, True])
+def test_run_migration_and_json_roundtrip_preserve_observation_evidence(present):
+    doc = json.loads((V1/'run-example.json').read_text())
+    if present:
+        doc['audit_observation'] = json.loads((ROOT/'contracts/sim-observation/cases.json').read_text())['cases'][0]['expected']
+    before = copy.deepcopy(doc)
+    migrated = migrate_doc('run', doc)
+    validate('run', migrated)
+    assert ('audit_observation' in migrated) == present
+    if present:
+        assert migrated['audit_observation'] == doc['audit_observation']
+    assert migrate_doc('run', json.loads(json.dumps(migrated))) == migrated
+    assert doc == before
+
+
 def load(path: Path) -> dict:
     return json.loads(path.read_text())
 

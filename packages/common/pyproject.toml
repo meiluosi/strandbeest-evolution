@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Shared contracts for the Strandbeest platform: schemas, Design model, linkage kinematics"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["jsonschema>=4.20", "pydantic>=2.6"]
+dependencies = ["beest-kernel==0.1.0", "jsonschema>=4.20", "pydantic>=2.6", "numpy>=1.26", "pyarrow>=21"]
 
 [project.scripts]
 strandbeest-migrate = "strandbeest_common.migrate:main"

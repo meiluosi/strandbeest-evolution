@@ -470,8 +470,8 @@
 					"default": {},
 					"x-group": "group.terrain",
 					"x-doc": {
-						"zh": "随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand 用 stiffness（N/m）、damping（N·s/m）",
-						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)"
+						"zh": "随类型而定的参数。ramp 用 start（m）、height（m）、length（m）、angle_deg（deg）；sand/soft 在 MuJoCo 中用质量归一的 stiffness（1/s²）、damping（1/s）。K2 的 stiffness 是 N/m，不可直接复用校准值。均非颗粒流模型。",
+						"en": "Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg). MuJoCo sand/soft uses mass-normalised stiffness (1/s^2), damping (1/s). K2 stiffness is N/m; calibrated values are not interchangeable. Neither is granular flow."
 					},
 					"x-affects": ["sim"]
 				},
@@ -891,9 +891,22 @@
 					"x-unit": "count",
 					"x-group": "group.solver",
 					"x-doc": {
-						"zh": "求解器迭代次数",
-						"en": "Solver iterations"
+						"zh": "约束求解迭代次数上限；K2 使用耦合接触模式修正，投影残差在预算内未收敛时拒绝推进该步",
+						"en": "Maximum constraint-solver iterations; K2 uses coupled contact-mode corrections and rejects a step if its projection residuals do not converge within the budget"
 					},
+					"x-affects": ["sim"]
+				},
+				"tolerance": {
+					"type": ["number", "null"],
+					"minimum": 0,
+					"default": null,
+					"x-unit": "1",
+					"x-group": "group.solver",
+					"x-doc": {
+						"zh": "MuJoCo 约束求解器提前停止阈值；null 沿用所记录后端版本的默认值，0 禁用提前停止。K2 不支持显式数值",
+						"en": "MuJoCo constraint-solver early-termination tolerance; null retains the recorded backend version's default, 0 disables early termination. K2 rejects explicit numeric values"
+					},
+					"x-source": "https://mujoco.readthedocs.io/en/stable/XMLreference.html#option-tolerance",
 					"x-affects": ["sim"]
 				},
 				"contact_solref": {
@@ -903,8 +916,8 @@
 					"x-unit": "s",
 					"x-group": "group.solver",
 					"x-doc": {
-						"zh": "脚-地面接触时间常数，仅在未设 contact_stiffness 时使用；取决于有效质量，是数值旋钮而非物理量",
-						"en": "Foot/terrain contact time constant, used only when contact_stiffness is unset; depends on effective mass, so a numerical knob"
+						"zh": "MuJoCo 接触时间常数，仅在 contact_stiffness 为 null 时使用；该分支固定临界阻尼，contact_damping_ratio 不参与换算",
+						"en": "MuJoCo contact time constant, used when contact_stiffness is null; this branch fixes critical damping and does not use contact_damping_ratio"
 					},
 					"x-affects": ["sim"]
 				},
@@ -917,7 +930,7 @@
 					"x-group": "group.solver",
 					"x-doc": {
 						"zh": "接触刚度，MuJoCo 质量归一化单位（1/s²），不是 N/m；设为 null 则改用 contact_solref",
-						"en": "Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref"
+						"en": "Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces."
 					},
 					"x-assumption": true,
 					"x-source": "Order-of-magnitude guess for printed pads; calibrate against measured sinking",
@@ -931,8 +944,8 @@
 					"x-unit": "1",
 					"x-group": "group.solver",
 					"x-doc": {
-						"zh": "由刚度推导接触阻尼用的阻尼比",
-						"en": "Damping ratio used to derive contact damping from the stiffness"
+						"zh": "无量纲阻尼比 ζ；由质量归一化刚度 k 换算为 damping = 2ζ√k（1/s），不再乘质量；仅在 contact_stiffness 非 null 时使用",
+						"en": "Dimensionless damping ratio zeta: damping = 2*zeta*sqrt(k) in 1/s for mass-normalised stiffness k, with no mass factor; used only when contact_stiffness is non-null"
 					},
 					"x-affects": ["sim"]
 				},

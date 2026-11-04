@@ -3,7 +3,7 @@
 Every result, metric or simulation run carries an evidence level:
 - E0: Single model simulation (default for all new/unvalidated runs)
 - E1: Dual independent solvers agree within agreed tolerance (e.g. K2 vs MuJoCo)
-- E2: Verified against public data or published literature (e.g. V-01 digitized trajectory)
+- E2: Verified against public data or published literature with a reviewed source chain
 - E3: Verified by traceable physical measurements (physical test rig)
 
 Downgrade rules:
@@ -53,7 +53,7 @@ def evaluate_evidence(
     literature_checks: dict[str, Any] | None = None,
     measurement_checks: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Build an evidence document incorporating independent cross-checks or literature comparisons."""
+    """Combine already reviewed checks; this function cannot authenticate a measurement/source."""
     doc = default_evidence(metrics)
     claims = doc["claims"]
 
@@ -67,7 +67,8 @@ def evaluate_evidence(
     # 2. Literature checks (E2)
     if literature_checks:
         for key, info in literature_checks.items():
-            if info.get("verified", False):
+            current = claims.get(key, {}).get("level", "E0")
+            if info.get("verified", False) and LEVEL_ORDER[current] < LEVEL_ORDER["E2"]:
                 basis = info.get("basis", ["published-literature"])
                 claims[key] = {"level": "E2", "basis": basis}
 

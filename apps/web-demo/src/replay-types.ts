@@ -1,3 +1,8 @@
+import type {
+	AuditObservationDocument,
+	SimulationAuditReport,
+} from "@strandbeest/sim-web";
+
 /** What GET /runs/{id}/replay returns (see apps/api app.py). Positions are MuJoCo world frame: x forward, y lateral, z up. */
 export type Scene = {
 	bodies: string[];
@@ -47,6 +52,8 @@ export type Replay = {
 	diagnosis: Diagnosis[];
 	metrics: Record<string, number | null>;
 	stalled: boolean;
+	audit?: SimulationAuditReport;
+	audit_observation?: AuditObservationDocument;
 	nominal_stride_m: number | null;
 	kinematic_duty: number | null;
 	revolutions: number;

@@ -1,7 +1,8 @@
 """Canonical JSON serialization and content hashing (ADR-0004, E5-01).
 
 Provides stable, deterministic SHA-256 content hashes for assets and simulation run input keys:
-  input_key = (design_hash, world_hash, backend_name_and_version, platform, seed)
+  legacy input_key = (design_hash, world_hash, backend_name_and_version, platform, seed)
+  v2 also includes key_format, simulation_semantics and implementation_hash.
 
 Rules:
 - Dictionary keys are sorted lexicographically at every nesting level.
@@ -83,8 +84,21 @@ def run_input_key(
     backend_version: str = "",
     platform_tag: str | None = None,
     seed: int = 0,
+    implementation_hash: str | None = None,
+    simulation_semantics: str | None = None,
 ) -> dict[str, Any]:
-    """Build the 5-tuple input key and its combined content hash (ADR-0004, E5-01)."""
+    """Hash simulation inputs, optionally with a verified implementation identity.
+
+    Omitting both new fields preserves historical keys for readers/tools only;
+    the API never reuses such a key. Do not infer identities for old records.
+    """
+    if (implementation_hash is None) != (simulation_semantics is None):
+        raise ValueError("implementation_hash and simulation_semantics must be provided together")
+    if implementation_hash is not None:
+        import re
+
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", implementation_hash) or not simulation_semantics:
+            raise ValueError("invalid simulation implementation identity")
     d_hash = content_hash(design, semantic_only=True)
     w_hash = content_hash(world_or_scenario, semantic_only=True)
     be_tag = f"{backend}:{backend_version}" if backend_version else backend
@@ -96,6 +110,9 @@ def run_input_key(
         "platform": plat,
         "seed": int(seed),
     }
+    if implementation_hash is not None:
+        tuple_doc.update(key_format=2, implementation_hash=implementation_hash,
+                         simulation_semantics=simulation_semantics)
     return {
         "key": content_hash(tuple_doc),
         **tuple_doc,

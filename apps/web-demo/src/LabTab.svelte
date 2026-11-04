@@ -22,9 +22,15 @@ type Cmp = {
 	distance: number | null;
 };
 type Profile = {
+	id: string;
 	name: string;
 	parameters: Record<string, number>;
-	provenance: { residual: number; method: string; synthetic?: boolean };
+	provenance: {
+		residual: number;
+		method: string;
+		synthetic?: boolean;
+		measurement_ids: string[];
+	};
 	uncertainty?: Record<
 		string,
 		{ ci95: number[]; identifiable: boolean; profile_share_of_prior: number }
@@ -53,6 +59,7 @@ let omega = $state(2.0);
 let wind = $state(0);
 let synthetic = $state(false);
 let channels = $state<Record<string, number[]> | null>(null);
+let importedMeasurement = $state<Record<string, any> | null>(null);
 let fileName = $state("");
 // ---- raw rig data ----
 type Quality = {
@@ -187,10 +194,20 @@ async function pick(e: Event) {
 	await guard(t("lab.busy.parsing"), async () => {
 		const text = await f.text();
 		fileName = f.name;
+		importedMeasurement = null;
+		channels = null;
+		profile = null;
 		if (f.name.endsWith(".json")) {
 			const doc = JSON.parse(text);
 			channels = doc.channels ?? doc;
 			newName = doc.name ?? doc.id ?? newName;
+			if (doc.schema_version !== undefined && doc.channels) {
+				importedMeasurement = doc;
+				synthetic = doc.synthetic === true;
+				kind = doc.conditions?.kind ?? "motor_no_wind";
+				omega = doc.conditions?.omega_rad_s ?? omega;
+				wind = doc.conditions?.wind_m_s ?? 0;
+			}
 		} else channels = parseCsv(text);
 		if (!channels?.t) throw new Error(t("lab.csv.needColumns"));
 		info = t("lab.csv.read", {
@@ -203,20 +220,24 @@ async function pick(e: Event) {
 const save = () =>
 	guard(t("common.save"), async () => {
 		if (!channels) throw new Error(t("lab.pickFile"));
-		const saved = await call("/measurements", {
-			schema_version: 2,
-			id: newUlid(),
-			name: newName,
-			design_id: view.designId,
-			design_name: view.name,
-			synthetic,
-			conditions: {
-				kind,
-				omega_rad_s: omega,
-				...(kind === "fan" ? { wind_m_s: wind } : {}),
+		const saved = await call(
+			"/measurements",
+			importedMeasurement ?? {
+				schema_version: 2,
+				id: newUlid(),
+				name: newName,
+				design_id: view.designId,
+				design_name: view.name,
+				synthetic,
+				conditions: {
+					kind,
+					omega_rad_s: omega,
+					...(kind === "fan" ? { wind_m_s: wind } : {}),
+				},
+				channels,
+				provenance: { source: "manual", raw_file: fileName },
 			},
-			channels,
-		});
+		);
 		measurements = await call("/measurements");
 		mId = saved.id;
 		info = t("lab.saved", { newName: newName });
@@ -251,6 +272,21 @@ const calibrateBayes = () =>
 			params: names,
 			points: 32,
 		});
+	});
+
+const applyCalibration = () =>
+	guard(t("lab.calib.applying"), async () => {
+		if (!profile) return;
+		const result = await runJob("/runs", {
+			design: currentDesign(),
+			profile_id: profile.id,
+			ensemble: false,
+		});
+		runs = await call("/runs");
+		runId = result.id;
+		mId = profile.provenance.measurement_ids[0] ?? mId;
+		cmp = await call("/compare", { measurement: mId, run_id: runId });
+		info = t("lab.calib.applied");
 	});
 
 const chart = $derived.by(() => {
@@ -331,15 +367,16 @@ const chart = $derived.by(() => {
 		<h3>{t("lab.import.title")}</h3>
 		<div class="row">
 			<label class="btn inline" style="cursor:pointer">{t("lab.import.choose")} <input type="file" accept=".csv,.json" onchange={pick} hidden /></label>
-			<label>{t("lab.import.name")} <input type="text" bind:value={newName} size="12" /></label>
+			<label>{t("lab.import.name")} <input type="text" bind:value={newName} size="12" disabled={!!importedMeasurement} /></label>
 			<label>{t("lab.import.kind")}
-				<select bind:value={kind}><option value="motor_no_wind">{t("lab.import.kind.motor")}</option><option value="fan">{t("lab.import.kind.fan")}</option></select>
+				<select bind:value={kind} disabled={!!importedMeasurement}><option value="motor_no_wind">{t("lab.import.kind.motor")}</option><option value="fan">{t("lab.import.kind.fan")}</option></select>
 			</label>
-			<label>{t("lab.import.crankSpeed")} <input type="number" step="0.1" bind:value={omega} /></label>
-			{#if kind === "fan"}<label>{t("lab.import.windSpeed")} <input type="number" step="0.5" min="0" bind:value={wind} /></label>{/if}
-			<label class="inline"><input type="checkbox" bind:checked={synthetic} /> {t("lab.import.synthetic")}</label>
+			<label>{t("lab.import.crankSpeed")} <input type="number" step="0.1" bind:value={omega} disabled={!!importedMeasurement} /></label>
+			{#if kind === "fan"}<label>{t("lab.import.windSpeed")} <input type="number" step="0.5" min="0" bind:value={wind} disabled={!!importedMeasurement} /></label>{/if}
+			<label class="inline"><input type="checkbox" bind:checked={synthetic} disabled={!!importedMeasurement} /> {t("lab.import.synthetic")}</label>
 			<button class="btn primary" disabled={!!busy || !channels} onclick={save}>{t("lab.import.save")}</button>
 		</div>
+		{#if importedMeasurement}<p class="notice info">{t("lab.import.preserveDocument")}</p>{/if}
 		<small>{t("lab.import.csvHint")}<code>t,psi,torque,x</code>{t("lab.import.csvColumns", { fileName: fileName ? t("lab.import.picked", { fileName: fileName }) : "" })}</small>
 	</div>
 
@@ -347,7 +384,7 @@ const chart = $derived.by(() => {
 		<h3>{t("lab.compare.title")}</h3>
 		<div class="row center">
 			<label>{t("lab.compare.measurement")}
-				<select bind:value={mId}>
+				<select bind:value={mId} onchange={() => { profile = null; cmp = null; }}>
 					<option value="">{t("common.choose")}</option>
 					{#each measurements as m}<option value={m.id}>{m.name}{m.synthetic ? t("lab.compare.syntheticTag") : ""}</option>{/each}
 				</select>
@@ -403,6 +440,7 @@ const chart = $derived.by(() => {
 				</tbody>
 			</table>
 			{#if profile.provenance.synthetic}<p class="notice">{t("lab.calib.syntheticWarning")}</p>{/if}
+			<button class="btn primary" disabled={!!busy} onclick={applyCalibration}>{t("lab.calib.apply")}</button>
 		{/if}
 		<p class="notice info">{t("lab.calib.caveat")}</p>
 	</div>

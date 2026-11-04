@@ -148,6 +148,11 @@ class JobStore:
                     "INSERT OR REPLACE INTO provenance_edges(child_id, child_kind, parent_id, parent_kind, relation) VALUES (?,?,?,?,?)",
                     (doc["id"], "run", doc["design_id"], "design", "simulated_from"),
                 )
+            if prov.get("calibration_profile_id"):
+                self._db.execute(
+                    "INSERT OR REPLACE INTO provenance_edges(child_id, child_kind, parent_id, parent_kind, relation) VALUES (?,?,?,?,?)",
+                    (doc["id"], "run", prov["calibration_profile_id"], "profile", "calibrated_with"),
+                )
 
     def add_provenance_edge(self, child_id: str, child_kind: str, parent_id: str, parent_kind: str, relation: str) -> None:
         with self._lock:

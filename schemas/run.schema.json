@@ -36,6 +36,32 @@
 		},
 		"metrics": {
 			"type": "object",
+			"properties": {
+				"energy_contact_normal_share": {
+					"type": ["number", "null"],
+					"x-unit": "1",
+					"x-doc": {
+						"zh": "法向接触有向能量转移占输入功的比例；穿透修正注入能量时可为负，与总接触功使用相同统计窗口",
+						"en": "Signed normal contact transfer divided by input work over the same energy window; stabilization injection may be negative"
+					}
+				},
+				"energy_contact_tangent_share": {
+					"type": ["number", "null"],
+					"x-unit": "1",
+					"x-doc": {
+						"zh": "切向接触有向能量转移占输入功的比例；冲量后滑移速度为零仍可能存在能量损失",
+						"en": "Signed tangent contact transfer divided by input work; a sticking impulse can remove energy even when final slip is zero"
+					}
+				},
+				"energy_numerical_share": {
+					"type": ["number", "null"],
+					"x-unit": "1",
+					"x-doc": {
+						"zh": "积分方法引入的有向机械能变化占输入功的比例，仅供诊断，禁止用于抵消能量审计残差；缺失不代表零",
+						"en": "Signed mechanical energy change introduced by integration divided by input work; diagnostic only, never offsets the audit residual; absence does not mean zero"
+					}
+				}
+			},
 			"additionalProperties": {
 				"type": ["number", "boolean", "null"],
 				"x-unit": "1"
@@ -45,7 +71,11 @@
 			"type": "boolean"
 		},
 		"arrays_file": {
-			"type": "string"
+			"type": "string",
+			"x-doc": {
+				"zh": "原始时间序列路径；K2可选列e_contact_normal、e_contact_tangent为累计有向接触转移，e_numerical为累计积分能量误差，单位均为J；后者不抵消审计残差。NPZ/Parquet及遥测保留符号，缺失列不补零",
+				"en": "Raw time-series path. Optional K2 columns e_contact_normal and e_contact_tangent are cumulative signed contact transfers; e_numerical is cumulative integration energy error, all in J. Numerical error never offsets audit residuals. NPZ/Parquet and telemetry preserve signs; missing columns are not filled with zero"
+			}
 		},
 		"parquet_file": {
 			"type": "string"
@@ -91,6 +121,20 @@
 				},
 				"cache_hit_from": {
 					"$ref": "#/$defs/Ulid"
+				},
+				"execution_identity": {
+					"$ref": "#/$defs/ExecutionIdentity",
+					"x-doc": {
+						"zh": "实际执行实现的身份；旧运行缺省，禁止用当前版本补写。",
+						"en": "Identity of the executed implementation; absent in legacy runs and never backfilled from the current build."
+					}
+				},
+				"calibration_profile_id": {
+					"$ref": "#/$defs/Ulid",
+					"x-doc": {
+						"zh": "本次仿真实际应用的校准档案 ID。",
+						"en": "ID of the calibration Profile actually applied in this run."
+					}
 				}
 			}
 		},
@@ -281,6 +325,20 @@
 					}
 				}
 			}
+		},
+		"audit": {
+			"$ref": "#/$defs/SimulationAudit",
+			"x-doc": {
+				"zh": "版本化仿真审计；缺少参考适用性证据保持未验证，并保留旧审计对照。",
+				"en": "Versioned simulation audit; missing applicability stays unverified, with the legacy result retained."
+			}
+		},
+		"audit_observation": {
+			"$ref": "#/$defs/AuditObservation",
+			"x-doc": {
+				"zh": "驱动阶段逐步累计的支撑与峰值证据，不依赖轨迹记录频率。旧记录缺失时保持未知，不补造。",
+				"en": "Support and peak evidence accumulated at every driven step, independently of telemetry cadence. Missing historical coverage remains unknown and is never synthesized."
+			}
 		}
 	},
 	"$defs": {
@@ -290,6 +348,573 @@
 			"x-doc": {
 				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
 				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
+			}
+		},
+		"ExecutionIdentity": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["key_format", "simulation_semantics", "status"],
+			"description": "Versioned simulation identity. Verified installed bytes and runtime are required for cache reuse.",
+			"properties": {
+				"key_format": {
+					"const": 2,
+					"x-doc": {
+						"zh": "实现感知的缓存键版本",
+						"en": "Implementation-aware cache key format"
+					}
+				},
+				"simulation_semantics": {
+					"type": "string",
+					"minLength": 1,
+					"x-doc": {
+						"zh": "能量、观测、事件、证据与多配置汇总的语义版本",
+						"en": "Semantic version for energy, observations, events, evidence and ensemble aggregation"
+					}
+				},
+				"status": {
+					"enum": ["verified", "unavailable"],
+					"x-doc": {
+						"zh": "能否核验实际执行的实现",
+						"en": "Whether the executing implementation can be verified"
+					}
+				},
+				"implementation_hash": {
+					"type": "string",
+					"pattern": "^sha256:[0-9a-f]{64}$",
+					"x-doc": {
+						"zh": "已安装文件与运行依赖清单的内容哈希",
+						"en": "Content hash of the installed files and runtime manifest"
+					}
+				},
+				"manifest": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": ["files", "runtime"],
+					"properties": {
+						"files": {
+							"type": "object",
+							"minProperties": 1,
+							"additionalProperties": {
+								"type": "string",
+								"pattern": "^sha256:[0-9a-f]{64}$"
+							},
+							"x-doc": {
+								"zh": "相对安装路径到文件内容哈希；不包含本机绝对路径",
+								"en": "Installation-relative file names and content hashes, without host absolute paths"
+							}
+						},
+						"runtime": {
+							"type": "object",
+							"minProperties": 1,
+							"additionalProperties": {
+								"type": "string"
+							},
+							"x-doc": {
+								"zh": "Python、数值依赖版本及计算线程配置",
+								"en": "Python and numerical dependency versions, and numerical thread settings"
+							}
+						}
+					}
+				},
+				"reason": {
+					"enum": [
+						"implementation_unavailable",
+						"implementation_changed_since_import",
+						"runtime_bindings_changed",
+						"implementation_changed_during_run"
+					],
+					"x-doc": {
+						"zh": "无法安全复用缓存的原因代码",
+						"en": "Reason code explaining why cache reuse is unavailable"
+					}
+				}
+			},
+			"oneOf": [
+				{
+					"properties": {
+						"status": {
+							"const": "verified"
+						}
+					},
+					"required": ["implementation_hash", "manifest"],
+					"not": {
+						"required": ["reason"]
+					}
+				},
+				{
+					"properties": {
+						"status": {
+							"const": "unavailable"
+						}
+					},
+					"required": ["reason"],
+					"not": {
+						"anyOf": [
+							{
+								"required": ["implementation_hash"]
+							},
+							{
+								"required": ["manifest"]
+							}
+						]
+					}
+				}
+			]
+		},
+		"SimulationAudit": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"version",
+				"status",
+				"passed",
+				"scope",
+				"physical_validation_implied",
+				"thresholds",
+				"findings",
+				"stride_reference",
+				"legacy"
+			],
+			"properties": {
+				"version": {
+					"const": 2
+				},
+				"status": {
+					"enum": ["passed", "failed", "unverified"]
+				},
+				"passed": {
+					"type": "boolean"
+				},
+				"scope": {
+					"const": "numerical_invariants_and_applicable_geometric_reference"
+				},
+				"physical_validation_implied": {
+					"const": false
+				},
+				"thresholds": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": [
+						"energy_residual",
+						"loop_open_m",
+						"penetration_m",
+						"stride_relative"
+					],
+					"properties": {
+						"energy_residual": {
+							"const": 0.02
+						},
+						"loop_open_m": {
+							"const": 0.005
+						},
+						"penetration_m": {
+							"const": 0.005
+						},
+						"stride_relative": {
+							"const": 0.15
+						}
+					}
+				},
+				"findings": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["check", "message", "evidence"],
+						"properties": {
+							"check": {
+								"type": "string"
+							},
+							"message": {
+								"type": "string"
+							},
+							"evidence": {
+								"type": "object"
+							}
+						}
+					}
+				},
+				"stride_reference": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": [
+						"model",
+						"signed_stride_m_per_rev",
+						"numerically_resolved",
+						"applicability",
+						"conditions",
+						"comparison"
+					],
+					"properties": {
+						"model": {
+							"const": "lowest-foot-sphere-v1"
+						},
+						"signed_stride_m_per_rev": {
+							"type": ["number", "null"],
+							"x-unit": "m"
+						},
+						"numerically_resolved": {
+							"type": "boolean"
+						},
+						"error": {
+							"type": "string"
+						},
+						"owners": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["leg", "start", "end", "radius_m"],
+								"properties": {
+									"leg": {
+										"type": "integer",
+										"minimum": 0,
+										"x-unit": "count"
+									},
+									"start": {
+										"type": "string"
+									},
+									"end": {
+										"type": "string"
+									},
+									"radius_m": {
+										"type": "number",
+										"x-unit": "m"
+									}
+								}
+							}
+						},
+						"resolutions": {
+							"type": "array",
+							"items": {
+								"type": "integer",
+								"minimum": 2,
+								"x-unit": "count"
+							}
+						},
+						"samples": {
+							"type": "array",
+							"items": {
+								"type": "object"
+							}
+						},
+						"resolution_relative_difference": {
+							"type": ["number", "null"],
+							"x-unit": "1"
+						},
+						"resolution_relative_tolerance": {
+							"type": "number",
+							"x-unit": "1"
+						},
+						"applicability": {
+							"enum": ["verified", "unverified"]
+						},
+						"conditions": {
+							"type": "array",
+							"minItems": 1,
+							"items": {
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["code", "status", "evidence"],
+								"properties": {
+									"code": {
+										"type": "string"
+									},
+									"status": {
+										"enum": ["verified", "unverified"]
+									},
+									"evidence": {
+										"type": "object"
+									}
+								}
+							}
+						},
+						"comparison": {
+							"type": "object",
+							"additionalProperties": false,
+							"required": [
+								"relative_error",
+								"relative_tolerance",
+								"diagnostic_only"
+							],
+							"properties": {
+								"relative_error": {
+									"type": ["number", "null"],
+									"x-unit": "1"
+								},
+								"relative_tolerance": {
+									"const": 0.15
+								},
+								"diagnostic_only": {
+									"type": "boolean"
+								}
+							}
+						}
+					},
+					"allOf": [
+						{
+							"if": {
+								"properties": {
+									"applicability": {
+										"const": "verified"
+									}
+								}
+							},
+							"then": {
+								"properties": {
+									"numerically_resolved": {
+										"const": true
+									},
+									"signed_stride_m_per_rev": {
+										"type": "number",
+										"not": {
+											"const": 0
+										}
+									},
+									"conditions": {
+										"items": {
+											"properties": {
+												"status": {
+													"const": "verified"
+												}
+											}
+										}
+									},
+									"comparison": {
+										"properties": {
+											"diagnostic_only": {
+												"const": false
+											}
+										}
+									}
+								}
+							}
+						}
+					]
+				},
+				"legacy": {
+					"type": "object",
+					"additionalProperties": false,
+					"required": ["version", "passed", "findings"],
+					"properties": {
+						"version": {
+							"const": 1
+						},
+						"passed": {
+							"type": "boolean"
+						},
+						"findings": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"additionalProperties": false,
+								"required": ["check", "message", "evidence"],
+								"properties": {
+									"check": {
+										"type": "string"
+									},
+									"message": {
+										"type": "string"
+									},
+									"evidence": {
+										"type": "object"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"allOf": [
+				{
+					"if": {
+						"properties": {
+							"status": {
+								"const": "passed"
+							}
+						}
+					},
+					"then": {
+						"properties": {
+							"passed": {
+								"const": true
+							},
+							"findings": {
+								"maxItems": 0
+							},
+							"stride_reference": {
+								"properties": {
+									"applicability": {
+										"const": "verified"
+									}
+								}
+							}
+						}
+					},
+					"else": {
+						"properties": {
+							"passed": {
+								"const": false
+							},
+							"findings": {
+								"minItems": 1
+							}
+						}
+					}
+				}
+			]
+		},
+		"AuditObservation": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"version",
+				"scope",
+				"boundary",
+				"timestep_s",
+				"legs",
+				"support_force_N",
+				"integration_steps",
+				"observed_steps",
+				"invalid_steps",
+				"time_gap_steps",
+				"airborne_steps",
+				"first_time_s",
+				"last_time_s",
+				"max_loop_residual_m",
+				"max_penetration_m"
+			],
+			"description": "Streaming numeric-invariant evidence independent of telemetry cadence. Counts and times must be checked against the Scenario and raw samples; presence alone is not proof of complete coverage.",
+			"properties": {
+				"version": {
+					"const": 1,
+					"x-doc": {
+						"zh": "逐步审计观测格式版本",
+						"en": "All-step audit observation format version"
+					}
+				},
+				"scope": {
+					"const": "driven_steps_excluding_settle",
+					"x-doc": {
+						"zh": "驱动阶段每个积分步，不包括预静置",
+						"en": "Every driven integration step, excluding settling"
+					}
+				},
+				"boundary": {
+					"enum": ["force_evaluation", "post_step"],
+					"x-doc": {
+						"zh": "观测所属的力求值边界或步后边界",
+						"en": "Force-evaluation or post-step observation boundary"
+					}
+				},
+				"timestep_s": {
+					"type": "number",
+					"minimum": 0,
+					"x-unit": "s",
+					"x-doc": {
+						"zh": "实际积分时间步",
+						"en": "Actual integration timestep"
+					},
+					"exclusiveMinimum": 0
+				},
+				"legs": {
+					"type": "integer",
+					"minimum": 1,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "每步必须观测的足数量",
+						"en": "Required foot observations per step"
+					}
+				},
+				"support_force_N": {
+					"const": 1e-6,
+					"x-unit": "N",
+					"x-doc": {
+						"zh": "原支撑判据：法向力严格大于此值",
+						"en": "Historical support rule: normal force strictly exceeds this value"
+					}
+				},
+				"integration_steps": {
+					"type": "integer",
+					"minimum": 0,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "驱动阶段实际完成的积分步数",
+						"en": "Integration steps completed during driving"
+					}
+				},
+				"observed_steps": {
+					"type": "integer",
+					"minimum": 0,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "实际纳入统计的步数",
+						"en": "Steps submitted to the accumulator"
+					}
+				},
+				"invalid_steps": {
+					"type": "integer",
+					"minimum": 0,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "存在缺失或无效观测的步数",
+						"en": "Steps with missing or invalid observations"
+					}
+				},
+				"time_gap_steps": {
+					"type": "integer",
+					"minimum": 0,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "观测时间与预期步边界不符的次数",
+						"en": "Observations inconsistent with the expected step boundary"
+					}
+				},
+				"airborne_steps": {
+					"type": "integer",
+					"minimum": 0,
+					"x-unit": "count",
+					"x-doc": {
+						"zh": "所有足法向力均未超过支撑门槛的步数",
+						"en": "Steps with no foot above the support-force threshold"
+					}
+				},
+				"first_time_s": {
+					"type": ["number", "null"],
+					"minimum": 0,
+					"x-unit": "s",
+					"x-doc": {
+						"zh": "第一条观测相对驱动开始的时间；无观测时为空",
+						"en": "First observation time since driving began; null if absent"
+					}
+				},
+				"last_time_s": {
+					"type": ["number", "null"],
+					"minimum": 0,
+					"x-unit": "s",
+					"x-doc": {
+						"zh": "最后一条观测相对驱动开始的时间；无观测时为空",
+						"en": "Last observation time since driving began; null if absent"
+					}
+				},
+				"max_loop_residual_m": {
+					"type": ["number", "null"],
+					"minimum": 0,
+					"x-unit": "m",
+					"x-doc": {
+						"zh": "所有观测步的最大闭环误差；无有效观测时为空",
+						"en": "Maximum loop residual over observed steps; null without valid observations"
+					}
+				},
+				"max_penetration_m": {
+					"type": ["number", "null"],
+					"minimum": 0,
+					"x-unit": "m",
+					"x-doc": {
+						"zh": "所有观测步的最大接触重叠深度；无有效观测时为空",
+						"en": "Maximum contact overlap over observed steps; null without valid observations"
+					}
+				}
 			}
 		}
 	}

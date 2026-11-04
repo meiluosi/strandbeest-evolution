@@ -1,0 +1,4 @@
+/* Component captures must not include the unrelated sticky navigation overlay. */
+header {
+	visibility: hidden !important;
+}

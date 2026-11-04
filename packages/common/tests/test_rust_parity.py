@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 import beest_kernel
-from strandbeest_common.gait import foot_path as py_foot_path, gait_metrics as py_gait_metrics
-from strandbeest_common.linkage import load_spec, solve_pose as py_solve_pose
+from reference_kinematics import foot_path as py_foot_path, gait_metrics as py_gait_metrics, solve_pose as py_solve_pose
+from strandbeest_common.linkage import load_spec
 
 
 @pytest.fixture

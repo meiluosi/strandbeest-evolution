@@ -19,12 +19,26 @@ def test_cross_checks_and_literature_raise_evidence_levels():
     ev = evaluate_evidence(
         metrics,
         cross_checks={"stride_per_rev": {"verified": True, "basis": ["k2-mujoco-crosscheck"]}},
-        literature_checks={"foot_path": {"verified": True, "basis": ["digitized-amm2014-trajectory"]}},
+        # Synthetic check metadata tests tier composition, not a real publication.
+        literature_checks={"foot_path": {"verified": True, "basis": ["test-reviewed-literature"]}},
     )
     assert ev["claims"]["stride_per_rev"]["level"] == "E1"
     assert "k2-mujoco-crosscheck" in ev["claims"]["stride_per_rev"]["basis"]
     assert ev["claims"]["foot_path"]["level"] == "E2"
     assert ev["level"] == "E2"
+
+
+def test_lower_tier_checks_do_not_overwrite_measurement_evidence():
+    ev = evaluate_evidence(
+        {"foot_path": None},
+        measurement_checks={"foot_path": {"verified": True, "basis": ["test-reviewed-measurement"]}},
+        literature_checks={"foot_path": {"verified": True, "basis": ["test-reviewed-literature"]}},
+        cross_checks={"foot_path": {"verified": True, "basis": ["test-independent-solvers"]}},
+    )
+    assert ev["claims"]["foot_path"] == {
+        "level": "E3", "basis": ["test-reviewed-measurement"]
+    }
+    assert ev["level"] == "E3"
 
 
 def test_downgrade_evidence_when_invariants_fail():

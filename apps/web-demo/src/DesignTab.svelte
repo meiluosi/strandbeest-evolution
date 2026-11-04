@@ -28,6 +28,7 @@ import HistoryPanel from "./HistoryPanel.svelte";
 import { t } from "./i18n/index.svelte";
 import LengthSliders from "./LengthSliders.svelte";
 import LinkageViewer, { type LengthEdit } from "./LinkageViewer.svelte";
+import MapElitesGrid from "./MapElitesGrid.svelte";
 import Onboarding from "./Onboarding.svelte";
 import { PRESETS } from "./presets";
 import SchemaForm from "./SchemaForm.svelte";
@@ -302,5 +303,9 @@ function applyEvolved(spec: LinkageSpec) {
 	<details class="card" id="evolver" bind:open={evolveOpen}>
 		<summary><b>{t("evolve.title")}</b> <small>{t("evolve.subtitle")}</small></summary>
 		<Evolver spec={view.linkage} onapply={applyEvolved} />
+	</details>
+	<details class="card" id="map-elites">
+		<summary><b>{t("map_elites.title")}</b> <small>{t("map_elites.subtitle")}</small></summary>
+		<MapElitesGrid onload={apply} />
 	</details>
 </div>

@@ -1,9 +1,16 @@
 **/node_modules
 .venv
+target
+crates/beest-kernel/generated
+**/.pytest_cache
+**/pytest-of-*
 **/__pycache__
 **/*.egg-info
 data
 dist
+.browser-build
+test-results
+playwright-report
 .git
 experiments
 docs/assets

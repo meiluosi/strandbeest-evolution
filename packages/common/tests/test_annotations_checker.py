@@ -30,3 +30,11 @@ def test_warn_mode_does_not_fail_and_assumptions_need_a_source(tmp_path):
 def test_const_and_enum_numbers_are_exempt(tmp_path):
     ok = {"type": "object", "properties": {"schema_version": {"const": 1}, "direction": {"enum": [-1, 1]}}}
     assert run(ok, tmp_path, "--strict").returncode == 0
+
+
+def test_contextual_parameter_unit_does_not_allow_arbitrary_unit_spellings(tmp_path):
+    for unit in ("parameter", "1/s²", "N·m"):
+        assert run({"type": "number", "x-unit": unit}, tmp_path, "--strict").returncode == 0
+    for unit in ("parameter-specific", "1/s^2", "N*m", "metres"):
+        result = run({"type": "number", "x-unit": unit}, tmp_path, "--strict")
+        assert result.returncode == 1 and "unknown x-unit" in result.stdout

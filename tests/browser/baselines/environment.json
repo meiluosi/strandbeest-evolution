@@ -1,0 +1,40 @@
+{
+	"platform": "linux/amd64",
+	"base_image": "node:22-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da",
+	"os": "Debian GNU/Linux 12 (bookworm)",
+	"node": "22.23.4",
+	"playwright": "1.64.1",
+	"chromium_headless_shell": {
+		"version": "156.0.8078.4",
+		"revision": "1248"
+	},
+	"fonts": {
+		"fonts-noto-cjk": "1:20220127+repack1-1",
+		"fonts-liberation": "1:1.07.4-11"
+	},
+	"viewport": {
+		"width": 1280,
+		"height": 960,
+		"deviceScaleFactor": 1
+	},
+	"renderer": "ANGLE SwiftShader",
+	"max_diff_pixels": 0,
+	"source": "tests/browser/Dockerfile; runtime versions verified in generated container",
+	"per_pixel_threshold": 0,
+	"atlas_per_pixel_threshold": 0.03,
+	"atlas_tolerance_basis": "EXPERIMENTS §56: identical DOM/rendering state alternates 94 edge pixels; measured maximum normalized YIQ distance 0.026543. No differing pixels above 0.03 are allowed. Other views remain at threshold 0; atlas baseline PNGs unchanged.",
+	"baked_flat_source": {
+		"path": "apps/web-demo/public/gallery/flat.json",
+		"sha256": "77e4d717907d38179ed642410c690f975a3b4a42d01df6904e2ab6e17ff37305"
+	},
+	"gallery_provenance": {
+		"path": "apps/web-demo/public/gallery/provenance.json",
+		"sha256": "1e316cca06ea6341440ff8e16d0afa7faacaa7ffdc4da5bf5453b84cef0edd07"
+	},
+	"capture_state": {
+		"atlas": "paused designer; asset-browser disclosure closed; global best selected; pointer outside component",
+		"replay": "paused at t=0; isometric camera preset",
+		"outside_component": "sticky navigation hidden during component capture only"
+	},
+	"contact_v3_review": "EXPERIMENTS §59; all six static captures reviewed against old images and raw gallery data. Six PNGs change (settled pose, total-distance digit and energy flow in two languages); eight atlas PNGs remain identical. No tolerance changes."
+}

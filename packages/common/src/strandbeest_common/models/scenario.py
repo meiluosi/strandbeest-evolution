@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, ClassVar, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 
 class _Strict(BaseModel):
@@ -18,6 +18,14 @@ class _Strict(BaseModel):
             for key in cls.__non_nullable__:
                 if key in data and data[key] is None:
                     raise ValueError(f"{key}: null is not allowed; omit the field instead")
+        return data
+
+    @model_serializer(mode="wrap")
+    def _omit_absent_non_nullable(self, handler: Any) -> dict[str, Any]:
+        data = handler(self)
+        for key in self.__non_nullable__:
+            if data.get(key) is None:
+                data.pop(key, None)
         return data
 
 
@@ -72,7 +80,7 @@ class Terrain(_Strict):
     kind: str = Field(default='flat', description='Terrain kind: flat, slope, step, bumps, ramp, sand, ...')
     friction: float = Field(default=1.5, gt=0, description='Ground friction coefficient')
     slope_deg: float = Field(default=0.0, description='Slope angle (implemented by tilting gravity)')
-    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m)')
+    params: dict[str, Any] = Field(default_factory=dict, description='Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg). MuJoCo sand/soft uses mass-normalised stiffness (1/s^2), damping (1/s). K2 stiffness is N/m; calibrated values are not interchangeable. Neither is granular flow.')
     water_level_m: Union[float, None] = Field(default=None, description='Water or tide surface height (Z in metres, null for dry beach)')
 
 
@@ -139,10 +147,11 @@ class Solver(_Strict):
     """Solver"""
 
     timestep: float = Field(default=0.00025, gt=0, description='Time step; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8)')
-    iterations: int = Field(default=100, ge=1, description='Solver iterations')
-    contact_solref: float = Field(default=0.02, gt=0, description='Foot/terrain contact time constant, used only when contact_stiffness is unset; depends on effective mass, so a numerical knob')
-    contact_stiffness: Union[float, None] = Field(default=100000.0, gt=0, description="Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref")
-    contact_damping_ratio: float = Field(default=1.0, gt=0, description='Damping ratio used to derive contact damping from the stiffness')
+    iterations: int = Field(default=100, ge=1, description='Maximum constraint-solver iterations; K2 uses coupled contact-mode corrections and rejects a step if its projection residuals do not converge within the budget')
+    tolerance: Union[float, None] = Field(default=None, ge=0, description="MuJoCo constraint-solver early-termination tolerance; null retains the recorded backend version's default, 0 disables early termination. K2 rejects explicit numeric values")
+    contact_solref: float = Field(default=0.02, gt=0, description='MuJoCo contact time constant, used when contact_stiffness is null; this branch fixes critical damping and does not use contact_damping_ratio')
+    contact_stiffness: Union[float, None] = Field(default=100000.0, gt=0, description="Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces.")
+    contact_damping_ratio: float = Field(default=1.0, gt=0, description='Dimensionless damping ratio zeta: damping = 2*zeta*sqrt(k) in 1/s for mass-normalised stiffness k, with no mass factor; used only when contact_stiffness is non-null')
     cone: Literal['pyramidal', 'elliptic'] = Field(default='pyramidal', description='Friction cone type')
     impratio: float = Field(default=1.0, ge=1, description='Friction-vs-normal constraint impedance ratio')
     noslip_iterations: int = Field(default=0, ge=0, description='Number of noslip post-processing iterations')

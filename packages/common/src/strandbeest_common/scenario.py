@@ -17,11 +17,15 @@ WALKER = "walker"
 
 
 def to_v2(doc: dict[str, Any]) -> dict[str, Any]:
-    """The schema v2 form of a flat v1 scenario (defaults made explicit)."""
+    """The schema v2 form of a flat v1 scenario (defaults made explicit).
+
+    Additive solver fields are normalised here too: omitted ``tolerance`` becomes
+    null (the versioned backend default), while an explicit zero stays zero.
+    """
     v1 = ScenarioV1.model_validate(doc).model_dump(mode="json")
     comps: dict[str, Any] = {"linkage": v1["linkage"], "body": v1["walker"], "drive": v1["drive"]}
-    if doc.get("pneumatics") is not None:
-        comps["pneumatics"] = copy.deepcopy(doc["pneumatics"])
+    if v1.get("pneumatics") is not None:
+        comps["pneumatics"] = v1["pneumatics"]
     return {
         "schema_version": 2,
         "name": v1["name"],

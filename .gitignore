@@ -14,3 +14,10 @@ MUJOCO_LOG.TXT
 # Staging area for EXPERIMENTS.md sections under construction; the merged sections live in docs/EXPERIMENTS.md
 /docs/_drafts
 target/
+# Built by scripts/build-kernel-wasm.sh; source and Cargo.lock are authoritative.
+/crates/beest-kernel/generated/
+
+# Repeatable browser test builds and failure artifacts
+/.browser-build/
+/playwright-report/
+/test-results/

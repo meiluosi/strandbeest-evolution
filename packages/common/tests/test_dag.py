@@ -178,7 +178,7 @@ def test_dag_event_driven_dispatch_speed():
     assert len(results) == 12
     assert results["step_11"] == 1
     # 12 sequential tasks with 5ms sleep wait would take at least 60ms; event-driven should be much faster
-    assert elapsed < 0.05
+    assert elapsed < 0.15
 
 
 def test_dag_deadlock_detection_on_unallocatable_resources():

@@ -1,5 +1,6 @@
 """Tests for telemetry Parquet columnar storage and NPZ interop (ADR-0006, E6-01)."""
 
+import json
 import time
 import numpy as np
 import pyarrow as pa
@@ -197,4 +198,44 @@ def test_build_telemetry_table_pneumatics_layer(tmp_path):
     # Check serialized stream
     stream_bytes = serialize_table_to_arrow_stream(table)
     assert len(stream_bytes) > 0
+
+
+@pytest.mark.parametrize("storage", ["npz", "parquet"])
+@pytest.mark.parametrize("diagnostics", [True, False])
+def test_signed_impulse_energy_diagnostics_survive_storage_and_layered_replay(tmp_path, storage, diagnostics):
+    frame_times = np.array([0., .25, .75, 1.])
+    arrays = {"t": np.array([0., .5, 1.]), "e_in": np.array([0., .5, 1.])}
+    optional = {"e_contact_normal": np.array([0., -.1, -.2]),
+                "e_contact_tangent": np.array([0., .2, .4]),
+                "e_numerical": np.array([0., -.001, -.002])}
+    if diagnostics:
+        arrays.update(optional)
+    frames = {"t": frame_times}
+    if storage == "npz":
+        np.savez(tmp_path / "arrays.npz", **arrays)
+        np.savez(tmp_path / "frames.npz", **frames)
+        # Conversion must retain full precision before presentation resampling.
+        npz_to_parquet(tmp_path / "arrays.npz", tmp_path / "roundtrip.parquet")
+        parquet_to_npz(tmp_path / "roundtrip.parquet", tmp_path / "roundtrip.npz")
+        with np.load(tmp_path / "roundtrip.npz") as saved:
+            for key, value in arrays.items():
+                np.testing.assert_array_equal(saved[key], value)
+    else:
+        save_parquet(tmp_path / "arrays.parquet", arrays)
+        save_parquet(tmp_path / "frames.parquet", frames)
+        for key, value in load_parquet(tmp_path / "arrays.parquet").items():
+            np.testing.assert_array_equal(value, arrays[key])
+
+    table = build_telemetry_table(tmp_path, max_frames=20, layers={"energy"})
+    metadata = json.loads(table.schema.metadata[b"meta"])
+    ipc = serialize_table_to_arrow_stream(table)
+    restored = pa.ipc.open_stream(ipc).read_all()
+    for key, value in optional.items():
+        assert (key in restored.column_names) == diagnostics
+        assert (key in metadata["energy"]) == diagnostics
+        if diagnostics:
+            np.testing.assert_allclose(restored[key].to_numpy(), np.interp(frame_times, arrays["t"], value))
+            np.testing.assert_array_equal(metadata["energy"][key], value)
+    without_energy = build_telemetry_table(tmp_path, max_frames=20, layers={"poses"})
+    assert not (set(optional) & set(without_energy.column_names))
 

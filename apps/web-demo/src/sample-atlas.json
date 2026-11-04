@@ -1,0 +1,2838 @@
+{
+	"schema_version": 2,
+	"kind": "species_atlas",
+	"id": "01M6DW75JZQ80KHYHBMZ3HKCKG",
+	"name": "Species Atlas (legs x stride x mass)",
+	"created": "2026-11-02T10:17:28+00:00",
+	"base_design_id": "0000000000YNGRWX0MDFYPZHXT",
+	"dimensions": 3,
+	"features": ["legs", "stride", "mass"],
+	"feature_labels": ["Leg Count", "Kinematic Stride (m)", "Total Mass (kg)"],
+	"feature_ranges": {
+		"stride": [0.05, 0.45],
+		"mass": [0.3, 1.5]
+	},
+	"grid_shape": [5, 8, 6],
+	"cells_total": 240,
+	"cells_filled": 23,
+	"coverage": 0.09583333333333334,
+	"qd_score": 1.893076570747798,
+	"best_fitness": 0.17672491359348944,
+	"evals": 100,
+	"pareto_front": [
+		[2, 2, 1],
+		[3, 6, 1],
+		[3, 5, 1],
+		[1, 4, 1],
+		[2, 3, 1],
+		[3, 3, 1],
+		[1, 1, 1],
+		[1, 7, 1],
+		[1, 5, 1],
+		[1, 1, 0]
+	],
+	"curve": [
+		{
+			"evals": 100,
+			"cells": 23,
+			"qd_score": 1.893076570747798
+		}
+	],
+	"cells": [
+		{
+			"cell": [2, 2, 1],
+			"fitness": 0.15178505061202277,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.16377190961983387,
+				"mass_kg": 0.5541174969488487
+			},
+			"genome": [
+				51.07652907232495, 48.7127612836223, 51.359776686018726,
+				31.552024763018704, 78.11999999999999, 33.76458726182769,
+				44.26207416583413, 79.80697010629996, 57.22119756160304, 64.03254256315,
+				71.78042465164813, 10.473150473991142, 10.953212610339582
+			],
+			"legs": 8,
+			"stride_m": 0.16377190961983387,
+			"mass_kg": 0.5541174969488487,
+			"born": 78,
+			"parent": [2, 7, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75GRJWM2FDJ3SKZNMYJB",
+				"name": "qd-8legs-stride16cm",
+				"notes": "MAP-Elites cell (2, 2, 1): fitness 0.152, found at evaluation 78.",
+				"linkage": {
+					"params": {
+						"a": 51.07652907232495,
+						"b": 48.7127612836223,
+						"c": 51.359776686018726,
+						"d": 31.552024763018704,
+						"e": 78.11999999999999,
+						"f": 33.76458726182769,
+						"g": 44.26207416583413,
+						"h": 79.80697010629996,
+						"i": 57.22119756160304,
+						"j": 64.03254256315,
+						"k": 71.78042465164813,
+						"l": 10.473150473991142,
+						"m": 10.953212610339582
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 8,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [2, 1, 1],
+			"fitness": 0.17467598382767413,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.11918379848595037,
+				"mass_kg": 0.5511907303758481
+			},
+			"genome": [
+				43.232187724660946, 51.797427708707836, 48.552949617783355,
+				36.25053545695515, 78.11999999999999, 33.13111929331775,
+				43.35184890328418, 69.63645239601043, 58.96866636113467,
+				68.5093183232056, 63.776374872124116, 9.161565970600638,
+				11.275407806298968
+			],
+			"legs": 8,
+			"stride_m": 0.11918379848595037,
+			"mass_kg": 0.5511907303758481,
+			"born": 19,
+			"parent": [2, 0, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75GWFG1BS9VGQ012GR3V",
+				"name": "qd-8legs-stride12cm",
+				"notes": "MAP-Elites cell (2, 1, 1): fitness 0.175, found at evaluation 19.",
+				"linkage": {
+					"params": {
+						"a": 43.232187724660946,
+						"b": 51.797427708707836,
+						"c": 48.552949617783355,
+						"d": 36.25053545695515,
+						"e": 78.11999999999999,
+						"f": 33.13111929331775,
+						"g": 43.35184890328418,
+						"h": 69.63645239601043,
+						"i": 58.96866636113467,
+						"j": 68.5093183232056,
+						"k": 63.776374872124116,
+						"l": 9.161565970600638,
+						"m": 11.275407806298968
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 8,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [2, 0, 1],
+			"fitness": 0.091827919011808,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.09370793571610632,
+				"mass_kg": 0.5518360288102861
+			},
+			"genome": [
+				45.17238096527542, 51.797427708707836, 48.552949617783355,
+				38.05748671826255, 78.11999999999999, 33.13111929331775,
+				43.35184890328418, 69.63645239601043, 58.96866636113467,
+				68.5093183232056, 63.776374872124116, 9.54907870833074,
+				11.275407806298968
+			],
+			"legs": 8,
+			"stride_m": 0.09370793571610632,
+			"mass_kg": 0.5518360288102861,
+			"born": 23,
+			"parent": [2, 1, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75GYEGP63KDYFTKEB48H",
+				"name": "qd-8legs-stride9cm",
+				"notes": "MAP-Elites cell (2, 0, 1): fitness 0.092, found at evaluation 23.",
+				"linkage": {
+					"params": {
+						"a": 45.17238096527542,
+						"b": 51.797427708707836,
+						"c": 48.552949617783355,
+						"d": 38.05748671826255,
+						"e": 78.11999999999999,
+						"f": 33.13111929331775,
+						"g": 43.35184890328418,
+						"h": 69.63645239601043,
+						"i": 58.96866636113467,
+						"j": 68.5093183232056,
+						"k": 63.776374872124116,
+						"l": 9.54907870833074,
+						"m": 11.275407806298968
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 8,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 0, 1],
+			"fitness": 0.05230393611330289,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.06675087057798076,
+				"mass_kg": 0.6020137752576765
+			},
+			"genome": [
+				43.232187724660946, 51.797427708707836, 49.799472453170594,
+				36.25053545695515, 74.88548082259068, 33.62795274648719,
+				43.35184890328418, 74.53748356031045, 56.020411060770705, 70.0,
+				63.776374872124116, 8.895442280660616, 10.5
+			],
+			"legs": 10,
+			"stride_m": 0.06675087057798076,
+			"mass_kg": 0.6020137752576765,
+			"born": 51,
+			"parent": [2, 1, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75H1HZ89GN4A474M3FPK",
+				"name": "qd-10legs-stride7cm",
+				"notes": "MAP-Elites cell (3, 0, 1): fitness 0.052, found at evaluation 51.",
+				"linkage": {
+					"params": {
+						"a": 43.232187724660946,
+						"b": 51.797427708707836,
+						"c": 49.799472453170594,
+						"d": 36.25053545695515,
+						"e": 74.88548082259068,
+						"f": 33.62795274648719,
+						"g": 43.35184890328418,
+						"h": 74.53748356031045,
+						"i": 56.020411060770705,
+						"j": 70.0,
+						"k": 63.776374872124116,
+						"l": 8.895442280660616,
+						"m": 10.5
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [2, 7, 1],
+			"fitness": 0.05480177598876452,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.4087149389572589,
+				"mass_kg": 0.5472674896406926
+			},
+			"genome": [
+				46.07317951565972, 47.330283114669214, 48.78820113581534,
+				32.45990396628787, 78.11999999999999, 33.36350911948369,
+				44.19416684639992, 71.17836045317465, 56.723790594741274,
+				64.03557607529196, 64.86492172652287, 10.442051081093153,
+				11.32561055826229
+			],
+			"legs": 8,
+			"stride_m": 0.4087149389572589,
+			"mass_kg": 0.5472674896406926,
+			"born": 27,
+			"parent": [2, 0, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75H3VP12A4MC2FMD6TS4",
+				"name": "qd-8legs-stride41cm",
+				"notes": "MAP-Elites cell (2, 7, 1): fitness 0.055, found at evaluation 27.",
+				"linkage": {
+					"params": {
+						"a": 46.07317951565972,
+						"b": 47.330283114669214,
+						"c": 48.78820113581534,
+						"d": 32.45990396628787,
+						"e": 78.11999999999999,
+						"f": 33.36350911948369,
+						"g": 44.19416684639992,
+						"h": 71.17836045317465,
+						"i": 56.723790594741274,
+						"j": 64.03557607529196,
+						"k": 64.86492172652287,
+						"l": 10.442051081093153,
+						"m": 11.32561055826229
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 8,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 6, 1],
+			"fitness": 0.06628984306558801,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.3812218056287775,
+				"mass_kg": 0.613047578142699
+			},
+			"genome": [
+				40.65040764062424, 52.12807664868787, 51.32306862101113,
+				40.978845708096834, 78.11999999999999, 37.62016139173519,
+				47.40877188962339, 74.96177642893029, 68.6, 66.25168434008285,
+				58.43956201537422, 8.2473785517832, 13.432340910532945
+			],
+			"legs": 10,
+			"stride_m": 0.3812218056287775,
+			"mass_kg": 0.613047578142699,
+			"born": 37,
+			"parent": [3, 0, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75H7QNXX1M85PEH8AY8Y",
+				"name": "qd-10legs-stride38cm",
+				"notes": "MAP-Elites cell (3, 6, 1): fitness 0.066, found at evaluation 37.",
+				"linkage": {
+					"params": {
+						"a": 40.65040764062424,
+						"b": 52.12807664868787,
+						"c": 51.32306862101113,
+						"d": 40.978845708096834,
+						"e": 78.11999999999999,
+						"f": 37.62016139173519,
+						"g": 47.40877188962339,
+						"h": 74.96177642893029,
+						"i": 68.6,
+						"j": 66.25168434008285,
+						"k": 58.43956201537422,
+						"l": 8.2473785517832,
+						"m": 13.432340910532945
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 1, 1],
+			"fitness": 0.12141982166802776,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.11540723392200126,
+				"mass_kg": 0.6087422760319902
+			},
+			"genome": [
+				38.1974951633976, 55.195759985042514, 45.288474204284185,
+				40.978845708096834, 78.11999999999999, 37.62016139173519,
+				46.60595294139635, 74.96177642893029, 62.72523605299732,
+				66.25168434008285, 58.43956201537422, 8.2473785517832,
+				13.432340910532945
+			],
+			"legs": 10,
+			"stride_m": 0.11540723392200126,
+			"mass_kg": 0.6087422760319902,
+			"born": 50,
+			"parent": [3, 6, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HA968NEQQ69RMBVD8S",
+				"name": "qd-10legs-stride12cm",
+				"notes": "MAP-Elites cell (3, 1, 1): fitness 0.121, found at evaluation 50.",
+				"linkage": {
+					"params": {
+						"a": 38.1974951633976,
+						"b": 55.195759985042514,
+						"c": 45.288474204284185,
+						"d": 40.978845708096834,
+						"e": 78.11999999999999,
+						"f": 37.62016139173519,
+						"g": 46.60595294139635,
+						"h": 74.96177642893029,
+						"i": 62.72523605299732,
+						"j": 66.25168434008285,
+						"k": 58.43956201537422,
+						"l": 8.2473785517832,
+						"m": 13.432340910532945
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [4, 5, 1],
+			"fitness": 0.036435692390482326,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.31899169527593474,
+				"mass_kg": 0.6122094978260977
+			},
+			"genome": [
+				47.86174530510091, 49.66919106916252, 36.05873630720065,
+				28.453842217562325, 54.99611624554358, 33.77724418779054,
+				47.30571196074165, 51.20807681241623, 66.78418346292591,
+				57.66983910743156, 50.00156882147945, 10.552285707240209,
+				13.564546382748754
+			],
+			"legs": 12,
+			"stride_m": 0.31899169527593474,
+			"mass_kg": 0.6122094978260977,
+			"born": 40,
+			"parent": null,
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HC8WTR78D8N18PYJ6G",
+				"name": "qd-12legs-stride32cm",
+				"notes": "MAP-Elites cell (4, 5, 1): fitness 0.036, found at evaluation 40.",
+				"linkage": {
+					"params": {
+						"a": 47.86174530510091,
+						"b": 49.66919106916252,
+						"c": 36.05873630720065,
+						"d": 28.453842217562325,
+						"e": 54.99611624554358,
+						"f": 33.77724418779054,
+						"g": 47.30571196074165,
+						"h": 51.20807681241623,
+						"i": 66.78418346292591,
+						"j": 57.66983910743156,
+						"k": 50.00156882147945,
+						"l": 10.552285707240209,
+						"m": 13.564546382748754
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 12,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 5, 1],
+			"fitness": 0.08183080574386678,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.3325316929607368,
+				"mass_kg": 0.5952411701805279
+			},
+			"genome": [
+				44.27962019402481, 50.44809674220879, 49.71307712145278,
+				29.710476262781476, 78.11999999999999, 33.60551541387247,
+				43.174213803266994, 67.9830803786214, 55.93473754994842,
+				58.37093823394706, 71.46808015690709, 9.798296197872055,
+				10.847165565774679
+			],
+			"legs": 10,
+			"stride_m": 0.3325316929607368,
+			"mass_kg": 0.5952411701805279,
+			"born": 66,
+			"parent": [2, 7, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HE9EN7NAWXFGD3GG9R",
+				"name": "qd-10legs-stride33cm",
+				"notes": "MAP-Elites cell (3, 5, 1): fitness 0.082, found at evaluation 66.",
+				"linkage": {
+					"params": {
+						"a": 44.27962019402481,
+						"b": 50.44809674220879,
+						"c": 49.71307712145278,
+						"d": 29.710476262781476,
+						"e": 78.11999999999999,
+						"f": 33.60551541387247,
+						"g": 43.174213803266994,
+						"h": 67.9830803786214,
+						"i": 55.93473754994842,
+						"j": 58.37093823394706,
+						"k": 71.46808015690709,
+						"l": 9.798296197872055,
+						"m": 10.847165565774679
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [2, 5, 1],
+			"fitness": 0.05855624116847868,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.3453563778517707,
+				"mass_kg": 0.5554776352891786
+			},
+			"genome": [
+				50.843442961803156, 57.320195789027146, 48.14761038611694,
+				38.87429920319305, 78.11999999999999, 31.53994994927698,
+				44.09743637406495, 67.9500995128236, 63.19150588787205, 70.0,
+				64.7157175299922, 9.63168041387687, 11.417388126309923
+			],
+			"legs": 8,
+			"stride_m": 0.3453563778517707,
+			"mass_kg": 0.5554776352891786,
+			"born": 43,
+			"parent": [2, 0, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HHM7AD2MZZBBSPN161",
+				"name": "qd-8legs-stride35cm",
+				"notes": "MAP-Elites cell (2, 5, 1): fitness 0.059, found at evaluation 43.",
+				"linkage": {
+					"params": {
+						"a": 50.843442961803156,
+						"b": 57.320195789027146,
+						"c": 48.14761038611694,
+						"d": 38.87429920319305,
+						"e": 78.11999999999999,
+						"f": 31.53994994927698,
+						"g": 44.09743637406495,
+						"h": 67.9500995128236,
+						"i": 63.19150588787205,
+						"j": 70.0,
+						"k": 64.7157175299922,
+						"l": 9.63168041387687,
+						"m": 11.417388126309923
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 8,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [4, 6, 1],
+			"fitness": 0.02879101907221778,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.3590334112739535,
+				"mass_kg": 0.611384052141658
+			},
+			"genome": [
+				47.86174530510091, 47.10679733972184, 36.05873630720065,
+				28.453842217562325, 54.99611624554358, 34.44535022735676,
+				47.30571196074165, 48.564446808485634, 68.6, 57.66983910743156,
+				50.00156882147945, 10.552285707240209, 14.74571697563633
+			],
+			"legs": 12,
+			"stride_m": 0.3590334112739535,
+			"mass_kg": 0.611384052141658,
+			"born": 46,
+			"parent": [4, 5, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HMAMSZ6FKWQETEFHF1",
+				"name": "qd-12legs-stride36cm",
+				"notes": "MAP-Elites cell (4, 6, 1): fitness 0.029, found at evaluation 46.",
+				"linkage": {
+					"params": {
+						"a": 47.86174530510091,
+						"b": 47.10679733972184,
+						"c": 36.05873630720065,
+						"d": 28.453842217562325,
+						"e": 54.99611624554358,
+						"f": 34.44535022735676,
+						"g": 47.30571196074165,
+						"h": 48.564446808485634,
+						"i": 68.6,
+						"j": 57.66983910743156,
+						"k": 50.00156882147945,
+						"l": 10.552285707240209,
+						"m": 14.74571697563633
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 12,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [4, 4, 1],
+			"fitness": 0.028132296160448413,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.27097950100290225,
+				"mass_kg": 0.6057317109260707
+			},
+			"genome": [
+				46.67324163641403, 48.26874845845801, 39.394892817159814,
+				28.772937597117377, 56.39799878494296, 28.508573283112177,
+				45.44944622892694, 45.99, 65.06326643705265, 58.89967630577961,
+				47.9177624547967, 10.897257786576311, 12.733111398466898
+			],
+			"legs": 12,
+			"stride_m": 0.27097950100290225,
+			"mass_kg": 0.6057317109260707,
+			"born": 48,
+			"parent": [4, 5, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HRFG9S5CD1KP026DT9",
+				"name": "qd-12legs-stride27cm",
+				"notes": "MAP-Elites cell (4, 4, 1): fitness 0.028, found at evaluation 48.",
+				"linkage": {
+					"params": {
+						"a": 46.67324163641403,
+						"b": 48.26874845845801,
+						"c": 39.394892817159814,
+						"d": 28.772937597117377,
+						"e": 56.39799878494296,
+						"f": 28.508573283112177,
+						"g": 45.44944622892694,
+						"h": 45.99,
+						"i": 65.06326643705265,
+						"j": 58.89967630577961,
+						"k": 47.9177624547967,
+						"l": 10.897257786576311,
+						"m": 12.733111398466898
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 12,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [1, 4, 1],
+			"fitness": 0.10323424976194283,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.26840616630380887,
+				"mass_kg": 0.5028381421220234
+			},
+			"genome": [
+				40.9234412079708, 51.476271128772055, 51.942720263817144,
+				33.13200964786142, 78.11999999999999, 36.83556711824368,
+				46.47695711130099, 72.6915897095185, 55.879698519181446,
+				67.70803959045523, 64.18031565629914, 8.56723050238214,
+				12.189082307505414
+			],
+			"legs": 6,
+			"stride_m": 0.26840616630380887,
+			"mass_kg": 0.5028381421220234,
+			"born": 62,
+			"parent": [2, 1, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HV4JQBTTMX2XA82DS5",
+				"name": "qd-6legs-stride27cm",
+				"notes": "MAP-Elites cell (1, 4, 1): fitness 0.103, found at evaluation 62.",
+				"linkage": {
+					"params": {
+						"a": 40.9234412079708,
+						"b": 51.476271128772055,
+						"c": 51.942720263817144,
+						"d": 33.13200964786142,
+						"e": 78.11999999999999,
+						"f": 36.83556711824368,
+						"g": 46.47695711130099,
+						"h": 72.6915897095185,
+						"i": 55.879698519181446,
+						"j": 67.70803959045523,
+						"k": 64.18031565629914,
+						"l": 8.56723050238214,
+						"m": 12.189082307505414
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 6,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [4, 3, 1],
+			"fitness": 0.030092773022352793,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.21284071178513725,
+				"mass_kg": 0.5996265362868648
+			},
+			"genome": [
+				48.812239314823664, 50.38356413747784, 31.674267632256925, 28.07,
+				50.24758151359232, 33.49821670775087, 47.99420566768045,
+				46.72864630520479, 68.6, 50.95197270141838, 45.07447513619472,
+				10.36931069308551, 12.77642855950651
+			],
+			"legs": 12,
+			"stride_m": 0.21284071178513725,
+			"mass_kg": 0.5996265362868648,
+			"born": 64,
+			"parent": [4, 5, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75HXK8QTEXKYHCRD115F",
+				"name": "qd-12legs-stride21cm",
+				"notes": "MAP-Elites cell (4, 3, 1): fitness 0.030, found at evaluation 64.",
+				"linkage": {
+					"params": {
+						"a": 48.812239314823664,
+						"b": 50.38356413747784,
+						"c": 31.674267632256925,
+						"d": 28.07,
+						"e": 50.24758151359232,
+						"f": 33.49821670775087,
+						"g": 47.99420566768045,
+						"h": 46.72864630520479,
+						"i": 68.6,
+						"j": 50.95197270141838,
+						"k": 45.07447513619472,
+						"l": 10.36931069308551,
+						"m": 12.77642855950651
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 12,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 2, 1],
+			"fitness": 0.13639873669204491,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.15066831371758072,
+				"mass_kg": 0.5917325994519163
+			},
+			"genome": [
+				36.212321106927384, 49.546784775403005, 48.19369250678153,
+				34.91501364311437, 69.24765444220156, 35.02392535815162,
+				44.88782937183258, 62.2797461846013, 58.89960287417302,
+				69.63177956107583, 58.02676386334973, 10.864444954170729,
+				10.86288719511346
+			],
+			"legs": 10,
+			"stride_m": 0.15066831371758072,
+			"mass_kg": 0.5917325994519163,
+			"born": 77,
+			"parent": [3, 2, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75J00Z4WF3TD9S63WVHD",
+				"name": "qd-10legs-stride15cm",
+				"notes": "MAP-Elites cell (3, 2, 1): fitness 0.136, found at evaluation 77.",
+				"linkage": {
+					"params": {
+						"a": 36.212321106927384,
+						"b": 49.546784775403005,
+						"c": 48.19369250678153,
+						"d": 34.91501364311437,
+						"e": 69.24765444220156,
+						"f": 35.02392535815162,
+						"g": 44.88782937183258,
+						"h": 62.2797461846013,
+						"i": 58.89960287417302,
+						"j": 69.63177956107583,
+						"k": 58.02676386334973,
+						"l": 10.864444954170729,
+						"m": 10.86288719511346
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [1, 0, 1],
+			"fitness": 0.026320853799005565,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.09416156496373745,
+				"mass_kg": 0.5031717631082598
+			},
+			"genome": [
+				42.34448741373899, 54.394805726817324, 47.794545922260156,
+				35.17528523049584, 78.11999999999999, 38.743987406736736,
+				45.15053702682975, 79.09267338940147, 52.039546555904835,
+				69.49202036017037, 61.21223207630067, 9.561385036765422,
+				10.662215424929917
+			],
+			"legs": 6,
+			"stride_m": 0.09416156496373745,
+			"mass_kg": 0.5031717631082598,
+			"born": 69,
+			"parent": [1, 4, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75J21KG0KQJ01NH9G1F9",
+				"name": "qd-6legs-stride9cm",
+				"notes": "MAP-Elites cell (1, 0, 1): fitness 0.026, found at evaluation 69.",
+				"linkage": {
+					"params": {
+						"a": 42.34448741373899,
+						"b": 54.394805726817324,
+						"c": 47.794545922260156,
+						"d": 35.17528523049584,
+						"e": 78.11999999999999,
+						"f": 38.743987406736736,
+						"g": 45.15053702682975,
+						"h": 79.09267338940147,
+						"i": 52.039546555904835,
+						"j": 69.49202036017037,
+						"k": 61.21223207630067,
+						"l": 9.561385036765422,
+						"m": 10.662215424929917
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 6,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [2, 3, 1],
+			"fitness": 0.1163615204860498,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.23307417723810767,
+				"mass_kg": 0.5491470205584905
+			},
+			"genome": [
+				42.76410107644249, 48.696408554320286, 48.561683582408854,
+				38.1367120255841, 77.59951950484205, 34.820909300046125,
+				44.13657263636791, 65.55961249343432, 53.837547364086745, 70.0,
+				65.79838153289053, 9.350869002359431, 10.5
+			],
+			"legs": 8,
+			"stride_m": 0.23307417723810767,
+			"mass_kg": 0.5491470205584905,
+			"born": 70,
+			"parent": [3, 2, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75J43KZKSWSF0TY2QG07",
+				"name": "qd-8legs-stride23cm",
+				"notes": "MAP-Elites cell (2, 3, 1): fitness 0.116, found at evaluation 70.",
+				"linkage": {
+					"params": {
+						"a": 42.76410107644249,
+						"b": 48.696408554320286,
+						"c": 48.561683582408854,
+						"d": 38.1367120255841,
+						"e": 77.59951950484205,
+						"f": 34.820909300046125,
+						"g": 44.13657263636791,
+						"h": 65.55961249343432,
+						"i": 53.837547364086745,
+						"j": 70.0,
+						"k": 65.79838153289053,
+						"l": 9.350869002359431,
+						"m": 10.5
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 8,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 4, 1],
+			"fitness": 0.06954512172996631,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.25754119185240076,
+				"mass_kg": 0.599922282390681
+			},
+			"genome": [
+				41.44211650229865, 52.005634680761766, 47.705580801147335,
+				36.9670034054109, 78.11999999999999, 34.75364503646454,
+				42.25590189835697, 66.02114740024801, 51.80255090786522, 70.0,
+				68.86615826841664, 10.515439881353508, 11.364121308051358
+			],
+			"legs": 10,
+			"stride_m": 0.25754119185240076,
+			"mass_kg": 0.599922282390681,
+			"born": 73,
+			"parent": [3, 2, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75J958FSR1DMAYPB0YG6",
+				"name": "qd-10legs-stride26cm",
+				"notes": "MAP-Elites cell (3, 4, 1): fitness 0.070, found at evaluation 73.",
+				"linkage": {
+					"params": {
+						"a": 41.44211650229865,
+						"b": 52.005634680761766,
+						"c": 47.705580801147335,
+						"d": 36.9670034054109,
+						"e": 78.11999999999999,
+						"f": 34.75364503646454,
+						"g": 42.25590189835697,
+						"h": 66.02114740024801,
+						"i": 51.80255090786522,
+						"j": 70.0,
+						"k": 68.86615826841664,
+						"l": 10.515439881353508,
+						"m": 11.364121308051358
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [3, 3, 1],
+			"fitness": 0.151915473042762,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.2060368709238969,
+				"mass_kg": 0.5951805865303804
+			},
+			"genome": [
+				41.74209831037901, 54.31208128858335, 48.70992574575311,
+				32.14324054908539, 77.94969547755001, 28.442639893992173,
+				39.65689971075791, 66.40858847698621, 60.47130685746016,
+				69.58191442345782, 61.063372742996684, 9.72510120668892, 10.5
+			],
+			"legs": 10,
+			"stride_m": 0.2060368709238969,
+			"mass_kg": 0.5951805865303804,
+			"born": 75,
+			"parent": [3, 2, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75JBXC9KP6RS6D4JZQNN",
+				"name": "qd-10legs-stride21cm",
+				"notes": "MAP-Elites cell (3, 3, 1): fitness 0.152, found at evaluation 75.",
+				"linkage": {
+					"params": {
+						"a": 41.74209831037901,
+						"b": 54.31208128858335,
+						"c": 48.70992574575311,
+						"d": 32.14324054908539,
+						"e": 77.94969547755001,
+						"f": 28.442639893992173,
+						"g": 39.65689971075791,
+						"h": 66.40858847698621,
+						"i": 60.47130685746016,
+						"j": 69.58191442345782,
+						"k": 61.063372742996684,
+						"l": 9.72510120668892,
+						"m": 10.5
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 10,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [1, 1, 1],
+			"fitness": 0.17672491359348944,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.1489527151270644,
+				"mass_kg": 0.5037077283913989
+			},
+			"genome": [
+				40.9234412079708, 55.04371438003806, 51.942720263817144,
+				33.13200964786142, 78.11999999999999, 36.83556711824368,
+				46.47695711130099, 71.85222360993198, 55.879698519181446,
+				67.70803959045523, 64.18031565629914, 9.229562979389259,
+				12.707668347938492
+			],
+			"legs": 6,
+			"stride_m": 0.1489527151270644,
+			"mass_kg": 0.5037077283913989,
+			"born": 76,
+			"parent": [1, 4, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75JENKB82ZWWMG80R1NK",
+				"name": "qd-6legs-stride15cm",
+				"notes": "MAP-Elites cell (1, 1, 1): fitness 0.177, found at evaluation 76.",
+				"linkage": {
+					"params": {
+						"a": 40.9234412079708,
+						"b": 55.04371438003806,
+						"c": 51.942720263817144,
+						"d": 33.13200964786142,
+						"e": 78.11999999999999,
+						"f": 36.83556711824368,
+						"g": 46.47695711130099,
+						"h": 71.85222360993198,
+						"i": 55.879698519181446,
+						"j": 67.70803959045523,
+						"k": 64.18031565629914,
+						"l": 9.229562979389259,
+						"m": 12.707668347938492
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 6,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [1, 7, 1],
+			"fitness": 0.06120921214206977,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.43593984937832203,
+				"mass_kg": 0.5021881785397582
+			},
+			"genome": [
+				40.02692191672926, 50.307363004092274, 51.845417451761165,
+				29.474733846199282, 77.90692139754645, 35.93266467478238, 51.38,
+				72.03517224539789, 54.076452243236446, 70.0, 63.61550867692813,
+				8.644422907461246, 11.631331497982142
+			],
+			"legs": 6,
+			"stride_m": 0.43593984937832203,
+			"mass_kg": 0.5021881785397582,
+			"born": 87,
+			"parent": [1, 4, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75JGWTKPCY5G9F1648NB",
+				"name": "qd-6legs-stride44cm",
+				"notes": "MAP-Elites cell (1, 7, 1): fitness 0.061, found at evaluation 87.",
+				"linkage": {
+					"params": {
+						"a": 40.02692191672926,
+						"b": 50.307363004092274,
+						"c": 51.845417451761165,
+						"d": 29.474733846199282,
+						"e": 77.90692139754645,
+						"f": 35.93266467478238,
+						"g": 51.38,
+						"h": 72.03517224539789,
+						"i": 54.076452243236446,
+						"j": 70.0,
+						"k": 63.61550867692813,
+						"l": 8.644422907461246,
+						"m": 11.631331497982142
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 6,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [1, 5, 1],
+			"fitness": 0.04809281321788733,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.3100691989124811,
+				"mass_kg": 0.5007000047828938
+			},
+			"genome": [
+				48.360816468412615, 53.081125787023836, 48.79866469152024,
+				42.15890458743059, 75.12059974359244, 30.571306405195877,
+				47.29462735794737, 59.15057384537216, 61.05995495446305,
+				67.19228767885264, 67.31387942257435, 9.76688982930912,
+				10.907436274585477
+			],
+			"legs": 6,
+			"stride_m": 0.3100691989124811,
+			"mass_kg": 0.5007000047828938,
+			"born": 92,
+			"parent": [2, 5, 1],
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75JJVXKPY7QFHK95QWMW",
+				"name": "qd-6legs-stride31cm",
+				"notes": "MAP-Elites cell (1, 5, 1): fitness 0.048, found at evaluation 92.",
+				"linkage": {
+					"params": {
+						"a": 48.360816468412615,
+						"b": 53.081125787023836,
+						"c": 48.79866469152024,
+						"d": 42.15890458743059,
+						"e": 75.12059974359244,
+						"f": 30.571306405195877,
+						"g": 47.29462735794737,
+						"h": 59.15057384537216,
+						"i": 61.05995495446305,
+						"j": 67.19228767885264,
+						"k": 67.31387942257435,
+						"l": 9.76688982930912,
+						"m": 10.907436274585477
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 6,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		},
+		{
+			"cell": [1, 1, 0],
+			"fitness": 0.026330518437545174,
+			"lift_ratio": 0.0,
+			"cost_of_transport": 0.0,
+			"features": {
+				"stride_m": 0.13537484135750313,
+				"mass_kg": 0.49430021740174956
+			},
+			"genome": [
+				37.71574052771714, 53.382422028159056, 53.202211017006285,
+				29.090059567396434, 71.7220969182745, 49.31195417197561,
+				30.476345824088742, 80.43665723426955, 64.2195705031094,
+				45.131344167038876, 44.9534094027545, 7.0892214702149605,
+				16.82922113781167
+			],
+			"legs": 6,
+			"stride_m": 0.13537484135750313,
+			"mass_kg": 0.49430021740174956,
+			"born": 95,
+			"parent": null,
+			"design": {
+				"schema_version": 2,
+				"id": "01M6DW75JNFNZD0TJG7NRXHHBB",
+				"name": "qd-6legs-stride14cm",
+				"notes": "MAP-Elites cell (1, 1, 0): fitness 0.026, found at evaluation 95.",
+				"linkage": {
+					"params": {
+						"a": 37.71574052771714,
+						"b": 53.382422028159056,
+						"c": 53.202211017006285,
+						"d": 29.090059567396434,
+						"e": 71.7220969182745,
+						"f": 49.31195417197561,
+						"g": 30.476345824088742,
+						"h": 80.43665723426955,
+						"i": 64.2195705031094,
+						"j": 45.131344167038876,
+						"k": 44.9534094027545,
+						"l": 7.0892214702149605,
+						"m": 16.82922113781167
+					},
+					"crank": {
+						"x": "a",
+						"y": "l",
+						"length": "m"
+					},
+					"joints": [
+						{
+							"id": "K",
+							"centers": ["G", "C"],
+							"radii": ["b", "j"],
+							"side": 1
+						},
+						{
+							"id": "L",
+							"centers": ["G", "K"],
+							"radii": ["d", "e"],
+							"side": 1
+						},
+						{
+							"id": "M",
+							"centers": ["G", "C"],
+							"radii": ["c", "k"],
+							"side": -1
+						},
+						{
+							"id": "N",
+							"centers": ["L", "M"],
+							"radii": ["f", "g"],
+							"side": -1
+						},
+						{
+							"id": "F",
+							"centers": ["M", "N"],
+							"radii": ["i", "h"],
+							"side": 1
+						}
+					],
+					"foot": "F"
+				},
+				"walker": {
+					"legs": 6,
+					"unit_m": 0.002,
+					"direction": -1,
+					"body_mass_kg": 0.35,
+					"lateral_spacing_m": 0.014,
+					"body_length_m": 0.25
+				},
+				"drive": {
+					"kind": "motor",
+					"motor_omega_rad_s": 2.0,
+					"sail": {
+						"area_m2": 0.03,
+						"radius_m": 0.08,
+						"drag_coeff": 1.2,
+						"gear": 10
+					}
+				},
+				"manufacturing": {
+					"process": "fdm",
+					"material": "PLA",
+					"bar_width_mm": 10,
+					"bar_thickness_mm": 3,
+					"pin_diameter_mm": 3,
+					"clearance_mm": 0.3,
+					"layer_height_mm": 0.2,
+					"min_wall_mm": 1.2,
+					"bed_mm": [220, 220],
+					"press_fit_offset_mm": -0.05,
+					"leg_gap_mm": 1.0,
+					"motor": {
+						"shaft_diameter_mm": 3,
+						"mount_hole_spacing_mm": 9,
+						"mount_hole_diameter_mm": 1.8
+					}
+				},
+				"parent": {
+					"id": "0000000000YNGRWX0MDFYPZHXT"
+				}
+			}
+		}
+	]
+}

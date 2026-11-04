@@ -20,18 +20,27 @@ let population = $state(60);
 let running = $state(false);
 let history = $state<GAState[]>([]);
 let worker: Worker | null = null;
+let error = $state("");
 
 const last = $derived(history.at(-1));
 
 function start() {
 	stop();
 	history = [];
+	error = "";
 	worker = new Worker(new URL("./ga.worker.ts", import.meta.url), {
 		type: "module",
 	});
 	worker.onmessage = (e) => {
 		if (e.data.type === "state") history = [...history, e.data.state];
-		else running = false;
+		else if (e.data.type === "error") {
+			error = t("kernel.failed", { message: e.data.message });
+			running = false;
+		} else running = false;
+	};
+	worker.onerror = (event) => {
+		error = t("kernel.failed", { message: event.message });
+		running = false;
 	};
 	running = true;
 	const req: WorkerRequest = {
@@ -93,6 +102,7 @@ const chart = $derived.by(() => {
 </script>
 
 <div class="evolver">
+	{#if error}<p role="alert">{error}</p>{/if}
 	<div class="row">
 		<label>{t("evolve.objective")}
 			<select bind:value={objective}>

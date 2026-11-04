@@ -6,6 +6,8 @@ import {
 	type LinkageSpec,
 } from "strandbeest-core";
 
+import { initializeKernel } from "./kernel-loader";
+
 export interface WorkerRequest {
 	/** the linkage to start from; the search varies its named lengths and keeps the topology */
 	spec: LinkageSpec;
@@ -15,32 +17,48 @@ export interface WorkerRequest {
 	population: number;
 }
 
-let stopped = false;
+let requestId = 0;
 
-self.onmessage = (e: MessageEvent<WorkerRequest | "stop">) => {
+self.onmessage = async (e: MessageEvent<WorkerRequest | "stop">) => {
+	const id = ++requestId;
 	if (e.data === "stop") {
-		stopped = true;
+		self.postMessage({ type: "stopped" });
 		return;
 	}
-	stopped = false;
-	const { spec, objective, seed, generations, population } = e.data;
-	const space = genomeSpace(spec);
-	const fitness =
-		objective === "highstep"
-			? fitnessHighStep(space)
-			: fitnessFlatStroke(space);
-	const it = evolve(space.toGenome(), fitness, {
-		seed,
-		generations,
-		population,
-	});
-	// Run synchronously in the worker; check the stop flag between generations via a macrotask hop.
-	const step = () => {
-		if (stopped) return self.postMessage({ type: "stopped" });
-		const r = it.next();
-		if (r.done) return self.postMessage({ type: "done" });
-		self.postMessage({ type: "state", state: r.value });
-		setTimeout(step, 0);
-	};
-	step();
+	try {
+		const kernel = await initializeKernel();
+		if (id !== requestId) return;
+		const { spec, objective, seed, generations, population } = e.data;
+		const space = genomeSpace(spec);
+		const fitness =
+			objective === "highstep"
+				? fitnessHighStep(space)
+				: fitnessFlatStroke(space);
+		const it = evolve(space.toGenome(), fitness, {
+			seed,
+			generations,
+			population,
+		});
+		const step = () => {
+			if (id !== requestId) return;
+			try {
+				const r = it.next();
+				if (r.done) return self.postMessage({ type: "done", kernel });
+				self.postMessage({ type: "state", state: r.value, kernel });
+				setTimeout(step, 0);
+			} catch (error) {
+				self.postMessage({
+					type: "error",
+					message: error instanceof Error ? error.message : String(error),
+				});
+			}
+		};
+		step();
+	} catch (error) {
+		if (id === requestId)
+			self.postMessage({
+				type: "error",
+				message: error instanceof Error ? error.message : String(error),
+			});
+	}
 };

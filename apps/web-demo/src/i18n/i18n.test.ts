@@ -57,7 +57,7 @@ describe("catalogs", () => {
 			expect(zh, `missing group key ${g}`).toHaveProperty([g]);
 		const used = new Set<string>(groups);
 		for (const m of `${text}\n${extra}`.matchAll(
-			/"((?:[a-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9_]+)+)"/g,
+			/"((?:[a-z][A-Za-z0-9_]*)(?:\.[A-Za-z0-9_]+)+)"/g,
 		))
 			used.add(m[1] as string);
 		const called = [...text.matchAll(/\bt\("([\w.]+)"/g)].map(

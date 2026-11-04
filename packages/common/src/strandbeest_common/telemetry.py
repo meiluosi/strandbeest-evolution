@@ -18,6 +18,8 @@ import pyarrow.parquet as pq
 
 _SHAPES_META_KEY = b"_strandbeest_shapes"
 _DTYPES_META_KEY = b"_strandbeest_dtypes"
+_ENERGY_COLUMNS = ("e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential",
+                   "loop_residual", "penetration", "e_contact_normal", "e_contact_tangent", "e_numerical")
 
 
 def _array_to_arrow(arr: np.ndarray) -> tuple[pa.Array, list[int], str]:
@@ -190,7 +192,7 @@ def build_telemetry_table(
     if "series" in active_layers:
         needed_ar.update({"t", "psi", "x", "torque"})
     if "energy" in active_layers:
-        needed_ar.update({"t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration"})
+        needed_ar.update(("t", *_ENERGY_COLUMNS))
     if "pneumatics" in active_layers:
         needed_ar.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed"})
 
@@ -221,11 +223,11 @@ def build_telemetry_table(
             series_dict = {k: np.round(ar[k][::sstep], 5).tolist() for k in ("t", "psi", "x", "torque") if k in ar}
 
         if "energy" in active_layers:
-            for c in ("e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration"):
+            for c in _ENERGY_COLUMNS:
                 if c in ar and ar[c].ndim == 1:
                     sliced_ar[c] = np.interp(t_sliced, ar_t, ar[c]).astype(np.float32)
             sstep = max(1, len(ar_t) // 500)
-            energy_dict = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar}
+            energy_dict = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", *_ENERGY_COLUMNS) if k in ar}
 
         if "pneumatics" in active_layers:
             for c in ("bottle_pressure_pa", "feeler_vacuum_pa"):

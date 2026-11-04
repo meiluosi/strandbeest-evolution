@@ -1,9 +1,9 @@
-"""Linkage spec (exported from packages/core as JSON) and its kinematic solver (used for the initial pose)."""
+"""Public linkage dataclasses and the required Rust kinematics adapter (no Python solver fallback)."""
 
 from __future__ import annotations
 
 import json
-import math
+import beest_kernel
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
@@ -30,6 +30,10 @@ class LinkageSpec:
     joints: tuple[Joint, ...]
     foot: str
 
+    def __getstate__(self):
+        # Native handles are process-local and reconstructed after copy/pickle.
+        return {key: value for key, value in self.__dict__.items() if key != "_native_kernel_cache"}
+
     def val(self, ref: Ref) -> float:
         return float(ref) if isinstance(ref, (int, float)) else float(self.params[ref])
 
@@ -55,27 +59,31 @@ def load_spec(path_or_dict: Union[str, Path, dict]) -> LinkageSpec:
     )
 
 
+def _kernel_spec(spec: LinkageSpec) -> dict:
+    """Adapt the public Python dataclass without caching its mutable params dictionary."""
+    return {
+        "params": spec.params,
+        "crank_x": spec.crank_x, "crank_y": spec.crank_y, "crank_length": spec.crank_length,
+        "joints": [{"id": j.id, "centers": j.centers, "radii": j.radii, "side": j.side} for j in spec.joints],
+        "foot": spec.foot,
+    }
+
+
+def _kernel(spec: LinkageSpec):
+    # Value key: params is intentionally mutable; identity-only caching would return stale poses.
+    key = (tuple(spec.params.items()), spec.crank_x, spec.crank_y, spec.crank_length, spec.joints, spec.foot)
+    cached = getattr(spec, "_native_kernel_cache", None)
+    if cached is None or cached[0] != key:
+        native = beest_kernel.Linkage(_kernel_spec(spec))
+        cached = (key, native)
+        object.__setattr__(spec, "_native_kernel_cache", cached)
+    return cached[1]
+
+
 def circle_intersection(p0: Point, r0: float, p1: Point, r1: float, side: int) -> Point | None:
-    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
-    d = math.hypot(dx, dy)
-    if d == 0 or d > r0 + r1 or d < abs(r0 - r1):
-        return None
-    a = (r0 * r0 - r1 * r1 + d * d) / (2 * d)
-    h = math.sqrt(max(0.0, r0 * r0 - a * a))
-    mx, my = p0[0] + a * dx / d, p0[1] + a * dy / d
-    return (mx - side * h * dy / d, my + side * h * dx / d)
+    return beest_kernel.circle_intersection(p0, r0, p1, r1, side)
 
 
 def solve_pose(spec: LinkageSpec, theta: float) -> dict[str, Point] | None:
-    """All joint positions (length units, hip frame, y up) for crank angle theta, or None if it cannot assemble."""
-    px, py = spec.pivot
-    pose: dict[str, Point] = {
-        "G": (0.0, 0.0),
-        "C": (px + spec.crank * math.cos(theta), py + spec.crank * math.sin(theta)),
-    }
-    for j in spec.joints:
-        p = circle_intersection(pose[j.centers[0]], spec.val(j.radii[0]), pose[j.centers[1]], spec.val(j.radii[1]), j.side)
-        if p is None:
-            return None
-        pose[j.id] = p
-    return pose
+    """Rust kernel: length units, hip frame, y up; None only for geometric non-assembly."""
+    return _kernel(spec).solve_pose(theta)

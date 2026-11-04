@@ -2,6 +2,7 @@
 import { call } from "./api";
 import CommandPalette from "./CommandPalette.svelte";
 import DesignTab from "./DesignTab.svelte";
+import DigitalBeach from "./DigitalBeach.svelte";
 import { openDocument, redo, undo } from "./editor.svelte";
 import FabTab from "./FabTab.svelte";
 import { LOCALE_NAMES, LOCALES } from "./i18n/core";
@@ -15,11 +16,12 @@ const allTabs = [
 	["design", "nav.design"],
 	["fab", "nav.fab"],
 	["sim", "nav.sim"],
+	["beach", "nav.beach"],
 	["lab", "nav.lab"],
 ] as const;
-// fabrication and calibration need the backend; the static (Pages) build offers design and replay only
+// fabrication and calibration need the backend; the static (Pages) build offers design, replay, and digital beach sandbox
 const tabs = STATIC
-	? allTabs.filter(([id]) => id === "design" || id === "sim")
+	? allTabs.filter(([id]) => id === "design" || id === "sim" || id === "beach")
 	: allTabs;
 
 function initialTab(): (typeof tabs)[number][0] {
@@ -134,7 +136,7 @@ $effect(() => {
 		<p class="notice error">{t("app.backend.unreachable.before", { api: store.api })} <code>strandbeest-api</code>{t("app.backend.unreachable.or")} <code>docker compose up</code>{t("app.backend.unreachable.after")}</p>
 	{/if}
 	{#if editMessage}<p class="notice error">{editMessage}</p>{/if}
-	{#if tab === "design"}<DesignTab oncommand={() => (paletteOpen = true)} onsim={() => (tab = "sim")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else}<LabTab />{/if}
+	{#if tab === "design"}<DesignTab oncommand={() => (paletteOpen = true)} onsim={() => (tab = "sim")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else if tab === "beach"}<DigitalBeach />{:else}<LabTab />{/if}
 </main>
 <CommandPalette bind:open={paletteOpen} onmessage={(m) => (editMessage = m)} />
 <svelte:window onkeydown={keys} />

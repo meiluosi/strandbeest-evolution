@@ -15,12 +15,16 @@ import numpy as np
 
 from strandbeest_common import Design, audit_run_evidence, default_evidence, gait_metrics, run_input_key
 from strandbeest_common.ids import new_ulid
+from strandbeest_common.implementation import unavailable_identity
 from strandbeest_common.schemas import validate
 from strandbeest_common.telemetry import save_parquet
 from strandbeest_fab import export as fab_export
 from strandbeest_sim import run as sim_run
 from strandbeest_sim.events import detect_events, diagnose
+from strandbeest_sim.audit import audit_report
 from strandbeest_sim import scenario_from_design
+
+from .execution import execution_identity, seal_runtime_bindings
 
 
 def code_version() -> str:
@@ -40,26 +44,66 @@ def evaluate(design: Design) -> dict[str, Any]:
 
 
 def compute_run_key(design: Design, overrides: dict[str, Any] | None = None, seed: int = 0) -> dict[str, Any]:
-    """Compute the canonical 5-tuple input key for a simulation run (E5-01)."""
+    """Compute the current key; None means implementation identity is unavailable."""
     sc = scenario_from_design(design, overrides)
-    sc_doc = json.loads(sc.model_dump_json())
-    return run_input_key(
+    # Omit absent optional components, while preserving explicitly supplied
+    # nulls such as solver.contact_stiffness (the time-constant fallback).
+    sc_doc = sc.model_dump(mode="json", exclude_unset=True)
+    return _run_key(design, sc_doc, seed)
+
+
+def _run_key(design: Design, sc_doc: dict[str, Any], seed: int = 0) -> dict[str, Any]:
+    identity = execution_identity()
+    verified = identity["status"] == "verified"
+    ik = run_input_key(
         design.doc,
         sc_doc,
         backend="mujoco",
         backend_version=mujoco.__version__,
         seed=seed,
+        implementation_hash=identity.get("implementation_hash"),
+        simulation_semantics=identity["simulation_semantics"] if verified else None,
+    )
+    # Do not persist the legacy key as a substitute for an unknown implementation.
+    return {**ik, "key": ik["key"] if verified else None, "execution_identity": identity}
+
+
+def cache_matches(doc: dict[str, Any], ik: dict[str, Any], *, ensemble: bool, calibration_profile_id: str | None = None) -> bool:
+    """Index hits are only candidates. Check the actual immutable Run document."""
+    prov = doc.get("provenance", {})
+    identity = ik["execution_identity"]
+    return bool(
+        ik["key"] and identity.get("status") == "verified"
+        and prov.get("input_key") == ik["key"]
+        and prov.get("execution_identity") == identity
+        and prov.get("design_hash") == ik["design_hash"]
+        and prov.get("world_hash") == ik["world_hash"]
+        and prov.get("engine") == "mujoco"
+        and prov.get("engine_version") == mujoco.__version__
+        and prov.get("platform") == ik["platform"] and prov.get("seed") == ik["seed"]
+        and prov.get("calibration_profile_id") == calibration_profile_id
+        and (not ensemble or "ensemble" in doc)
+        and execution_identity() == identity
     )
 
 
-def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None, run_id: str | None = None) -> dict[str, Any]:
+def _finish_identity(doc: dict[str, Any]) -> None:
+    """Changes during simulation/postprocessing invalidate the result's cache key."""
+    prov = doc["provenance"]
+    if prov["execution_identity"] != execution_identity():
+        prov["execution_identity"] = unavailable_identity("implementation_changed_during_run")
+        prov.pop("input_key", None)
+
+
+def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None, run_id: str | None = None,
+             *, calibration_profile_id: str | None = None) -> dict[str, Any]:
     """Run the simulator and write run.json (validated against the Run schema) plus arrays.npz."""
     rid = run_id or new_ulid()
     out = Path(out_dir) / rid
     out.mkdir(parents=True, exist_ok=True)
     sc = scenario_from_design(design, overrides)
-    sc_doc = json.loads(sc.model_dump_json())
-    ik = run_input_key(design.doc, sc_doc, backend="mujoco", backend_version=mujoco.__version__, seed=0)
+    sc_doc = sc.model_dump(mode="json", exclude_unset=True)
+    ik = _run_key(design, sc_doc)
     res = sim_run(sc)
     events = detect_events(res)
     arr_dict = {"t": res.t, "psi": res.psi, "x": res.x, "z": res.z, "torque": res.torque, **res.series}
@@ -80,6 +124,9 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
         "evidence": audit_run_evidence({"metrics": res.metrics, "stalled": res.stalled}),
         "events": events,
         "diagnosis": diagnose(res, events),
+        "audit": audit_report(res.scenario, res.metrics, arr_dict, res.stalled,
+                              backend_name="mujoco", observation=res.audit_observation),
+        **({"audit_observation": res.audit_observation} if res.audit_observation is not None else {}),
         "arrays_file": "arrays.npz",
         "parquet_file": "arrays.parquet",
         **(
@@ -92,13 +139,16 @@ def simulate(design: Design, out_dir: Path, overrides: dict[str, Any] | None = N
             "engine": "mujoco",
             "engine_version": mujoco.__version__,
             "created": datetime.now(timezone.utc).isoformat(),
-            "input_key": ik["key"],
+            **({"input_key": ik["key"]} if ik["key"] else {}),
+            "execution_identity": ik["execution_identity"],
+            **({"calibration_profile_id": calibration_profile_id} if calibration_profile_id else {}),
             "design_hash": ik["design_hash"],
             "world_hash": ik["world_hash"],
             "platform": ik["platform"],
             "seed": ik["seed"],
         },
     }
+    _finish_identity(doc)
     validate("run", doc)
     (out / "run.json").write_text(json.dumps(doc, indent=2))
     return doc
@@ -148,11 +198,12 @@ def _variant(design: Design, overrides: dict[str, Any] | None, extra: dict[str, 
     return {"metrics": m, "valid": ok, "reason": reason}
 
 
-def simulate_ensemble(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
+def simulate_ensemble(design: Design, out_dir: Path, overrides: dict[str, Any] | None = None,
+                      *, calibration_profile_id: str | None = None) -> dict[str, Any]:
     """Base run (with arrays) plus the friction-regularisation variants, and the range of each metric over valid runs."""
     from concurrent.futures import ThreadPoolExecutor
 
-    base = simulate(design, out_dir, overrides)
+    base = simulate(design, out_dir, overrides, calibration_profile_id=calibration_profile_id)
     others = ENSEMBLE[1:]
     with ThreadPoolExecutor(max_workers=len(others)) as ex:  # MuJoCo releases the GIL while stepping
         results = list(ex.map(lambda nv: _variant(design, overrides, nv[1]), others))
@@ -173,6 +224,7 @@ def simulate_ensemble(design: Design, out_dir: Path, overrides: dict[str, Any] |
         "ranges": ranges,
         "note": "Torque level depends on how stick-slip friction is regularised; the range spans four numerical settings, not measurement uncertainty.",
     }
+    _finish_identity(base)
     validate("run", base)
     (Path(out_dir) / base["id"] / "run.json").write_text(json.dumps(base, indent=2))
     return base
@@ -209,6 +261,8 @@ def main(argv: list[str] | None = None) -> None:
     print(json.dumps(rep, indent=2))
     raise SystemExit(1 if rep["fabrication"]["failed_checks"] else 0)
 
+
+seal_runtime_bindings()
 
 if __name__ == "__main__":
     main()

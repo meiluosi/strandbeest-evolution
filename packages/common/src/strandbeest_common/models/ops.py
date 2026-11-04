@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any, ClassVar, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 
 class _Strict(BaseModel):
@@ -18,6 +18,14 @@ class _Strict(BaseModel):
             for key in cls.__non_nullable__:
                 if key in data and data[key] is None:
                     raise ValueError(f"{key}: null is not allowed; omit the field instead")
+        return data
+
+    @model_serializer(mode="wrap")
+    def _omit_absent_non_nullable(self, handler: Any) -> dict[str, Any]:
+        data = handler(self)
+        for key in self.__non_nullable__:
+            if data.get(key) is None:
+                data.pop(key, None)
         return data
 
 

@@ -17,7 +17,7 @@ const level = (
 	v: number | null | undefined,
 	[warn, bad]: readonly [number, number],
 ) =>
-	v == null || Number.isNaN(v)
+	v == null || !Number.isFinite(v)
 		? "na"
 		: Math.abs(v) > bad
 			? "bad"
@@ -25,8 +25,12 @@ const level = (
 				? "warn"
 				: "ok";
 
-const inputJ = $derived(m.energy_in_per_rev ?? null);
-const flows = $derived.by(() => {
+const inputJ = $derived(
+	m.energy_in_per_rev != null && Number.isFinite(m.energy_in_per_rev)
+		? m.energy_in_per_rev
+		: null,
+);
+const energyRows = $derived.by(() => {
 	if (inputJ == null) return [];
 	const contact = m.energy_contact_share ?? 0;
 	const loops = m.energy_loops_share ?? 0;
@@ -37,8 +41,9 @@ const flows = $derived.by(() => {
 		{ id: "loops", share: loops, color: "#6b7fd7" },
 		{ id: "friction", share: friction, color: "#8a8a8a" },
 		{ id: "stored", share: rest, color: "#2e8b57" },
-	].filter((f) => Math.abs(f.share) > 0.0005);
+	];
 });
+const flows = $derived(energyRows.filter((f) => Math.abs(f.share) > 0.0005));
 const H = 140;
 const bands = $derived.by(() => {
 	let yIn = 10;
@@ -71,6 +76,17 @@ const steady = $derived(m.steady_window === 1);
 		<h4>{t("energy.title")}</h4>
 		{#if inputJ == null}
 			<p class="muted">{t("energy.none")}</p>
+		{:else if inputJ < 0}
+			<p class="muted">{t("energy.absorbed")}</p>
+			<table class="signed-energy" aria-label={t("energy.title")}>
+				<tbody>
+					<tr><td>{t("energy.netWork")}</td><td>{(inputJ * 1000).toFixed(2)} mJ</td></tr>
+					{#each energyRows as row}
+						<tr><td>{t(FLOW_LABELS[row.id as keyof typeof FLOW_LABELS])}</td><td>{(row.share * inputJ * 1000).toFixed(2)} mJ</td></tr>
+					{/each}
+				</tbody>
+			</table>
+			<small class="muted">{t("energy.caption", { revs: (m.energy_window_revs ?? 0).toFixed(1) })} {steady ? "" : t("energy.notSteady")}</small>
 		{:else}
 			<svg viewBox="0 0 640 {H + 20}" role="img" aria-label={t("energy.title")}>
 				<rect x="60" y="10" width="20" height={H - 20} fill="var(--accent)" />
@@ -87,9 +103,9 @@ const steady = $derived(m.steady_window === 1);
 		<h4>{t("invariants.title")}</h4>
 		<table>
 			<tbody>
-				<tr class={level(m.max_loop_violation, LIMITS.loop)}><td>{t("invariants.loop")}</td><td>{((m.max_loop_violation ?? 0) * 1000).toFixed(2)} mm</td><td>{t("invariants.limit", { limit: "5 mm" })}</td></tr>
-				<tr class={level(m.max_penetration, LIMITS.penetration)}><td>{t("invariants.penetration")}</td><td>{((m.max_penetration ?? 0) * 1000).toFixed(2)} mm</td><td>{t("invariants.limit", { limit: "5 mm" })}</td></tr>
-				<tr class={steady ? level(m.energy_residual_share, LIMITS.residual) : "na"}><td>{t("invariants.residual")}</td><td>{m.energy_residual_share == null ? "–" : `${(m.energy_residual_share * 100).toFixed(2)}%`}</td><td>{t("invariants.limit", { limit: "2%" })}</td></tr>
+				<tr class={level(m.max_loop_violation, LIMITS.loop)}><td>{t("invariants.loop")}</td><td>{m.max_loop_violation != null && Number.isFinite(m.max_loop_violation) ? `${(m.max_loop_violation * 1000).toFixed(2)} mm` : "–"}</td><td>{t("invariants.limit", { limit: "5 mm" })}</td></tr>
+				<tr class={level(m.max_penetration, LIMITS.penetration)}><td>{t("invariants.penetration")}</td><td>{m.max_penetration != null && Number.isFinite(m.max_penetration) ? `${(m.max_penetration * 1000).toFixed(2)} mm` : "–"}</td><td>{t("invariants.limit", { limit: "5 mm" })}</td></tr>
+				<tr class={steady ? level(m.energy_residual_share, LIMITS.residual) : "na"}><td>{t("invariants.residual")}</td><td>{m.energy_residual_share == null || !Number.isFinite(m.energy_residual_share) ? "–" : `${(m.energy_residual_share * 100).toFixed(2)}%`}</td><td>{t("invariants.limit", { limit: "2%" })}</td></tr>
 			</tbody>
 		</table>
 	</div>

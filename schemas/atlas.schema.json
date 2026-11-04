@@ -1,0 +1,225 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/atlas.schema.json",
+	"title": "SpeciesAtlas",
+	"description": "Quality-Diversity MAP-Elites species atlas archive document (M8-01).",
+	"type": "object",
+	"required": [
+		"schema_version",
+		"kind",
+		"id",
+		"created",
+		"base_design_id",
+		"dimensions",
+		"features",
+		"grid_shape",
+		"cells_total",
+		"cells_filled",
+		"coverage",
+		"qd_score",
+		"evals",
+		"cells"
+	],
+	"additionalProperties": false,
+	"properties": {
+		"schema_version": {
+			"const": 2
+		},
+		"kind": {
+			"const": "species_atlas"
+		},
+		"id": {
+			"$ref": "#/$defs/Ulid"
+		},
+		"name": {
+			"type": "string"
+		},
+		"created": {
+			"type": "string"
+		},
+		"base_design_id": {
+			"$ref": "#/$defs/Ulid"
+		},
+		"dimensions": {
+			"type": "integer",
+			"minimum": 1,
+			"x-unit": "count"
+		},
+		"features": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"minItems": 1
+		},
+		"feature_labels": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"feature_ranges": {
+			"type": "object",
+			"additionalProperties": {
+				"type": "array",
+				"items": {
+					"type": "number",
+					"x-unit": "1"
+				},
+				"minItems": 2,
+				"maxItems": 2
+			}
+		},
+		"grid_shape": {
+			"type": "array",
+			"items": {
+				"type": "integer",
+				"x-unit": "count"
+			},
+			"minItems": 1
+		},
+		"cells_total": {
+			"type": "integer",
+			"minimum": 1,
+			"x-unit": "count"
+		},
+		"cells_filled": {
+			"type": "integer",
+			"minimum": 0,
+			"x-unit": "count"
+		},
+		"coverage": {
+			"type": "number",
+			"minimum": 0,
+			"maximum": 1,
+			"x-unit": "1"
+		},
+		"qd_score": {
+			"type": "number",
+			"x-unit": "1"
+		},
+		"best_fitness": {
+			"type": "number",
+			"x-unit": "1"
+		},
+		"evals": {
+			"type": "integer",
+			"minimum": 0,
+			"x-unit": "count"
+		},
+		"pareto_front": {
+			"type": "array",
+			"items": {
+				"type": "array",
+				"items": {
+					"type": "integer",
+					"x-unit": "count"
+				}
+			}
+		},
+		"curve": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": ["evals", "cells", "qd_score"],
+				"additionalProperties": false,
+				"properties": {
+					"evals": {
+						"type": "integer",
+						"x-unit": "count"
+					},
+					"cells": {
+						"type": "integer",
+						"x-unit": "count"
+					},
+					"qd_score": {
+						"type": "number",
+						"x-unit": "1"
+					}
+				}
+			}
+		},
+		"cells": {
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/EliteCell"
+			}
+		}
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+			"x-doc": {
+				"zh": "稳定的资产 ID（ULID，26 个字符，按创建时间可排序）",
+				"en": "Stable asset id (ULID: 26 characters, sortable by creation time)"
+			}
+		},
+		"EliteCell": {
+			"type": "object",
+			"required": ["cell", "fitness", "genome", "born"],
+			"additionalProperties": false,
+			"properties": {
+				"cell": {
+					"type": "array",
+					"items": {
+						"type": "integer",
+						"x-unit": "count"
+					}
+				},
+				"fitness": {
+					"type": "number",
+					"x-unit": "1"
+				},
+				"lift_ratio": {
+					"type": "number",
+					"x-unit": "1"
+				},
+				"cost_of_transport": {
+					"type": "number",
+					"x-unit": "1"
+				},
+				"features": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "number",
+						"x-unit": "1"
+					}
+				},
+				"genome": {
+					"type": "array",
+					"items": {
+						"type": "number",
+						"x-unit": "1"
+					}
+				},
+				"legs": {
+					"type": "integer",
+					"x-unit": "count"
+				},
+				"stride_m": {
+					"type": "number",
+					"x-unit": "m"
+				},
+				"mass_kg": {
+					"type": "number",
+					"x-unit": "kg"
+				},
+				"born": {
+					"type": "integer",
+					"x-unit": "count"
+				},
+				"parent": {
+					"type": ["array", "null"],
+					"items": {
+						"type": "integer",
+						"x-unit": "count"
+					}
+				},
+				"design": {
+					"type": "object"
+				}
+			}
+		}
+	}
+}

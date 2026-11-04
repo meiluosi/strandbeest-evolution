@@ -1,6 +1,16 @@
 name: CI
 on: [push, pull_request]
+env:
+  RUSTUP_TOOLCHAIN: "1.95.0"
 jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: rustup toolchain install 1.95.0 --profile minimal
+      - run: cargo test --workspace --locked
   js:
     runs-on: ubuntu-latest
     steps:
@@ -9,6 +19,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: rustup toolchain install 1.95.0 --profile minimal --target wasm32-unknown-unknown
+      - run: cargo install --locked --version 0.2.105 wasm-bindgen-cli
+      - run: ./scripts/build-kernel-wasm.sh
       - run: pnpm check
       - run: pnpm --filter @strandbeest/web-demo build
       - run: pnpm --filter @strandbeest/web-demo build
@@ -20,7 +33,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
+      - run: rustup toolchain install 1.95.0 --profile minimal
       - run: ./scripts/setup-python.sh
+      - run: .venv/bin/python scripts/smoke-installed.py
       - run: ./scripts/test-python.sh
       - run: .venv/bin/python scripts/check_doc_refs.py
   python-slow:
@@ -30,6 +45,45 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
+      - run: rustup toolchain install 1.95.0 --profile minimal
       - run: ./scripts/setup-python.sh
       - run: (cd packages/sim && ../../.venv/bin/python -m pytest -q -m slow)
       - run: (cd packages/agent && ../../.venv/bin/python -m pytest -q -m slow)
+      - run: (cd packages/calib && ../../.venv/bin/python -m pytest -q -m slow)
+      - run: (cd packages/opt && ../../.venv/bin/python -m pytest -q -m slow)
+      - run: (cd apps/api && ../../.venv/bin/python -m pytest -q -m slow)
+  api-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f docker/api.Dockerfile -t beest-api-ci .
+      - run: docker run --rm --network none beest-api-ci python scripts/smoke-installed.py
+  web-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f docker/web.Dockerfile -t beest-web-ci .
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pnpm install --frozen-lockfile
+      - run: rustup toolchain install 1.95.0 --profile minimal --target wasm32-unknown-unknown
+      - run: cargo install --locked --version 0.2.105 wasm-bindgen-cli
+      - run: ./scripts/build-kernel-wasm.sh
+      - run: ./scripts/setup-python.sh
+      - run: pnpm test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-regression
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

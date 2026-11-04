@@ -72,7 +72,17 @@ def test_run_job_completes_and_series_are_served(client):
         time.sleep(0.5)
     assert j["status"] == "done", j
     rid = j["result"]["id"]
-    assert client.get(f"/runs/{rid}").json()["design_name"] == DESIGN["name"]
+    saved = client.get(f"/runs/{rid}").json()
+    assert saved["design_name"] == DESIGN["name"]
+    assert saved["audit"]["version"] == 2
+    assert saved["audit"]["status"] == "unverified" and not saved["audit"]["passed"]
+    assert saved["audit"]["legacy"]["version"] == 1
+    assert not saved["audit"]["physical_validation_implied"]
+    observation = saved["audit_observation"]
+    assert observation["version"] == 1
+    assert observation["observed_steps"] == observation["integration_steps"] > 0
+    assert observation["invalid_steps"] == observation["time_gap_steps"] == 0
+    assert not any(f['evidence'].get('metric') == 'audit_observation' for f in saved['audit']['findings'])
     s = client.get(f"/runs/{rid}/series").json()
     assert set(s) >= {"t", "psi", "torque"} and len(s["t"]) > 3
 
@@ -365,6 +375,7 @@ def test_replay_carries_loads_events_diagnosis_and_the_energy_account(client):
     doc = j["result"]
     assert doc["events"] and doc["diagnosis"] and "energy_in_per_rev" in doc["metrics"] or doc["metrics"]["steady_window"] == 0
     r = client.get(f"/runs/{doc['id']}/replay").json()
+    assert r['audit_observation'] == doc['audit_observation']
     n, legs = len(r["t"]), DESIGN["walker"]["legs"]
     assert len(r["foot_force"]) == n == len(r["foot_pos"]) == len(r["foot_slip"]) == len(r["com"])
     assert len(r["foot_force"][0]) == legs and len(r["foot_force"][0][0]) == 3
@@ -450,3 +461,45 @@ def test_bayesian_calibration_job_returns_a_profile_with_uncertainty_and_identif
     assert set(p["uncertainty"]) == {"contact_stiffness", "friction"} and p["provenance"]["synthetic"] is True
     for u in p["uncertainty"].values():
         assert u["ci95"][0] < u["ci95"][1] and isinstance(u["identifiable"], bool)
+
+
+def test_qd_evolution_job_and_atlas_endpoint(client):
+    """M8-01: Quality-diversity evolution job queueing and atlas retrieval."""
+    # Invalid request: no design provided
+    bad = client.post("/evolve/qd", json={"evals": 100})
+    assert bad.status_code == 422
+
+    # Valid job submission
+    res = client.post(
+        "/evolve/qd",
+        json={
+            "design": DESIGN,
+            "evals": 150,
+            "seed": 42,
+            "feature_descriptors": ["lift_ratio", "cost_of_transport"],
+            "bins": [8, 8],
+        },
+    )
+    assert res.status_code == 200
+    jid = res.json()["job_id"]
+    assert len(jid) > 0
+
+    # Wait for completion
+    j = wait(client, jid, tries=300)
+    assert j["status"] == "done", j
+
+    # Retrieve species atlas
+    atlas_res = client.get(f"/evolve/qd/{jid}/atlas")
+    assert atlas_res.status_code == 200
+    atlas = atlas_res.json()
+
+    assert atlas["schema_version"] == 2
+    assert atlas["kind"] == "species_atlas"
+    assert atlas["dimensions"] == 2
+    assert atlas["features"] == ["lift_ratio", "cost_of_transport"]
+    assert atlas["cells_filled"] > 0
+    assert atlas["qd_score"] > 0
+    assert len(atlas["cells"]) == atlas["cells_filled"]
+
+    # Unknown job is 404
+    assert client.get("/evolve/qd/nonexistent-job-id/atlas").status_code == 404

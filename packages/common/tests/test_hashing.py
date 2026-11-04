@@ -63,3 +63,25 @@ def test_run_input_key_changes_when_any_of_the_five_inputs_changes():
 def test_non_finite_float_raises():
     with pytest.raises(ValueError, match="non-finite"):
         canonical_json({"x": float("nan")})
+
+
+def test_implementation_and_semantics_change_keys_without_relabeling_legacy_keys():
+    args = {"backend_version": "same", "platform_tag": "test"}
+    legacy = run_input_key({}, {}, **args)
+    a = run_input_key({}, {}, **args, implementation_hash="sha256:" + "a" * 64, simulation_semantics="v2")
+    b = run_input_key({}, {}, **args, implementation_hash="sha256:" + "b" * 64, simulation_semantics="v2")
+    c = run_input_key({}, {}, **args, implementation_hash="sha256:" + "a" * 64, simulation_semantics="v3")
+    assert len({legacy["key"], a["key"], b["key"], c["key"]}) == 4
+    assert "key_format" not in legacy and a["key_format"] == 2
+    assert run_input_key({}, {}, **args) == legacy
+
+
+@pytest.mark.parametrize("extra", [
+    {"implementation_hash": "sha256:" + "a" * 64},
+    {"simulation_semantics": "v2"},
+    {"implementation_hash": "unknown", "simulation_semantics": "v2"},
+    {"implementation_hash": "sha256:" + "a" * 64, "simulation_semantics": ""},
+])
+def test_partial_or_placeholder_implementation_is_not_a_valid_key(extra):
+    with pytest.raises(ValueError, match="identity|together"):
+        run_input_key({}, {}, **extra)

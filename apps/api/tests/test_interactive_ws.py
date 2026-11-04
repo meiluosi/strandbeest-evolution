@@ -7,6 +7,47 @@ import json
 DESIGN = json.loads((schema_dir() / "examples" / "design-jansen-small-6leg.json").read_text())
 
 
+@pytest.mark.parametrize(
+    "param,value",
+    [
+        ("gravity", [0.0, 0.0, -1.62]),
+        ("contact.softness", [50000.0, 300.0]),
+        ("terrain.friction", 3.0),
+    ],
+)
+def test_websocket_editing_a_fork_preserves_the_other_branch_trajectory(client, param, value):
+    # An independent session provides the uninterrupted reference trajectory.
+    # Drive immediately so friction changes are observable in this short run.
+    init = {"cmd": "init", "design": DESIGN, "overrides": {"drive": {"ramp": 0}}}
+    with client.websocket_connect("/ws/sim") as reference:
+        reference.send_json(init)
+        assert reference.receive_json()["event"] == "ready"
+        reference.send_json({"cmd": "step", "count": 200})
+        reference.receive_json()
+        reference.send_json({"cmd": "step", "count": 800})
+        expected = reference.receive_json()
+
+    with client.websocket_connect("/ws/sim") as ws:
+        ws.send_json(init)
+        assert ws.receive_json()["event"] == "ready"
+        ws.send_json({"cmd": "step", "count": 200})
+        ws.receive_json()
+        ws.send_json({"cmd": "fork", "fork_id": "original"})
+        assert ws.receive_json()["event"] == "fork_ack"
+        ws.send_json({"cmd": "fork", "fork_id": "edited", "switch": True})
+        assert ws.receive_json()["event"] == "fork_ack"
+        ws.send_json({"cmd": "set", "param": param, "value": value})
+        assert ws.receive_json()["event"] == "set_ack"
+        ws.send_json({"cmd": "step", "count": 800})
+        changed = ws.receive_json()
+        assert changed != expected
+
+        ws.send_json({"cmd": "switch_fork", "fork_id": "original"})
+        assert ws.receive_json()["event"] == "switched"
+        ws.send_json({"cmd": "step", "count": 800})
+        assert ws.receive_json() == expected
+
+
 def test_interactive_websocket_session_lifecycle(client):
     with client.websocket_connect("/ws/sim") as ws:
         # 1. Initialize session
@@ -134,4 +175,28 @@ def test_interactive_websocket_fork_lru_eviction(client):
         assert ws.receive_json()["event"] == "switched"
         ws.send_json({"cmd": "switch_fork", "fork_id": "branch_16"})
         assert ws.receive_json()["event"] == "switched"
+
+
+@pytest.mark.parametrize("drive_kind", ["motor", "sail"])
+def test_websocket_snapshot_rewinds_live_world_edits_and_repeated_continuation(client, drive_kind):
+    with client.websocket_connect("/ws/sim") as ws:
+        ws.send_json({"cmd": "init", "design": DESIGN,
+                      "overrides": {"drive": {"kind": drive_kind, "ramp": 0}, "wind": {"speed": 3.0}}})
+        assert ws.receive_json()["event"] == "ready"
+        ws.send_json({"cmd": "snapshot"})  # Sail is still held by the settling servo.
+        assert ws.receive_json()["event"] == "snapshot_ack"
+        ws.send_json({"cmd": "step", "count": 800})
+        reference = ws.receive_json()
+
+        for _ in range(2):
+            for param, value in [("gravity", [0, 0, -1.62]), ("contact.softness", [50000, 300]),
+                                 ("terrain.friction", 3.0), ("wind.speed", 12), ("wind.direction", 60), ("drive.omega", 4)]:
+                ws.send_json({"cmd": "set", "param": param, "value": value})
+                assert ws.receive_json()["event"] == "set_ack"
+            ws.send_json({"cmd": "step", "count": 200})
+            assert ws.receive_json()["wind_speed"] == 12
+            ws.send_json({"cmd": "restore"})
+            assert ws.receive_json() == {"event": "restore_ack", "t": 0.0}
+            ws.send_json({"cmd": "step", "count": 800})
+            assert ws.receive_json() == reference
 

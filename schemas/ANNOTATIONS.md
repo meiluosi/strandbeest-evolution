@@ -17,6 +17,8 @@
 
 **当前严格执行的 schema**：`design`、`scenario`（`--strict`，CI 里跑）。`measurement`、`run`、`profile` 仍是告警，随 E1-04 之后逐个补齐。已知单位集合在 `scripts/check_schema_annotations.py` 的 `UNITS`；用到新单位先加进去（拼错单位算缺陷）。新增复合单位：`N·m/rad`（伺服刚度）、`N·m·s/rad`（粘性阻尼）、`kg/m`、`kg·m²`、`m/s²`、`deg`、`Hz`。
 
+**2026-11-04 核对**：`scripts/test-python.sh` 对全部八份 schema 严格检查。Profile 的已知物理参数逐项声明单位；动态参数字典和置信区间使用上下文标记 `x-unit: "parameter"`，表示继承同名注册参数的单位，并非无量纲。没有受支持映射的旧参数单位保持未知，不得据此换算或应用。这个标记不改变数值校验或自动猜测单位。
+
 ## 由 schema 生成模型（E1-03）
 `schemas/design.schema.json` 与 `schemas/scenario.schema.json` 是**真相来源**：
 ```bash

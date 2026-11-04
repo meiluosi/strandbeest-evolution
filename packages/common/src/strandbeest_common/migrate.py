@@ -56,6 +56,11 @@ def migrate_doc(kind: str, doc: dict[str, Any]) -> dict[str, Any]:
     if kind == "design":
         out = {"schema_version": 2, "id": legacy_ulid("design", doc["name"]), **{k: v for k, v in doc.items() if k != "schema_version"}}
     elif kind == "run":
+        # Execution identity is evidence about the implementation that ran.
+        # Preserve any recorded provenance verbatim: never infer today's build
+        # or recompute an old input_key while migrating/reindexing old results.
+        # audit_observation is likewise evidence: preserve it when present,
+        # and never invent all-step coverage from historical sparse telemetry.
         old = doc.pop("id")
         out = {"schema_version": 2, "id": legacy_ulid("run", old), "design_id": legacy_ulid("design", doc["design_name"])}
         out.update({k: v for k, v in doc.items() if k != "schema_version"})
@@ -66,6 +71,8 @@ def migrate_doc(kind: str, doc: dict[str, Any]) -> dict[str, Any]:
         out.update({k: v for k, v in doc.items() if k != "schema_version"})
         out["aliases"] = [old]
     elif kind == "profile":
+        # Keep historical parameter names/units/source as recorded. New physical
+        # mappings and a source Scenario cannot be inferred during migration.
         out = {"schema_version": 2, "id": legacy_ulid("profile", doc["name"]), **{k: v for k, v in doc.items() if k != "schema_version"}}
         prov = out["provenance"]
         prov["measurement_ids"] = [m if is_ulid(m) else legacy_ulid("measurement", m) for m in prov["measurement_ids"]]

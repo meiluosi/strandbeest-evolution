@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"test": "pnpm -r test",
-		"type-check": "pnpm -r type-check",
+		"type-check": "pnpm -r type-check && pnpm type-check:browser",
 		"lint": "biome check --write .",
 		"format": "biome format --write .",
 		"check": "biome check . && pnpm type-check && pnpm test",
@@ -18,10 +18,14 @@
 		"dynamics": "tsx scripts/dynamics-demo.ts",
 		"wind-objective": "tsx scripts/wind-objective.ts",
 		"time-domain": "tsx scripts/time-domain.ts",
-		"sim:reference": "tsx scripts/export-sim-reference.ts"
+		"sim:reference": "tsx scripts/export-sim-reference.ts",
+		"test:browser": "bash scripts/test-browser.sh",
+		"type-check:browser": "tsc -p tests/browser/tsconfig.json"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",
+		"@playwright/test": "1.64.1",
+		"@types/node": "26.6.4",
 		"tsx": "^4.23.15",
 		"typescript": "^7.0.2"
 	}

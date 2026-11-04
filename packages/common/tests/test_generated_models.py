@@ -53,7 +53,7 @@ def schema_defaults(node: dict, root: dict):
         for k, sub in node["properties"].items():
             if "default" in sub and not (sub["default"] == {} and "$ref" in sub):
                 out[k] = copy.deepcopy(sub["default"])
-            elif "$ref" in sub:
+            elif "$ref" in sub and "default" in sub:
                 out[k] = schema_defaults(sub, root)
         return out
     return node.get("default")
@@ -175,7 +175,7 @@ def test_generator_rejects_unsupported_keywords(tmp_path):
 def test_scenario_v1_and_v2_share_their_definitions():
     """The flat v1 schema is kept for the migration and the simulator's internal shape; its definitions must stay identical to v2's."""
     v1, v2 = schema("scenario-v1")["$defs"], schema("scenario")["$defs"]
-    for name in ("Linkage", "Wind", "Terrain", "Drive", "Solver", "Run"):
+    for name in ("Linkage", "Wind", "Terrain", "Drive", "Pneumatics", "Solver", "Run"):
         assert v1[name] == v2[name], name
     body = json.loads(json.dumps(v1["Walker"]))
     for p in body["properties"].values():

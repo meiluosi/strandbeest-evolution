@@ -15,6 +15,7 @@ NUMERIC = {"number", "integer"}
 UNITS = {
     "m", "mm", "kg", "s", "rad", "deg", "rad/s", "N", "N·m", "N·m/rad", "N·m·s/rad", "1/s²", "m/s", "m/s²",
     "kg/m", "kg/m³", "m²", "kg·m²", "Hz", "1", "count", "unit_m", "Pa", "m³", "m³/(s·Pa)", "kg/s",
+    "parameter",  # Contextual unit of a named Profile parameter; never implies dimensionless.
 }
 
 

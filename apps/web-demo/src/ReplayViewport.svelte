@@ -810,9 +810,10 @@ $effect(() => {
 						_comInterp.set(cx, cz, -cy);
 						comMarker.position.copy(_comInterp);
 
-						const down = ((R.contact[nearestFrame] as number[]) ?? [])
-							.map((c, k) => (c ? k : -1))
-							.filter((k) => k >= 0);
+						// Arrow contact rows are Uint8Array: its map would wrap -1 to 255.
+						const down = Array.from(R.contact[nearestFrame] ?? [], (c, k) =>
+							c ? k : -1,
+						).filter((k) => k >= 0);
 						const pts = hull(
 							down.map(
 								(k) =>

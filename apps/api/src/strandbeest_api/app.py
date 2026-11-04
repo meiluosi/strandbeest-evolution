@@ -13,7 +13,9 @@ from fastapi import Body, FastAPI, HTTPException, Response, WebSocket, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from strandbeest_calib import CONTACT_STIFFNESS, FRICTION, calibrate
+from strandbeest_calib import apply_profile, calibrate
+from strandbeest_calib.calibrate import parameter_overrides, parameter_registry
+from strandbeest_calib.conditions import measurement_scenario
 from strandbeest_calib.compare import curves, distance
 from strandbeest_common import Design
 from strandbeest_common.ids import legacy_ulid, new_ulid
@@ -28,15 +30,12 @@ from strandbeest_rig import Calibration, convert_raw
 from strandbeest_sim import virtual_dynamometer
 
 from .jobs import JobContext, JobStore, Workers
-from .pipeline import compute_run_key, evaluate, simulate, simulate_ensemble
+from .pipeline import cache_matches, compute_run_key, evaluate, simulate, simulate_ensemble
 from .sweeps import expand, run_sweep
-
-PARAMS = {"contact_stiffness": CONTACT_STIFFNESS, "friction": FRICTION}
-
 
 def create_app(data_dir: str | Path | None = None, workers: int | None = None) -> FastAPI:
     root = Path(data_dir or os.environ.get("STRANDBEEST_DATA", "data"))
-    for sub in ("designs", "runs", "exports", "measurements", "profiles"):
+    for sub in ("designs", "runs", "exports", "measurements", "profiles", "atlases"):
         (root / sub).mkdir(parents=True, exist_ok=True)
     n_workers = workers if workers is not None else int(os.environ.get("STRANDBEEST_WORKERS", "2"))
     origins = os.environ.get("STRANDBEEST_CORS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080").split(",")
@@ -99,29 +98,58 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
                 return d
         raise HTTPException(404, "no such profile")
 
+    def retain_measurement(doc: dict) -> str:
+        """Measurement IDs identify evidence; a calibration must not overwrite it."""
+        validate("measurement", doc)
+        try:
+            previous = measurement_doc(doc["id"])
+        except HTTPException as exc:
+            if exc.status_code != 404:
+                raise
+        else:
+            if previous != doc:
+                raise HTTPException(409, {"code": "measurement_id_conflict"})
+            return doc["id"]
+        (root / "measurements" / f"{doc['id']}.json").write_text(json.dumps(doc, indent=2))
+        return doc["id"]
+
+    def calibration_measurement(ref: Any, design: Design) -> str:
+        doc = measurement_doc(ref)
+        try:
+            validate("measurement", doc)
+            if doc["design_id"] != design.id:
+                raise ValueError("Measurement design_id differs from Design")
+            measurement_scenario(design, doc)
+            return retain_measurement(doc)
+        except ValueError as exc:
+            raise HTTPException(422, {"code": "calibration_measurement_invalid", "reason": str(exc)}) from exc
+
     # -- job handlers (run inside worker threads) --------------------------
     def h_run(ctx: JobContext, payload: dict[str, Any]):
         d = Design(payload["design"])
         ens = bool(payload.get("ensemble", True))
+        profile_id = payload.get("calibration_profile_id")
         ov = payload.get("overrides")
         if payload.get("use_cache", True):
             ik = compute_run_key(d, ov)
-            cached_id = store.find_cached_run(ik["key"], require_ensemble=ens)
+            cached_id = store.find_cached_run(ik["key"], require_ensemble=ens) if ik["key"] else None
             if cached_id and (run_dir(cached_id) / "run.json").exists():
                 doc = migrate_any(json.loads((run_dir(cached_id) / "run.json").read_text()), "run")
-                doc.setdefault("provenance", {})["cache_hit_from"] = cached_id
-                ctx.progress(1, 1, "cache hit")
-                return doc
+                if cache_matches(doc, ik, ensemble=ens, calibration_profile_id=profile_id):
+                    doc["provenance"]["cache_hit_from"] = cached_id
+                    ctx.progress(1, 1, "cache hit")
+                    return doc
         fn = simulate_ensemble if ens else simulate
         ctx.progress(0, 1, "simulating")
-        doc = fn(d, root / "runs", ov)
+        doc = fn(d, root / "runs", ov, calibration_profile_id=profile_id)
         store.index_run(doc)
         ctx.progress(1, 1, "done")
         return doc
 
     def h_calibration(ctx: JobContext, payload: dict[str, Any]):
         d = Design(payload["design"])
-        profile = calibrate(d, measurement_doc(payload["measurement"]), [PARAMS[n] for n in payload["params"]], max_evals=payload["max_evals"])
+        registry = parameter_registry(d)
+        profile = calibrate(d, measurement_doc(payload["measurement"]), [registry[n] for n in payload["params"]], max_evals=payload["max_evals"])
         validate("profile", profile)
         (root / "profiles" / f"{profile['id']}.json").write_text(json.dumps(profile, indent=2))
         store.add_provenance_edge(profile["id"], "profile", d.id, "design", "calibrated_design")
@@ -143,7 +171,41 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     def h_sweep(ctx: JobContext, payload: dict[str, Any]):
         return run_sweep(ctx, payload, root / "runs", parallel=max(1, n_workers + 1))
 
-    pool = Workers(store, {"run": h_run, "calibration": h_calibration, "bayes": h_bayes, "sweep": h_sweep}, n=n_workers)
+    def h_qd(ctx: JobContext, payload: dict[str, Any]):
+        from strandbeest_opt.qd import MapElites
+
+        d = Design(payload["design"])
+        evals = int(payload.get("evals", 1000))
+        seed = int(payload.get("seed", 42))
+        features = tuple(payload.get("feature_descriptors", ["lift_ratio", "cost_of_transport"]))
+        bins = payload.get("bins", (16, 16))
+        grid_shape = tuple(bins) if isinstance(bins, (list, tuple)) else (int(bins), int(bins))
+        sigma = float(payload.get("sigma", 0.06))
+
+        me = MapElites(
+            d.doc,
+            seed=seed,
+            sigma=sigma,
+            feature_descriptors=features,
+            grid_shape=grid_shape,
+        )
+
+        batch = 100
+        for _ in range(0, evals, batch):
+            if ctx.cancelled:
+                from .jobs import Cancelled
+                raise Cancelled(me.to_atlas())
+            step = min(batch, evals - me.evals)
+            me.run(step, log_every=batch)
+            ctx.progress(me.evals, evals, f"filled {len(me.archive)} cells, QD score {me.qd_score:.1f}")
+            (root / "atlases" / f"{ctx.id}.json").write_text(json.dumps(me.to_atlas()))
+
+        atlas = me.to_atlas()
+        (root / "atlases" / f"{ctx.id}.json").write_text(json.dumps(atlas, indent=2))
+        store.add_provenance_edge(atlas["id"], "species_atlas", d.id, "design", "evolved_from")
+        return atlas
+
+    pool = Workers(store, {"run": h_run, "calibration": h_calibration, "bayes": h_bayes, "sweep": h_sweep, "qd": h_qd}, n=n_workers)
     pool.start()
 
     app = FastAPI(title="Strandbeest platform API", version="0.2.0")
@@ -303,12 +365,29 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     @app.post("/runs")
     def start_run(body: dict = Body(...)):
         d = parse(body["design"])
+        overrides = body.get("overrides")
+        profile_id = None
+        if body.get("profile_id"):
+            profile = profile_doc(body["profile_id"])
+            try:
+                for mid in profile["provenance"]["measurement_ids"]:
+                    measurement = measurement_doc(mid)
+                    if measurement["design_id"] != d.id:
+                        raise ValueError("Profile measurement belongs to another Design")
+                    if profile["provenance"].get("synthetic") != measurement["synthetic"]:
+                        raise ValueError("Profile and Measurement synthetic flags differ")
+                scenario = apply_profile(d, profile, overrides)
+            except (ValueError, HTTPException) as exc:
+                raise HTTPException(422, {"code": "calibration_profile_invalid", "reason": str(exc)}) from exc
+            overrides = flatten_scenario(scenario.model_dump(mode="json", exclude_unset=True))
+            profile_id = profile["id"]
         return {
             "job_id": store.create(
                 "run",
                 {
                     "design": d.doc,
-                    "overrides": body.get("overrides"),
+                    "overrides": overrides,
+                    "calibration_profile_id": profile_id,
                     "ensemble": body.get("ensemble", True),
                     "use_cache": body.get("use_cache", True),
                 },
@@ -329,12 +408,16 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     def start_calibration(body: dict = Body(...)):
         d = parse(body["design"])
         names = body.get("params", ["contact_stiffness"])
-        unknown = [n for n in names if n not in PARAMS]
-        if unknown:
-            raise HTTPException(422, f"unknown parameters {unknown}; available: {sorted(PARAMS)}")
-        measurement_doc(body["measurement"])  # 404 early if it does not exist
-        return {"job_id": store.create("calibration", {"design": d.doc, "measurement": body["measurement"], "params": names,
-                                                        "max_evals": min(int(body.get("max_evals", 20)), 40)})}
+        registry = parameter_registry(d)
+        try:
+            if not isinstance(names, list) or not names or not all(isinstance(n, str) for n in names) or len(set(names)) != len(names):
+                raise ValueError("distinct calibration parameters required")
+            parameter_overrides({n: registry[n].init for n in names}, d)
+        except (KeyError, ValueError) as exc:
+            raise HTTPException(422, {"code": "calibration_parameters_invalid", "reason": str(exc)}) from exc
+        mid = calibration_measurement(body["measurement"], d)
+        return {"job_id": store.create("calibration", {"design": d.doc, "measurement": mid, "params": names,
+                                                        "max_evals": max(1, min(int(body.get("max_evals", 20)), 40))})}
 
     @app.post("/calibrations/bayes")
     def start_bayes(body: dict = Body(...)):
@@ -343,11 +426,73 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         names = body.get("params", ["contact_stiffness", "friction"])
         from strandbeest_calib.bayes_job import log_params
 
+        if not isinstance(names, list) or not names or not all(isinstance(n, str) for n in names):
+            raise HTTPException(422, {"code": "calibration_parameters_invalid"})
         unknown = [n for n in names if n not in log_params(d)]
         if unknown:
-            raise HTTPException(422, f"unknown parameters {unknown}; available: {sorted(log_params(d))}")
-        measurement_doc(body["measurement"])
-        return {"job_id": store.create("bayes", {"design": d.doc, "measurement": body["measurement"], "params": names, "points": max(8, min(int(body.get("points", 32)), 64))})}
+            raise HTTPException(422, {"code": "calibration_parameters_invalid", "reason": f"unknown parameters {unknown}"})
+        try:
+            if not names or len(set(names)) != len(names):
+                raise ValueError("distinct calibration parameters required")
+            registry = parameter_registry(d)
+            parameter_overrides({n: registry[n].init for n in names}, d)
+        except ValueError as exc:
+            raise HTTPException(422, {"code": "calibration_parameters_invalid", "reason": str(exc)}) from exc
+        mid = calibration_measurement(body["measurement"], d)
+        return {"job_id": store.create("bayes", {"design": d.doc, "measurement": mid, "params": names, "points": max(8, min(int(body.get("points", 32)), 64))})}
+
+    # -- evolve / QD -------------------------------------------------------------
+    @app.post("/evolve/qd")
+    def start_qd(body: dict = Body(...)):
+        """Start a MAP-Elites quality-diversity evolution job (M8-01)."""
+        if "design" in body:
+            d = parse(body["design"])
+        elif "design_id" in body or "design_name" in body:
+            ref = body.get("design_id") or body.get("design_name")
+            found = design_file(ref)
+            if not found:
+                raise HTTPException(404, f"no such design '{ref}'")
+            d = Design(found[1])
+        else:
+            raise HTTPException(422, "must provide 'design' document or design reference")
+
+        evals = max(50, min(int(body.get("evals", 1000)), 50000))
+        seed = int(body.get("seed", 42))
+        features = body.get("feature_descriptors", ["lift_ratio", "cost_of_transport"])
+        bins = body.get("bins", [16, 16])
+        if isinstance(bins, int):
+            bins = [bins, bins]
+
+        jid = store.create(
+            "qd",
+            {
+                "design": d.doc,
+                "evals": evals,
+                "seed": seed,
+                "feature_descriptors": features,
+                "bins": bins,
+                "sigma": float(body.get("sigma", 0.06)),
+                "save_designs": bool(body.get("save_designs", False)),
+            },
+        )
+        return {"job_id": jid, "status": "queued"}
+
+    @app.get("/evolve/qd/{job_id}/atlas")
+    def get_qd_atlas(job_id: str):
+        """Retrieve the species atlas of a MAP-Elites job."""
+        j = store.get(job_id)
+        if j is None:
+            raise HTTPException(404, "no such job")
+        atlas_path = root / "atlases" / f"{job_id}.json"
+        if atlas_path.exists():
+            return json.loads(atlas_path.read_text())
+        if j.get("result"):
+            return j["result"]
+        if j["status"] == "failed":
+            raise HTTPException(500, f"job failed: {j.get('error')}")
+        if j["status"] == "cancelled":
+            raise HTTPException(410, "job cancelled")
+        return {"job_id": job_id, "status": j["status"], "progress": j.get("progress"), "atlas": None}
 
     @app.get("/jobs")
     def list_jobs(status: str | None = None, kind: str | None = None, limit: int = 50):
@@ -407,12 +552,26 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             raise HTTPException(404, "no such run")
         doc = migrate_any(json.loads(p.read_text()), "run")
         designs = design_ancestry(doc["design_id"])
+        profiles, measurements = [], []
+        if pid := doc.get("provenance", {}).get("calibration_profile_id"):
+            try:
+                profile = profile_doc(pid)
+                profiles.append({"id": pid, "name": profile["name"]})
+                for mid in profile["provenance"]["measurement_ids"]:
+                    try:
+                        m = measurement_doc(mid)
+                        measurements.append({"id": m["id"], "name": m["name"], "design_id": m["design_id"], "synthetic": m["synthetic"]})
+                    except HTTPException:
+                        measurements.append({"id": mid, "deleted": True})
+            except HTTPException:
+                profiles.append({"id": pid, "deleted": True})
         return {
             "target": {"kind": "run", "id": doc["id"]},
             "provenance": doc.get("provenance", {}),
             "designs": designs,
             "runs": [{"id": doc["id"], "design_id": doc["design_id"], "input_key": doc.get("provenance", {}).get("input_key")}],
-            "measurements": [],
+            "profiles": profiles,
+            "measurements": measurements,
         }
 
     @app.get("/profiles")
@@ -510,9 +669,11 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         step = max(1, len(fr["t"]) // max_frames)
         sstep = max(1, len(ar["t"]) // 500)
         sc = flatten_scenario(run_doc["scenario"])  # runs store schema v2; older ones the flat v1 shape
-        from strandbeest_common import gait_metrics, load_spec
+        from strandbeest_common import gait_metrics
+        from strandbeest_sim.builder import resolve_spec
+        from strandbeest_sim.config import sim_config
 
-        g = gait_metrics(load_spec(sc["linkage"]["spec"])) if isinstance(sc["linkage"]["spec"], dict) else None
+        g = gait_metrics(resolve_spec(sim_config(run_doc["scenario"])))
         nominal = (g.stroke_length / g.duty * sc["walker"]["unit"]) if g and g.duty > 0 else None
 
         res_payload: dict[str, Any] = {
@@ -521,6 +682,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             "diagnosis": run_doc.get("diagnosis", []),
             "metrics": run_doc["metrics"],
             "stalled": run_doc.get("stalled", False),
+            **({"audit_observation": run_doc["audit_observation"]} if "audit_observation" in run_doc else {}),
             "nominal_stride_m": nominal,
             "kinematic_duty": g.duty if g else None,
             "revolutions": float(ar["psi"][-1] / (2 * np.pi)) if "psi" in ar else None,
@@ -606,7 +768,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             validate("measurement", doc)
         except (ValueError, KeyError) as e:
             raise HTTPException(422, str(e)) from e
-        (root / "measurements" / f"{doc['id']}.json").write_text(json.dumps(doc))
+        retain_measurement(doc)
         return {"id": doc["id"], "name": doc["name"]}
 
     @app.get("/measurements")
@@ -772,6 +934,13 @@ def _reindex(store: JobStore, root: Path) -> None:
     store.clear_run_index()
     for p in (root / "runs").glob("*/run.json"):
         store.index_run(migrate_any(json.loads(p.read_text()), "run"))
+    for p in (root / "profiles").glob("*.json"):
+        profile = migrate_any(json.loads(p.read_text()), "profile")
+        prov = profile["provenance"]
+        if prov.get("design_id"):
+            store.add_provenance_edge(profile["id"], "profile", prov["design_id"], "design", "calibrated_design")
+        for mid in prov["measurement_ids"]:
+            store.add_provenance_edge(profile["id"], "profile", mid, "measurement", "calibrated_from")
 
 
 def serve() -> None:

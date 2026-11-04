@@ -1,13 +1,28 @@
 import { t } from "./i18n/index.svelte";
 import { store } from "./store.svelte";
 
+const errorKeys: Record<string, string> = {
+	measurement_id_conflict: "lab.error.measurementConflict",
+	calibration_measurement_invalid: "lab.error.measurementInvalid",
+	calibration_profile_invalid: "lab.error.profileInvalid",
+	calibration_parameters_invalid: "lab.error.parametersInvalid",
+};
+
 export async function call<T = any>(path: string, body?: unknown): Promise<T> {
 	const r = await fetch(store.api + path, {
 		method: body === undefined ? "GET" : "POST",
 		headers: { "content-type": "application/json" },
 		body: body === undefined ? undefined : JSON.stringify(body),
 	});
-	if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+	if (!r.ok) {
+		const raw = await r.text();
+		let code = "";
+		try {
+			code = JSON.parse(raw).detail?.code ?? "";
+		} catch {}
+		const key = errorKeys[code];
+		throw new Error(key ? t(key) : `${r.status} ${raw}`);
+	}
 	return r.json();
 }
 

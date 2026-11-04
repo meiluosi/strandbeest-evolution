@@ -1,3 +1,5 @@
+from .implementation import PROCESS_IMPLEMENTATION as _process_implementation
+
 from .dag import AskTellScheduler, JobDAG, JobNode
 from .design import Design
 from .evidence import (
@@ -12,6 +14,7 @@ from .gait import Gait, gait_metrics
 from .hashing import canonical_json, canonicalize, content_hash, host_platform_tag, run_input_key
 from .linkage import LinkageSpec, load_spec, solve_pose
 from .schemas import validate
+from .stride import stride_reference
 from .telemetry import (
     build_telemetry_table,
     load_parquet,
@@ -29,6 +32,7 @@ __all__ = [
     "LinkageSpec",
     "load_spec",
     "solve_pose",
+    "stride_reference",
     "validate",
     "EvidenceLevel",
     "EVIDENCE_LEVELS",

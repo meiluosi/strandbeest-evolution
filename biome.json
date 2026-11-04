@@ -34,7 +34,10 @@
 			"!hardware",
 			"!target",
 			"!**/pytest-of-*",
-			"!**/.pytest_cache"
+			"!**/.pytest_cache",
+			"!.browser-build",
+			"!playwright-report",
+			"!test-results"
 		]
 	}
 }

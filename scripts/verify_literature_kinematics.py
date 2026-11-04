@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""V-01: verify analytical Jansen kinematics against digitized literature trajectory (Pop et al. 2014, AMM 658: 684-689).
+"""Inspect the legacy Pop 2014 comparison; its source chain is currently unverified.
 
 Computes scale- and translation-invariant shape distance (as defined in EXPERIMENTS section 1 and packages/core metrics.ts)
-accounting for digitization uncertainty.
+using the retained, unverified alignment and uncertainty assumptions.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import sys
@@ -80,7 +81,7 @@ def render_ascii_plot(
         c, r = to_grid(p)
         grid[r][c] = "*" if grid[r][c] == " " else "o"
 
-    lines = [f"{title} (· = Analytical 180pts, * = Lit Pop2014, o = Overlap):"]
+    lines = [f"{title} (· = Analytical 180pts, * = Legacy (unverified), o = Overlap):"]
     lines.append("+" + "-" * cols + "+")
     for r in range(rows):
         y_val = max_y - r / (rows - 1) * (max_y - min_y)
@@ -90,9 +91,21 @@ def render_ascii_plot(
     return "\n".join(lines)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--unverified-preview", action="store_true",
+                        help="Inspect retained historical numbers without granting an evidence level.")
+    args = parser.parse_args(argv)
     lit_path = ROOT / "experiments" / "literature-jansen-amm2014.json"
     lit_data = json.loads(lit_path.read_text())
+    # A DOI or close numerical agreement cannot authenticate digitized points.
+    # Re-enabling validation requires a reviewed source/extraction workflow,
+    # not simply changing a metadata flag in the retained historical file.
+    if not args.unverified_preview:
+        print("V-01 NOT VERIFIED: the historical dataset lacks a reproducible source/extraction chain.")
+        print("No E2 upgrade is granted. Use --unverified-preview only to inspect the legacy comparison.")
+        return 2
+    print("UNVERIFIED PREVIEW: these numbers are not accepted as published experimental data.")
     lit_pts = [tuple(p) for p in lit_data["points_24"]]
 
     ana_pts = solve_analytical_foot_path(180)
@@ -110,19 +123,19 @@ def main() -> int:
     uncertainty_mm = lit_data.get("digitization_uncertainty_mm", 0.8)
     sigma = uncertainty_mm / width_ana
 
-    # Rigidly aligned comparison (compensating for 1.0 deg scanning/frame skew and translation)
+    # Historical alignment constants; their physical origin has not been verified.
     rad = math.radians(-1.0)
     c, s = math.cos(rad), math.sin(rad)
     aligned_lit = [(p[0] * c - p[1] * s - 4.5, p[0] * s + p[1] * c - 0.5) for p in lit_pts]
     aligned_dist = path_distance(aligned_lit, ana_pts)
 
-    print("=== V-01 Kinematics Literature Verification (Pop et al. 2014) ===")
+    print("=== Legacy numerical comparison (source unverified) ===")
     print(f"Source: {lit_data['source']}")
     print(f"Analytical path points: {len(ana_pts)}, Literature points: {len(lit_pts)}")
     print(f"Analytical dimensions: width = {width_ana:.3f} mm, lift = {lift_ana:.3f} mm, aspect ratio = {lift_ana/width_ana:.4f}")
     print(f"Literature dimensions: width = {width_lit:.3f} mm, lift = {lift_lit:.3f} mm, aspect ratio = {lift_lit/width_lit:.4f}")
-    print(f"Reported in paper: stroke {lit_data['reported_metrics']['stroke_length_mm']} mm, lift {lit_data['reported_metrics']['lift_mm']} mm, duty {lit_data['reported_metrics']['duty_factor']}")
-    print(f"Digitization pixel uncertainty: ±{uncertainty_mm:.2f} mm (±{sigma:.4f} of path width)")
+    print(f"Unverified legacy metrics: stroke {lit_data['reported_metrics']['stroke_length_mm']} mm, lift {lit_data['reported_metrics']['lift_mm']} mm, duty {lit_data['reported_metrics']['duty_factor']}")
+    print(f"Unverified legacy uncertainty: ±{uncertainty_mm:.2f} mm (±{sigma:.4f} of path width)")
     print(f"Raw shape distance (EXPERIMENTS §1 definition): {raw_dist:.5f}")
     print(f"Aligned shape distance (-1.0 deg, dx=-4.5 mm, dy=-0.5 mm): {aligned_dist:.5f}")
     # Mean absolute physical discrepancy in mm (after rigid alignment to compensate for image rotation)
@@ -136,21 +149,14 @@ def main() -> int:
     )
 
     print(f"Mean physical error after alignment: {mean_error_mm:.3f} mm ({mean_error_mm/width_ana*100:.2f}% of width)")
-    print(f"Max error along ground stance phase: {max_error_stance_mm:.3f} mm (within ±{uncertainty_mm:.2f} mm digitization uncertainty)")
+    print(f"Max discrepancy on the historical first-eight-point subset: {max_error_stance_mm:.3f} mm")
     print()
     print(render_ascii_plot(ana_pts, lit_pts, title="Raw Foot Trajectory Comparison"))
     print()
     print(render_ascii_plot(ana_pts, aligned_lit, title="Aligned Foot Trajectory Comparison"))
     print()
 
-    # The raw shape distance between scanned literature curve and exact analytical kinematics
-    # must be within 0.035 (3.5% of path width, well within experimental/digitization bounds < 0.05).
-    assert raw_dist < 0.035, f"Raw shape distance {raw_dist:.5f} exceeds threshold 0.035"
-    assert mean_error_mm < 2.0, f"Mean error {mean_error_mm:.3f} mm exceeds threshold 2.0 mm"
-    assert max_error_stance_mm < uncertainty_mm, f"Stance phase error {max_error_stance_mm:.3f} mm exceeds digitization uncertainty {uncertainty_mm} mm"
-
-    print("Verification PASSED: Analytical kinematics matches published experimental trajectory within digitization uncertainty.")
-    print("Kinematic foot path elevated to Evidence Level: E2 (Literature/Public Data).")
+    print("Preview complete. Numerical agreement does not verify provenance; no evidence upgrade is granted.")
     return 0
 
 
