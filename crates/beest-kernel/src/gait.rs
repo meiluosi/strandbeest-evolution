@@ -1,40 +1,35 @@
 //! Exact kinematic gait metrics of foot path and ground plane contact.
 
 use crate::kinematics::{solve_pose, trace, LinkageSpec};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyDict;
 use serde::{Deserialize, Serialize};
 
 /// Exact kinematic gait metrics of a linkage's foot trajectory.
-#[pyclass]
+#[cfg_attr(feature = "python", pyclass(get_all))]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GaitMetrics {
     /// Horizontal extent of the entire foot trajectory
-    #[pyo3(get)]
     pub width: f64,
     /// Vertical extent of the foot trajectory (step height / vertical lift)
-    #[pyo3(get)]
     pub lift: f64,
     /// Horizontal span covered during flat ground contact stroke
-    #[pyo3(get)]
     pub stroke_length: f64,
     /// Fraction of cycle spent on ground stroke (duty factor)
-    #[pyo3(get)]
     pub duty: f64,
     /// Alias for duty factor
-    #[pyo3(get)]
     pub duty_factor: f64,
     /// Alias for vertical lift
-    #[pyo3(get)]
     pub step_height: f64,
     /// Maximum foot clearance above ground plane
-    #[pyo3(get)]
     pub clearance: f64,
     /// Whether linkage assembled across all sampled crank angles
-    #[pyo3(get)]
     pub assembled: bool,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl GaitMetrics {
     pub fn asdict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {

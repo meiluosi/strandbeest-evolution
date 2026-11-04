@@ -3,9 +3,13 @@
 pub mod envelope;
 pub mod gait;
 pub mod kinematics;
+pub mod stride;
 
-use pyo3::prelude::*;
-use std::collections::HashMap;
+pub mod api;
+#[cfg(feature = "python")]
+mod python;
+#[cfg(feature = "wasm")]
+mod wasm;
 
 pub use envelope::{
     check_transmission_angle_safety, compute_linkage_distance_extrema, dyad_radii_envelope,
@@ -17,90 +21,12 @@ pub use gait::{
 };
 pub use kinematics::{
     check_assemblability, circle_intersection, jansen_classic_spec, parse_spec, solve_pose,
-    solve_pose_checked, trace, AssemblabilityResult, Branch, JointDef, KinematicError, LinkageSpec,
-    ParamRef, Pose, Trajectory, TrajectoryIter,
+    solve_pose_checked, trace, trace_checked, AssemblabilityResult, Branch, JointDef,
+    KinematicError, LinkageSpec, ParamRef, Pose, Trajectory,
 };
 
-fn parse_spec_arg(arg: &Bound<'_, PyAny>) -> PyResult<LinkageSpec> {
-    if let Ok(s) = arg.extract::<String>() {
-        parse_spec(&s).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!(
-                "failed to parse LinkageSpec JSON: {}",
-                e
-            ))
-        })
-    } else {
-        let py = arg.py();
-        let json_mod = py.import("json")?;
-        let json_str: String = json_mod.getattr("dumps")?.call1((arg,))?.extract()?;
-        parse_spec(&json_str).map_err(|e| {
-            pyo3::exceptions::PyValueError::new_err(format!(
-                "failed to parse LinkageSpec object: {}",
-                e
-            ))
-        })
-    }
-}
-
-/// Solves all joint positions for crank angle `theta` (radians). Returns None if assembly fails.
-#[pyfunction]
-#[pyo3(name = "solve_pose")]
-pub fn py_solve_pose(
-    spec_json: &Bound<'_, PyAny>,
-    theta: f64,
-) -> PyResult<Option<HashMap<String, (f64, f64)>>> {
-    let spec = parse_spec_arg(spec_json)?;
-    Ok(solve_pose(&spec, theta))
-}
-
-/// Traces the foot trajectory over `samples` steps across crank angle [0, 2pi).
-#[pyfunction]
-#[pyo3(name = "trace_trajectory")]
-pub fn py_trace_trajectory(spec_json: &Bound<'_, PyAny>, samples: usize) -> PyResult<Trajectory> {
-    let spec = parse_spec_arg(spec_json)?;
-    Ok(trace(&spec, samples))
-}
-
-/// Verifies whether the linkage can assemble at every sampled angle across [0, 2pi).
-#[pyfunction]
-#[pyo3(name = "check_assemblability")]
-pub fn py_check_assemblability(spec_json: &Bound<'_, PyAny>, samples: usize) -> PyResult<bool> {
-    let spec = parse_spec_arg(spec_json)?;
-    let res = check_assemblability(&spec, samples);
-    Ok(res.assembled)
-}
-
-/// Computes theoretical distance extrema [D_min, D_max] between two circle centers
-/// with radii r0 and r1 such that the circles can intersect: |r0 - r1| <= D <= r0 + r1.
-#[pyfunction]
-#[pyo3(name = "compute_dyad_envelope")]
-pub fn py_compute_dyad_envelope(r0: f64, r1: f64) -> PyResult<(f64, f64)> {
-    Ok(dyad_radii_envelope(r0, r1))
-}
-
-/// Computes exact gait metrics for `spec_json` evaluated at `samples` crank angles.
-#[pyfunction]
-#[pyo3(name = "compute_gait")]
-pub fn py_compute_gait(spec_json: &Bound<'_, PyAny>, samples: usize) -> PyResult<GaitMetrics> {
-    let spec = parse_spec_arg(spec_json)?;
-    Ok(compute_gait(&spec, samples, 0.015))
-}
-
-/// PyO3 C-extension module entry point.
-#[pymodule]
-fn beest_kernel(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<Trajectory>()?;
-    m.add_class::<TrajectoryIter>()?;
-    m.add_class::<GaitMetrics>()?;
-
-    m.add_function(wrap_pyfunction!(py_solve_pose, m)?)?;
-    m.add_function(wrap_pyfunction!(py_trace_trajectory, m)?)?;
-    m.add_function(wrap_pyfunction!(py_check_assemblability, m)?)?;
-    m.add_function(wrap_pyfunction!(py_compute_dyad_envelope, m)?)?;
-    m.add_function(wrap_pyfunction!(py_compute_gait, m)?)?;
-
-    Ok(())
-}
+#[cfg(feature = "python")]
+pub use kinematics::TrajectoryIter;
 
 #[cfg(test)]
 mod tests {

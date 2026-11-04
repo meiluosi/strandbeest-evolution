@@ -76,7 +76,7 @@ export interface ScenarioV1Terrain {
 	friction?: number;
 	/** Slope angle (implemented by tilting gravity) (unit: deg; default: 0.0) */
 	slope_deg?: number;
-	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg); sand uses stiffness (N/m), damping (N*s/m) */
+	/** Kind-specific parameters. ramp uses start (m), height (m), length (m), angle_deg (deg). MuJoCo sand/soft uses mass-normalised stiffness (1/s^2), damping (1/s). K2 stiffness is N/m; calibrated values are not interchangeable. Neither is granular flow. */
 	params?: Record<string, unknown>;
 	/** Water or tide surface height (Z in metres, null for dry beach) (unit: m; default: null) */
 	water_level_m?: number | null;
@@ -114,17 +114,37 @@ export interface ScenarioV1Drive {
 	params?: Record<string, unknown>;
 }
 
+/** Pneumatic system */
+export interface ScenarioV1Pneumatics {
+	/** Number of PET bottles (unit: count; default: 4) */
+	bottle_count?: number;
+	/** Volume per bottle (L) (unit: 1; default: 2.0) */
+	bottle_volume_l?: number;
+	/** Precharge pressure (unit: Pa; default: 101325) */
+	precharge_pa?: number;
+	/** Pump bore diameter (unit: m; default: 0.03) */
+	pump_bore_m?: number;
+	/** Pump stroke length (unit: m; default: 0.05) */
+	pump_stroke_m?: number;
+	/** Enable water feeler reflex (default: true) */
+	feeler_enabled?: boolean;
+	/** Enable storm anchor reflex (default: true) */
+	anchor_enabled?: boolean;
+}
+
 /** Solver */
 export interface ScenarioV1Solver {
 	/** Time step; peak torque needs <= 0.25 ms to converge (docs/EXPERIMENTS.md section 8) (unit: s; default: 0.00025) */
 	timestep?: number;
-	/** Solver iterations (unit: count; default: 100) */
+	/** Maximum constraint-solver iterations; K2 uses coupled contact-mode corrections and rejects a step if its projection residuals do not converge within the budget (unit: count; default: 100) */
 	iterations?: number;
-	/** Foot/terrain contact time constant, used only when contact_stiffness is unset; depends on effective mass, so a numerical knob (unit: s; default: 0.02) */
+	/** MuJoCo constraint-solver early-termination tolerance; null retains the recorded backend version's default, 0 disables early termination. K2 rejects explicit numeric values (unit: 1; default: null) */
+	tolerance?: number | null;
+	/** MuJoCo contact time constant, used when contact_stiffness is null; this branch fixes critical damping and does not use contact_damping_ratio (unit: s; default: 0.02) */
 	contact_solref?: number;
-	/** Contact stiffness in MuJoCo's mass-normalised units (1/s^2), NOT N/m: a foot sinks by about 0.64 mm * (1000 / k) per 1 g of load acceleration regardless of its mass. A calibration target. null = use contact_solref (unit: 1/s²; default: 100000.0; assumption) */
+	/** Contact stiffness in MuJoCo's mass-normalised units (1/s^2), not N/m; null selects contact_solref. Penetration also depends on impedance and applied forces. (unit: 1/s²; default: 100000.0; assumption) */
 	contact_stiffness?: number | null;
-	/** Damping ratio used to derive contact damping from the stiffness (unit: 1; default: 1.0) */
+	/** Dimensionless damping ratio zeta: damping = 2*zeta*sqrt(k) in 1/s for mass-normalised stiffness k, with no mass factor; used only when contact_stiffness is non-null (unit: 1; default: 1.0) */
 	contact_damping_ratio?: number;
 	/** Friction cone type (default: "pyramidal") */
 	cone?: "pyramidal" | "elliptic";
@@ -166,6 +186,7 @@ export interface ScenarioV1 {
 	wind?: ScenarioV1Wind;
 	terrain?: ScenarioV1Terrain;
 	drive?: ScenarioV1Drive;
+	pneumatics?: ScenarioV1Pneumatics;
 	solver?: ScenarioV1Solver;
 	run?: ScenarioV1Run;
 }

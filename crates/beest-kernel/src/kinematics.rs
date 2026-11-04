@@ -1,5 +1,6 @@
 //! Planar dyad circle-circle intersection and linkage forward kinematics solver.
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
@@ -143,6 +144,7 @@ impl LinkageSpec {
 /// Kinematic error encountered when solving linkage pose.
 #[derive(Debug, Clone, PartialEq)]
 pub enum KinematicError {
+    InvalidInput(String),
     MissingParam(String),
     UnknownJointCenter { joint: String, center: String },
     AssemblyFailed { joint: String },
@@ -152,6 +154,7 @@ pub enum KinematicError {
 impl std::fmt::Display for KinematicError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            KinematicError::InvalidInput(message) => write!(f, "{}", message),
             KinematicError::MissingParam(p) => write!(f, "missing param: {}", p),
             KinematicError::UnknownJointCenter { joint, center } => {
                 write!(
@@ -256,17 +259,17 @@ pub fn solve_pose_checked(spec: &LinkageSpec, theta: f64) -> Result<Pose, Kinema
 }
 
 /// Foot trajectory over crank sweep.
-#[pyclass]
+#[cfg_attr(feature = "python", pyclass(get_all))]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Trajectory {
-    #[pyo3(get)]
     pub points: Vec<(f64, f64)>,
-    #[pyo3(get)]
     pub angles: Vec<f64>,
-    #[pyo3(get)]
     pub assembled: bool,
+    pub poses: Vec<Pose>,
+    pub max_step: f64,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl Trajectory {
     fn __len__(&self) -> usize {
@@ -301,12 +304,14 @@ impl Trajectory {
     }
 }
 
+#[cfg(feature = "python")]
 #[pyclass]
 pub struct TrajectoryIter {
     points: Vec<(f64, f64)>,
     idx: usize,
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
 impl TrajectoryIter {
     fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
@@ -326,34 +331,60 @@ impl TrajectoryIter {
 
 /// Traces the foot trajectory over `samples` steps across crank angle [0, 2pi).
 pub fn trace(spec: &LinkageSpec, samples: usize) -> Trajectory {
+    trace_checked(spec, samples).unwrap_or_else(|_| empty_trajectory())
+}
+
+fn empty_trajectory() -> Trajectory {
+    Trajectory {
+        points: vec![],
+        angles: vec![],
+        poses: vec![],
+        assembled: false,
+        max_step: 0.0,
+    }
+}
+
+/// A geometric failure clears the whole path; malformed inputs are errors, never zero placeholders.
+pub fn trace_checked(spec: &LinkageSpec, samples: usize) -> Result<Trajectory, KinematicError> {
+    crate::api::validate_spec(spec)?;
+    if samples == 0 || samples > 1_000_000 {
+        return Err(KinematicError::InvalidInput(
+            "samples must be in 1..=1000000".into(),
+        ));
+    }
     let mut points = Vec::with_capacity(samples);
     let mut angles = Vec::with_capacity(samples);
-    let mut assembled = true;
+    let mut poses = Vec::with_capacity(samples);
 
     for i in 0..samples {
         let theta = 2.0 * std::f64::consts::PI * (i as f64) / (samples as f64);
         angles.push(theta);
-        match solve_pose(spec, theta) {
-            Some(pose) => {
-                if let Some(&p) = pose.get(&spec.foot) {
-                    points.push(p);
-                } else {
-                    assembled = false;
-                    points.push((0.0, 0.0));
-                }
+        match solve_pose_checked(spec, theta) {
+            Ok(pose) => {
+                points.push(
+                    *pose
+                        .get(&spec.foot)
+                        .ok_or_else(|| KinematicError::MissingFoot(spec.foot.clone()))?,
+                );
+                poses.push(pose);
             }
-            None => {
-                assembled = false;
-                points.push((0.0, 0.0));
-            }
+            Err(KinematicError::AssemblyFailed { .. }) => return Ok(empty_trajectory()),
+            Err(error) => return Err(error),
         }
     }
-
-    Trajectory {
+    let mut max_step: f64 = 0.0;
+    for i in 0..samples {
+        let a = points[i];
+        let b = points[(i + 1) % samples];
+        max_step = max_step.max((a.0 - b.0).hypot(a.1 - b.1));
+    }
+    Ok(Trajectory {
         points,
         angles,
-        assembled,
-    }
+        poses,
+        assembled: true,
+        max_step,
+    })
 }
 
 /// Assemblability result over a full crank rotation.
