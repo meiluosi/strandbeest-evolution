@@ -381,11 +381,12 @@ def test_the_adversarial_search_finds_a_failing_wind_for_the_reference_design():
         """The physics of the reference design (the genome is ignored: this test only varies the scenario)."""
         ov = {
             "drive": {"kind": "sail"},
+            "solver": {"timestep": 1e-3},
             "wind": {"kind": sc.wind_kind, "speed": sc.wind_speed_m_s, "params": dict(sc.wind_params)},
             "terrain": {"kind": "flat", "friction": 1.5},
             "run": {"revolutions": 3.0, "settle": 0.2, "max_time": 3.0, "frame_rate": 0},
         }
-        res = run(scenario_from_design(Design(design), ov), backend=K2Backend(timestep=1e-3))
+        res = run(scenario_from_design(Design(design), ov), backend=K2Backend())
         return float(res.x[-1] - res.x[0])
 
     result = adversarial_search(space, DESIGN, evaluate, seed=1, n_random=6, n_refine=8)

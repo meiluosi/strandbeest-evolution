@@ -166,8 +166,10 @@ def _simulate_inner(params, scenario, cfg) -> tuple[float, float]:
     overrides = scenario.overrides()
     overrides["drive"] = {"kind": cfg["drive_kind"]}
     overrides["run"] = dict(cfg["run"])
+    if cfg["timestep"] is not None:
+        overrides.setdefault("solver", {})["timestep"] = cfg["timestep"]
     sc = scenario_from_design(Design(doc), overrides)
-    backend = K2Backend(timestep=cfg["timestep"]) if cfg["backend"] == "k2" else cfg["backend"]
+    backend = K2Backend() if cfg["backend"] == "k2" else cfg["backend"]
     try:
         res = run(sc, backend=backend)
     except Exception as exc:  # a solver blow-up is a design that does not walk, not a crash of the experiment

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from strandbeest_sim.skeptic import LOOP_OPEN_M, PENETRATION_M
+
 CRITICAL_FAULT_KINDS = {
     "stall",
     "stalled",
@@ -146,8 +148,10 @@ def build_explanation_context(run_doc: Mapping[str, Any]) -> dict[str, Any]:
     # Invariant audits
     max_loop_viol = metrics.get("max_loop_violation", 0.0)
     max_pen = metrics.get("max_penetration", 0.0)
-    loop_broken = max_loop_viol is not None and max_loop_viol > 0.005
-    stiffness_pen = max_pen is not None and max_pen > 0.02
+    loop_broken = max_loop_viol is not None and max_loop_viol > LOOP_OPEN_M
+    stiffness_pen = max_pen is not None and max_pen > PENETRATION_M
+    audit = run_doc.get("audit", {})
+    audit_status = audit.get("status", "not_recorded") if audit.get("version") == 2 else "not_recorded"
 
     # Active evidence downgrade synthesis for skeptical AI reporting
     downgraded = bool(evidence.get("downgraded", False))
@@ -159,7 +163,7 @@ def build_explanation_context(run_doc: Mapping[str, Any]) -> dict[str, Any]:
             downgrade_reasons.append(reason)
     if stiffness_pen:
         downgraded = True
-        reason = f"excessive terrain penetration: max penetration {max_pen:.4f} m > 0.02 m"
+        reason = f"excessive terrain penetration: max penetration {max_pen:.4f} m > {PENETRATION_M:g} m"
         if reason not in downgrade_reasons:
             downgrade_reasons.append(reason)
 
@@ -241,6 +245,7 @@ def build_explanation_context(run_doc: Mapping[str, Any]) -> dict[str, Any]:
         "downgraded": downgraded,
         "downgrade_reasons": downgrade_reasons,
         "invariants": invariants_dict,
+        "audit_status": audit_status,
         "diagnosis": diagnosis,
         "timeline": timeline,
         "windowed_timeline": windowed_timeline,
@@ -277,6 +282,7 @@ def explain_run(run_doc: Mapping[str, Any]) -> dict[str, Any]:
 
     # 2. Invariant & Evidence Audit
     inv_lines = [
+        f"- Numerical Audit v2: {ctx['audit_status']}",
         f"- Evidence Level: {ctx['evidence_level']}",
         f"- Max Loop Violation: {invariants['max_loop_violation_m']:.4f} m ({'VIOLATED' if invariants['loop_broken'] else 'OK'})",
         f"- Max Terrain Penetration: {invariants['max_penetration_m']:.4f} m ({'VIOLATED' if invariants['excessive_penetration'] else 'OK'})",

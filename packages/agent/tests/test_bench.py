@@ -57,7 +57,11 @@ def test_invalid_designs_and_designs_outside_the_envelope_score_zero_without_sim
 def test_the_starting_design_scores_exactly_zero_and_a_distrusted_run_scores_zero(monkeypatch):
     task = TASKS["stride-on-flat"]
     s = score(task, START, START)
-    assert s.reason == "ok" and s.score == pytest.approx(0.0, abs=1e-9) and s.value == pytest.approx(s.start_value)
+    # Version 2 preserves the numerical result but cannot accept a ranking
+    # while the physical-reference conditions remain unverified.
+    assert s.reason == "distrusted_run" and s.score == pytest.approx(0.0, abs=1e-9)
+    assert s.value == pytest.approx(s.start_value)
+    assert any("stride_reference_unverified" in r for r in s.detail["reasons"])
     from strandbeest_agent import bench
 
     class F:

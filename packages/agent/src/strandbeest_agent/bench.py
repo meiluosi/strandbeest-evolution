@@ -69,7 +69,8 @@ def blind_value(task: dict[str, Any], design: dict[str, Any]) -> tuple[float | N
         with tempfile.TemporaryDirectory() as tmp:
             doc = simulate(Design(design), Path(tmp), json.loads(json.dumps(blind[name])))
             arrays = np.load(Path(tmp) / doc["id"] / "arrays.npz")
-            findings = audit(sim_config(doc["scenario"]), doc["metrics"], {k: arrays[k] for k in arrays.files}, doc.get("stalled", False))
+            findings = audit(sim_config(doc["scenario"]), doc["metrics"], {k: arrays[k] for k in arrays.files},
+                             doc.get("stalled", False), backend_name=doc.get("provenance", {}).get("engine"))
         v = metric_of(task, doc["metrics"])
         per[name] = {"value": v, "findings": [f.check for f in findings]}
         reasons += [f"{name}: {f.check}" for f in findings]

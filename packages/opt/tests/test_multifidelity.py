@@ -266,6 +266,27 @@ def test_the_discard_sweep_says_how_much_can_be_thrown_away():
 # ---------------------------------------------------------------------------------------
 # the real two tiers (needs the simulator)
 # ---------------------------------------------------------------------------------------
+@pytest.mark.parametrize('backend_name', ['k2', 'mujoco'])
+@pytest.mark.parametrize('requested', [None, .0001, .001])
+def test_fine_tier_timestep_is_in_the_recorded_scenario_and_actual_backend(monkeypatch, backend_name, requested):
+    from types import SimpleNamespace
+    from strandbeest_sim import runner
+
+    observed = []
+
+    def observe_run(scenario, *, backend):
+        sim = runner.make_sim(scenario, backend)
+        observed.append((sim.scenario.solver.timestep, sim.backend.timestep))
+        return SimpleNamespace(metrics={'stride_per_rev': .25})
+
+    monkeypatch.setattr(runner, 'run', observe_run)
+    evaluator = make_fine_evaluator(multifidelity.FineTierConfig(
+        backend=backend_name, timestep=requested, overrides={'solver': {'timestep': .0002}}))
+    assert evaluator(BASE) == .25
+    expected = .0002 if requested is None else requested
+    assert observed == [(expected, expected)]
+
+
 @pytest.mark.slow
 def test_the_real_two_stage_screen_runs_and_the_fine_tier_is_the_expensive_one():
     designs = design_variants(BASE, [("d0", {}), ("d1", {"m": 13.0})])

@@ -177,15 +177,17 @@ def simulate_query(ws: Workspace, s: Session, a: dict) -> Any:
 
 
 def simulate_audit(ws: Workspace, s: Session, a: dict) -> Any:
-    """The simulator skeptic on a stored run: do its numbers satisfy the invariants a trustworthy run must satisfy?"""
+    """Re-audit saved inputs/telemetry; absent physical-reference evidence is not a pass."""
     from strandbeest_sim import sim_config
-    from strandbeest_sim.skeptic import audit
+    from strandbeest_sim.audit import audit_report
 
     doc = _run_doc(ws, a["run"])
     arrays = np.load(ws.run_dir(a["run"]) / "arrays.npz")
-    findings = audit(sim_config(doc["scenario"]), doc["metrics"], {k: arrays[k] for k in arrays.files}, doc.get("stalled", False))
-    return {"trustworthy": not findings, "findings": [{"check": f.check, "message": f.message, "evidence": f.evidence} for f in findings],
-            "checked": ["energy_closure", "loop_closure", "penetration", "stride_vs_kinematics", "support"]}
+    report = audit_report(sim_config(doc["scenario"]), doc["metrics"],
+                          {k: arrays[k] for k in arrays.files}, doc.get("stalled", False),
+                          backend_name=doc.get("provenance", {}).get("engine"),
+                          observation=doc.get("audit_observation"))
+    return {"trustworthy": report["passed"], **report}
 
 
 def simulate_explain(ws: Workspace, s: Session, a: dict) -> Any:

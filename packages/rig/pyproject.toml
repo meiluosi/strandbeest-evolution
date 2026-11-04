@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Test-rig tooling: serial logging, raw-to-Measurement conversion with quality checks, video tracking, torque calibration, a virtual rig"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["strandbeest-common", "numpy>=1.26"]
+dependencies = ["strandbeest-common", "numpy>=1.26", "scipy>=1.11"]
 
 [project.optional-dependencies]
 video = ["opencv-python-headless>=4.8"]

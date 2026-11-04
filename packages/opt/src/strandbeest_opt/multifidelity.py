@@ -94,7 +94,7 @@ class FineTierConfig:
     metric       the run metric to score, e.g. "stride_per_rev".
     revolutions  crank revolutions to drive (the V-04 study used 0.4).
     settle       seconds with the crank held before driving (the V-04 study used 0.2).
-    timestep     the backend time step in s; None keeps the backend default. MuJoCo reads `solver.timestep`.
+    timestep     the backend time step in s; None keeps the Scenario value. An explicit value overrides `overrides.solver.timestep` for either backend.
     overrides    extra scenario overrides, e.g. {"terrain": {"friction": 0.5}} or
                  {"walker": {"foot_friction": 0.3}}.
     """
@@ -147,10 +147,12 @@ def make_fine_evaluator(config: FineTierConfig | None = None) -> FineEvaluator:
                 overrides.setdefault(key, {}).update(val)
             else:
                 overrides[key] = val
+        if cfg.timestep is not None:
+            overrides.setdefault("solver", {})["timestep"] = cfg.timestep
 
         scenario = scenario_from_design(Design(design), overrides)
         if cfg.backend == "k2":
-            backend = K2Backend(timestep=cfg.timestep) if cfg.timestep else K2Backend()
+            backend = K2Backend()
         elif cfg.backend == "mujoco":
             backend = MujocoBackend()
         else:

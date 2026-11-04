@@ -7,6 +7,15 @@ from strandbeest_agent import default_registry, Session, Workspace
 from strandbeest_agent.explainer import build_explanation_context, explain_run
 
 
+def test_report_preserves_unverified_audit_and_the_original_five_mm_penetration_limit():
+    doc = {"metrics": {"max_loop_violation": 0., "max_penetration": .006},
+           "audit": {"version": 2, "status": "unverified"}}
+    result = explain_run(doc)
+    assert result["context"]["audit_status"] == "unverified"
+    assert result["context"]["invariants"]["excessive_penetration"]
+    assert "Numerical Audit v2: unverified" in result["report_markdown"]
+
+
 def test_explain_normal_completed_run():
     run_doc = {
         "id": "run_01_normal",

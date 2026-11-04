@@ -389,10 +389,11 @@ def test_the_sail_genes_change_the_start_wind_of_the_real_walker():
         doc = space.to_design(genome)
         overrides = {
             "drive": {"kind": "sail"},
+            "solver": {"timestep": 1e-3},
             "wind": {"kind": "constant", "speed": wind, "params": {"yaw_deg": 0.0}},
             "run": {"revolutions": 10.0, "settle": 0.2, "max_time": 2.5, "frame_rate": 0, "give_up_after": 1.5},
         }
-        result = run(scenario_from_design(Design(doc), overrides), backend=K2Backend(timestep=1e-3))
+        result = run(scenario_from_design(Design(doc), overrides), backend=K2Backend())
         return float(result.x[-1] - result.x[0])
 
     small = distance_at([15.0, 38.0, 65.7, 0.01, 10.0], 5.0)

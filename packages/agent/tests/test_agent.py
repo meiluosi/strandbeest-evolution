@@ -144,6 +144,9 @@ def test_an_external_agent_can_design_simulate_read_events_and_write_a_note_over
         assert not err and events["count"] >= 3
         audit, err = c.tool("simulate.audit", run=run["run_id"])
         assert not err and "trustworthy" in audit and "findings" in audit
+        assert audit["version"] == 2 and audit["legacy"]["version"] == 1
+        assert not audit["trustworthy"] and audit["status"] in {"failed", "unverified"}
+        assert not any(f["evidence"].get("metric") == "audit_observation" for f in audit["findings"])
         feet, err = c.tool("simulate.query", run=run["run_id"], layer="feet")
         assert not err and len(feet) == 6 and all(0.0 < f["stance_fraction"] < 1.0 for f in feet)
         note, err = c.tool("notes.add", text="shorter b gives a longer stride", design=did, run=run["run_id"], tags=["stride"])
