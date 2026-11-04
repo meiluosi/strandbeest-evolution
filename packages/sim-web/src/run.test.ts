@@ -2,12 +2,14 @@ import { readFileSync } from "node:fs";
 import loadMujoco from "@mujoco/mujoco";
 import type { Design } from "strandbeest-core";
 import { beforeAll, describe, expect, it } from "vitest";
+import type { AuditObservationDocument } from "./audit-observation";
+import type { Diagnosis } from "./events";
 import { scenarioFromDesign } from "./from-design";
 import { gaitWindow, RunCancelled, runPreview } from "./run";
 
 const repo = (p: string) => new URL(`../../../${p}`, import.meta.url);
 const corpus = JSON.parse(
-	readFileSync(repo("contracts/sim-run/cases.json"), "utf8"),
+	readFileSync(repo("contracts/sim-run/cases-contact-v3.json"), "utf8"),
 ) as {
 	cases: {
 		name: string;
@@ -16,6 +18,36 @@ const corpus = JSON.parse(
 		expected: Expected;
 	}[];
 };
+const observations = JSON.parse(
+	readFileSync(repo("contracts/sim-run/observation-v3.json"), "utf8"),
+) as {
+	cases: {
+		name: string;
+		metrics: Expected["metrics"];
+		diagnosis: Expected["diagnosis"];
+		audit_observation: AuditObservationDocument;
+	}[];
+};
+
+function observationExpected(name: string) {
+	const found = observations.cases.find((c) => c.name === name);
+	if (!found) throw new Error(`Missing all-step observation fixture: ${name}`);
+	return found;
+}
+
+function nearObservation(
+	got: AuditObservationDocument | undefined,
+	expected: AuditObservationDocument,
+) {
+	expect(got).toBeDefined();
+	for (const key of Object.keys(
+		expected,
+	) as (keyof AuditObservationDocument)[]) {
+		if (key === "max_loop_residual_m" || key === "max_penetration_m")
+			near(got![key], expected[key], `observation.${key}`, 1e-7);
+		else expect(got![key], `observation.${key}`).toEqual(expected[key]);
+	}
+}
 interface Expected {
 	series: Record<"t" | "psi" | "x" | "torque", number[]>;
 	frames: Record<
@@ -84,12 +116,146 @@ const near = (a: unknown, b: unknown, path: string, tol = 1e-9): void => {
 	} else expect(a, path).toEqual(b);
 };
 
+type Metrics = Expected["metrics"];
+function nearMetrics(a: Metrics, b: Metrics, stalled: boolean) {
+	const turnsA = a.energy_window_revs as number;
+	const turnsB = b.energy_window_revs as number;
+	// In a stalled trace, dividing by ~1e-4 turns or ~1e-7 J amplifies
+	// roundoff. Compare the underlying displacement/work for these ratios:
+	// 0.1 nm, 1 pJ and 0.1 nrad absolute bounds, without changing G1 gates.
+	const tinyWindow =
+		stalled && turnsA > 0 && turnsB > 0 && Math.max(turnsA, turnsB) < 1e-3;
+	const inputA = turnsA * (a.energy_in_per_rev as number);
+	const inputB = turnsB * (b.energy_in_per_rev as number);
+	if (tinyWindow) {
+		expect(
+			Math.abs(turnsA - turnsB) * 2 * Math.PI,
+			"stalled crank angle",
+		).toBeLessThanOrEqual(1e-10);
+		expect(Math.abs(inputA - inputB), "stalled input work").toBeLessThanOrEqual(
+			1e-12,
+		);
+	}
+	for (const key of Object.keys(b)) {
+		if (tinyWindow && key === "stride_per_rev") {
+			expect(
+				Math.abs((a[key] as number) * turnsA - (b[key] as number) * turnsB),
+				key,
+			).toBeLessThanOrEqual(1e-10);
+		} else if (
+			tinyWindow &&
+			/^energy_(contact|loops|friction|residual)_share$/.test(key)
+		) {
+			expect(
+				Math.abs((a[key] as number) * inputA - (b[key] as number) * inputB),
+				key,
+			).toBeLessThanOrEqual(1e-12);
+		} else near(a[key], b[key], `metrics.${key}`, 1e-7);
+	}
+}
+
+function comparableDiagnosis(
+	rows: unknown[],
+	metrics: Metrics,
+	stalled: boolean,
+) {
+	const turns = metrics.energy_window_revs as number;
+	const stride = metrics.stride_per_rev as number;
+	if (
+		!stalled ||
+		!(turns > 0 && turns < 1e-3) ||
+		!Number.isFinite(stride) ||
+		!stride
+	)
+		return rows;
+	// The displacement represented by stride was checked separately above.
+	// Check that diagnostic efficiency still applies the same nominal stride,
+	// without reintroducing division by the almost-zero crank travel.
+	return rows.map((row) => {
+		const diagnosis = row as Diagnosis;
+		const efficiency = diagnosis.evidence.advance_efficiency;
+		if (typeof efficiency !== "number") return diagnosis;
+		return {
+			...diagnosis,
+			evidence: {
+				...diagnosis.evidence,
+				advance_efficiency: efficiency / stride,
+			},
+		};
+	});
+}
+
+it("stalled diagnostic comparison rejects an incorrect efficiency", () => {
+	const metrics = { energy_window_revs: 1e-4, stride_per_rev: 0.28 };
+	const expected = [
+		{ code: "torque_limit_too_low", evidence: { advance_efficiency: 1.0 } },
+	];
+	const changed = [
+		{ code: "torque_limit_too_low", evidence: { advance_efficiency: 1.001 } },
+	];
+	expect(() =>
+		near(
+			comparableDiagnosis(changed, metrics, true),
+			comparableDiagnosis(expected, metrics, true),
+			"diagnosis",
+			1e-7,
+		),
+	).toThrow();
+});
+
+it.each(["displacement", "work"])(
+	"stalled metric comparison rejects a physical %s error",
+	(kind) => {
+		const reference = {
+			energy_window_revs: 1e-4,
+			energy_in_per_rev: 0.0025,
+			stride_per_rev: 0.28,
+			energy_loops_share: 1.5,
+		};
+		const changed = { ...reference };
+		if (kind === "displacement")
+			changed.stride_per_rev += 1e-8 / reference.energy_window_revs;
+		else
+			changed.energy_loops_share +=
+				1e-10 / (reference.energy_window_revs * reference.energy_in_per_rev);
+		expect(() => nearMetrics(changed, reference, true)).toThrow();
+	},
+);
+
 let mj: Awaited<ReturnType<typeof loadMujoco>>;
 beforeAll(async () => {
 	mj = await loadMujoco();
 });
 
-// The same MJCF, the same engine version (3.14.0) and the same step order must give the Python trajectory. Replays are rounded
+it("preserves absorbed work and the native energy balance for original G1 case 11", {
+	timeout: 120_000,
+}, async () => {
+	const fixture = JSON.parse(
+		readFileSync(repo("contracts/sim-run/signed-energy-v3.json"), "utf8"),
+	);
+	const replay = await runPreview(
+		mj,
+		scenarioFromDesign(fixture.design, structuredClone(fixture.overrides)),
+		{ yieldMs: 1e9 },
+	);
+	expect(replay.metrics.energy_in_per_rev).toBeLessThan(0);
+	expect(Math.abs(replay.metrics.energy_residual_share as number)).toBeLessThan(
+		0.02,
+	);
+	const current = observationExpected("signed-energy");
+	nearMetrics(replay.metrics, current.metrics, false);
+	nearObservation(replay.audit_observation, current.audit_observation);
+	for (const key of ["t", "psi", "x", "torque"] as const)
+		expect(
+			maxDiff(replay.series[key], fixture.replay.series[key]),
+			key,
+		).toBeLessThan(6e-6);
+	for (const [key, values] of Object.entries(fixture.replay.energy))
+		expect(maxDiff(replay.energy![key], values), key).toBeLessThan(1.5e-7);
+});
+
+// Contact-v3 corrects damping; energy-v2 keeps aligned t_n observations. Earlier corpora remain unchanged.
+// The same MJCF and step order must give the Python trajectory across the pinned native/WASM versions. Replays are rounded
 // (4 decimals for poses, 3 for forces, 5 for the series), so the allowed difference is half a unit of the last decimal.
 describe("browser preview follows the Python run (contracts/sim-run)", () => {
 	for (const c of corpus.cases) {
@@ -100,7 +266,24 @@ describe("browser preview follows the Python run (contracts/sim-run)", () => {
 				scenarioFromDesign(design, structuredClone(c.overrides)),
 				{ yieldMs: 1e9 },
 			);
-			const e = c.expected;
+			const current = observationExpected(c.name);
+			const e = {
+				...c.expected,
+				metrics: current.metrics,
+				diagnosis: current.diagnosis,
+			};
+			nearObservation(rep.audit_observation, current.audit_observation);
+			expect(rep.audit).toBeDefined();
+			expect(rep.audit?.version).toBe(2);
+			expect(rep.audit?.physical_validation_implied).toBe(false);
+			expect(rep.audit?.passed).toBe(false);
+			expect(
+				rep.audit?.findings.some(
+					(f) =>
+						f.check === "audit_evidence" &&
+						f.evidence.metric === "audit_observation",
+				),
+			).toBe(false);
 			const half = (d: number) => 0.5 * 10 ** -d + 1e-6; // + float32 slack: Python frames are float32
 			// the replay keeps at most about 500 samples of the crank series, as the API does (len // 500)
 			const step = Math.max(1, Math.floor(e.series.t.length / 500));
@@ -132,11 +315,18 @@ describe("browser preview follows the Python run (contracts/sim-run)", () => {
 			expect(Object.keys(rep.metrics).sort()).toEqual(
 				Object.keys(e.metrics).sort(),
 			);
-			// a walker stalled at its torque limit turns the crank by 0.0015 rad: 1e-11 of divergence between wasm and native (the free
-			// runs agree to 1e-16) becomes 1e-8 in stride_per_rev, which divides by that angle
-			near(rep.metrics, e.metrics, "metrics", 1e-7);
+			nearMetrics(rep.metrics, e.metrics, rep.stalled && e.stalled);
 			near(rep.events, e.events, "events");
-			near(rep.diagnosis, e.diagnosis, "diagnosis", 1e-7);
+			near(
+				comparableDiagnosis(
+					rep.diagnosis,
+					rep.metrics,
+					rep.stalled && e.stalled,
+				),
+				comparableDiagnosis(e.diagnosis, e.metrics, rep.stalled && e.stalled),
+				"diagnosis",
+				1e-7,
+			);
 			expect(Object.keys(rep.energy ?? {}).sort()).toEqual(
 				Object.keys(e.energy).sort(),
 			);

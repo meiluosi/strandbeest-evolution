@@ -164,4 +164,25 @@ describe("energyMetrics", () => {
 			}),
 		).toEqual({});
 	});
+	it.each([0, 0.025, -0.025])(
+		"checks absorbed work with signed residual %s against the same 2%% limit",
+		(residual) => {
+			const work = -2;
+			const m = energyMetrics(psi, {
+				e_in: ramp(work),
+				e_contact: ramp(1.5),
+				e_loops: ramp(0.5),
+				e_friction: ramp(0),
+				kinetic: psi.map(() => 0.1),
+				potential: ramp(work - 2 - work * residual).map((v) => v + 10),
+			});
+			expect(m.energy_in_per_rev).toBeCloseTo(-2, 12);
+			expect(m.energy_contact_share).toBeCloseTo(-0.75, 12);
+			expect(m.energy_loops_share).toBeCloseTo(-0.25, 12);
+			expect(m.energy_residual_share).toBeCloseTo(residual, 12);
+			expect(Math.abs(m.energy_residual_share!) > 0.02).toBe(
+				Math.abs(residual) > 0.02,
+			);
+		},
+	);
 });

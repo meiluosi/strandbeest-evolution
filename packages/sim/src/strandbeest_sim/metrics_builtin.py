@@ -50,7 +50,11 @@ def energy(res) -> dict:
     Per revolution the kinetic and potential energy are periodic, so in steady state (window >= 1 full revolution after the
     first) input = contact + loop + joint dissipation and the residual share should be near zero. Runs shorter than two
     revolutions use everything, include the start-up, and are flagged `steady_window: 0` by the gait metric; their residual is
-    not a closure test."""
+    not a closure test. Input is signed external work: a braking drive may
+    absorb energy while mechanical energy decreases. Ratios retain that signed
+    denominator; the audit compares the absolute residual with its 2% limit.
+    Effectively zero net work has no defined relative account and stays absent.
+    """
     s = getattr(res, "series", {}) or {}
     if not s or len(res.psi) < 2:
         return {}
@@ -68,9 +72,9 @@ def energy(res) -> dict:
     revs = (psi[i1] - psi[i0]) / rev
     d = {k: float(s[k][i1] - s[k][i0]) for k in ("e_in", "e_contact", "e_loops", "e_friction")}
     d_mech = float((s["kinetic"][i1] + s["potential"][i1]) - (s["kinetic"][i0] + s["potential"][i0]))
-    if d["e_in"] <= 1e-12:
+    if abs(d["e_in"]) <= 1e-12:
         return {"energy_window_revs": float(revs)}
-    return {
+    account = {
         "energy_in_per_rev": float(d["e_in"] / revs),
         "energy_contact_share": d["e_contact"] / d["e_in"],
         "energy_loops_share": d["e_loops"] / d["e_in"],
@@ -78,3 +82,12 @@ def energy(res) -> dict:
         "energy_residual_share": (d["e_in"] - d["e_contact"] - d["e_loops"] - d["e_friction"] - d_mech) / d["e_in"],
         "energy_window_revs": float(revs),
     }
+    # Optional impulse-backend diagnostics. Numerical energy is deliberately
+    # absent from the residual above: an integration defect must still fail
+    # the ordinary audit. Missing channels remain absent, never assumed zero.
+    for column, metric in (("e_contact_normal", "energy_contact_normal_share"),
+                           ("e_contact_tangent", "energy_contact_tangent_share"),
+                           ("e_numerical", "energy_numerical_share")):
+        if column in s:
+            account[metric] = float(s[column][i1] - s[column][i0]) / d["e_in"]
+    return account

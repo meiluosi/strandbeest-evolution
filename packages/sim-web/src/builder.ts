@@ -160,15 +160,25 @@ export function buildMjcf(
 	}
 
 	const sv = sc.solver;
+	if (
+		sv.tolerance != null &&
+		(!Number.isFinite(sv.tolerance) || sv.tolerance < 0)
+	) {
+		throw new Error(
+			"solver.tolerance must be null or a finite nonnegative number",
+		);
+	}
+	const toleranceAttr =
+		sv.tolerance == null ? "" : ` tolerance="${pyFloat(sv.tolerance)}"`;
 	const mt = sc.drive.max_torque;
 	const forceAttr = mt
 		? ` forcelimited="true" forcerange="${pyFloat(-mt)} ${pyFloat(mt)}"`
 		: "";
 	let geomSolref: string;
 	if (sv.contact_stiffness !== null && sv.contact_stiffness !== undefined) {
-		const mEff = (torsoMass + n * perLegMass) / 5.0;
+		// MuJoCo direct solref already uses mass-normalised stiffness/damping.
 		const damping =
-			2.0 * sv.contact_damping_ratio * Math.sqrt(sv.contact_stiffness * mEff);
+			2.0 * sv.contact_damping_ratio * Math.sqrt(sv.contact_stiffness);
 		geomSolref = `${pyFloat(-sv.contact_stiffness)} ${pyFloat(-damping)}`;
 	} else geomSolref = `${pyFloat(sv.contact_solref)} 1`;
 	const pitchJoint =
@@ -176,7 +186,7 @@ export function buildMjcf(
 	const halfY = Math.max((w.lateral_spacing * n) / 2, 0.05);
 	const xml = `<mujoco model="${sc.name}">
   <compiler angle="radian"/>
-  <option timestep="${pyFloat(sv.timestep)}" integrator="implicitfast" solver="Newton" iterations="${pyInt(sv.iterations)}" cone="${sv.cone}" impratio="${pyFloat(sv.impratio)}" noslip_iterations="${pyInt(sv.noslip_iterations)}" gravity="0 0 -${pyFloat(sc.environment.gravity)}"/>
+  <option timestep="${pyFloat(sv.timestep)}" integrator="implicitfast" solver="Newton" iterations="${pyInt(sv.iterations)}"${toleranceAttr} cone="${sv.cone}" impratio="${pyFloat(sv.impratio)}" noslip_iterations="${pyInt(sv.noslip_iterations)}" gravity="0 0 -${pyFloat(sc.environment.gravity)}"/>
   <default>
     <equality solref="${pyFloat(sv.solref_time)} 1" solimp="${sv.solimp}"/>
     <geom solref="${geomSolref}"/>
@@ -188,7 +198,7 @@ export function buildMjcf(
       <joint name="tx" type="slide" axis="1 0 0"/>
       <joint name="tz" type="slide" axis="0 0 1"/>
       ${pitchJoint}
-      <geom type="box" size="${_f(w.body_length / 2)} ${_f(halfY)} 0.03" mass="${_f(torsoMass)}" contype="0" conaffinity="0" rgba="0.15 0.15 0.2 1"/>
+      <geom name="torso_geom" type="box" size="${_f(w.body_length / 2)} ${_f(halfY)} 0.03" mass="${_f(torsoMass)}" contype="4" conaffinity="4" rgba="0.15 0.15 0.2 1"/>
       ${torsoChildren.join("")}
     </body>
   </worldbody>

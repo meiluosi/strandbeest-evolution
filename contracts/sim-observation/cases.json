@@ -1,0 +1,119 @@
+{
+	"cases": [
+		{
+			"name": "threshold-and-peaks",
+			"boundary": "force_evaluation",
+			"timestep_s": 0.1,
+			"legs": 4,
+			"integration_steps": 4,
+			"rows": [
+				[0.0, [0.0, 0.0, 0.0, 0.0], 0.001, 0.0],
+				[0.1, [1e-6, 0.0, 0.0, 0.0], 0.006, 0.002],
+				[0.2, [1.1e-6, 0.0, 0.0, 0.0], 0.0, 0.008],
+				[0.3, [1.0, 0.0, 0.0, 0.0], 0.002, 0.0]
+			],
+			"expected": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.1,
+				"legs": 4,
+				"support_force_N": 1e-6,
+				"integration_steps": 4,
+				"observed_steps": 4,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 2,
+				"first_time_s": 0.0,
+				"last_time_s": 0.3,
+				"max_loop_residual_m": 0.006,
+				"max_penetration_m": 0.008
+			}
+		},
+		{
+			"name": "post-step",
+			"boundary": "post_step",
+			"timestep_s": 0.1,
+			"legs": 4,
+			"integration_steps": 4,
+			"rows": [
+				[0.1, [0.0, 0.0, 0.0, 0.0], 0.001, 0.0],
+				[0.2, [1e-6, 0.0, 0.0, 0.0], 0.006, 0.002],
+				[0.3, [1.1e-6, 0.0, 0.0, 0.0], 0.0, 0.008],
+				[0.4, [1.0, 0.0, 0.0, 0.0], 0.002, 0.0]
+			],
+			"expected": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "post_step",
+				"timestep_s": 0.1,
+				"legs": 4,
+				"support_force_N": 1e-6,
+				"integration_steps": 4,
+				"observed_steps": 4,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 2,
+				"first_time_s": 0.1,
+				"last_time_s": 0.4,
+				"max_loop_residual_m": 0.006,
+				"max_penetration_m": 0.008
+			}
+		},
+		{
+			"name": "invalid-and-gap",
+			"boundary": "force_evaluation",
+			"timestep_s": 0.1,
+			"legs": 4,
+			"integration_steps": 4,
+			"rows": [
+				[0.0, [1.0, 0.0, 0.0, 0.0], 0.0, 0.0],
+				[0.1, [1.0, -1.0, 0.0, 0.0], 0.007, 0.0],
+				[0.3, [0.0, 0.0, 0.0, 0.0], null, 0.009],
+				[null, [1.0, 0.0, 0.0, 0.0], 0.0, 0.0]
+			],
+			"expected": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.1,
+				"legs": 4,
+				"support_force_N": 1e-6,
+				"integration_steps": 4,
+				"observed_steps": 4,
+				"invalid_steps": 3,
+				"time_gap_steps": 1,
+				"airborne_steps": 1,
+				"first_time_s": 0.0,
+				"last_time_s": 0.3,
+				"max_loop_residual_m": 0.007,
+				"max_penetration_m": 0.009
+			}
+		},
+		{
+			"name": "empty-is-not-coverage",
+			"boundary": "force_evaluation",
+			"timestep_s": 0.1,
+			"legs": 4,
+			"integration_steps": 0,
+			"rows": [],
+			"expected": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.1,
+				"legs": 4,
+				"support_force_N": 1e-6,
+				"integration_steps": 0,
+				"observed_steps": 0,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": null,
+				"last_time_s": null,
+				"max_loop_residual_m": null,
+				"max_penetration_m": null
+			}
+		}
+	]
+}

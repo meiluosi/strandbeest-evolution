@@ -30,6 +30,7 @@ export interface Drive {
 export interface Solver {
 	timestep: number;
 	iterations: number;
+	tolerance: number | null;
 	contact_solref: number;
 	contact_stiffness: number | null;
 	contact_damping_ratio: number;

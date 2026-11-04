@@ -144,7 +144,10 @@ export function detectEvents(res: RunResult, sc: SimConfig): RunEvent[] {
 	);
 }
 
-/** Distance one crank revolution carries the body if no foot slipped or was blocked (stance travel / duty factor). */
+/** Legacy unsigned stance-travel/duty heuristic retained by the audit protocol.
+ * Omits multi-leg support selection and sphere-owner rotation. The shared
+ * strideReference diagnostic has explicit ideal assumptions, not dynamic validity.
+ */
 export function nominalStrideM(
 	sc: SimConfig,
 	spec: LinkageSpec | null,
@@ -373,7 +376,9 @@ export function energyMetrics(
 		(s.kinetic[i1] as number) +
 		(s.potential[i1] as number) -
 		((s.kinetic[i0] as number) + (s.potential[i0] as number));
-	if (dIn <= 1e-12) return { energy_window_revs: revs };
+	// Negative input is absorbed external work, not a missing account. Keep
+	// signed ratios; only an effectively zero denominator is undefined.
+	if (Math.abs(dIn) <= 1e-12) return { energy_window_revs: revs };
 	return {
 		energy_in_per_rev: dIn / revs,
 		energy_contact_share: d("e_contact") / dIn,

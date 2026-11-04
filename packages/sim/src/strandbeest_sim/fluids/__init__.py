@@ -18,6 +18,7 @@ from .feeler import WaterFeeler, WaterFeelerConfig
 from .network import (
     CheckValve,
     FlowElement,
+    FluidEnergyRates,
     FluidNetwork,
     FluidNode,
     FluidSimulationResult,
@@ -28,6 +29,7 @@ from .network import (
 )
 from .pump import CrankReciprocatingPump, PumpCycleResult
 from .storage import PETBottleBank
+from .tide import DynamicTideField
 from .valves import BistableValve, BistableValveConfig
 
 __all__ = [
@@ -44,6 +46,7 @@ __all__ = [
     "DEFAULT_POLYTROPIC_EXPONENT",
     # Network and components
     "FluidNode",
+    "FluidEnergyRates",
     "FlowElement",
     "Orifice",
     "CheckValve",
@@ -66,4 +69,5 @@ __all__ = [
     "WaterFeelerConfig",
     "StormAnchor",
     "StormAnchorConfig",
+    "DynamicTideField",
 ]

@@ -1,0 +1,323 @@
+{
+	"schema": "kernel-boundaries/1",
+	"samples": 180,
+	"cases": [
+		{
+			"name": "fourbar-positive-branch",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "assembled"
+		},
+		{
+			"name": "fourbar-negative-branch",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": -1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "assembled"
+		},
+		{
+			"name": "unreachable",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [0.1, 0.1],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "unassembled"
+		},
+		{
+			"name": "internal-tangent",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 0,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [2, 1],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "assembled",
+			"samples": 1
+		},
+		{
+			"name": "external-tangent",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 0,
+					"y": 0,
+					"length": 2
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [1, 1],
+						"side": -1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "assembled",
+			"samples": 1
+		},
+		{
+			"name": "coincident-at-first-angle",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": -1,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "unassembled"
+		},
+		{
+			"name": "missing-param",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": ["missing", 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "forward-reference",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "later"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "missing-foot",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "missing"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "negative-radius",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [-3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "zero-crank",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 0
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "invalid-branch",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 0
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "reserved-id",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "C",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "reserved-pivot-id",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "P",
+						"centers": ["G", "C"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "P"
+			},
+			"outcome": "error"
+		},
+		{
+			"name": "repeated-center-id",
+			"spec": {
+				"params": {},
+				"crank": {
+					"x": 3,
+					"y": 0,
+					"length": 1
+				},
+				"joints": [
+					{
+						"id": "F",
+						"centers": ["G", "G"],
+						"radii": [3, 3],
+						"side": 1
+					}
+				],
+				"foot": "F"
+			},
+			"outcome": "error"
+		}
+	]
+}

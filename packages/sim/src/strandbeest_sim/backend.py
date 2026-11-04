@@ -83,12 +83,47 @@ class Energies:
 
 @dataclass(frozen=True)
 class PowerBalance:
-    """Where mechanical power goes right now, W (positive = leaving the mechanical energy)."""
+    """Signed mechanical transfer rates, W (positive = leaving the system).
+
+    Force backends report instantaneous rates; impulse backends report the
+    last step's average. Contact stabilization may inject energy (negative).
+    Prefer StepWork for accumulating an impulse backend's discrete work.
+    """
 
     contact: float  # dissipated at the contacts (friction and normal damping)
     equality: float  # dissipated by the loop-closure constraints
     joint_friction: float  # Coulomb friction in the joints
     viscous: float  # viscous damping in the joints
+
+
+@dataclass(frozen=True)
+class StepWork:
+    """Signed work over one completed impulse step, J.
+
+    Input is external work into the modeled coordinates. Contact/friction terms
+    are signed energy transfers out; stabilization can make normal contact work
+    negative. `numerical` diagnoses the integration defect and MUST NOT be used
+    to cancel the ordinary energy-audit residual.
+    """
+
+    input: float = 0.0
+    contact_normal: float = 0.0
+    contact_tangent: float = 0.0
+    equality: float = 0.0
+    joint_friction: float = 0.0
+    viscous: float = 0.0
+    numerical: float = 0.0
+
+    @property
+    def contact(self) -> float:
+        return self.contact_normal + self.contact_tangent
+
+
+@runtime_checkable
+class DiscreteWork(Protocol):
+    """Optional work contract for backends observed after the impulse step."""
+
+    def step_work(self) -> StepWork: ...
 
 
 @dataclass(frozen=True)
@@ -165,3 +200,19 @@ class PhysicsBackend(Protocol):
         ...
 
     def configure_joint(self, name: str, *, armature: float, damping: float, frictionloss: float) -> None: ...
+
+
+@runtime_checkable
+class StepObservations(Protocol):
+    """Optional coherent left-endpoint observations and discrete step work.
+
+    `step_observation` returns a reusable read-only view at the last dynamics
+    evaluation, before integration. Its time, coordinates, energy and forces
+    agree. No live integration state or warm start is changed. Step powers
+    are effective force times average velocity, not new-state force samples.
+    Impulse backends keep their independently defined discrete work method.
+    """
+
+    def step_observation(self) -> PhysicsBackend: ...
+    def step_power_balance(self) -> PowerBalance: ...
+    def step_actuator_force(self, name: str) -> float: ...

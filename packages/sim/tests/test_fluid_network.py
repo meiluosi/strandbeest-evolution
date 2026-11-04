@@ -277,10 +277,10 @@ def test_pump_kinematics_and_torque() -> None:
     assert math.isclose(pump.cylinder_volume(math.pi), pump.dead_volume, rel_tol=1e-9)
     assert math.isclose(pump.reaction_torque(math.pi, p_cyl=200_000.0), 0.0, abs_tol=1e-12)
 
-    # Mid-stroke compression (psi = pi / 2): sin(psi) = 1 -> positive resisting torque
+    # Mid-stroke compression resists a positive crank rotation.
     tau_mid = pump.reaction_torque(math.pi / 2, p_cyl=200_000.0, p_atm=P_ATM)
-    assert tau_mid > 0.0
-    expected_tau = (200_000.0 - P_ATM) * pump.piston_area * pump.crank_radius
+    assert tau_mid < 0.0
+    expected_tau = -(200_000.0 - P_ATM) * pump.piston_area * pump.crank_radius
     assert math.isclose(tau_mid, expected_tau, rel_tol=1e-9)
 
 
@@ -294,8 +294,8 @@ def test_multi_cycle_crank_pump_charging() -> None:
 
     1. Bottle pressure rises monotonically cycle-by-cycle.
     2. Dual check valves open and close during appropriate stroke phases.
-    3. Mechanical crank work matches gas p-V work (energy conservation).
-    4. Reaction torque integrates to strictly positive compression work.
+    3. Mechanical crank work matches gauge-pressure p-V work (kinematic identity).
+    4. Negative reaction torque integrates to positive input work.
     """
     bank = PETBottleBank(num_bottles=4, volume_per_bottle=0.002)
     pump = CrankReciprocatingPump(
@@ -328,8 +328,8 @@ def test_multi_cycle_crank_pump_charging() -> None:
     both_closed = (~res.inlet_valve_open) & (~res.outlet_valve_open)
     assert np.sum(both_closed) > 0.5 * len(res.t)
 
-    # 3. Energy conservation:
-    # Mechanical work done on pump shaft integral(tau * dpsi) > 0
+    # 3. Kinematic work identity; the gas first law is checked separately.
+    # Mechanical work done on pump shaft integral(-tau_pump * dpsi) > 0
     assert res.total_crank_work > 0.0
     # Must match gas p-V indicator work integral(-p_cyl * dV) with zero/negligible error
     assert math.isclose(res.total_crank_work, res.total_pv_work, rel_tol=1e-4)
@@ -340,7 +340,7 @@ def test_multi_cycle_crank_pump_charging() -> None:
     assert delta_u_bottle > 0.0
 
 
-def test_adiabatic_polytropic_compression_pv_n_constant() -> None:
+def test_empirical_polytropic_compression_pv_n_constant() -> None:
     """Verify that an isolated cylinder volume undergoing kinematic compression satisfies p * V^n = const."""
     net = FluidNetwork(track_mass=True)
 

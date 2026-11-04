@@ -1,10 +1,12 @@
 /** Port of strandbeest_sim.runner.run (motor drive) on MuJoCo WebAssembly: settle, drive for N revolutions, record a replay and
- *  audit it: the per-step energy account, foot loads, loop residual and penetration at every recorded sample, then events,
+ *  audit it: per-step energy, support and peak invariants; sampled foot loads and geometry, then events,
  *  diagnosis and the energy metrics (events.ts). Drives: the electric motor (the test rig of docs/WIND.md, `wind_only`
  *  false) and the drag sail in a constant, gusty or lulling wind (`wind_only` true). Same engine version, same MJCF and the same step order as Python, so
  *  the trajectory and the audit are the Python ones (run.test.ts, contracts/sim-run). */
 import type { MainModule } from "@mujoco/mujoco";
 import { gaitMetrics, type LinkageSpec, trace } from "strandbeest-core";
+import { auditReport } from "./audit";
+import { AuditObservation } from "./audit-observation";
 import { buildMjcf, resolveSpec } from "./builder";
 import type { SimConfig } from "./config";
 import {
@@ -15,6 +17,7 @@ import {
 	type RunResult,
 } from "./events";
 import type { Replay, ReplayScene } from "./replay";
+import { StepWork } from "./step-work";
 import { obstaclesXml, terrainPlan } from "./terrains";
 import { makeWind } from "./winds";
 
@@ -192,9 +195,8 @@ export async function runPreview(
 			m.dof_frictionloss[dofadr] = sc.drive.crank_friction;
 		}
 		const wind = sail ? makeWind(sc.wind) : null;
-		// read after the lines above: power_balance uses the live damping
-		const dofDamping = Array.from(m.dof_damping as ArrayLike<number>);
-		const hasDamping = dofDamping.some((v) => v !== 0);
+		const work = new StepWork(mj, nv, [(sc.drive.max_torque ?? 0) > 0]);
+		freeLater.push(work);
 		// out parameters of the C API live in wasm memory (README: "Working with Out Parameters")
 		const f6buf = new mj.DoubleBuffer(6);
 		const vel6buf = new mj.DoubleBuffer(6);
@@ -403,6 +405,7 @@ export async function runPreview(
 		const xSer: number[] = [];
 		const tauSer: number[] = [];
 		const ser = {
+			theta_rad: [] as number[],
 			loop_residual: [] as number[],
 			penetration: [] as number[],
 			foot_normal: [] as number[][],
@@ -420,8 +423,7 @@ export async function runPreview(
 		let eContact = 0;
 		let eLoops = 0;
 		let eFriction = 0;
-		let maxViol = 0;
-		let maxPen = 0;
+		const auditObservation = new AuditObservation(dt, nf, "force_evaluation");
 		const fT: number[] = [];
 		const fPos: number[][][] = [];
 		const fQuat: number[][][] = [];
@@ -461,59 +463,33 @@ export async function runPreview(
 		let stalled = false;
 		while (psi() - psiStart < target) {
 			control(t, true);
+			const psiBefore = psi();
+			work.begin(d);
 			mj.mj_step(m, d);
-			t += dt;
 
-			// energy account (rectangle rule at the step rate): what the drive puts in and where it goes. Dissipation rates from
-			// the constraint rows, -sum(force * velocity): equality rows (loops), contact rows, friction-loss rows (backend.power_balance)
+			// Derived fields are the evaluation at t_n, while qpos/qvel have
+			// advanced. Record its matching pre-step angle and time, and work
+			// accumulated only up to that boundary. Physics stepping is unchanged.
 			const nefc = d.nefc as number;
-			let pe = 0;
-			let pc = 0;
-			let pf = 0;
-			if (nefc) {
-				const F = d.efc_force;
-				const V = d.efc_vel;
-				const K = d.efc_type;
-				for (let i = 0; i < nefc; i++) {
-					const kind = K[i] as number;
-					if (kind === 0) pe += (F[i] as number) * (V[i] as number);
-					else if (kind === 1) pf += (F[i] as number) * (V[i] as number);
-					else if (kind >= 5 && kind <= 7)
-						pc += (F[i] as number) * (V[i] as number);
-				}
-			}
-			let viscous = 0;
-			if (hasDamping) {
-				const qv = d.qvel;
-				for (let i = 0; i < nv; i++)
-					viscous +=
-						(dofDamping[i] as number) * (qv[i] as number) * (qv[i] as number);
-			}
-			const omega = -dir * ((qvel[dofadr] as number) ?? 0);
-			eIn += tau() * omega * dt;
-			eContact += -pc * dt;
-			eLoops += -pe * dt;
-			eFriction += (-pf + viscous) * dt;
-
 			const doRec = k % rec === 0;
 			const doFrame = frameEvery > 0 && k % frameEvery === 0;
+			const pass = contactPass();
+			let viol = 0;
+			if (nefc) {
+				const K = d.efc_type;
+				const P = d.efc_pos;
+				for (let i = 0; i < nefc; i++)
+					if (K[i] === 0) viol = Math.max(viol, Math.abs(P[i] as number));
+			}
+			auditObservation.observe(t, pass.normal, viol, pass.maxPen);
 			if (doRec || doFrame) {
-				const pass = contactPass();
 				if (doRec) {
 					tSer.push(t);
-					psiSer.push(psi() - psiStart);
+					psiSer.push(psiBefore - psiStart);
 					xSer.push(d.xpos[3 * torso] as number);
 					tauSer.push(tau());
-					let viol = 0;
-					if (nefc) {
-						const K = d.efc_type;
-						const P = d.efc_pos;
-						for (let i = 0; i < nefc; i++)
-							if (K[i] === 0) viol = Math.max(viol, Math.abs(P[i] as number));
-					}
-					maxPen = Math.max(maxPen, pass.maxPen);
-					maxViol = Math.max(maxViol, viol);
 					const en = d.energy;
+					ser.theta_rad.push(dir * psiBefore);
 					ser.loop_residual.push(viol);
 					ser.penetration.push(pass.maxPen);
 					ser.foot_normal.push(pass.normal);
@@ -528,8 +504,15 @@ export async function runPreview(
 					ser.crank_reaction.push(d.qfrc_constraint[dofadr] as number);
 				}
 				if (doFrame) recordFrame(t, pass);
-				refresh();
 			}
+			refresh(); // contact buffers may grow WASM memory even without recording
+			const power = work.finish(m, d);
+			eIn += power.input * dt;
+			eContact += power.contact * dt;
+			eLoops += power.equality * dt;
+			eFriction += power.friction * dt;
+			refresh(); // work buffers can grow wasm memory on first contact
+			t += dt;
 			k++;
 			if (t > sc.run.max_time) {
 				stalled = true;
@@ -548,9 +531,10 @@ export async function runPreview(
 		}
 
 		// ---- metrics, events, diagnosis (what pipeline.simulate stores next to the arrays) ----
+		const observation = auditObservation.document(k);
 		const metrics: Record<string, number | boolean | null> = {
-			max_loop_violation: maxViol,
-			max_penetration: maxPen,
+			max_loop_violation: observation.max_loop_residual_m,
+			max_penetration: observation.max_penetration_m,
 			wind_only: sail, // the electric motor is the test rig (docs/WIND.md), never a wind-only result
 			...gaitWindow(tSer, psiSer, xSer, tauSer),
 			...energyMetrics(psiSer, ser),
@@ -593,6 +577,17 @@ export async function runPreview(
 			loop_residual: pick(ser.loop_residual, 7),
 			penetration: pick(ser.penetration, 7),
 		};
+		const fullSeries = {
+			t: tSer,
+			psi: psiSer,
+			x: xSer,
+			torque: tauSer,
+			...ser,
+		};
+		const audit = auditReport(sc, metrics, fullSeries, stalled, {
+			backendName: "mujoco",
+			observation,
+		});
 		const replay: Replay = {
 			scene,
 			t: sub(fT),
@@ -615,6 +610,8 @@ export async function runPreview(
 			metrics,
 			stalled,
 			nominal_stride_m: nominal,
+			audit,
+			audit_observation: observation,
 			kinematic_duty: duty,
 			revolutions: (psiSer.at(-1) ?? 0) / REV,
 			info: {
@@ -633,7 +630,7 @@ export async function runPreview(
 		};
 		if (opts.debug)
 			replay.debug = {
-				series: { t: tSer, psi: psiSer, x: xSer, torque: tauSer, ...ser },
+				series: fullSeries,
 				metrics,
 			};
 		return replay;

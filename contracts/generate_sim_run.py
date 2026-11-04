@@ -1,4 +1,4 @@
-"""Generate contracts/sim-run/cases.json: short Python runs (settle + a fraction of a revolution) with everything the browser
+"""Generate contracts/sim-run/cases-contact-v3.json: short Python runs (settle + a fraction of a revolution) with everything the browser
 preview records, unrounded: the crank series, the replay frames (poses, foot contacts, loads, centre of mass), the replay scene
 and the gait metrics. packages/sim-web runs the same scenarios on MuJoCo WebAssembly and must follow these to rounding.
 
@@ -17,9 +17,10 @@ from strandbeest_sim.events import detect_events, diagnose
 
 ROOT = Path(__file__).parents[1]
 DESIGN = "schemas/examples/design-jansen-small-6leg.json"
-OUT = ROOT / "contracts" / "sim-run" / "cases.json"
+OUT = ROOT / "contracts" / "sim-run" / "cases-contact-v3.json"
 
 CASES = [
+    ("sail-body-drag", {"drive": {"kind": "sail"}, "walker": {"body_drag_area": .01}, "wind": {"speed": 3.0}, "run": {"revolutions": .1, "max_time": 3, "frame_rate": 0}}),
     ("flat", {"run": {"revolutions": 0.15, "frame_rate": 30}}),
     # a step the first swing feet reach: the contact list is not empty and a foot is blocked
     ("step", {"terrain": {"kind": "step", "params": {"distance": 0.03, "height": 0.006}}, "run": {"revolutions": 0.2, "frame_rate": 30}}),

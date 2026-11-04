@@ -28,7 +28,10 @@ interface Case {
 }
 const corpus = JSON.parse(
 	readFileSync(
-		new URL("../../../contracts/sim-mjcf/cases.json", import.meta.url),
+		new URL(
+			"../../../contracts/sim-mjcf/cases-contact-v3.json",
+			import.meta.url,
+		),
 		"utf8",
 	),
 ) as { tolerance: number; designs: Record<string, Design>; cases: Case[] };

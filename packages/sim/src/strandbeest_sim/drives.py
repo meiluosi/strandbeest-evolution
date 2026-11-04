@@ -28,6 +28,10 @@ class MotorDrive:
         # force on the hinge coordinate q; flip the sign so positive means driving psi forward
         return float(-sim.scenario.walker.direction * sim.backend.actuator_force(self.actuator))
 
+    def step_torque(self, sim) -> float:
+        """Servo force including its implicit velocity correction for step work."""
+        return float(-sim.scenario.walker.direction * sim.backend.step_actuator_force(self.actuator))
+
     def body_drag_force(self, sim) -> float:
         return 0.0
 

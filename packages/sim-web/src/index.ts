@@ -1,3 +1,19 @@
+export {
+	type AuditCondition,
+	type AuditFinding,
+	audit,
+	auditLegacy,
+	auditReport,
+	type FootSphereOwner,
+	referenceForScenario,
+	type SimulationAuditReport,
+	type StrideReferenceSummary,
+} from "./audit";
+export {
+	AuditObservation,
+	type AuditObservationDocument,
+	observationIssues,
+} from "./audit-observation";
 export { type Built, buildMjcf, resolveSpec } from "./builder";
 export type { SimConfig } from "./config";
 export { simConfig } from "./config";

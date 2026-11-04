@@ -25,7 +25,10 @@ def flat():
 def test_flat_ground_energy_account_closes_and_is_mostly_contact_dissipation(flat):
     m = flat.metrics
     assert abs(m["energy_residual_share"]) < 0.02  # input = dissipation + change of mechanical energy, within 2 %
-    assert 0.93 < m["energy_contact_share"] < 0.99  # about 97 %: the torque on flat ground is mostly slip dissipation (EXPERIMENTS 8)
+    # Contact dominates this fixed case. The old 99% cap described the earlier
+    # incorrectly scaled damping, not a conservation law; see EXPERIMENTS §59.
+    # Keep the independent 2% balance bound above and the loop/friction checks.
+    assert m["energy_contact_share"] > 0.93
     assert m["energy_loops_share"] < 0.06 and m["energy_friction_share"] == pytest.approx(0.0, abs=1e-6)
     assert m["energy_window_revs"] == pytest.approx(2.0, abs=0.01) and m["steady_window"] == 1.0
     # the input work per revolution is the mean crank torque times 2 pi

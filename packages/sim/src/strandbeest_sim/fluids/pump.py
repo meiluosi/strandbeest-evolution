@@ -42,7 +42,7 @@ class PumpCycleResult:
     m_bottle : np.ndarray
         Bottle air mass history [kg].
     tau_pump : np.ndarray
-        Crank reaction torque history [N*m].
+        Torque exerted by gas on the crank [N*m]; negative during compression.
     work_accumulated : np.ndarray
         Cumulative mechanical crank work integral [J].
     inlet_valve_open : np.ndarray
@@ -56,11 +56,12 @@ class PumpCycleResult:
     pressure_rise : float
         Net bottle pressure increase [Pa].
     total_crank_work : float
-        Total work done on pump by crank shaft integral(tau * dpsi) [J].
+        Total work done on pump by crank shaft integral(-tau_pump * dpsi) [J].
     total_pv_work : float
-        Total gas indicator work integral(-p_cyl * dV) [J].
+        Gauge-pressure indicator work integral(-(p_cyl-p_atm) * dV) [J].
     work_conservation_error : float
-        Relative difference |W_crank - W_pV| / W_crank [-].
+        Kinematic power-identity check |W_crank - W_pV| / W_crank [-].
+        This is not a gas first-law check; use FluidNetwork.simulate().balance.
     is_monotonically_increasing_bottle_pressure : bool
         Whether cycle-by-cycle bottle pressure strictly increases.
     mass_pumped : float
@@ -186,20 +187,19 @@ class CrankReciprocatingPump:
     def reaction_torque(self, psi: float, p_cyl: float, p_atm: float = P_ATM) -> float:
         """Compute reaction torque exerted by pump on drive crank shaft [N*m].
 
-        tau_pump(psi) = (p_cyl - p_atm) * A_p * (dx_p / dpsi)
-                      = (p_cyl - p_atm) * A_p * r_pump * sin(psi)
+        Virtual work: tau_pump = (p_cyl - p_atm) * dV_p/dpsi.
+        Compression at positive crank speed resists rotation (negative torque).
         """
-        dx_dpsi = self.piston_velocity_per_psi(psi)
-        f_piston = (p_cyl - p_atm) * self.piston_area
-        return f_piston * dx_dpsi
+        return (p_cyl - p_atm) * self.cylinder_volume_derivative_psi(psi)
 
     def mechanical_power(self, psi: float, omega: float, p_cyl: float, p_atm: float = P_ATM) -> float:
         """Compute instantaneous mechanical power delivered to pump [W].
 
-        P = tau_pump * omega = -(p_cyl - p_atm) * dV_p/dt
+        P = -tau_pump * omega = -(p_cyl - p_atm) * dV_p/dt.
+        Positive is mechanical input to the gas, negative is expansion output.
         """
         tau = self.reaction_torque(psi, p_cyl, p_atm)
-        return tau * omega
+        return -tau * omega
 
     def create_network(
         self,
@@ -386,7 +386,7 @@ class CrankReciprocatingPump:
             m_bot = net.nodes["bottle"].mass
 
             tau = self.reaction_torque(psi, p_cyl, p_atm)
-            power_mech = tau * omega
+            power_mech = -tau * omega
             cum_work_mech += power_mech * actual_dt
 
             dv_dt = self.cylinder_volume_rate(psi, omega)

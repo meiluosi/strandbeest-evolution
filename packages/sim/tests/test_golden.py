@@ -1,6 +1,7 @@
 """E4-01/E4-02: golden runs. Scenarios recorded in the flat schema-v1 form with the metrics and a fingerprint of their time series;
 every version of the simulator, whatever it is built from (v1 migrated to v2, a different backend structure), must reproduce
-them on this platform to 1e-7 relative. See contracts/sim-golden/generate.py. Regenerate only for an intended, explained change."""
+them on this platform to 1e-7 relative. See contracts/sim-golden/generate.py. Energy-v2 aligns observations at t_n and records effective step work; runs.json remains the original evidence.
+Contact-v3 corrects mass-normalised damping; prior corpora remain unchanged. See EXPERIMENTS §59."""
 
 import json
 import math
@@ -11,7 +12,8 @@ import pytest
 from strandbeest_sim import load_scenario, run
 
 ROOT = Path(__file__).resolve().parents[3]
-GOLDEN = json.loads((ROOT / "contracts" / "sim-golden" / "runs.json").read_text())["runs"]
+GOLDEN = json.loads((ROOT / "contracts" / "sim-golden" / "runs-contact-v3.json").read_text())["runs"]
+OBSERVATIONS = {r['name']: r for r in json.loads((ROOT/'contracts/sim-golden/observation-v3.json').read_text())['runs']}
 RTOL = 1e-7
 
 
@@ -33,8 +35,14 @@ def test_run_reproduces_the_golden_record(g):
     res = run(load_scenario(g["scenario"]))  # a flat v1 scenario, migrated to v2 on the way in
     assert bool(res.stalled) == g["stalled"]
     assert len(res.t) == g["n"]
-    for k, v in g["metrics"].items():
+    # Observation-v3 includes every integration step in peak invariants. Keep
+    # every old motion/energy assertion; independently checked dense traces
+    # supply only the two corrected maxima, without changing the tolerances.
+    current = OBSERVATIONS[g['name']]
+    expected_metrics = {**g['metrics'], **current['peak_metrics']}
+    for k, v in expected_metrics.items():
         close(v, res.metrics.get(k), f"metric {k}")
+    assert res.audit_observation == current['audit_observation']
     for k, arr in (("t", res.t), ("psi", res.psi), ("x", res.x), ("z", res.z), ("torque", res.torque)):
         for i, (a, b) in enumerate(zip(g["samples"][k], sample(arr))):
             close(a, b, f"{k}[{i}]")

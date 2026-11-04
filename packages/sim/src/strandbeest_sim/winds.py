@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import math
 import random
+from dataclasses import dataclass
 from typing import Callable, Optional
 
 from .config import Wind
@@ -181,3 +182,58 @@ def profile_turbulent(w: Wind) -> WindFn:
         return base_v * cos_yaw
 
     return fn
+
+
+@dataclass
+class SpatiotemporalWindField:
+    """Spatial-temporal wind field across the Digital Beach sandbox:
+    v_wind(t, x, y) = v0 + A * sin(omega * t + kx * x).
+
+    Attributes:
+        v0: Base steady horizontal wind speed (m/s). Default 6.0 m/s.
+        amplitude: Sinusoidal traveling wave amplitude A (m/s). Default 2.0 m/s.
+        omega: Temporal angular frequency omega (rad/s). Default 1.0 rad/s.
+        kx: Spatial wavenumber kx along x (rad/m). Default 0.5 rad/m.
+        yaw_deg: Wind direction yaw angle relative to +x in degrees. Default 0.0 deg.
+    """
+
+    v0: float = 6.0
+    amplitude: float = 2.0
+    omega: float = 1.0
+    kx: float = 0.5
+    yaw_deg: float = 0.0
+
+    @property
+    def cos_yaw(self) -> float:
+        return max(0.0, math.cos(math.radians(self.yaw_deg)))
+
+    def velocity(
+        self, t: float, x: float = 0.0, y: float = 0.0, z: float | None = None
+    ) -> float:
+        """Evaluate local scalar wind speed at position (x, y) and time t."""
+        wave = self.amplitude * math.sin(self.omega * t + self.kx * x)
+        return max(0.0, (self.v0 + wave) * self.cos_yaw)
+
+    def vector(self, t: float, x: float = 0.0, y: float = 0.0) -> tuple[float, float]:
+        """Evaluate 2D horizontal wind velocity vector (vx, vy) in m/s."""
+        mag = max(0.0, self.v0 + self.amplitude * math.sin(self.omega * t + self.kx * x))
+        rad = math.radians(self.yaw_deg)
+        return (mag * math.cos(rad), mag * math.sin(rad))
+
+    def __call__(
+        self, t: float, z: float | None = None, x: float = 0.0, y: float = 0.0
+    ) -> float:
+        return self.velocity(t, x=x, y=y, z=z)
+
+
+@winds.register("spatiotemporal")
+def spatiotemporal(w: Wind) -> WindFn:
+    """Spatial-temporal wind field: v(t, x) = v0 + A * sin(omega * t + kx * x)."""
+    amp = float(w.params.get("amplitude", 2.0))
+    omega = float(w.params.get("omega", 1.0))
+    kx = float(w.params.get("kx", 0.5))
+    yaw_deg = float(w.params.get("yaw_deg", 0.0))
+    field = SpatiotemporalWindField(
+        v0=w.speed, amplitude=amp, omega=omega, kx=kx, yaw_deg=yaw_deg
+    )
+    return field

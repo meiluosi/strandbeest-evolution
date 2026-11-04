@@ -19,13 +19,15 @@ from pathlib import Path
 from strandbeest_common import Design
 from strandbeest_common.schemas import schema_dir
 from strandbeest_sim import run, scenario_from_design
-from strandbeest_sim.skeptic import audit, random_scenario
+from strandbeest_sim.skeptic import random_scenario
+from strandbeest_sim.audit import audit_report
 
 
 def one(job: tuple[int, dict, dict]) -> dict:
     i, d, ov = job
     res = run(scenario_from_design(Design(d), ov))
-    findings = audit(res.scenario, res.metrics, res.series, res.stalled)
+    report = audit_report(res.scenario, res.metrics, {"t": res.t, "psi": res.psi, "x": res.x, **res.series},
+                          res.stalled, backend_name="mujoco", observation=res.audit_observation)
     m = res.metrics
     return {
         "case": i,
@@ -35,7 +37,9 @@ def one(job: tuple[int, dict, dict]) -> dict:
         "penetration_mm": 1000 * m["max_penetration"],
         "energy_residual": m.get("energy_residual_share"),
         "stalled": bool(res.stalled),
-        "findings": [f.check for f in findings],
+        "findings": [f["check"] for f in report["findings"]],
+        "audit": report,
+        "audit_observation": res.audit_observation,
         "run_s": float(res.t[-1]),
     }
 
@@ -58,7 +62,8 @@ def main() -> None:
     bad = [r for r in rows if r["findings"]]
     opens = sorted(r["loop_open_mm"] for r in rows)
     res = [abs(r["energy_residual"]) for r in rows if r["energy_residual"] is not None]
-    print(f"{n} walkers (seed {seed}, overrides {extra}): {len(bad)} audit failures")
+    counts = {status: sum(r['audit']['status'] == status for r in rows) for status in ['passed', 'failed', 'unverified']}
+    print(f"{n} walkers (seed {seed}, overrides {extra}): {counts}")
     print(f"loop opening mm: median {statistics.median(opens):.2f}, 90th percentile {opens[int(0.9 * (n - 1))]:.2f}, worst {opens[-1]:.2f}; over 3 mm: {sum(o > 3 for o in opens)}")
     print(f"|energy residual|: median {statistics.median(res):.4f}, worst {max(res):.4f}")
     for r in bad:

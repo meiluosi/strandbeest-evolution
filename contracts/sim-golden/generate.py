@@ -3,33 +3,16 @@
 metrics and a fingerprint of the time series they produced. tests assert that every later version of the simulator reproduces
 them (same platform: to 1e-7 relative). Regenerate ONLY when a change of behaviour is intended and explained.
 
-  python contracts/sim-golden/generate.py            # writes contracts/sim-golden/runs.json
+  python contracts/sim-golden/generate.py            # writes contracts/sim-golden/runs-contact-v3.json
 """
+import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-DESIGN = ROOT / "schemas" / "examples" / "design-jansen-small-6leg.json"
-
-from strandbeest_common import Design  # noqa: E402
-from strandbeest_sim import run, scenario_from_design  # noqa: E402
-
-FAST = {"run": {"revolutions": 0.7, "settle": 0.3, "frame_rate": 30}}
-CASES = {
-    "flat-motor": {},
-    "slope-5deg": {"terrain": {"kind": "slope", "slope_deg": 5}},
-    "step-12mm-torque-capped": {"terrain": {"kind": "step", "params": {"distance": 0.1, "height": 0.012}}},
-    "bumps-seed3": {"terrain": {"kind": "bumps", "params": {"count": 8, "max_height": 0.01, "start": 0.1, "seed": 3}}},
-    "soft-ground": {"terrain": {"kind": "soft", "params": {"stiffness": 4000.0, "damping": 120.0}}},
-    "sail-wind-3": {"drive": {"kind": "sail"}, "wind": {"speed": 3.0}, "run": {"give_up_after": 8, "max_time": 40, "frame_rate": 0}},
-    "sail-gusts": {"drive": {"kind": "sail"}, "wind": {"kind": "gusts", "speed": 2.5, "params": {"amplitude": 1.5, "period": 5}}, "run": {"give_up_after": 8, "max_time": 40, "frame_rate": 0}},
-    "mars-gravity": {"environment": {"gravity": 3.73, "air_density": 0.02}},
-    "four-legs-elliptic-cone": {"walker": {"legs": 4}, "solver": {"cone": "elliptic"}},
-    "friction-impratio-10": {"solver": {"impratio": 10}},
-}
+from strandbeest_sim import load_scenario, run  # noqa: E402
 
 
 def sample(a, n=24):
@@ -38,18 +21,16 @@ def sample(a, n=24):
     return [float(a[i]) for i in idx]
 
 
-def record(name, overrides):
-    design = Design.load(DESIGN)
-    ov = {"run": dict(FAST["run"])}
-    for k, v in overrides.items():
-        ov.setdefault(k, {}).update(v)
-    sc = scenario_from_design(design, ov)
+def record(name, source_scenario):
+    # Replay the exact previous inputs, including recorded defaults and sampling.
+    # Rebuilding from today's defaults silently changes the comparison cohort.
+    sc = load_scenario(source_scenario)
     res = run(sc)
     out = {
         "name": name,
-        "scenario": json.loads(sc.model_dump_json()),
+        "scenario": source_scenario,
         "stalled": bool(res.stalled),
-        "metrics": {k: (None if v != v else float(v)) for k, v in res.metrics.items()},
+        "metrics": {k: (None if v != v else v if isinstance(v, bool) else float(v)) for k, v in res.metrics.items()},
         "samples": {"t": sample(res.t), "psi": sample(res.psi), "x": sample(res.x), "z": sample(res.z), "torque": sample(res.torque)},
         "n": int(len(res.t)),
     }
@@ -61,8 +42,12 @@ def record(name, overrides):
 
 
 if __name__ == "__main__":
-    runs = [record(n, ov) for n, ov in CASES.items()]
-    path = Path(__file__).with_name("runs.json")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", type=Path, default=Path(__file__).with_name("runs-energy-v2.json"))
+    args = parser.parse_args()
+    source = json.loads(args.source.read_text())
+    runs = [record(row["name"], row["scenario"]) for row in source["runs"]]
+    path = Path(__file__).with_name("runs-contact-v3.json")
     path.write_text(json.dumps({"_doc": "Golden simulator runs (platform: record machine; compare at rtol 1e-7). See generate.py.", "runs": runs}, indent=1) + "\n")
     for r in runs:
         print(f"{r['name']:<28} n={r['n']:>5} stalled={r['stalled']!s:<5} stride={r['metrics'].get('stride_per_rev')} peak_torque={r['metrics'].get('peak_torque')}")

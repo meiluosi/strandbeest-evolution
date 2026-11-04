@@ -1,0 +1,247 @@
+{
+	"source": "contracts/sim-golden/runs-contact-v3.json",
+	"source_sha256": "91eab8e8a3982a3f433abefd20ef78b5845dd20d7a8feaeb8a2ce940b7b203d4",
+	"physical_inputs_changed": false,
+	"runs": [
+		{
+			"name": "flat-motor",
+			"peak_metrics": {
+				"max_loop_violation": 0.0007039371683781187,
+				"max_penetration": 0.0005646650717728002
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 13996,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7989999999997246,
+				"max_loop_residual_m": 0.0007039371683781187,
+				"max_penetration_m": 0.0005646650717728002,
+				"integration_steps": 13996
+			}
+		},
+		{
+			"name": "slope-5deg",
+			"peak_metrics": {
+				"max_loop_violation": 0.0009237429619357584,
+				"max_penetration": 0.0005674525080948661
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 13996,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7989999999997246,
+				"max_loop_residual_m": 0.0009237429619357584,
+				"max_penetration_m": 0.0005674525080948661,
+				"integration_steps": 13996
+			}
+		},
+		{
+			"name": "step-12mm-torque-capped",
+			"peak_metrics": {
+				"max_loop_violation": 0.008220329901180046,
+				"max_penetration": 0.0007097340538260149
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 14081,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.8159999999997227,
+				"max_loop_residual_m": 0.008220329901180046,
+				"max_penetration_m": 0.0007097340538260149,
+				"integration_steps": 14081
+			}
+		},
+		{
+			"name": "bumps-seed3",
+			"peak_metrics": {
+				"max_loop_violation": 0.0018098790873963821,
+				"max_penetration": 0.0006769760253505161
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 13994,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7985999999997246,
+				"max_loop_residual_m": 0.0018098790873963821,
+				"max_penetration_m": 0.0006769760253505161,
+				"integration_steps": 13994
+			}
+		},
+		{
+			"name": "soft-ground",
+			"peak_metrics": {
+				"max_loop_violation": 0.0010488459614386159,
+				"max_penetration": 0.011409931246523798
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 13997,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7991999999997246,
+				"max_loop_residual_m": 0.0010488459614386159,
+				"max_penetration_m": 0.011409931246523798,
+				"integration_steps": 13997
+			}
+		},
+		{
+			"name": "sail-wind-3",
+			"peak_metrics": {
+				"max_loop_violation": 0.0011577222699746675,
+				"max_penetration": 0.0005675788237044493
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 7735,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 1.5467999999998623,
+				"max_loop_residual_m": 0.0011577222699746675,
+				"max_penetration_m": 0.0005675788237044493,
+				"integration_steps": 7735
+			}
+		},
+		{
+			"name": "sail-gusts",
+			"peak_metrics": {
+				"max_loop_violation": 0.0009246802569463815,
+				"max_penetration": 0.0005726092544343347
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 6619,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 1.3235999999998869,
+				"max_loop_residual_m": 0.0009246802569463815,
+				"max_penetration_m": 0.0005726092544343347,
+				"integration_steps": 6619
+			}
+		},
+		{
+			"name": "mars-gravity",
+			"peak_metrics": {
+				"max_loop_violation": 0.000561996701254619,
+				"max_penetration": 0.00038351561624189005
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 13996,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7989999999997246,
+				"max_loop_residual_m": 0.000561996701254619,
+				"max_penetration_m": 0.00038351561624189005,
+				"integration_steps": 13996
+			}
+		},
+		{
+			"name": "four-legs-elliptic-cone",
+			"peak_metrics": {
+				"max_loop_violation": 0.0017501541881297378,
+				"max_penetration": 0.0002752939961153094
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 4,
+				"support_force_N": 1e-6,
+				"observed_steps": 13996,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7989999999997246,
+				"max_loop_residual_m": 0.0017501541881297378,
+				"max_penetration_m": 0.0002752939961153094,
+				"integration_steps": 13996
+			}
+		},
+		{
+			"name": "friction-impratio-10",
+			"peak_metrics": {
+				"max_loop_violation": 0.002944145524421682,
+				"max_penetration": 0.00011654617679368422
+			},
+			"audit_observation": {
+				"version": 1,
+				"scope": "driven_steps_excluding_settle",
+				"boundary": "force_evaluation",
+				"timestep_s": 0.0002,
+				"legs": 6,
+				"support_force_N": 1e-6,
+				"observed_steps": 13996,
+				"invalid_steps": 0,
+				"time_gap_steps": 0,
+				"airborne_steps": 0,
+				"first_time_s": 0.0,
+				"last_time_s": 2.7989999999997246,
+				"max_loop_residual_m": 0.002944145524421682,
+				"max_penetration_m": 0.00011654617679368422,
+				"integration_steps": 13996
+			}
+		}
+	]
+}

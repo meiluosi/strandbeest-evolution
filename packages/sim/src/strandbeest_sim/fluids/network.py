@@ -1,8 +1,9 @@
 """1D compressible gas network ODE solver and ISO 6358 pneumatic flow models.
 
-Implements lumped-parameter fluid nodes (pressure, volume, temperature, mass)
-and flow elements (orifices, check valves) governed by:
-    dp_i/dt = (n * R * T_i / V_i) * (sum(m_dot_in) - sum(m_dot_out)) - (n * p_i / V_i) * dV_i/dt
+Gas-only lumped control volumes exchange upstream enthalpy through each edge.
+The empirical polytropic exponent is an explicit heat closure, not the physical
+specific-heat ratio. Isothermal nodes include the thermostat heat required to
+hold their temperature. This module does not yet model a separate wall state.
 """
 
 from __future__ import annotations
@@ -15,8 +16,11 @@ from typing import Callable, Optional
 import numpy as np
 
 from .constants import (
+    CP_AIR,
+    CV_AIR,
     DEFAULT_CRITICAL_PRESSURE_RATIO,
     DEFAULT_POLYTROPIC_EXPONENT,
+    GAMMA_AIR,
     P_ATM,
     R_AIR,
     RHO_0,
@@ -170,6 +174,27 @@ def iso6358_mass_flow_derivative_p2(
     return dr / p1
 
 
+@dataclass(frozen=True)
+class FluidEnergyRates:
+    """Signed energy rates into one gas control volume, all in watts.
+
+    Flow work is already included in enthalpy; compression_work_w is moving-wall
+    work only. Empirical/thermostat heat is reported separately from convection.
+    """
+
+    enthalpy_w: float
+    compression_work_w: float
+    convective_heat_w: float
+    polytropic_heat_w: float
+    thermostat_heat_w: float
+
+    @property
+    def net_energy_w(self) -> float:
+        return math.fsum((self.enthalpy_w, self.compression_work_w,
+                          self.convective_heat_w, self.polytropic_heat_w,
+                          self.thermostat_heat_w))
+
+
 @dataclass
 class FluidNode:
     """Lumped-parameter compressible pneumatic node (chamber / manifold).
@@ -187,7 +212,8 @@ class FluidNode:
     mass : float
         Enclosed gas mass [kg]. If 0, initialized via ideal gas law p*V/(R*T).
     n : float
-        Polytropic exponent [-], default 1.25.
+        Empirical polytropic exponent [-], default 1.25. Its implied heat is
+        explicitly accounted for; n=gamma with zero convection is adiabatic.
     is_fixed_pressure : bool
         If True, acts as an infinite reservoir / boundary condition (e.g. atmosphere).
     is_fixed_temperature : bool
@@ -199,7 +225,8 @@ class FluidNode:
     ambient_temperature : float
         Surrounding ambient temperature T_amb [K].
     thermal_capacitance : Optional[float]
-        Lumped wall + fluid thermal capacity [J/K]. If None, fluid only (m * cv).
+        Legacy component metadata [J/K], not used by this gas-only solver.
+        Wall heat storage and a coupled wall temperature remain unsupported.
     volume_func : Optional[Callable[[float], tuple[float, float]]]
         Optional dynamic kinematic function t -> (V(t), dV/dt(t)).
     """
@@ -245,20 +272,47 @@ class FluidNode:
             return 0.0
         return self.heat_transfer_coeff * self.heat_transfer_area * (self.ambient_temperature - self.temperature)
 
-    def compute_dp_dt(self, m_dot_net: float, dV_dt: float = 0.0, Q_dot: float = 0.0) -> float:
-        """Compute pressure rate dp/dt [Pa/s] from the polytropic nodal ODE.
+    @property
+    def internal_energy_j(self) -> float:
+        """Gas internal energy pV/(gamma-1); excludes unmodelled vessel walls."""
+        return self.pressure * self.volume / (GAMMA_AIR - 1.0)
 
-        dp_i/dt = (n * R * T_i / V_i) * m_dot_net - (n * p_i / V_i) * dV_i/dt + ((n - 1) / V_i) * Q_dot
+    def energy_rates(
+        self, m_dot_net: float, dV_dt: float = 0.0, Q_dot: float = 0.0,
+        *, enthalpy_net_w: Optional[float] = None,
+    ) -> FluidEnergyRates:
+        """Control-volume first law with a named empirical heat closure.
+
+        The network always supplies H=sum(m_dot*cp*T_upstream). A direct call
+        without H assumes all transferred gas has the node's temperature.
+        For a non-isothermal node the legacy polytropic law is retained with
+        upstream temperatures, and its implied heat is explicit:
+          Q_poly = (n/gamma-1) H + (gamma-n)/(gamma-1) p V_dot.
+        Supplied Q_dot is real heat and uses the physical cv, independently of n.
+        This empirical heat is an assumption, not a measured heat-transfer law.
         """
-        if self.is_fixed_pressure:
-            return 0.0
         if self.volume <= 0.0:
             raise ValueError(f"Node '{self.name}' has non-positive volume: {self.volume}")
+        h = CP_AIR * self.temperature * m_dot_net if enthalpy_net_w is None else enthalpy_net_w
+        work = -self.pressure * dV_dt
+        if self.is_fixed_temperature:
+            # d(m cv T)/dt = cv T m_dot when a thermostat holds T constant.
+            thermostat = CV_AIR * self.temperature * m_dot_net - h - work - Q_dot
+            return FluidEnergyRates(h, work, Q_dot, 0.0, thermostat)
+        polytropic_heat = ((self.n / GAMMA_AIR - 1.0) * h
+                          + (GAMMA_AIR - self.n) / (GAMMA_AIR - 1.0)
+                          * self.pressure * dV_dt)
+        return FluidEnergyRates(h, work, Q_dot, polytropic_heat, 0.0)
 
-        term_mass = (self.n * R_AIR * self.temperature / self.volume) * m_dot_net
-        term_vol = (self.n * self.pressure / self.volume) * dV_dt
-        term_heat = ((self.n - 1.0) / self.volume) * Q_dot if (self.n != 1.0 and Q_dot != 0.0) else 0.0
-        return term_mass - term_vol + term_heat
+    def compute_dp_dt(
+        self, m_dot_net: float, dV_dt: float = 0.0, Q_dot: float = 0.0,
+        *, enthalpy_net_w: Optional[float] = None,
+    ) -> float:
+        """Pressure rate from d(pV/(gamma-1))/dt = H + Q - p V_dot."""
+        if self.is_fixed_pressure:
+            return 0.0
+        rates = self.energy_rates(m_dot_net, dV_dt, Q_dot, enthalpy_net_w=enthalpy_net_w)
+        return ((GAMMA_AIR - 1.0) * rates.net_energy_w - self.pressure * dV_dt) / self.volume
 
     def compute_dm_dt(self, m_dot_net: float) -> float:
         """Compute mass rate dm/dt [kg/s]."""
@@ -362,7 +416,14 @@ class CheckValve(FlowElement):
 
 @dataclass
 class FluidSimulationResult:
-    """Results from fluid network simulation."""
+    """Gas-only histories and a signed boundary/heat/work ledger.
+
+    mass_conservation_relative_error includes boundary exchange, so filling an
+    open tank does not count as a conservation failure. balance contains the
+    cumulative channels in BALANCE_CHANNELS plus internal_energy_j and signed
+    mass_residual_kg/energy_residual_j. Integration error is exposed, not removed.
+    Vessel-wall heat storage and full mechanical coupling are not represented.
+    """
 
     t: np.ndarray
     pressures: dict[str, np.ndarray]
@@ -371,6 +432,15 @@ class FluidSimulationResult:
     masses: dict[str, np.ndarray]
     total_mass: np.ndarray
     mass_conservation_relative_error: float
+    balance: dict[str, np.ndarray] = field(default_factory=dict)
+
+
+# Integrated with the same RK stages as p, V and m. These are signed inputs to
+# dynamic gas nodes; exchanges between two dynamic nodes cancel in the totals.
+BALANCE_CHANNELS = (
+    "boundary_mass_kg", "external_enthalpy_j", "compression_work_j",
+    "convective_heat_j", "polytropic_heat_j", "thermostat_heat_j",
+)
 
 
 class FluidNetwork:
@@ -385,11 +455,14 @@ class FluidNetwork:
         self.elements: list[FlowElement] = []
         self._dynamic_node_names: list[str] = []
         self.track_mass = track_mass
+        self.last_step_balance: dict[str, float] = {}
 
     def add_node(self, node: FluidNode) -> None:
         """Add a fluid node to the network."""
         if node.name in self.nodes:
             raise ValueError(f"Node '{node.name}' already exists in network")
+        if not self.track_mass and not node.is_fixed_pressure and not node.is_fixed_temperature:
+            raise ValueError("Non-isothermal dynamic nodes require track_mass=True")
         self.nodes[node.name] = node
         if not node.is_fixed_pressure:
             self._dynamic_node_names.append(node.name)
@@ -430,10 +503,15 @@ class FluidNetwork:
         """Update node pressures, volumes, masses, and temperatures from state vector y."""
         dyn = self.dynamic_nodes
         k = len(dyn)
+        if len(y) not in (k, 2 * k, 3 * k) or not np.all(np.isfinite(y)):
+            raise ValueError("Invalid fluid state length or non-finite state")
+        if len(y) != 3 * k and any(not node.is_fixed_temperature for node in dyn):
+            raise ValueError("Non-isothermal fluid state requires pressure, volume and mass")
         if len(y) == 2 * k:
             for i, node in enumerate(dyn):
                 node.pressure = float(y[i])
                 node.volume = float(y[k + i])
+                node.update_volume(t)
                 if node.is_fixed_temperature:
                     node.mass = (node.pressure * node.volume) / (R_AIR * node.temperature)
                 else:
@@ -446,15 +524,21 @@ class FluidNetwork:
                 node.pressure = float(y[i])
                 node.volume = float(y[k + i])
                 node.mass = float(y[2 * k + i])
+                node.update_volume(t)
                 if not node.is_fixed_temperature and node.mass > 0.0:
                     node.temperature = (node.pressure * node.volume) / (node.mass * R_AIR)
         elif len(y) == k:
             for i, node in enumerate(dyn):
                 node.pressure = float(y[i])
+                node.update_volume(t)
                 if node.is_fixed_temperature:
                     node.mass = (node.pressure * node.volume) / (R_AIR * node.temperature)
                 elif node.mass > 0.0:
                     node.temperature = (node.pressure * node.volume) / (node.mass * R_AIR)
+        for node in dyn:
+            values = (node.pressure, node.volume, node.mass, node.temperature)
+            if not all(math.isfinite(value) and value > 0.0 for value in values):
+                raise ValueError(f"Non-positive thermodynamic state or non-finite value in node '{node.name}'; reduce dt")
 
     def compute_mass_flows(self) -> dict[str, float]:
         """Compute mass flow rates for all elements based on current nodal states."""
@@ -468,7 +552,16 @@ class FluidNetwork:
 
     def compute_net_mass_flows(self) -> dict[str, float]:
         """Compute net mass flow rate (m_dot_in - m_dot_out) for each node [kg/s]."""
+        return self.compute_node_fluxes()[0]
+
+    def compute_node_fluxes(self) -> tuple[dict[str, float], dict[str, float]]:
+        """Signed nodal mass [kg/s] and upstream enthalpy [W] fluxes.
+
+        Each edge transfers the very same enthalpy out of its donor and into
+        its receiver, including when its signed flow reverses.
+        """
         net_flows = {name: 0.0 for name in self.nodes}
+        net_enthalpy = {name: 0.0 for name in self.nodes}
         for elem in self.elements:
             na = self.nodes[elem.node_a]
             nb = self.nodes[elem.node_b]
@@ -476,34 +569,45 @@ class FluidNetwork:
             # flow > 0 means A -> B (leaves A, enters B)
             net_flows[elem.node_a] -= flow
             net_flows[elem.node_b] += flow
-        return net_flows
+            upstream_temperature = na.temperature if flow >= 0.0 else nb.temperature
+            enthalpy = flow * CP_AIR * upstream_temperature
+            net_enthalpy[elem.node_a] -= enthalpy
+            net_enthalpy[elem.node_b] += enthalpy
+        return net_flows, net_enthalpy
 
     def derivatives(self, t: float, y: np.ndarray) -> np.ndarray:
         """Compute time derivatives dy/dt for the state vector."""
+        return self._derivatives_and_balance(t, y)[0]
+
+    def _derivatives_and_balance(self, t: float, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         self.set_state(y, t)
         dyn = self.dynamic_nodes
         k = len(dyn)
-        net_flows = self.compute_net_mass_flows()
+        net_flows, net_enthalpy = self.compute_node_fluxes()
 
         dp_dt = np.zeros(k, dtype=np.float64)
         dv_dt = np.zeros(k, dtype=np.float64)
         dm_dt = np.zeros(k, dtype=np.float64)
+        balance = np.zeros(len(BALANCE_CHANNELS), dtype=np.float64)
 
         for i, node in enumerate(dyn):
             # Volume and kinematic volume derivative
-            v_curr, dv_i = node.update_volume(t)
+            _, dv_i = node.update_volume(t)
             dv_dt[i] = dv_i
             m_dot_net = net_flows[node.name]
             q_dot = node.compute_heat_transfer()
 
-            dp_dt[i] = node.compute_dp_dt(m_dot_net=m_dot_net, dV_dt=dv_i, Q_dot=q_dot)
+            rates = node.energy_rates(m_dot_net, dv_i, q_dot, enthalpy_net_w=net_enthalpy[node.name])
+            dp_dt[i] = ((GAMMA_AIR - 1.0) * rates.net_energy_w - node.pressure * dv_i) / node.volume
             dm_dt[i] = node.compute_dm_dt(m_dot_net)
+            balance += (m_dot_net, rates.enthalpy_w, rates.compression_work_w,
+                        rates.convective_heat_w, rates.polytropic_heat_w, rates.thermostat_heat_w)
 
         if len(y) == 3 * k:
-            return np.concatenate([dp_dt, dv_dt, dm_dt])
+            return np.concatenate([dp_dt, dv_dt, dm_dt]), balance
         elif len(y) == 2 * k:
-            return np.concatenate([dp_dt, dv_dt])
-        return dp_dt
+            return np.concatenate([dp_dt, dv_dt]), balance
+        return dp_dt, balance
 
     def step(self, dt: float, t: float = 0.0, method: str = "rk4") -> dict[str, float]:
         """Advance network state by a single timestep dt (ideal for co-simulation).
@@ -522,18 +626,29 @@ class FluidNetwork:
         dict[str, float]
             Mapping of node name -> new pressure [Pa].
         """
+        if not math.isfinite(dt) or dt <= 0.0 or not math.isfinite(t):
+            raise ValueError("Fluid step requires positive finite dt and finite t")
+        if method not in ("rk4", "euler"):
+            raise ValueError(f"Unsupported fluid integration method: {method}")
         y = self.get_state()
-        if method == "rk4":
-            k1 = self.derivatives(t, y)
-            k2 = self.derivatives(t + 0.5 * dt, y + 0.5 * dt * k1)
-            k3 = self.derivatives(t + 0.5 * dt, y + 0.5 * dt * k2)
-            k4 = self.derivatives(t + dt, y + dt * k3)
-            y_new = y + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
-        else:
-            k1 = self.derivatives(t, y)
-            y_new = y + dt * k1
-
-        self.set_state(y_new, t + dt)
+        try:
+            if method == "rk4":
+                k1, b1 = self._derivatives_and_balance(t, y)
+                k2, b2 = self._derivatives_and_balance(t + 0.5 * dt, y + 0.5 * dt * k1)
+                k3, b3 = self._derivatives_and_balance(t + 0.5 * dt, y + 0.5 * dt * k2)
+                k4, b4 = self._derivatives_and_balance(t + dt, y + dt * k3)
+                y_new = y + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
+                integrated_balance = (dt / 6.0) * (b1 + 2.0 * b2 + 2.0 * b3 + b4)
+            else:
+                k1, b1 = self._derivatives_and_balance(t, y)
+                y_new = y + dt * k1
+                integrated_balance = dt * b1
+            self.set_state(y_new, t + dt)
+        except Exception:
+            # A rejected RK stage must not leave its partial state as a new initial condition.
+            self.set_state(y, t)
+            raise
+        self.last_step_balance = dict(zip(BALANCE_CHANNELS, map(float, integrated_balance)))
         return {name: node.pressure for name, node in self.nodes.items()}
 
     def simulate(
@@ -559,6 +674,9 @@ class FluidNetwork:
             Time histories of pressures, volumes, temperatures, masses, and conservation metrics.
         """
         t0, t1 = t_span
+        if not all(math.isfinite(value) for value in (t0, t1, dt)) or t1 <= t0 or dt <= 0:
+            raise ValueError("Fluid simulation requires finite t_end > t_start and positive dt")
+        self.set_state(self.get_state(), t0)
         n_steps = max(int(math.ceil((t1 - t0) / dt)), 1)
         t_arr = np.linspace(t0, t1, n_steps + 1)
         actual_dt = (t1 - t0) / n_steps
@@ -569,6 +687,8 @@ class FluidNetwork:
         t_hist = {name: np.zeros(n_steps + 1) for name in all_names}
         m_hist = {name: np.zeros(n_steps + 1) for name in all_names}
         tot_mass = np.zeros(n_steps + 1)
+        balance = {key: np.zeros(n_steps + 1) for key in BALANCE_CHANNELS}
+        balance["internal_energy_j"] = np.zeros(n_steps + 1)
 
         # Initial state recording
         for name, node in self.nodes.items():
@@ -577,6 +697,7 @@ class FluidNetwork:
             t_hist[name][0] = node.temperature
             m_hist[name][0] = node.mass
         tot_mass[0] = sum(self.nodes[name].mass for name in self._dynamic_node_names)
+        balance["internal_energy_j"][0] = math.fsum(node.internal_energy_j for node in self.dynamic_nodes)
 
         curr_t = t0
         for step_idx in range(1, n_steps + 1):
@@ -589,12 +710,18 @@ class FluidNetwork:
                 t_hist[name][step_idx] = node.temperature
                 m_hist[name][step_idx] = node.mass
             tot_mass[step_idx] = sum(self.nodes[name].mass for name in self._dynamic_node_names)
+            for key in BALANCE_CHANNELS:
+                balance[key][step_idx] = balance[key][step_idx - 1] + self.last_step_balance[key]
+            balance["internal_energy_j"][step_idx] = math.fsum(node.internal_energy_j for node in self.dynamic_nodes)
 
+        balance["mass_residual_kg"] = tot_mass - tot_mass[0] - balance["boundary_mass_kg"]
+        balance["energy_residual_j"] = (balance["internal_energy_j"] - balance["internal_energy_j"][0]
+                                        - sum(balance[key] for key in BALANCE_CHANNELS[1:]))
         initial_mass = tot_mass[0]
         if initial_mass > 0.0:
-            rel_err = float(np.max(np.abs(tot_mass - initial_mass)) / initial_mass)
+            rel_err = float(np.max(np.abs(balance["mass_residual_kg"])) / initial_mass)
         else:
-            rel_err = float(np.max(np.abs(tot_mass - initial_mass)))
+            rel_err = float(np.max(np.abs(balance["mass_residual_kg"])))
 
         return FluidSimulationResult(
             t=t_arr,
@@ -604,4 +731,5 @@ class FluidNetwork:
             masses=m_hist,
             total_mass=tot_mass,
             mass_conservation_relative_error=rel_err,
+            balance=balance,
         )

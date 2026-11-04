@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import copy
 import math
+import re
+import xml.etree.ElementTree as ET
 from typing import Any
 
 import numpy as np
@@ -23,21 +25,27 @@ from ..backend import (
     PhysicsBackend,
     PowerBalance,
     Snapshot,
+    StepWork,
     TerrainPlan,
     Vec3,
 )
-from ..builder import resolve_spec
+from ..builder import build as build_geometry, resolve_spec
 from ..config import SimConfig
 from ..linkage import solve_pose
 from . import backends
+from .k2_contact import ContactConvergenceError, solve_contacts
+from .k2_inertia import PeriodicQuintic, WalkerInertia
 
 
 @backends.register("k2")
 class K2Backend:
     name = "k2"
 
-    def __init__(self, timestep: float = 0.0005) -> None:
-        self.timestep = timestep
+    def __init__(self, timestep: float | None = None) -> None:
+        if timestep is not None and (not math.isfinite(timestep) or timestep <= 0):
+            raise ValueError("timestep must be finite and positive")
+        self._requested_timestep = timestep
+        self.timestep = timestep if timestep is not None else 0.0005
         self.time = 0.0
         self._kind = "unbuilt"
         self._params: dict[str, Any] = {}
@@ -52,9 +60,13 @@ class K2Backend:
         self._last_actuator_force = 0.0
         self._last_foot_loads: list[FootLoad] = []
         self._last_power_balance = PowerBalance(0.0, 0.0, 0.0, 0.0)
+        self._last_step_work = StepWork()
         self._last_max_penetration = 0.0
         self._last_constraint_torque = 0.0
         self._contact_softness: tuple[float, float] | None = None
+        self._contact_iterations = 0
+        self._last_contact_iterations = 0
+        self._last_contact_solution = None
 
     def build_reference(self, kind: str, **params: float) -> None:
         self._kind = kind
@@ -76,12 +88,39 @@ class K2Backend:
             raise KeyError(f"unknown reference system '{kind}'; known: pendulum, block")
 
     def build(self, cfg: SimConfig, plan: TerrainPlan) -> BuildInfo:
+        if cfg.solver.tolerance is not None:
+            raise ValueError("solver.tolerance is a MuJoCo option; K2 only accepts null")
+        if self._requested_timestep is not None and self._requested_timestep != cfg.solver.timestep:
+            raise ValueError("Set solver.timestep in Scenario; a K2 constructor override cannot contradict the recorded input")
+        self.timestep = float(cfg.solver.timestep)
+        self._contact_iterations = int(cfg.solver.iterations)
+        self._last_contact_iterations = 0
+        self._last_contact_solution = None
         self._kind = "walker"
         self.time = 0.0
         self._cfg = cfg
         self._plan = plan
         spec = resolve_spec(cfg)
         self._spec = spec
+        # Share the model's geometry/ownership declaration, not its dynamics or
+        # contact solver. In particular the sphere may belong to either bar
+        # ending at F, depending on traversal order; F0 is not a safe guess.
+        built = build_geometry(cfg, spec)
+        tree = ET.fromstring(built.xml)
+        owner = next((body for body in tree.iter('body')
+                      if any(g.get('name', '').startswith('foot_bar0_') for g in body.findall('geom'))), None)
+        match = re.fullmatch(r'bar0_(.+)([01])', owner.get('name', '')) if owner is not None else None
+        if match is None:
+            raise ValueError("K2 requires a sphere owned by a bar ending at the foot")
+        foot_joint = next(j for j in spec.joints if j.id == match[1])
+        self._foot_owner_start = foot_joint.centers[int(match[2])]
+        self._foot_owner_suffix = match[1] + match[2]
+        self._contact_softness = None
+        self._last_foot_loads = []
+        self._last_power_balance = PowerBalance(0.0, 0.0, 0.0, 0.0)
+        self._last_step_work = StepWork()
+        self._last_max_penetration = self._last_constraint_torque = self._last_actuator_force = 0.0
+        self._armature = self._damping = self._frictionloss = 0.0
 
         w = cfg.walker
         u = w.unit
@@ -91,41 +130,30 @@ class K2Backend:
         self._direction = w.direction
         self._phases = [2 * math.pi * i / n for i in range(n)]
 
-        # Precompute dense circular foot trajectory table
-        N_TABLE = 1440
+        # Periodic C2 quintic Hermite tables: derivatives are the derivatives
+        # of the interpolated positions, including the wrap at 2*pi. The owner
+        # vector supplies the sphere's angular velocity without atan2 jumps.
+        N_TABLE = 2880
         thetas = np.linspace(0, 2 * math.pi, N_TABLE, endpoint=False)
-        raw_pts = [solve_pose(spec, th)[spec.foot] for th in thetas]
-        self._px_table = np.array([p[0] * u for p in raw_pts])
-        self._pz_table = np.array([p[1] * u for p in raw_pts])
-        self._dpx_table = np.gradient(self._px_table, thetas)
-        self._dpz_table = np.gradient(self._pz_table, thetas)
+        poses = [solve_pose(spec, th) for th in thetas]
+        if any(p is None for p in poses):
+            raise ValueError("linkage cannot assemble over the K2 trajectory table")
+        feet = np.array([p[spec.foot] for p in poses])*u
+        starts = np.array([p[self._foot_owner_start] for p in poses])*u
+        self._foot_table = np.column_stack((feet, feet-starts))
+        self._table_step = math.tau/N_TABLE
+        self._foot_coefficients = PeriodicQuintic(self._foot_table).coefficients
         self._N_TABLE = N_TABLE
 
-        lowest = float(np.min(self._pz_table))
-        hip_h = -lowest + w.foot_radius
+        hip_h = built.hip_height
         self._hip_height = hip_h
 
-        # Compute masses and inertias
-        def mass_of(length_units: float) -> float:
-            return max(w.tube_mass_per_m * length_units * u, w.min_bar_mass)
-
-        crank_mass = mass_of(spec.crank)
-        per_leg_mass = crank_mass + sum(mass_of(spec.val(r)) for j in spec.joints for r in j.radii)
-        bar_mass_total = n * per_leg_mass
-        torso_mass = w.body_mass if w.body_mass is not None else w.mass - bar_mass_total
-        if torso_mass <= 0:
-            torso_mass = 0.1
-        m_total = torso_mass + bar_mass_total
-        self._m_total = m_total
-        self._torso_mass = torso_mass
-        self._bar_mass_total = bar_mass_total
-
-        l_body = w.body_length
+        self._inertia = WalkerInertia(spec, cfg, built.xml, poses)
+        self._mass_cache = None
+        self._m_total = self._inertia.mass  # includes the explicitly declared sphere masses
+        self._torso_mass = self._inertia.torso_mass
+        self._bar_mass_total = built.bar_mass_total
         self._pitch_locked = getattr(w, "pitch", "free") == "locked"
-        i_pitch = max(1e-4, (1.0 / 12.0) * torso_mass * (l_body**2 + 0.06**2))
-        rotor_j = getattr(cfg.drive, "rotor_inertia", 0.0)
-        i_crank = max(1e-5, (getattr(w, "crank_inertia", 0.0) or 0.001) + rotor_j)
-        self._inv_M = np.array([1.0 / m_total, 1.0 / m_total, 1.0 / i_pitch, 1.0 / i_crank])
 
         # State: X, Z, Phi, psi
         self._q = np.array([0.0, hip_h, 0.0, 0.0])
@@ -149,8 +177,6 @@ class K2Backend:
         self._applied_tx_force = 0.0
 
         # Pin friction and damping
-        self._joint_friction = getattr(w, "joint_friction", 0.0)
-        self._joint_damping = getattr(w, "joint_damping", 0.0)
         self._joint_friction_coeff = getattr(w, "joint_friction_coeff", 0.0)
         self._joint_pin_radius = getattr(w, "joint_pin_radius", 0.003)
         self._foot_radius = w.foot_radius
@@ -176,8 +202,8 @@ class K2Backend:
                     float(cfg.terrain.params.get("damping", 0.0)),
                 )
 
-        body_names = ("torso",) + tuple(f"leg_{i}" for i in range(n))
-        foot_names = tuple(f"foot_bar{i}_F0" for i in range(n))
+        body_names = self._inertia.body_names
+        foot_names = tuple(f"foot_bar{i}_{self._foot_owner_suffix}" for i in range(n))
 
         self._info = BuildInfo(
             n_legs=n,
@@ -185,7 +211,7 @@ class K2Backend:
             crank_q0=self._q0,
             actuator="drive",
             hip_height=hip_h,
-            bar_mass_total=bar_mass_total,
+            bar_mass_total=built.bar_mass_total,
             body_names=body_names,
             foot_names=foot_names,
         )
@@ -214,17 +240,47 @@ class K2Backend:
             self._step_once()
             self.time += self.timestep
 
-    def _interp_foot(self, th: float) -> tuple[float, float, float, float]:
-        th_mod = th % (2 * math.pi)
-        idx = (th_mod / (2 * math.pi)) * self._N_TABLE
+    def _interp_foot(self, th: float) -> tuple[float, float, float, float, float]:
+        idx = (th % math.tau)/self._table_step
         i0 = int(idx) % self._N_TABLE
-        i1 = (i0 + 1) % self._N_TABLE
-        frac = idx - int(idx)
-        fx = self._px_table[i0] * (1 - frac) + self._px_table[i1] * frac
-        fz = self._pz_table[i0] * (1 - frac) + self._pz_table[i1] * frac
-        dfx = self._dpx_table[i0] * (1 - frac) + self._dpx_table[i1] * frac
-        dfz = self._dpz_table[i0] * (1 - frac) + self._dpz_table[i1] * frac
-        return float(fx), float(fz), float(dfx), float(dfz)
+        s = idx - int(idx)
+        c = self._foot_coefficients[i0]
+        value = c[0]+s*(c[1]+s*(c[2]+s*(c[3]+s*(c[4]+s*c[5]))))
+        deriv = (c[1]+s*(2*c[2]+s*(3*c[3]+s*(4*c[4]+s*5*c[5]))))/self._table_step
+        bx, bz = value[2:]
+        dbx, dbz = deriv[2:]
+        angular = (bx*dbz-bz*dbx)/(bx*bx+bz*bz)
+        return float(value[0]), float(value[1]), float(deriv[0]), float(deriv[1]), float(angular)
+
+    def _foot_contact_kinematics(self, leg: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Sphere center and normal/tangent material-point velocity Jacobians."""
+        q, d = self._q, self._direction
+        fx, fz, dfx, dfz, dbeta = self._interp_foot(self._phases[leg] + d*q[3])
+        c, s = math.cos(q[2]), math.sin(q[2])
+        rx, rz = c*fx-s*fz, s*fx+c*fz
+        jn = np.array([0., 1., rx if not self._pitch_locked else 0., d*(s*dfx+c*dfz)])
+        # CCW angular velocity at the bottom of a sphere adds +radius*omega
+        # to the horizontal center velocity, for both torso and owner rotation.
+        jt = np.array([1., 0., self._foot_radius-rz if not self._pitch_locked else 0.,
+                       d*(c*dfx-s*dfz+self._foot_radius*dbeta)])
+        return np.array([q[0]+rx, q[1]+rz]), jn, jt
+
+    def _mass_terms(self):
+        cache = self._mass_cache
+        if cache is None or cache[1] != self._armature or not np.array_equal(cache[0], self._q):
+            sample = self._inertia.sample(self._q, self._armature)
+            self._mass_cache = (self._q.copy(), self._armature, sample)
+        return self._mass_cache[2]
+
+    def mass_matrix(self) -> np.ndarray:
+        """Full configuration-dependent mass in X/Z/Phi/psi, before pitch restriction."""
+        return self._mass_terms().matrix.copy()
+
+    def _inverse_mass(self, matrix):
+        active = [0, 1, 3] if self._pitch_locked else [0, 1, 2, 3]
+        inverse = np.zeros((4, 4))
+        inverse[np.ix_(active, active)] = np.linalg.inv(matrix[np.ix_(active, active)])
+        return inverse
 
     def _step_once(self) -> None:
         dt = self.timestep
@@ -286,137 +342,101 @@ class K2Backend:
         elif self._kind == "walker":
             q = self._q
             v = self._v
+            if self._pitch_locked:
+                q[2] = v[2] = 0.0
+            v_before = v.copy()
             d = self._direction
-            gx, gz = self._gravity[0], self._gravity[2]
+            sample = self._mass_terms()
+            matrix = sample.matrix
+            gravity = sample.gravity(self._gravity)
+            bias = sample.bias(v)
+            potential_before = sample.potential(q, self._gravity)
 
             # 1. Crank Actuation & Joint Torques
             # joint_angle = q0 - d * psi
             q_crank = self._q0 - d * q[3]
-            v_crank = -d * v[3]
-
-            if not self._actuator_released:
-                # Motor drive position servo: tau_servo = kp * (target - q) - kv * v
-                err = self._actuator_target - q_crank
-                servo_torque = self._kp * err - self._kv * v_crank
-                if abs(servo_torque) > self._max_torque:
-                    servo_torque = math.copysign(self._max_torque, servo_torque)
-                self._last_actuator_force = servo_torque
-                # Actuator torque drives q; crank torque drives forward psi (sign: -d * tau_actuator)
-                tau_crank = -d * servo_torque
-            else:
-                self._last_actuator_force = 0.0
-                tau_crank = -d * self._applied_joint_torque
+            servo_position_torque = -d*self._kp*(self._actuator_target-q_crank)
+            ext_crank_torque = -d*self._applied_joint_torque
 
             # Add internal joint friction and damping on crank (with load-dependent bearing force model)
             bearing_force = (
                 sum(l.normal for l in self._last_foot_loads)
                 if self._last_foot_loads
-                else self._m_total * abs(gz)
+                else self._m_total * abs(self._gravity[2])
             )
             load_pin_fric = self._joint_friction_coeff * self._joint_pin_radius * bearing_force
-            pin_fric = self._joint_friction + self._frictionloss + load_pin_fric
-            pin_damp = self._joint_damping + self._damping
+            # Each declared hinge dissipates at its relative angular speed.
+            # Project those local torques through the actual joint Jacobian.
+            pin_fric = float(self._inertia.joint_friction @ np.abs(sample.joint_ratios)) + self._frictionloss + load_pin_fric
+            pin_damp = float(self._inertia.joint_damping @ (sample.joint_ratios**2)) + self._damping
+            friction_torque = 0.0
             if abs(v[3]) > 1e-7:
-                tau_crank -= math.copysign(pin_fric, v[3]) + pin_damp * v[3]
+                friction_torque = math.copysign(pin_fric, v[3])
 
-            # 2. Generalized Forces (Torso X, Torso Z, Torso Pitch, Crank psi)
-            f_ext = np.array([
-                self._m_total * gx + self._applied_tx_force,
-                self._m_total * gz,
-                -tau_crank if not self._pitch_locked else 0.0,
-                tau_crank,
-            ])
-
-            # Unconstrained predicted velocity
-            v_star = v + self._inv_M * f_ext * dt
-            if self._pitch_locked:
-                v_star[2] = 0.0
-                q[2] = 0.0
+            # Viscous damping is implicit. Restrict the mass to allowed
+            # coordinates before inversion; clamping a full inverse is wrong.
+            effective = matrix.copy()
+            effective[3, 3] += dt*pin_damp
+            inverse = self._inverse_mass(effective)
+            force = gravity-bias+np.array([self._applied_tx_force, 0., 0., ext_crank_torque-friction_torque])
+            v_star = inverse @ (matrix @ v + force*dt)
 
             # 3. Active Foot Contacts
             active = []
             foot_positions = []
-            cos_p, sin_p = math.cos(q[2]), math.sin(q[2])
-
-            for i, ph in enumerate(self._phases):
-                th_i = ph + d * q[3]
-                fx, fz, dfx, dfz = self._interp_foot(th_i)
-                # Foot position relative to torso
-                rx = cos_p * fx - sin_p * fz
-                rz = sin_p * fx + cos_p * fz
-                foot_x = q[0] + rx
-                foot_z = q[1] + rz
+            for i in range(self._n_legs):
+                center, jn, jt = self._foot_contact_kinematics(i)
+                foot_x, foot_z = center
                 y_i = (i - (self._n_legs - 1) / 2) * self._lateral_spacing
                 pos_3d = (foot_x, y_i, foot_z)
                 foot_positions.append(pos_3d)
 
                 pen = self._foot_radius - foot_z
                 if pen > 0:
-                    # Foot velocity Jacobian rows
-                    # vx = v[0] - rz * v[2] + d * (cos_p * dfx - sin_p * dfz) * v[3]
-                    # vz = v[1] + rx * v[2] + d * (sin_p * dfx + cos_p * dfz) * v[3]
-                    j_psi_x = d * (cos_p * dfx - sin_p * dfz)
-                    j_psi_z = d * (sin_p * dfx + cos_p * dfz)
-                    jn = np.array([0.0, 1.0, rx if not self._pitch_locked else 0.0, j_psi_z])
-                    jt = np.array([1.0, 0.0, -rz if not self._pitch_locked else 0.0, j_psi_x])
                     active.append((i, jn, jt, pen, pos_3d))
 
             self._last_max_penetration = max(0.0, max((a[3] for a in active), default=0.0))
 
             # 4. Projected Gauss-Seidel for Contact Impulses
             loads_by_leg = {i: FootLoad(0.0, 0.0, (0.0, 0.0, 0.0), 0.0, foot_positions[i]) for i in range(self._n_legs)}
-            total_contact_dissipation = 0.0
             net_reaction_torque = 0.0
 
-            if active:
-                pn = [0.0] * len(active)
-                pt = [0.0] * len(active)
-                v_curr = v_star.copy()
-                beta = 0.15  # Baumgarte penetration stabilization
-
-                # Compliant contact softness (RFT sand / soft ground)
-                cfm_n = 0.0
-                if self._contact_softness is not None:
-                    c_stiff, _ = self._contact_softness
-                    if c_stiff > 0:
-                        # In impulse CFM: resting penetration pen = Fn / c_stiff
-                        cfm_n = beta / (c_stiff * dt * dt)
-
-                for _ in range(12):
-                    for idx, (leg_idx, jn, jt, pen, _) in enumerate(active):
-                        # Normal impulse (softened by compliance if contact.softness is configured)
-                        vn = float(jn @ v_curr)
-                        diag_n = float(jn @ (self._inv_M * jn)) + cfm_n
-                        if diag_n > 1e-9:
-                            delta_pn = (-vn + beta * pen / dt - cfm_n * pn[idx]) / diag_n
-                            new_pn = max(0.0, pn[idx] + delta_pn)
-                            d_pn = new_pn - pn[idx]
-                            pn[idx] = new_pn
-                            v_curr += (self._inv_M * jn) * d_pn
-
-                        # Tangent friction impulse
-                        vt = float(jt @ v_curr)
-                        diag_t = float(jt @ (self._inv_M * jt))
-                        if diag_t > 1e-9:
-                            delta_pt = -vt / diag_t
-                            trial_pt = pt[idx] + delta_pt
-                            max_pt = self._foot_friction * pn[idx]
-                            new_pt = max(-max_pt, min(max_pt, trial_pt))
-                            d_pt = new_pt - pt[idx]
-                            pt[idx] = new_pt
-                            v_curr += (self._inv_M * jt) * d_pt
-
-                v = v_curr
-                # Record foot loads
-                for idx, (leg_idx, jn, jt, pen, pos_3d) in enumerate(active):
-                    fn = pn[idx] / dt
-                    ft = pt[idx] / dt
-                    slip = abs(float(jt @ v))
-                    loads_by_leg[leg_idx] = FootLoad(fn, abs(ft), (ft, 0.0, fn), slip, pos_3d)
-                    total_contact_dissipation += abs(ft) * slip
-                    net_reaction_torque += jn[3] * fn + jt[3] * ft
+            beta = 0.15  # Existing penetration stabilization; not retuned here.
+            cfm_n = 0.0
+            if self._contact_softness is not None:
+                c_stiff, _ = self._contact_softness
+                if c_stiff > 0:
+                    cfm_n = beta / (c_stiff * dt * dt)
+            contact_system = dict(
+                free_velocity=v_star, inverse_mass=inverse,
+                normals=[a[1] for a in active], tangents=[a[2] for a in active],
+                targets=[beta*a[3]/dt for a in active], normal_compliance=[cfm_n]*len(active),
+                friction=self._foot_friction, motor_enabled=not self._actuator_released,
+                motor_desired=servo_position_torque*dt, motor_damping_dt=self._kv*dt,
+                motor_limit=None if self._max_torque is None else self._max_torque*dt,
+                iterations=self._contact_iterations,
+            )
+            solution = solve_contacts(**contact_system)
+            self._last_contact_solution = solution
+            self._last_contact_iterations = solution.iterations
+            if not solution.converged:
+                # q/time have not advanced: an unresolved impulse cannot be
+                # presented as a completed numerical integration step.
+                raise ContactConvergenceError(solution, contact_system)
+            pn, pt, motor_impulse, v = solution.normal, solution.tangent, solution.motor, solution.velocity
+            if not self._actuator_released:
+                servo_torque = motor_impulse/dt
+                input_torque = servo_torque + ext_crank_torque
+                self._last_actuator_force = -d*servo_torque
             else:
-                v = v_star
+                input_torque = ext_crank_torque
+                self._last_actuator_force = 0.0
+            damping_torque = pin_damp*v[3]
+            for idx, (leg_idx, jn, jt, pen, pos_3d) in enumerate(active):
+                fn, ft = pn[idx]/dt, pt[idx]/dt
+                slip = abs(float(jt @ v))
+                loads_by_leg[leg_idx] = FootLoad(fn, abs(ft), (ft, 0.0, fn), slip, pos_3d)
+                net_reaction_torque += jn[3]*fn+jt[3]*ft
 
             if self._pitch_locked:
                 v[2] = 0.0
@@ -428,54 +448,50 @@ class K2Backend:
             self._last_foot_loads = [loads_by_leg[i] for i in range(self._n_legs)]
             self._last_constraint_torque = float(net_reaction_torque)
 
-            # Dissipation power
-            w_crank = abs(v[3])
-            fric_power = pin_fric * w_crank + (self._joint_damping + self._damping) * (w_crank**2)
+            # Impulse work is P . J(v_before+v_after)/2, not end-slip * force.
+            # Inelastic sticking can remove kinetic energy even when end slip
+            # is zero. Keep signed normal work so stabilization is not hidden.
+            average = .5*(v_before+v)
+            after = self._mass_terms()
+            # Frozen-configuration acceleration and symplectic q update have
+            # a measurable defect: changing M, bias/gravity quadrature and U.
+            # Derive these terms independently of the work ledger, and never
+            # use this diagnostic to cancel the ordinary audit residual.
+            numerical = (.5*float(v @ (after.matrix-matrix) @ v)
+                         + float((gravity-bias) @ average)*dt
+                         + after.potential(q, self._gravity)-potential_before)
+            normal_work = -sum(pn[k]*float(jn @ average) for k,(_,jn,_,_,_) in enumerate(active)) if active else 0.0
+            tangent_work = -sum(pt[k]*float(jt @ average) for k,(_,_,jt,_,_) in enumerate(active)) if active else 0.0
+            self._last_step_work = StepWork(
+                input=float((input_torque*average[3]+self._applied_tx_force*average[0])*dt),
+                contact_normal=float(normal_work), contact_tangent=float(tangent_work),
+                joint_friction=float(friction_torque*average[3]*dt),
+                viscous=float(damping_torque*average[3]*dt),
+                numerical=numerical,
+            )
+            work = self._last_step_work
             self._last_power_balance = PowerBalance(
-                contact=float(total_contact_dissipation),
-                equality=0.0,
-                joint_friction=float(fric_power),
-                viscous=0.0,
+                contact=work.contact/dt, equality=work.equality/dt,
+                joint_friction=work.joint_friction/dt, viscous=work.viscous/dt,
             )
 
     def snapshot(self) -> Snapshot:
-        payload = {
-            "time": self.time,
-            "kind": self._kind,
-            "params": copy.deepcopy(self._params),
-            "state": copy.deepcopy(self._state),
-            "gravity": self._gravity,
-            "actuator_target": self._actuator_target,
-            "actuator_released": self._actuator_released,
-            "applied_joint_torque": self._applied_joint_torque,
-        }
-        if self._kind == "walker":
-            payload["q"] = self._q.copy()
-            payload["v"] = self._v.copy()
-        return Snapshot(backend=self.name, payload=payload)
+        # Bearing friction depends on the previous loads; controls, armature,
+        # model parameters and observation/work state must restore together.
+        return Snapshot(backend=self.name, payload={"version": 2, "state": copy.deepcopy(self.__dict__)})
 
     def restore(self, snap: Snapshot) -> None:
         if snap.backend != self.name:
             raise ValueError(f"snapshot from backend '{snap.backend}', cannot restore to '{self.name}'")
-        payload = snap.payload
-        self.time = payload["time"]
-        self._kind = payload["kind"]
-        self._params = copy.deepcopy(payload["params"])
-        self._state = copy.deepcopy(payload["state"])
-        self._gravity = payload["gravity"]
-        self._actuator_target = payload["actuator_target"]
-        self._actuator_released = payload["actuator_released"]
-        self._applied_joint_torque = payload["applied_joint_torque"]
-        if self._kind == "walker":
-            self._q = payload["q"].copy()
-            self._v = payload["v"].copy()
+        if snap.payload.get("version") != 2:
+            raise ValueError("K2 restore requires a complete version-2 in-memory checkpoint")
+        state = copy.deepcopy(snap.payload["state"])
+        self.__dict__.clear()
+        self.__dict__.update(state)
 
     def clone(self) -> K2Backend:
-        """Create a lightweight clone sharing precomputed trajectory tables with separate dynamic state."""
-        cloned = copy.copy(self)
-        snap = self.snapshot()
-        cloned.restore(snap)
-        return cloned
+        """Clone all model, integration, load-history and work state independently."""
+        return copy.deepcopy(self)
 
     def energies(self) -> Energies:
         if self._kind == "pendulum":
@@ -498,11 +514,9 @@ class K2Backend:
             e_pot = m * gz * (z - 0.05)
             return Energies(kinetic=e_kin, potential=e_pot)
         elif self._kind == "walker":
-            # kinetic = 0.5 * v^T M v
-            m_vec = 1.0 / self._inv_M
-            e_kin = 0.5 * float(np.sum(m_vec * (self._v**2)))
-            gz = abs(self._gravity[2])
-            e_pot = float(self._m_total * gz * (self._q[1] - self._hip_height))
+            sample = self._mass_terms()
+            e_kin = .5*float(self._v @ sample.matrix @ self._v)
+            e_pot = sample.potential(self._q, self._gravity)
             return Energies(kinetic=e_kin, potential=e_pot)
         return Energies(kinetic=0.0, potential=0.0)
 
@@ -516,6 +530,8 @@ class K2Backend:
                 return float(self._q[0])
             elif name == "tz":
                 return float(self._q[1])
+            elif name == "tp" and not self._pitch_locked:
+                return float(-self._q[2])
         raise KeyError(f"unknown joint '{name}' for reference '{self._kind}'")
 
     def joint_velocity(self, name: str) -> float:
@@ -528,6 +544,8 @@ class K2Backend:
                 return float(self._v[0])
             elif name == "tz":
                 return float(self._v[1])
+            elif name == "tp" and not self._pitch_locked:
+                return float(-self._v[2])
         raise KeyError(f"unknown joint '{name}' for reference '{self._kind}'")
 
     def body_position(self, name: str) -> Vec3:
@@ -537,25 +555,18 @@ class K2Backend:
             return (l * math.sin(th), 0.0, -l * math.cos(th))
         elif self._kind == "block" and name == "block":
             return (float(self._state["x"]), 0.0, float(self._state["z"]))
-        elif self._kind == "walker" and name == "torso":
-            return (float(self._q[0]), 0.0, float(self._q[1]))
+        elif self._kind == "walker" and name in self._info.body_names:
+            position = self._mass_terms().body_positions[self._info.body_names.index(name)]
+            return tuple(float(x) for x in position)
         raise KeyError(f"unknown body '{name}' for reference '{self._kind}'")
 
     def body_poses(self) -> tuple[np.ndarray, np.ndarray]:
         if self._kind == "walker":
-            # Torso pose + legs
-            torso_pos = np.array([self._q[0], 0.0, self._q[1]])
-            half_p = self._q[2] / 2.0
-            quat = np.array([math.cos(half_p), 0.0, math.sin(half_p), 0.0])
-            n_b = 1 + self._n_legs
-            poses = np.zeros((n_b, 3), dtype=np.float32)
-            quats = np.zeros((n_b, 4), dtype=np.float32)
-            poses[0] = torso_pos
-            quats[0] = quat
-            for i in range(self._n_legs):
-                poses[1 + i] = torso_pos + np.array([0.0, (i - (self._n_legs - 1) / 2) * self._lateral_spacing, 0.0])
-                quats[1 + i] = quat
-            return poses, quats
+            sample = self._mass_terms()
+            quats = np.zeros((len(sample.body_angles), 4), dtype=np.float32)
+            quats[:, 0] = np.cos(sample.body_angles/2)
+            quats[:, 2] = -np.sin(sample.body_angles/2)  # CCW in x/z is rotation about -y.
+            return sample.body_positions.astype(np.float32), quats
         pos = self.body_position("bob" if self._kind == "pendulum" else "block")
         return np.array([pos]), np.array([[1.0, 0.0, 0.0, 0.0]])
 
@@ -574,7 +585,13 @@ class K2Backend:
         return self._last_foot_loads
 
     def power_balance(self) -> PowerBalance:
+        """Average signed transfer rates over the last walker step."""
         return self._last_power_balance
+
+    def step_work(self) -> StepWork:
+        if self._kind != "walker":
+            raise ValueError("Discrete step work is currently defined for K2 walkers only")
+        return self._last_step_work
 
     def center_of_mass(self) -> Vec3:
         if self._kind == "pendulum":
@@ -582,7 +599,9 @@ class K2Backend:
         elif self._kind == "block":
             return self.body_position("block")
         elif self._kind == "walker":
-            return (float(self._q[0]), 0.0, float(self._q[1]))
+            sample = self._mass_terms()
+            center = self._q[:2]+sample.moment/sample.mass
+            return (float(center[0]), 0.0, float(center[1]))
         return (0.0, 0.0, 0.0)
 
     def constraint_torque(self, joint: str) -> float:
@@ -612,13 +631,9 @@ class K2Backend:
             self._applied_joint_torque = float(torque)
 
     def configure_joint(self, name: str, *, armature: float, damping: float, frictionloss: float) -> None:
+        if name != "crank0" or not all(math.isfinite(x) and x >= 0 for x in (armature, damping, frictionloss)):
+            raise ValueError("K2 crank0 armature, damping and frictionloss must be finite and nonnegative")
         self._armature = float(armature)
         self._damping = float(damping)
         self._frictionloss = float(frictionloss)
-        if hasattr(self, "_inv_M"):
-            # Update crank inertia with new armature
-            m_total = self._m_total
-            i_pitch = 1.0 / self._inv_M[2]
-            rotor_j = self._armature
-            i_crank = max(1e-5, (getattr(self._cfg.walker, "crank_inertia", 0.0) or 0.001) + rotor_j)
-            self._inv_M = np.array([1.0 / m_total, 1.0 / m_total, 1.0 / i_pitch, 1.0 / i_crank])
+        self._mass_cache = None

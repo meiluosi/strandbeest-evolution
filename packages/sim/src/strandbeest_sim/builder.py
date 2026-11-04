@@ -67,6 +67,9 @@ class EntityBuilt:
     n_legs: int
     bar_mass_total: float
     total_mass: float
+    body_length: float = 0.25
+    body_width: float = 0.1
+    direction: int = -1
 
 
 @dataclass
@@ -214,8 +217,19 @@ def _build_walker_tree(
         n_legs=n,
         bar_mass_total=n * per_leg_mass,
         total_mass=torso_mass + n * per_leg_mass,
+        body_length=float(getattr(w, "body_length", 0.25)),
+        body_width=float(half_y * 2),
+        direction=int(getattr(w, "direction", -1)),
     )
     return torso_xml, eq, actuator_xml, ent_built
+
+
+def _tolerance_attribute(tolerance: float | None) -> str:
+    if tolerance is None:
+        return ""
+    if not math.isfinite(tolerance) or tolerance < 0:
+        raise ValueError("solver.tolerance must be null or a finite nonnegative number")
+    return f' tolerance="{tolerance}"'
 
 
 def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> Built:
@@ -226,16 +240,17 @@ def build(sc: Scenario | SimConfig, spec: LinkageSpec, obstacles: str = "") -> B
 
     sv = sc.solver
     if sv.contact_stiffness is not None:
-        # direct (negative) solref = stiffness (1/s^2, mass-normalised) and damping (1/s); damping from a damping ratio
-        m_eff = ent_built.total_mass / 5.0
-        damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness * m_eff)
+        # MuJoCo direct solref is already mass-normalised: [1/s^2, 1/s].
+        # The documented damping ratio is b / (2*sqrt(k)); no effective mass
+        # or assumed number of supporting feet belongs in this conversion.
+        damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness)
         geom_solref = f"{-sv.contact_stiffness} {-damping}"
     else:
         geom_solref = f"{sv.contact_solref} 1"
 
     xml = f"""<mujoco model="{sc.name}">
   <compiler angle="radian"/>
-  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{sc.environment.gravity}"/>
+  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}"{_tolerance_attribute(sv.tolerance)} cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{sc.environment.gravity}"/>
   <default>
     <equality solref="{sv.solref_time} 1" solimp="{sv.solimp}"/>
     <geom solref="{geom_solref}"/>
@@ -281,8 +296,8 @@ def build_herd(
     terrain_fric = world.get("terrain", {}).get("friction", 0.95)
 
     if sv.contact_stiffness is not None:
-        m_eff = 50.0 / 5.0
-        damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness * m_eff)
+        # Same mass-normalised contact contract as the single-walker builder.
+        damping = 2.0 * sv.contact_damping_ratio * math.sqrt(sv.contact_stiffness)
         geom_solref = f"{-sv.contact_stiffness} {-damping}"
     else:
         geom_solref = f"{sv.contact_solref} 1"
@@ -329,7 +344,7 @@ def build_herd(
 
     xml = f"""<mujoco model="{doc.get('name', 'herd')}">
   <compiler angle="radian"/>
-  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}" cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{grav}"/>
+  <option timestep="{sv.timestep}" integrator="implicitfast" solver="Newton" iterations="{sv.iterations}"{_tolerance_attribute(sv.tolerance)} cone="{sv.cone}" impratio="{sv.impratio}" noslip_iterations="{sv.noslip_iterations}" gravity="0 0 -{grav}"/>
   <default>
     <equality solref="{sv.solref_time} 1" solimp="{sv.solimp}"/>
     <geom solref="{geom_solref}"/>

@@ -1,3 +1,5 @@
+import type { SimulationAuditReport } from "./audit";
+import type { AuditObservationDocument } from "./audit-observation";
 import type { Diagnosis, RunEvent } from "./events";
 
 /** What the web replay viewer reads (apps/web-demo/src/replay-types.ts mirrors this; the Python API returns the same shape). */
@@ -36,6 +38,8 @@ export interface Replay {
 	diagnosis: Diagnosis[];
 	metrics: Record<string, number | boolean | null>;
 	stalled: boolean;
+	audit?: SimulationAuditReport;
+	audit_observation?: AuditObservationDocument;
 	nominal_stride_m: number | null;
 	kinematic_duty: number | null;
 	revolutions: number;

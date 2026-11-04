@@ -1,4 +1,4 @@
-"""Generate contracts/sim-mjcf/cases.json: the MJCF text (and build facts) the Python builder makes for a set of designs and
+"""Generate contracts/sim-mjcf/cases-contact-v3.json: the MJCF text (and build facts) the Python builder makes for a set of designs and
 overrides. packages/sim-web must reproduce every `xml` byte for byte. Run: .venv/bin/python contracts/generate_sim_mjcf.py
 
 Cases cover every shared scene, odd and even leg counts, other linkages, material and scale changes, every terrain kind, and
@@ -17,7 +17,7 @@ from strandbeest_sim.config import sim_config
 from strandbeest_sim.registry import terrains
 from strandbeest_sim.scenes import presets, scene_overrides
 
-OUT = Path(__file__).parent / "sim-mjcf" / "cases.json"
+OUT = Path(__file__).parent / "sim-mjcf" / "cases-contact-v3.json"
 BASE = json.loads((schema_dir() / "examples" / "design-jansen-small-6leg.json").read_text())
 
 

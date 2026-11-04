@@ -1,0 +1,311 @@
+{
+	"schema": "stride-reference-contract/1",
+	"inference_limit": "Geometry-only ideal reference; does not certify physical dynamics or change the original G1 gate.",
+	"oracle": "Existing Python endpoint/owner-angle study, predating the Rust implementation; Rust also has independent closed-form analytic tests.",
+	"source_sha256": {
+		"experiments/hardening-g1-reference-cohort-2026-11-04.json": "79eb1d8443c0a197afad6f4831e2445ee7d86a739f15f9455531cf7de9873dc2",
+		"experiments/hardening-g1-audit-energy-v3-default-2026-11-04.json": "6d5826e9c086516ab17d8ef6a9e7a88a951ad51743f8d14610c9d4c1c870d4f0"
+	},
+	"tolerance_m": 1e-12,
+	"cases": [
+		{
+			"name": "g1-20",
+			"spec": {
+				"params": {
+					"a": 39.94203779252581,
+					"b": 41.5,
+					"c": 39.3,
+					"d": 40.1,
+					"e": 55.8,
+					"f": 39.4,
+					"g": 36.7,
+					"h": 65.7,
+					"i": 52.62365682141761,
+					"j": 47.37213676142175,
+					"k": 61.9,
+					"l": 7.8,
+					"m": 15.168673368588433
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					},
+					{
+						"id": "L",
+						"centers": ["G", "K"],
+						"radii": ["d", "e"],
+						"side": 1
+					},
+					{
+						"id": "M",
+						"centers": ["G", "C"],
+						"radii": ["c", "k"],
+						"side": -1
+					},
+					{
+						"id": "N",
+						"centers": ["L", "M"],
+						"radii": ["f", "g"],
+						"side": -1
+					},
+					{
+						"id": "F",
+						"centers": ["M", "N"],
+						"radii": ["i", "h"],
+						"side": 1
+					}
+				],
+				"foot": "F",
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				}
+			},
+			"options": {
+				"owner_start": "N",
+				"phases_rad": [
+					0.0, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
+					3.141592653589793, 3.9269908169872414, 4.71238898038469,
+					5.497787143782138
+				],
+				"direction": -1,
+				"unit_m": 0.002,
+				"radius_m": 0.002,
+				"brackets": 720
+			},
+			"expected": {
+				"point_stride_m_per_rev": -0.12490597839071482,
+				"rolling_m_per_rev": 0.0034684948959210022,
+				"contact_stride_m_per_rev": -0.12143748349479382
+			}
+		},
+		{
+			"name": "g1-53",
+			"spec": {
+				"params": {
+					"a": 38,
+					"b": 41.5,
+					"c": 39.3,
+					"d": 42.09256330935524,
+					"e": 55.8,
+					"f": 39.4,
+					"g": 33.90581256190924,
+					"h": 65.7,
+					"i": 49,
+					"j": 53.232142436954334,
+					"k": 61.9,
+					"l": 7.8,
+					"m": 14.291572170568362
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					},
+					{
+						"id": "L",
+						"centers": ["G", "K"],
+						"radii": ["d", "e"],
+						"side": 1
+					},
+					{
+						"id": "M",
+						"centers": ["G", "C"],
+						"radii": ["c", "k"],
+						"side": -1
+					},
+					{
+						"id": "N",
+						"centers": ["L", "M"],
+						"radii": ["f", "g"],
+						"side": -1
+					},
+					{
+						"id": "F",
+						"centers": ["M", "N"],
+						"radii": ["i", "h"],
+						"side": 1
+					}
+				],
+				"foot": "F",
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				}
+			},
+			"options": {
+				"owner_start": "N",
+				"phases_rad": [
+					0.0, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
+					3.141592653589793, 3.9269908169872414, 4.71238898038469,
+					5.497787143782138
+				],
+				"direction": -1,
+				"unit_m": 0.002,
+				"radius_m": 0.002,
+				"brackets": 720
+			},
+			"expected": {
+				"point_stride_m_per_rev": 0.10733254288198377,
+				"rolling_m_per_rev": -0.002813954719864871,
+				"contact_stride_m_per_rev": 0.1045185881621189
+			}
+		},
+		{
+			"name": "g1-56",
+			"spec": {
+				"params": {
+					"a": 38,
+					"b": 41.5,
+					"c": 39.3,
+					"d": 41.52620050401054,
+					"e": 55.8,
+					"f": 39.4,
+					"g": 39.605646700726396,
+					"h": 65.7,
+					"i": 49,
+					"j": 50,
+					"k": 62.463424352216606,
+					"l": 7.969145130712606,
+					"m": 15
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					},
+					{
+						"id": "L",
+						"centers": ["G", "K"],
+						"radii": ["d", "e"],
+						"side": 1
+					},
+					{
+						"id": "M",
+						"centers": ["G", "C"],
+						"radii": ["c", "k"],
+						"side": -1
+					},
+					{
+						"id": "N",
+						"centers": ["L", "M"],
+						"radii": ["f", "g"],
+						"side": -1
+					},
+					{
+						"id": "F",
+						"centers": ["M", "N"],
+						"radii": ["i", "h"],
+						"side": 1
+					}
+				],
+				"foot": "F",
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				}
+			},
+			"options": {
+				"owner_start": "N",
+				"phases_rad": [
+					0.0, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
+					3.141592653589793, 3.9269908169872414, 4.71238898038469,
+					5.497787143782138
+				],
+				"direction": -1,
+				"unit_m": 0.002,
+				"radius_m": 0.002,
+				"brackets": 720
+			},
+			"expected": {
+				"point_stride_m_per_rev": 0.25855565288275645,
+				"rolling_m_per_rev": 0.005286191634409665,
+				"contact_stride_m_per_rev": 0.26384184451716614
+			}
+		},
+		{
+			"name": "g1-61",
+			"spec": {
+				"params": {
+					"a": 38,
+					"b": 41.5,
+					"c": 40.83897332037926,
+					"d": 40.1,
+					"e": 51.74122459830258,
+					"f": 39.4,
+					"g": 36.7,
+					"h": 65.35418282846028,
+					"i": 49,
+					"j": 50,
+					"k": 61.9,
+					"l": 7.8,
+					"m": 15.02467421469623
+				},
+				"joints": [
+					{
+						"id": "K",
+						"centers": ["G", "C"],
+						"radii": ["b", "j"],
+						"side": 1
+					},
+					{
+						"id": "L",
+						"centers": ["G", "K"],
+						"radii": ["d", "e"],
+						"side": 1
+					},
+					{
+						"id": "M",
+						"centers": ["G", "C"],
+						"radii": ["c", "k"],
+						"side": -1
+					},
+					{
+						"id": "N",
+						"centers": ["L", "M"],
+						"radii": ["f", "g"],
+						"side": -1
+					},
+					{
+						"id": "F",
+						"centers": ["M", "N"],
+						"radii": ["i", "h"],
+						"side": 1
+					}
+				],
+				"foot": "F",
+				"crank": {
+					"x": "a",
+					"y": "l",
+					"length": "m"
+				}
+			},
+			"options": {
+				"owner_start": "N",
+				"phases_rad": [
+					0.0, 1.0471975511965976, 2.0943951023931953, 3.141592653589793,
+					4.1887902047863905, 5.235987755982989
+				],
+				"direction": -1,
+				"unit_m": 0.002,
+				"radius_m": 0.002,
+				"brackets": 720
+			},
+			"expected": {
+				"point_stride_m_per_rev": -0.001721996744450123,
+				"rolling_m_per_rev": 0.004867607292225179,
+				"contact_stride_m_per_rev": 0.0031456105477750563
+			}
+		}
+	]
+}

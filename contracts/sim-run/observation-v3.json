@@ -1,0 +1,740 @@
+{
+  "version": 1,
+  "source": "contracts/sim-run/cases-contact-v3.json",
+  "source_sha256": "92614d8537c27ed46d99bdcf6824c5f210e62d549fdf6ae33e6492403ee4ca45",
+  "signed_source": "contracts/sim-run/signed-energy-v3.json",
+  "signed_source_sha256": "e96a28227a14317e966ef1f0c2661e5e8eff45296487a6ac1b3aa62ad466cb30",
+  "physics_changed": false,
+  "cases": [
+    {
+      "name": "sail-body-drag",
+      "metrics": {
+        "max_loop_violation": 0.0011445353887857574,
+        "max_penetration": 0.0005277255515738471,
+        "wind_only": true,
+        "energy_in_per_rev": 0.1173991894630419,
+        "energy_contact_share": 0.1542002949358478,
+        "energy_loops_share": 0.009459084571336004,
+        "energy_friction_share": 0.24700255089464518,
+        "energy_residual_share": -8.395501709150302e-06,
+        "energy_window_revs": 0.09942629645472519,
+        "stride_per_rev": 0.2780065858893632,
+        "mean_speed": 0.11056466090001235,
+        "mean_torque": 0.021162931149265714,
+        "peak_torque": 0.15551999999999996,
+        "torque_ptp": 0.14903284033017372,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 106% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 1.0552445866219384,
+            "advanced_m": 0.02764116522500185,
+            "duration_s": 0.2499999999999888
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 2513,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 0.25119999999998865,
+        "max_loop_residual_m": 0.0011445353887857574,
+        "max_penetration_m": 0.0005277255515738471,
+        "integration_steps": 2513
+      }
+    },
+    {
+      "name": "flat",
+      "metrics": {
+        "max_loop_violation": 0.0005742680701267266,
+        "max_penetration": 0.0005214129973195574,
+        "wind_only": false,
+        "energy_in_per_rev": 0.02429034877965699,
+        "energy_contact_share": 0.37795200727499767,
+        "energy_loops_share": -0.0034270505503420307,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 0.00017867020376513093,
+        "energy_window_revs": 0.14975870030755084,
+        "stride_per_rev": 0.27638510004075056,
+        "mean_speed": 0.03875568667273328,
+        "mean_torque": 0.0040777058104014725,
+        "peak_torque": 0.007803319077794413,
+        "torque_ptp": 0.010061425095965859,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 105% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 1.0490898253649028,
+            "advanced_m": 0.041391073366475226,
+            "duration_s": 1.0679999999998988
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 10688,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 1.0686999999998987,
+        "max_loop_residual_m": 0.0005742680701267266,
+        "max_penetration_m": 0.0005214129973195574,
+        "integration_steps": 10688
+      }
+    },
+    {
+      "name": "step",
+      "metrics": {
+        "max_loop_violation": 0.005646110319944886,
+        "max_penetration": 0.004468645882652174,
+        "wind_only": false,
+        "energy_in_per_rev": 0.8778260216563127,
+        "energy_contact_share": 0.7971866076432711,
+        "energy_loops_share": 0.14143447308122467,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -5.324892244064881e-06,
+        "energy_window_revs": 0.1997753802863587,
+        "stride_per_rev": 0.2609496517994203,
+        "mean_speed": 0.04238318367790823,
+        "mean_torque": 0.08813134863624242,
+        "peak_torque": 0.19730919386567436,
+        "torque_ptp": 0.22258271772174823,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "loop_constraints_opened",
+          "severity": "error",
+          "message": "A loop of the linkage opened by 5.0 mm at t = 0.90 s: the model has come apart, so the numbers after that are not trustworthy.",
+          "evidence": {
+            "first_time_s": 0.8999999999999172,
+            "opening_m": 0.005012044089842349
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 12308,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 1.230699999999881,
+        "max_loop_residual_m": 0.005646110319944886,
+        "max_penetration_m": 0.004468645882652174,
+        "integration_steps": 12308
+      }
+    },
+    {
+      "name": "slope",
+      "metrics": {
+        "max_loop_violation": 0.0008452085071062321,
+        "max_penetration": 0.0005259353017503226,
+        "wind_only": false,
+        "energy_in_per_rev": 0.22086696358205435,
+        "energy_contact_share": 0.37582335272256107,
+        "energy_loops_share": -0.001394839276044264,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -9.6634885320689e-05,
+        "energy_window_revs": 0.11982708796412637,
+        "stride_per_rev": 0.17537331070400416,
+        "mean_speed": 0.021664405286897667,
+        "mean_torque": 0.0346385518676216,
+        "peak_torque": 0.03834742826883186,
+        "torque_ptp": 0.012789410355369051,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 67% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 0.6656739305881613,
+            "advanced_m": 0.021014473128288774,
+            "duration_s": 0.9699999999999095
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 9706,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 0.9704999999999094,
+        "max_loop_residual_m": 0.0008452085071062321,
+        "max_penetration_m": 0.0005259353017503226,
+        "integration_steps": 9706
+      }
+    },
+    {
+      "name": "soft",
+      "metrics": {
+        "max_loop_violation": 0.0005754015417426817,
+        "max_penetration": 0.009034928056530443,
+        "wind_only": false,
+        "energy_in_per_rev": 0.03132534051850116,
+        "energy_contact_share": 0.8983543380994263,
+        "energy_loops_share": 0.004112058282773441,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 0.000350223707644207,
+        "energy_window_revs": 0.11980239949306878,
+        "stride_per_rev": 0.19072029094923526,
+        "mean_speed": 0.023555410812099713,
+        "mean_torque": 0.003526558924308836,
+        "peak_torque": 0.009756829330481054,
+        "torque_ptp": 0.010461547388861289,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "deep_sinkage",
+          "severity": "warning",
+          "message": "Feet sink 9.0 mm into the ground (soft contact or heavy load).",
+          "evidence": {
+            "max_penetration_m": 0.009034928056530443
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 9707,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 0.9705999999999094,
+        "max_loop_residual_m": 0.0005754015417426817,
+        "max_penetration_m": 0.009034928056530443,
+        "integration_steps": 9707
+      }
+    },
+    {
+      "name": "audit-blocked-step",
+      "metrics": {
+        "max_loop_violation": 0.02188487231428171,
+        "max_penetration": 0.004396719623500451,
+        "wind_only": false,
+        "energy_in_per_rev": 1.8379967871143128,
+        "energy_contact_share": 0.9545455451705248,
+        "energy_loops_share": 0.018459189336221184,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 1.4292241814326651e-05,
+        "energy_window_revs": 0.263832200931304,
+        "stride_per_rev": -0.16757451148756183,
+        "mean_speed": -0.014747015405511496,
+        "mean_torque": 0.21216187911840212,
+        "peak_torque": 0.3,
+        "torque_ptp": 0.6,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "blocked_by_terrain_torque_limit",
+          "severity": "error",
+          "message": "The walker is blocked by the terrain (step) and the motor reaches its torque limit (0.3 N\u00b7m) 2 time(s), 95% of the run in total.",
+          "evidence": {
+            "terrain": "step",
+            "torque_limit_nm": 0.3,
+            "time_at_limit_s": 2.844000000001919,
+            "time_at_limit_share": 0.9486324216144478,
+            "times_at_limit": 2,
+            "advance_efficiency": -0.636071607934635,
+            "advanced_m": -0.04421155218575152
+          }
+        },
+        {
+          "code": "loop_constraints_opened",
+          "severity": "error",
+          "message": "A loop of the linkage opened by 8.4 mm at t = 0.00 s: the model has come apart, so the numbers after that are not trustworthy.",
+          "evidence": {
+            "first_time_s": 0.0,
+            "opening_m": 0.008399314049494136
+          }
+        },
+        {
+          "code": "slipping",
+          "severity": "warning",
+          "message": "Feet slip for 6.77 foot-seconds (38% of all foot time) and the stride is -64% of the ideal.",
+          "evidence": {
+            "slip_foot_seconds": 6.774000000005471,
+            "slip_share": 0.37658438959312723,
+            "advance_efficiency": -0.636071607934635,
+            "events": 24
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 30000,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 2.9999000000019063,
+        "max_loop_residual_m": 0.02188487231428171,
+        "max_penetration_m": 0.004396719623500451,
+        "integration_steps": 30000
+      }
+    },
+    {
+      "name": "audit-torque-limit",
+      "metrics": {
+        "max_loop_violation": 0.0004470357498278911,
+        "max_penetration": 0.0005214055422694524,
+        "wind_only": false,
+        "energy_in_per_rev": 0.0025145516772511574,
+        "energy_contact_share": 6.855095898927672,
+        "energy_loops_share": 1.5569703498408134,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -0.004014639938053183,
+        "energy_window_revs": 0.00010850927574600853,
+        "stride_per_rev": 0.28358930816817973,
+        "mean_speed": 1.0264199612615503e-05,
+        "mean_torque": 0.0004000000000000001,
+        "peak_torque": 0.0004,
+        "torque_ptp": 0.0,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "torque_limit_too_low",
+          "severity": "error",
+          "message": "The motor reaches its torque limit (0.0004 N\u00b7m) 1 time(s), 100% of the run in total, and the walker makes little progress.",
+          "evidence": {
+            "torque_limit_nm": 0.0004,
+            "time_at_limit_s": 2.9980000000019023,
+            "time_at_limit_share": 1.0,
+            "times_at_limit": 1,
+            "advance_efficiency": 1.0764352265648327
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 30000,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 2.9999000000019063,
+        "max_loop_residual_m": 0.0004470357498278911,
+        "max_penetration_m": 0.0005214055422694524,
+        "integration_steps": 30000
+      }
+    },
+    {
+      "name": "audit-soft-sinkage",
+      "metrics": {
+        "max_loop_violation": 0.0011443936352766304,
+        "max_penetration": 0.02373821139295798,
+        "wind_only": false,
+        "energy_in_per_rev": 0.16658801908973334,
+        "energy_contact_share": 1.1192065400580464,
+        "energy_loops_share": 0.0010225912127460432,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": 4.9825580391123946e-05,
+        "energy_window_revs": 0.19990701945397826,
+        "stride_per_rev": 0.09910086133477497,
+        "mean_speed": 0.016132701803549494,
+        "mean_torque": 0.016139396397086003,
+        "peak_torque": 0.05494770816847527,
+        "torque_ptp": 0.06308970483041912,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "slipping",
+          "severity": "warning",
+          "message": "Feet slip for 3.06 foot-seconds (42% of all foot time) and the stride is 38% of the ideal.",
+          "evidence": {
+            "slip_foot_seconds": 3.061999999999663,
+            "slip_share": 0.4155808903365852,
+            "advance_efficiency": 0.3761624823330986,
+            "events": 7
+          }
+        },
+        {
+          "code": "deep_sinkage",
+          "severity": "warning",
+          "message": "Feet sink 23.7 mm into the ground (soft contact or heavy load).",
+          "evidence": {
+            "max_penetration_m": 0.02373821139295798
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 12283,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 1.2281999999998812,
+        "max_loop_residual_m": 0.0011443936352766304,
+        "max_penetration_m": 0.02373821139295798,
+        "integration_steps": 12283
+      }
+    },
+    {
+      "name": "audit-loose-loops",
+      "metrics": {
+        "max_loop_violation": 3.8467276533869414,
+        "max_penetration": 0.000533055112804352,
+        "wind_only": false,
+        "energy_in_per_rev": 0.04245391901019909,
+        "energy_contact_share": 26.76813075732528,
+        "energy_loops_share": 134.2466682271454,
+        "energy_friction_share": 0.0,
+        "energy_residual_share": -0.06641551488368089,
+        "energy_window_revs": 0.1473667264647652,
+        "stride_per_rev": -0.2819680730578179,
+        "mean_speed": -0.03920067159821772,
+        "mean_torque": 0.007846769433496438,
+        "peak_torque": 0.09129797278818774,
+        "torque_ptp": 0.13993309421376043,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "loop_constraints_opened",
+          "severity": "error",
+          "message": "A loop of the linkage opened by 1054.5 mm at t = 0.00 s: the model has come apart, so the numbers after that are not trustworthy.",
+          "evidence": {
+            "first_time_s": 0.0,
+            "opening_m": 1.0545180395832492
+          }
+        },
+        {
+          "code": "slipping",
+          "severity": "warning",
+          "message": "Feet slip for 1.04 foot-seconds (16% of all foot time) and the stride is -107% of the ideal.",
+          "evidence": {
+            "slip_foot_seconds": 1.0399999999999707,
+            "slip_share": 0.1635220125786212,
+            "advance_efficiency": -1.0702814170484942,
+            "events": 9
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0005,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 2137,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 1.0679999999999379,
+        "max_loop_residual_m": 3.8467276533869414,
+        "max_penetration_m": 0.000533055112804352,
+        "integration_steps": 2137
+      }
+    },
+    {
+      "name": "sail-wind",
+      "metrics": {
+        "max_loop_violation": 0.0011574858334441745,
+        "max_penetration": 0.0005360350414333453,
+        "wind_only": true,
+        "energy_in_per_rev": 0.06939101898117848,
+        "energy_contact_share": 0.26687793105261487,
+        "energy_loops_share": 0.008139372045741652,
+        "energy_friction_share": 0.4343252573175255,
+        "energy_residual_share": 2.9371021102879e-05,
+        "energy_window_revs": 0.2991659180724802,
+        "stride_per_rev": 0.2776322524138482,
+        "mean_speed": 0.1210759587170942,
+        "mean_torque": 0.013246237716631332,
+        "peak_torque": 0.15551999999999996,
+        "torque_ptp": 0.15052912142569683,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 105% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 1.0538237088669569,
+            "advanced_m": 0.08305810767991945,
+            "duration_s": 0.6859999999999408
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 6878,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 0.6876999999999406,
+        "max_loop_residual_m": 0.0011574858334441745,
+        "max_penetration_m": 0.0005360350414333453,
+        "integration_steps": 6878
+      }
+    },
+    {
+      "name": "sail-gusts",
+      "metrics": {
+        "max_loop_violation": 0.0011785480057322252,
+        "max_penetration": 0.0005413811350085378,
+        "wind_only": true,
+        "energy_in_per_rev": 0.10774584163932939,
+        "energy_contact_share": 0.23070521157546384,
+        "energy_loops_share": 0.008587114367751102,
+        "energy_friction_share": 0.3433889028121392,
+        "energy_residual_share": 2.0902688235825136e-05,
+        "energy_window_revs": 0.29919065934589295,
+        "stride_per_rev": 0.2754636634435069,
+        "mean_speed": 0.1603427141858063,
+        "mean_torque": 0.020769977259416757,
+        "peak_torque": 0.15551999999999996,
+        "torque_ptp": 0.14737080885218123,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 105% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 1.0455922787940326,
+            "advanced_m": 0.08241615509149798,
+            "duration_s": 0.5139999999999597
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 5151,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 0.5149999999999596,
+        "max_loop_residual_m": 0.0011785480057322252,
+        "max_penetration_m": 0.0005413811350085378,
+        "integration_steps": 5151
+      }
+    },
+    {
+      "name": "sail-lull",
+      "metrics": {
+        "max_loop_violation": 0.0015785081338351714,
+        "max_penetration": 0.0005712622965928765,
+        "wind_only": true,
+        "energy_in_per_rev": 0.08223192265741383,
+        "energy_contact_share": 0.30323367612812235,
+        "energy_loops_share": 0.010832664930810738,
+        "energy_friction_share": 0.45566675085802844,
+        "energy_residual_share": -1.2187435792747941e-05,
+        "energy_window_revs": 0.5996360798682088,
+        "stride_per_rev": 0.27877061863321806,
+        "mean_speed": 0.17376395108074205,
+        "mean_torque": 0.015376813928696552,
+        "peak_torque": 0.27647999999999995,
+        "torque_ptp": 0.27015710338188287,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 106% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 1.0581446669001646,
+            "advanced_m": 0.1671609209396583,
+            "duration_s": 0.9619999999999104
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 9626,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 0.9624999999999103,
+        "max_loop_residual_m": 0.0015785081338351714,
+        "max_penetration_m": 0.0005712622965928765,
+        "integration_steps": 9626
+      }
+    },
+    {
+      "name": "sail-calm-stall",
+      "metrics": {
+        "max_loop_violation": 0.0004560457337776658,
+        "max_penetration": 0.0005318822747664136,
+        "wind_only": true,
+        "energy_in_per_rev": 0.011460064667275631,
+        "energy_contact_share": 0.22110809635670556,
+        "energy_loops_share": -0.012761995192079526,
+        "energy_friction_share": 0.6136107135776303,
+        "energy_residual_share": -5.773233368562228e-06,
+        "energy_window_revs": 0.19937849077883504,
+        "stride_per_rev": 0.28121382055180644,
+        "mean_speed": 0.007008498390975812,
+        "mean_torque": 0.002669857550586363,
+        "peak_torque": 0.004319999999999999,
+        "torque_ptp": 0.004319999999999999,
+        "steady_window": 0.0
+      },
+      "diagnosis": [
+        {
+          "code": "sail_torque_insufficient",
+          "severity": "error",
+          "message": "The sail did not turn the crank: at standstill it gives about 4.32 mN\u00b7m in a 0.5 m/s wind and 1.2 kg/m\u00b3 air, which is not enough to overcome the starting load of the walker.",
+          "evidence": {
+            "wind_m_s": 0.5,
+            "air_density_kg_m3": 1.2,
+            "sail_standstill_torque_nm": 0.004319999999999999,
+            "crank_rotation_rad": 1.252732003829217,
+            "waited_s": 7.999999999994694
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 80001,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 7.999999999994694,
+        "max_loop_residual_m": 0.0004560457337776658,
+        "max_penetration_m": 0.0005318822747664136,
+        "integration_steps": 80001
+      }
+    },
+    {
+      "name": "signed-energy",
+      "metrics": {
+        "max_loop_violation": 0.00181474165514528,
+        "max_penetration": 0.0006698040352822005,
+        "wind_only": false,
+        "energy_in_per_rev": -0.0054119010529960305,
+        "energy_contact_share": -2.2466136407963795,
+        "energy_loops_share": -0.09954959439648961,
+        "energy_friction_share": -0.0,
+        "energy_residual_share": 2.991224484767121e-05,
+        "energy_window_revs": 0.999496385425519,
+        "stride_per_rev": 0.21410577089082533,
+        "mean_speed": 0.06815221149826271,
+        "mean_torque": -0.0008410518280573872,
+        "peak_torque": 0.0595385182166126,
+        "torque_ptp": 0.11380248064290299,
+        "steady_window": 1.0
+      },
+      "diagnosis": [
+        {
+          "code": "ok",
+          "severity": "info",
+          "message": "No problem found: the walker advances normally. Stride is 99% of the ideal.",
+          "evidence": {
+            "advance_efficiency": 0.9853698717249998,
+            "advanced_m": 0.47470603411480217,
+            "duration_s": 7.195999999996568
+          }
+        }
+      ],
+      "audit_observation": {
+        "version": 1,
+        "scope": "driven_steps_excluding_settle",
+        "boundary": "force_evaluation",
+        "timestep_s": 0.0001,
+        "legs": 6,
+        "support_force_N": 1e-06,
+        "observed_steps": 71980,
+        "invalid_steps": 0,
+        "time_gap_steps": 0,
+        "airborne_steps": 0,
+        "first_time_s": 0.0,
+        "last_time_s": 7.197899999996563,
+        "max_loop_residual_m": 0.00181474165514528,
+        "max_penetration_m": 0.0006698040352822005,
+        "integration_steps": 71980
+      }
+    }
+  ]
+}

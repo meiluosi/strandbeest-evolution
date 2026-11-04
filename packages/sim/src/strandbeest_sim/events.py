@@ -90,13 +90,18 @@ def detect_events(res: Any, sc: SimConfig | None = None) -> list[dict[str, Any]]
 
 
 def nominal_stride_m(sc: SimConfig) -> float | None:
-    """Distance one crank revolution carries the body if no foot slipped or was blocked (stance travel / duty factor)."""
-    from strandbeest_common import gait_metrics, load_spec
+    """Legacy unsigned stance-travel/duty heuristic retained by the audit protocol.
 
-    spec = sc.linkage.spec
-    if not isinstance(spec, dict):
-        return None
-    g = gait_metrics(load_spec(spec))
+    It is not a signed multi-leg no-slip prediction: it omits support selection
+    and sphere-owner rotation. The separate shared stride_reference diagnostic
+    models these under explicit ideal assumptions; neither is a dynamic law.
+    """
+    from strandbeest_common import gait_metrics
+    from .builder import resolve_spec
+
+    # Apply the same inline overrides and named/file resolution as the model
+    # builder. Auditing the unmodified spec can compare different geometries.
+    g = gait_metrics(resolve_spec(sc))
     return g.stroke_length / g.duty * sc.walker.unit if g.duty > 0 else None
 
 

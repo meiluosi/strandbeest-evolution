@@ -2,13 +2,15 @@
 
 import json
 import random
+from types import SimpleNamespace
 
+import numpy as np
 import pytest
 from strandbeest_common import Design
 from strandbeest_common.schemas import schema_dir
 from strandbeest_sim import builder, metrics_builtin, run, scenario_from_design
 from strandbeest_sim.runner import make_sim
-from strandbeest_sim.skeptic import audit, check_no_foot_foot_contacts, check_window_invariance, fuzz, random_scenario
+from strandbeest_sim.skeptic import audit_legacy as audit, check_no_foot_foot_contacts, check_window_invariance, fuzz, random_scenario
 
 DESIGN_DOC = json.loads((schema_dir() / "examples" / "design-jansen-small-6leg.json").read_text())
 DESIGN = Design(DESIGN_DOC)
@@ -27,6 +29,12 @@ def test_a_healthy_simulator_passes_every_check():
     assert check_no_foot_foot_contacts(sim) == []
     res = go(3.0)
     assert audit(res.scenario, res.metrics, res.series, res.stalled) == []
+    from strandbeest_sim.audit import audit_report
+    current = audit_report(res.scenario, res.metrics, {"t": res.t, "psi": res.psi, "x": res.x, **res.series},
+                           res.stalled, backend_name="mujoco")
+    assert current["legacy"]["passed"]
+    assert current["status"] == "unverified" and not current["passed"]
+    assert "stride_reference_unverified" in [f["check"] for f in current["findings"]]
     assert check_window_invariance(metrics_at) == []
 
 
@@ -38,12 +46,24 @@ def test_the_overlapping_foot_spheres_bug_is_caught_when_put_back(monkeypatch):
     assert findings and findings[0].check == "no_foot_foot_contacts"
 
 
-@pytest.mark.slow
 def test_the_partial_window_bias_is_caught_when_put_back(monkeypatch):
+    # The real walker remains the positive control above. Its revised contact
+    # damping no longer exposes this injected fault above 4%, so use an
+    # independently specified periodic signal with an analytic window bias.
+    # mean(.02 + .01*sin(psi)) over [0, 7*pi] = .02 + .02/(7*pi).
+    def periodic_metrics(revolutions):
+        psi = np.linspace(0, 2 * np.pi * revolutions, round(revolutions * 10000) + 1)
+        result = SimpleNamespace(psi=psi, x=.1 * psi, t=psi / 2,
+                                 torque=.02 + .01 * np.sin(psi))
+        return metrics_builtin.gait(result)
+
+    assert check_window_invariance(periodic_metrics) == []
     monkeypatch.setattr(metrics_builtin, "LEGACY_WINDOW", True)
-    findings = check_window_invariance(metrics_at)
+    findings = check_window_invariance(periodic_metrics)
     assert findings and findings[0].check == "window_invariance"
     assert max(f.evidence["relative"] for f in findings) > 0.04
+    bias = .02 / (7 * np.pi)
+    assert findings[0].evidence["relative"] == pytest.approx(bias / (.02 + bias), abs=2e-6)
 
 
 @pytest.mark.slow
@@ -55,11 +75,14 @@ def test_audit_flags_soft_contact_and_a_blocked_walker():
 
 
 @pytest.mark.slow
-def test_fuzzing_reports_broken_invariants_and_explains_the_big_energy_residuals():
+def test_fuzzing_reports_broken_invariants_and_explains_the_big_energy_residuals(monkeypatch):
     """(Before the time step went from 0.2 to 0.1 ms, see test below and section 20.) The fuzzer found that about half of random, guard-valid walkers (four lengths changed by up to 8 %, 4/6/8 legs) open a
     loop by more than 5 mm (docs/EXPERIMENTS.md section 15). This test does not pretend otherwise: it checks that what the
     skeptic reports is of the known kinds and that a large energy residual always comes with an open loop (the model has come
     apart, so the account is meaningless), never alone."""
+    # This is the historical version-1 regression. Version-2 policy is tested
+    # separately and also reports unverified applicability.
+    monkeypatch.setattr("strandbeest_sim.skeptic.audit", lambda *args, **kwargs: audit(*args))
     bad = fuzz(5, seed=1)
     for design, findings in bad:
         kinds = {f.check for f in findings}

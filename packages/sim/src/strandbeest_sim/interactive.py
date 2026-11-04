@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import copy
 from typing import Any
 
 from .config import Scenario, SimConfig
-from .registry import drives
+from .registry import drives, winds
 from .runner import Sim, make_sim
 
 
@@ -57,10 +58,20 @@ class InteractiveSession:
 
     def set_param(self, path: str, value: Any) -> None:
         """Dynamically update wind speed, ground friction, etc."""
-        if path == "wind.speed":
-            self.sc.wind.speed = float(value)
-        elif path == "wind.direction":
-            self.sc.wind.direction = float(value)
+        if path in ("wind.speed", "wind.direction"):
+            wind = self.sc.wind.model_copy(deep=True)
+            if path == "wind.speed":
+                wind.speed = float(value)
+            else:
+                # Wind direction is the existing yaw parameter, in degrees.
+                wind.params["yaw_deg"] = float(value)
+            wind = type(wind).model_validate(wind.model_dump())
+            field = winds.get(wind.kind)(wind)
+            self.sc.wind = wind
+            if hasattr(self.drive, "wind"):
+                # Constant fields capture speed at construction; editing only
+                # Scenario would update telemetry without changing the force.
+                self.drive.wind = field
         elif path == "terrain.friction":
             self.sc.terrain.friction = float(value)
             self.be.set_param("terrain.friction", float(value))
@@ -70,41 +81,58 @@ class InteractiveSession:
             self.be.set_param(path, value)
 
     def snapshot(self) -> dict[str, Any]:
-        """Take a snapshot of current simulation state."""
+        """Capture an independent, reusable in-memory copy of the entire world.
+
+        PhysicsBackend.snapshot is an integration checkpoint, whereas a live
+        session also permits changing the model and scenario. Copying Sim keeps
+        those together (including released actuators), without recompiling MJCF.
+        These opaque checkpoints are not a portable or serialized asset format.
+        """
         return {
+            "snapshot_version": 2,
             "t": self.t,
             "psi_start": self.psi_start,
             "paused": self.paused,
-            "drive_target": getattr(self.drive, "target", 0.0),
-            "drive_released": getattr(self.drive, "released", False),
-            "drive_tau": getattr(self.drive, "tau", 0.0),
-            "backend_snapshot": self.be.snapshot(),
+            "sim": copy.deepcopy(self.sim),
+            "drive_state": self._drive_state(),
         }
 
     def restore(self, snap_dict: dict[str, Any]) -> None:
-        """Restore simulation state from a snapshot."""
-        self.t = snap_dict["t"]
-        self.psi_start = snap_dict["psi_start"]
-        self.paused = snap_dict["paused"]
-        if "drive_target" in snap_dict and hasattr(self.drive, "target"):
-            self.drive.target = snap_dict["drive_target"]
-        if "drive_released" in snap_dict and hasattr(self.drive, "released"):
-            self.drive.released = snap_dict["drive_released"]
-            if self.drive.released:
-                self.be.release_actuator(self.drive.actuator)
-        if "drive_tau" in snap_dict and hasattr(self.drive, "tau"):
-            self.drive.tau = snap_dict["drive_tau"]
-        self.be.restore(snap_dict["backend_snapshot"])
+        """Restore configuration, model, drive and integration state atomically.
+
+        Clone the saved world on every restore so neither later edits nor later
+        stepping change the checkpoint. Wind fields are deterministic functions
+        of time and their seeded scenario: rebuild them against the restored
+        configuration, rather than copying closures bound to the abandoned world.
+        """
+        if snap_dict.get("snapshot_version") != 2 or not isinstance(snap_dict.get("sim"), Sim):
+            raise ValueError("restore requires a complete interactive snapshot (version 2)")
+        t, psi_start, paused = snap_dict["t"], snap_dict["psi_start"], snap_dict["paused"]
+        sim = copy.deepcopy(snap_dict["sim"])
+        drive = drives.get(sim.scenario.drive.kind)(sim)
+        drive.__dict__.update(copy.deepcopy(snap_dict["drive_state"]))
+        self.sim = sim
+        self.be = sim.backend
+        self.sc = sim.scenario
+        self.info = sim.info
+        self.drive = drive
+        self.dt = self.be.timestep
+        self.t = t
+        self.psi_start = psi_start
+        self.paused = paused
+
+    def _drive_state(self) -> dict[str, Any]:
+        # Wind closures may hold the mutable Scenario or a lazy stochastic
+        # buffer. Rebuild them from the saved configuration/seed instead.
+        return copy.deepcopy({key: value for key, value in vars(self.drive).items() if key != "wind"})
 
     def fork(self) -> InteractiveSession:
-        """Fork the current simulation session using copy-on-write backend cloning without recompiling."""
-        import copy
-
+        """Fork with independent backend and scenario state, reusing compiled models when supported."""
         if hasattr(self.be, "clone"):
             forked_be = self.be.clone()
         else:
             snap = self.snapshot()
-            forked = InteractiveSession.create(self.sc, backend=self.be.name)
+            forked = InteractiveSession.create(copy.deepcopy(self.sc), backend=self.be.name)
             forked.restore(snap)
             return forked
 
@@ -113,12 +141,5 @@ class InteractiveSession:
         forked_sess.t = self.t
         forked_sess.psi_start = self.psi_start
         forked_sess.paused = self.paused
-        if hasattr(self.drive, "target") and hasattr(forked_sess.drive, "target"):
-            forked_sess.drive.target = self.drive.target
-        if hasattr(self.drive, "released") and hasattr(forked_sess.drive, "released"):
-            forked_sess.drive.released = self.drive.released
-            if forked_sess.drive.released:
-                forked_be.release_actuator(forked_sess.drive.actuator)
-        if hasattr(self.drive, "tau") and hasattr(forked_sess.drive, "tau"):
-            forked_sess.drive.tau = self.drive.tau
+        forked_sess.drive.__dict__.update(self._drive_state())
         return forked_sess
