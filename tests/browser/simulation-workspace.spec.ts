@@ -375,3 +375,34 @@ test("browser run warns in a background tab and cancels without a false result",
 		}),
 	).toBeEnabled();
 });
+
+test("environment art switches independently of replay data and remains usable on mobile", async ({
+	page,
+}, info) => {
+	test.skip(info.project.metadata.mode !== "static", "Baked environment test");
+	const { language } = info.project.metadata;
+	await page.setViewportSize({ width: 375, height: 812 });
+	await page.route("**/gallery/flat.json", (route) =>
+		route.fulfill({ json: fixture }),
+	);
+	await open(page, language);
+	const player = page.locator(".scene-player");
+	await pauseAtStart(player, language);
+	const toggle = player.getByLabel(label(language, "overlay.environment"), {
+		exact: true,
+	});
+	const canvas = player.locator(".views canvas").first();
+	await expect(toggle).toBeChecked();
+	const artistic = await canvas.screenshot();
+	await toggle.uncheck();
+	await expect(toggle).not.toBeChecked();
+	const analytical = await canvas.screenshot();
+	expect(artistic.equals(analytical)).toBe(false);
+	await toggle.check();
+	await expect(toggle).toBeChecked();
+	expect(
+		await page.evaluate(
+			() => document.documentElement.scrollWidth <= innerWidth,
+		),
+	).toBe(true);
+});

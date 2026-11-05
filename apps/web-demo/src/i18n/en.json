@@ -373,6 +373,8 @@
 	"overlay.forces": "Contact force arrows",
 	"overlay.slip": "Slip (red foot)",
 	"overlay.title": "Layers",
+	"overlay.environment": "Environment art",
+	"overlay.environmentHint": "Sky, beach and distant structures are visual only and do not affect physics; disable to show the data grid",
 	"palette.apply": "Apply",
 	"palette.back": "Back",
 	"palette.empty": "No matching command",

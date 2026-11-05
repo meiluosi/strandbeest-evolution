@@ -45,6 +45,7 @@ let time = $state(0);
 let playing = $state(false);
 let speed = $state(1);
 let follow = $state(true);
+let environment = $state(true);
 let overlays = $state<Overlays>({
 	forces: true,
 	slip: true,
@@ -514,7 +515,7 @@ const rows = $derived(
 			{#if runs.length}
 				<div class="views" class:two={runs.length === 2}>
 					{#each runs as r, i}
-						<ReplayViewport replay={r} {time} {follow} overlays={effectiveOverlays} label={labels[i]} highlight={!!diff && Math.abs(time - diff.t) < 0.1} />
+						<ReplayViewport replay={r} {time} {follow} {environment} overlays={effectiveOverlays} label={labels[i]} highlight={!!diff && Math.abs(time - diff.t) < 0.1} />
 					{/each}
 				</div>
 			{:else}
@@ -537,6 +538,7 @@ const rows = $derived(
 				<div class="layers">
 					<span class="section-label">{t("overlay.title")}</span>
 					<div class="layer-options">
+						<label class="inline environment-toggle" title={t("overlay.environmentHint")}><input type="checkbox" bind:checked={environment} /> {t("overlay.environment")}</label>
 						{#each LAYERS as layer}
 							<label class="inline" class:unavailable={!availability[layer.id]} title={availability[layer.id] ? "" : t("overlay.unavailable")}>
 								<input type="checkbox" checked={effectiveOverlays[layer.id]} disabled={!availability[layer.id]} onchange={(e) => (overlays[layer.id] = (e.target as HTMLInputElement).checked)} /> {t(layer.label)}

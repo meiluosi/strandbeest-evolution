@@ -373,6 +373,8 @@
 	"overlay.forces": "接触力箭头",
 	"overlay.slip": "打滑指示（红色的脚）",
 	"overlay.title": "叠加层",
+	"overlay.environment": "环境美术",
+	"overlay.environmentHint": "天空、海滩与远景只影响展示，不参与物理仿真；关闭后显示数据网格",
 	"palette.apply": "应用",
 	"palette.back": "返回",
 	"palette.empty": "没有匹配的命令",

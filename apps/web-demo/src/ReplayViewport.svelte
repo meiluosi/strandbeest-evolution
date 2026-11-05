@@ -1,5 +1,6 @@
 <script lang="ts">
 import type * as T from "three";
+import { environmentForReplay } from "./environment-preset";
 import { t } from "./i18n/index.svelte";
 import {
 	findKeyframes,
@@ -9,6 +10,7 @@ import {
 	type Replay,
 	type Scene,
 } from "./replay-types";
+import type { SceneEnvironment } from "./scene-environment";
 import { theme } from "./theme.svelte";
 
 /** One 3D view of a recorded run at a given time, with the glass-box overlays: contact force arrows, slip, centre of mass,
@@ -18,6 +20,7 @@ let {
 	time,
 	follow = true,
 	overlays,
+	environment = true,
 	label = "",
 	highlight = false,
 }: {
@@ -25,6 +28,7 @@ let {
 	time: number;
 	follow?: boolean;
 	overlays: Overlays;
+	environment?: boolean;
 	label?: string;
 	highlight?: boolean;
 } = $props();
@@ -35,6 +39,7 @@ const live = {
 	replay: null as Replay | null,
 	time: 0,
 	follow: true,
+	environment: true,
 	camView: "iso" as "iso" | "side" | "top",
 	overlays: {
 		forces: true,
@@ -46,15 +51,18 @@ const live = {
 		pneumatics: true,
 	} as Overlays,
 };
+let rebuild: (() => void) | null = null;
+let refreshEnvironment: (() => void) | null = null;
+let applyCameraPreset: ((v: "iso" | "side" | "top") => void) | null = null;
 $effect(() => {
 	live.replay = replay;
 	live.time = time;
 	live.follow = follow;
+	live.environment = environment;
 	live.camView = camView;
 	live.overlays = overlays;
+	refreshEnvironment?.();
 });
-let rebuild: (() => void) | null = null;
-let applyCameraPreset: ((v: "iso" | "side" | "top") => void) | null = null;
 $effect(() => {
 	replay;
 	overlays.pvc;
@@ -95,6 +103,7 @@ $effect(() => {
 		const { mergeGeometries } = await import(
 			"three/examples/jsm/utils/BufferGeometryUtils.js"
 		);
+		const { createSceneEnvironment } = await import("./scene-environment");
 		if (disposed) return;
 		const dark = document.documentElement.dataset.theme === "dark";
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -104,7 +113,7 @@ $effect(() => {
 		host.appendChild(renderer.domElement);
 		const scn = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(38, 1, 0.005, 20);
-		camera.position.set(0.18, 0.22, 0.64);
+		camera.position.set(0.18, 0.16, 0.64);
 		const controls = new OrbitControls(camera, renderer.domElement);
 		controls.enableDamping = true;
 		scn.add(
@@ -136,6 +145,27 @@ $effect(() => {
 		);
 		const world = new THREE.Group();
 		scn.add(world);
+		let scenery: SceneEnvironment | null = null;
+		let groundGrid: T.GridHelper | null = null;
+		let appliedEnvironment = "";
+		refreshEnvironment = () => {
+			const preset = live.replay ? environmentForReplay(live.replay) : null;
+			if (!preset) {
+				scenery?.dispose();
+				scenery = null;
+				appliedEnvironment = "";
+				return;
+			}
+			const state = `${preset.kind}:${live.environment}:${live.overlays.pvc ?? true}`;
+			if (scenery && appliedEnvironment === state) return;
+			if (scenery?.group.name !== `environment-${preset.kind}`) {
+				scenery?.dispose();
+				scenery = createSceneEnvironment(scn, preset, dark);
+			}
+			scenery?.setEnabled(live.environment, live.overlays.pvc ?? true);
+			appliedEnvironment = state;
+			if (groundGrid) groundGrid.visible = !live.environment;
+		};
 
 		// Pre-allocated scratch object pool for zero allocation in the animation loop
 		const _vBody0 = new THREE.Vector3();
@@ -201,13 +231,15 @@ $effect(() => {
 			} else if (v === "top") {
 				camera.position.set(tPos.x, tPos.y + 0.72, tPos.z + 0.01);
 			} else {
-				camera.position.set(tPos.x + 0.18, tPos.y + 0.22, tPos.z + 0.62);
+				camera.position.set(tPos.x + 0.18, tPos.y + 0.16, tPos.z + 0.64);
 			}
 			controls.update();
 		};
 
 		function build() {
 			world.clear();
+			groundGrid = null;
+			refreshEnvironment?.();
 			const R = live.replay;
 			if (!R || !R.scene || !R.t || R.t.length === 0) {
 				dyn = null;
@@ -220,11 +252,12 @@ $effect(() => {
 			// Beach / planetary ground plane with shadow reception (1 draw call)
 			const beachPlane = new THREE.Mesh(
 				new THREE.PlaneGeometry(8, 4),
-				new THREE.MeshStandardMaterial({
-					color: dark ? 0x1e2028 : usePvc ? 0xf3ead8 : 0xeeeae0,
-					roughness: 0.92,
-					metalness: 0.02,
-				}),
+				scenery?.sand ??
+					new THREE.MeshStandardMaterial({
+						color: dark ? 0x1e2028 : usePvc ? 0xf3ead8 : 0xeeeae0,
+						roughness: 0.92,
+						metalness: 0.02,
+					}),
 			);
 			beachPlane.rotation.x = -Math.PI / 2;
 			beachPlane.position.y = -0.0005;
@@ -232,14 +265,15 @@ $effect(() => {
 			world.add(beachPlane);
 
 			// Ground grid (1 draw call)
-			const grid = new THREE.GridHelper(
+			groundGrid = new THREE.GridHelper(
 				6,
 				120,
 				dark ? 0x555866 : 0xb8ad99,
 				dark ? 0x2c2f3a : 0xe2d9c8,
 			);
-			grid.position.y = 0.0001;
-			world.add(grid);
+			groundGrid.position.y = 0.0001;
+			groundGrid.visible = !live.environment;
+			world.add(groundGrid);
 
 			// Water plane (if water_level_m is set on terrain)
 			const waterLevel =
@@ -1037,6 +1071,7 @@ $effect(() => {
 				}
 			}
 			controls.update();
+			scenery?.updateTarget(controls.target);
 			renderer.render(scn, camera);
 		}
 		raf = requestAnimationFrame(tick);
@@ -1044,9 +1079,13 @@ $effect(() => {
 			cancelAnimationFrame(raf);
 			ro.disconnect();
 			controls.dispose();
+			scenery?.dispose();
+			scenery = null;
+			groundGrid = null;
 			renderer.dispose();
 			renderer.domElement.remove();
 			rebuild = null;
+			refreshEnvironment = null;
 			applyCameraPreset = null;
 		};
 	})();
