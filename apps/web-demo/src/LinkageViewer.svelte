@@ -9,6 +9,7 @@ import {
 	trace,
 } from "strandbeest-core";
 import { t } from "./i18n/index.svelte";
+import { theme } from "./theme.svelte";
 
 /** A change of one length, by handle (see lengthHandles); the viewer proposes them when a point is dragged. */
 export interface LengthEdit {
@@ -42,7 +43,7 @@ let {
 
 let canvas: HTMLCanvasElement;
 let box: HTMLDivElement;
-let playing = $state(true);
+let playing = $state(!matchMedia("(prefers-reduced-motion: reduce)").matches);
 let speed = $state(1);
 let showMultiLegs = $state(true);
 let showTruss = $state(true);
@@ -178,6 +179,21 @@ function draw() {
 	const accent = cssVar("--accent");
 	const ok = cssVar("--ok") || "#2e8b57";
 
+	ctx.save();
+	ctx.strokeStyle = cssVar("--grid-line");
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	for (let x = 0.5; x < w; x += 32) {
+		ctx.moveTo(x, 0);
+		ctx.lineTo(x, h);
+	}
+	for (let y = 0.5; y < h; y += 32) {
+		ctx.moveTo(0, y);
+		ctx.lineTo(w, y);
+	}
+	ctx.stroke();
+	ctx.restore();
+
 	if (!path.assembled) {
 		ctx.fillStyle = muted;
 		ctx.font = "14px system-ui";
@@ -192,8 +208,11 @@ function draw() {
 	const x1 = Math.max(...xs);
 	const y0 = Math.min(...ys);
 	const y1 = Math.max(...ys);
-	const pad = 38;
-	const fitS = Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad) / (y1 - y0));
+	const pad = Math.min(38, Math.max(0, w / 2 - 1), Math.max(0, h / 2 - 1));
+	const fitS = Math.max(
+		0.01,
+		Math.min((w - 2 * pad) / (x1 - x0), (h - 2 * pad) / (y1 - y0)),
+	);
 	const fit = {
 		s: fitS,
 		ox: (w - fitS * (x1 - x0)) / 2 - fitS * x0,
@@ -344,6 +363,7 @@ function draw() {
 }
 
 $effect(() => {
+	theme.mode;
 	theta;
 	path;
 	size;
@@ -458,8 +478,8 @@ export function triggerGust() {
 $effect(() => {
 	const ro = new ResizeObserver(() => {
 		size = {
-			w: Math.max(280, box.clientWidth),
-			h: Math.max(260, Math.min(420, box.clientWidth * 0.62)),
+			w: Math.max(1, box.clientWidth),
+			h: Math.max(300, Math.min(560, box.clientWidth * 0.64)),
 		};
 	});
 	ro.observe(box);
@@ -507,6 +527,7 @@ $effect(() => {
 <div bind:this={box} class="viewer">
 	<canvas
 		bind:this={canvas}
+		aria-label={t("viewer.canvasAria")}
 		style="width:{size.w}px;height:{size.h}px;cursor:{dragging ? 'grabbing' : hoveredJoint ? 'grab' : 'default'};touch-action:none"
 		onpointerdown={down}
 		onpointermove={move}
@@ -514,21 +535,28 @@ $effect(() => {
 		onpointerleave={() => (hoveredJoint = null)}
 		onpointercancel={() => { dragging = null; frozen = null; onedit?.(null, true); }}
 	></canvas>
-	<div class="row center controls-bar">
-		<button class="btn small" onclick={() => (playing = !playing)}>{playing ? t("common.pause") : t("common.play")}</button>
-		<label class="inline">{t("viewer.speed")} <input type="range" min="0.2" max="4" step="0.1" bind:value={speed} style="width:96px" /></label>
-		<label class="inline"><input type="checkbox" bind:checked={showMultiLegs} /> {t("viewer.multiLegs")}</label>
-		<label class="inline"><input type="checkbox" bind:checked={showTruss} /> {t("viewer.truss")}</label>
+	<div class="controls-bar">
+		<button class="btn small play-control" onclick={() => (playing = !playing)}>{playing ? t("common.pause") : t("common.play")}</button>
+		<label class="inline speed-control">{t("viewer.speed")}<input aria-label={t("viewer.speed")} type="range" min="0.2" max="4" step="0.1" bind:value={speed} /></label>
+		<label class="inline"><input type="checkbox" bind:checked={showMultiLegs} />{t("viewer.multiLegs")}</label>
+		<label class="inline"><input type="checkbox" bind:checked={showTruss} />{t("viewer.truss")}</label>
 		<small class="legend-text">
 			<span style="color:var(--accent)">{t("viewer.legend.crank")}</span> · <span style="color:var(--ok)">{t("viewer.legend.stance")}</span> · <span>{t("viewer.legend.links")}</span> {t("viewer.legend.fixed")}
 		</small>
 	</div>
 </div>
 
-
 <style>
-	.viewer { width: 100%; }
-	canvas { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
-	.controls-bar { gap: 8px 12px; }
-	.legend-text { margin-left: auto; }
+	.viewer { width: 100%; padding: 12px 12px 0; }
+	canvas { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--canvas-bg); }
+	.controls-bar { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; padding: 10px 0 12px; }
+	.play-control { min-width: 64px; }
+	.speed-control { flex: 1; min-width: 130px; }
+	.speed-control input { flex: 1; min-width: 70px; }
+	.legend-text { width: 100%; line-height: 1.6; }
+	@media (max-width: 480px) {
+		.viewer { padding: 8px 8px 0; }
+		.controls-bar { gap: 4px 10px; }
+		.speed-control { order: 5; flex-basis: 100%; }
+	}
 </style>

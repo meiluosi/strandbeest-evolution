@@ -15,7 +15,7 @@ if [[ "${BEEST_E2E_SKIP_IMAGE_BUILD:-0}" != 1 ]]; then
   docker build --platform linux/amd64 -f tests/browser/Dockerfile -t beest-browser:1.64.1 .
 fi
 mkdir -p test-results
-docker run --rm --platform linux/amd64 --entrypoint cat beest-browser:1.64.1 \
+MSYS_NO_PATHCONV=1 docker run --rm --platform linux/amd64 --entrypoint cat beest-browser:1.64.1 \
   /opt/beest-browser-packages.txt >test-results/browser-packages.txt
 
 api_pid=""
@@ -42,7 +42,7 @@ fi
 
 docker_args=(--rm --init --ipc=host --platform linux/amd64 --add-host=host.docker.internal:host-gateway)
 if [[ -n "${BEEST_E2E_NETWORK:-}" ]]; then docker_args+=(--network "$BEEST_E2E_NETWORK"); fi
-docker run "${docker_args[@]}" \
+MSYS_NO_PATHCONV=1 docker run "${docker_args[@]}" \
   --mount "type=bind,src=$PWD,dst=/work" \
   --mount type=volume,dst=/work/node_modules \
   -e BEEST_E2E_API_URL -e CI -e BEEST_E2E_VISUAL_PROBE \

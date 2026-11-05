@@ -6,7 +6,6 @@ import {
 } from "strandbeest-core";
 import { t } from "./i18n/index.svelte";
 
-/** `spec` is what is shown (draft included); dragging calls onpreview, letting go calls oncommit: one operation per gesture. */
 let {
 	spec,
 	onpreview,
@@ -23,7 +22,10 @@ const GROUPS = [
 	{ id: "links", title: "sliders.links", hint: "sliders.links.hint" },
 ] as const;
 const groups = $derived(
-	GROUPS.map((g) => ({ ...g, items: handles.filter((h) => h.group === g.id) })),
+	GROUPS.map((g) => ({
+		...g,
+		items: handles.filter((h) => h.group === g.id),
+	})),
 );
 
 const CRANK_ROLES: Record<string, string> = {
@@ -52,27 +54,44 @@ const commit = (key: string, e: Event) => {
 };
 </script>
 
-<div class="stack">
+<div class="parameter-groups">
 	{#each groups as g}
 		{#if g.items.length}
-			<div>
-				<h3>{t(g.title)} <small>{t(g.hint)}</small></h3>
+			<section class="parameter-group">
+				<h4>{t(g.title)}<small>{t(g.hint)}</small></h4>
 				{#each g.items as h (h.key)}
-					<div class="s">
-						<span class="n" title={role(h)}>{h.label}<small> {role(h)}</small></span>
-						<input type="range" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => preview(h.key, e)} onchange={(e) => commit(h.key, e)} />
-						<input type="number" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => preview(h.key, e)} onchange={(e) => commit(h.key, e)} />
+					{@const id = `length-${h.key.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
+					<div class="parameter">
+						<div class="parameter-label">
+							<label for={id} title={role(h)}>{h.label}</label>
+							<small>{role(h)}</small>
+						</div>
+						<div class="parameter-inputs">
+							<input id={id} aria-label={t("sliders.rangeFor", { name: h.label })} type="range" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => preview(h.key, e)} onchange={(e) => commit(h.key, e)} />
+							<input aria-label={t("sliders.valueFor", { name: h.label })} title={t("sliders.range", { lo: h.range[0], hi: h.range[1] })} type="number" min={h.range[0]} max={h.range[1]} step="0.1" value={h.value} oninput={(e) => preview(h.key, e)} onchange={(e) => commit(h.key, e)} />
+						</div>
 					</div>
 				{/each}
-			</div>
+			</section>
 		{/if}
 	{/each}
 </div>
 
-
 <style>
-	.s { display: grid; grid-template-columns: 112px 1fr 64px; gap: 8px; align-items: center; margin: 3px 0; }
-	.n { font-weight: 600; white-space: nowrap; }
-	.n small { margin-left: 6px; font-weight: 400; }
-	input[type="number"] { width: 64px; padding: 2px 5px; }
+	.parameter-groups { padding: 4px 16px 0; }
+	.parameter-group + .parameter-group { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--line); }
+	h4 { margin: 0 0 8px; font-size: 12px; }
+	h4 small { display: block; margin-top: 2px; font-weight: 400; font-size: 11px; }
+	.parameter { padding: 7px 0; }
+	.parameter-label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+	.parameter-label label { color: var(--text); font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+	.parameter-label small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+	.parameter-inputs { display: grid; grid-template-columns: minmax(0, 1fr) 66px; align-items: center; gap: 9px; }
+	input[type="number"] { width: 66px; padding: 4px 5px; font-size: 11px; }
+	@media (max-width: 480px) {
+		.parameter-groups { padding-left: 12px; padding-right: 12px; }
+		.parameter { padding: 9px 0; }
+		input[type="range"] { min-height: 32px; }
+		input[type="number"] { min-height: 40px; }
+	}
 </style>

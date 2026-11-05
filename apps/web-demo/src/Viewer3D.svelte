@@ -2,6 +2,7 @@
 import { type LinkageSpec, solvePose } from "strandbeest-core";
 import type * as THREE_NS from "three";
 import { t } from "./i18n/index.svelte";
+import { theme } from "./theme.svelte";
 
 type Outline = { exterior: number[][]; interiors: number[][][] };
 type Bar = {
@@ -81,6 +82,7 @@ $effect(() => {
 });
 
 $effect(() => {
+	theme.mode;
 	let disposed = false;
 	let raf = 0;
 	let cleanup = () => {};
@@ -96,7 +98,7 @@ $effect(() => {
 		if (disposed) return;
 		status = "";
 
-		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+		const dark = document.documentElement.dataset.theme === "dark";
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 		renderer.shadowMap.enabled = true;

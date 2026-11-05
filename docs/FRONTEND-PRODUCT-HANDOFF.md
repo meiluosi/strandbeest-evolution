@@ -1,6 +1,6 @@
 # 产品前端重构交接：Strandbeest Studio
 
-> 状态：产品概念 Demo 已获用户认可，可以进入正式前端的分阶段实施。
+> 状态：P0-A／P0-B 已完成实施；验收证据见第 11 节。下一阶段为 P1 演化工作台。
 >
 > 日期：2026-11-05  
 > 工作分支：`refactor/product-frontend`  
@@ -359,18 +359,38 @@ pnpm --filter @strandbeest/web-demo build
 - 在静态版或无数据时提供看似成功但没有真实结果的保存、导出、运行操作。
 - 未经用户确认发布任何站点、包或导出内容。
 
-## 11. Kimi Code 从这里开始
+## 11. P0-A／P0-B 实施记录
 
-第一轮只接 **P0-A + P0-B**，不要同时实施演化和仿真：
+### 11.1 已交付
 
-1. 阅读根 `AGENTS.md`、本文、`docs/PLATFORM.md`、`docs/ARCHITECTURE.md`。
-2. 阅读 `App.svelte`、`DesignTab.svelte`、`editor.svelte.ts`、`store.svelte.ts`、`LinkageViewer.svelte`、`LengthSliders.svelte` 和现有全局样式。
-3. 先记录正式应用当前主流程与截图基线，再改 Token 和 Shell。
-4. 将 Demo 作为视觉参照，逐个映射到现有 Svelte 组件，不搬运 Demo 数据层。
-5. 完成设计工作台后，运行相关检查并报告：修改文件、真实验证结果、浏览器实测范围、仍未覆盖的风险。
-6. 经这一轮审查后，再分别进入 P1 和 P2。
+- 正式 `App.svelte` 已改为产品 Shell：持续显示当前设计和本地日志状态，设计／演化／仿真为主工作区，制造／数字海滩／实验室保留在二级导航。
+- `?tab=` 深链在导航后同步且刷新可恢复；语言、主题、命令面板和编辑历史沿用真实状态。主题偏好独立持久化，不进入 Design Operation 历史。
+- 设计页形成“主画布 + 参数检查器 + 核心指标”的首屏，Schema、文件、资产、历史、风驱动、演化和图鉴进入渐进披露，没有建立平行数据层。
+- 滑杆和关节拖动继续使用 `editor.preview` 与 Operation 提交；不可装配时清空旧指标。保存、分享、导出、导入具有真实环境差异和进行中状态。
+- 全局语义 Token、明暗主题和中英文样式已接入现有组件。二维画布和 Three.js 视口会响应主题切换；减少动态效果时暂停的二维画布也会立即重绘。
+- 新增 Shell／设计 Playwright 覆盖，并修正原有测试对折叠面板、异步导入和 API 地址的适配。14 张既有视觉基线已在固定 Linux Chromium 中审查并更新。
+- `scripts/test-browser.sh` 对 Git Bash 禁用容器路径转换，Linux 行为不变；Windows 下启动真实 API 时需使用 `PYTHONUTF8=1`，避免系统以 GBK 读取 UTF-8 Schema。
 
-建议第一笔代码从“语义 Token + App Shell，保持现有功能不变”开始，而不是先画一个新组件库。
+### 11.2 验收证据
+
+- `pnpm check` 通过：Biome、类型／Svelte 检查及 451 项 JS 测试，其中 core 195、sim-web 198、web 58。
+- `PYTHONUTF8=1 pnpm test:browser` 最终通过：完整 56 项矩阵中 42 项适用用例通过、14 项按实时／静态模式预期跳过；覆盖中英文、真实 API、静态烘焙、控制台错误检查和全部视觉基线。两份真实制造下载各验证了 18 个封闭网格及尺寸、数量和文档，3 个负向对照均被拒绝；这不是实体制造验证。
+- `PYTHONUTF8=1 python scripts/check_no_hardcoded_cjk.py` 通过。
+- 概念 Demo 的 `npm run build && npm test` 通过，2／2 项测试成功；该结果只覆盖概念 Demo。
+- 固定 `beest-browser:1.64.1`（Linux Chromium 156）中的主题重绘和中英文响应式定向复验为 8／8 项通过；已检查 375、768、1024、1440 像素宽度和修正后的浅色画布。
+
+### 11.3 边界与下一步
+
+P0 没有重写演化算法、仿真状态或 Replay 渲染器。演化目前由一级导航打开现有 `Evolver` 区域；仿真仍沿用现有页面组合。P1／P2 的产品级布局尚未实施，不能据 P0 的通过结果宣称全部前端重构完成。
+
+本轮浏览器证据限于固定 Linux Chromium，不包括 Firefox／WebKit；没有运行完整 Python／Rust 测试，也没有改变或重新验收物理模型、H2／H5 和性能任务。
+
+下一切片只推进 **P1 演化工作台**：
+
+1. 先梳理 `Evolver.svelte` 的 Worker 生命周期、固定 seed、停止／失败／完成和离开工作区时的清理行为，补针对性回归。
+2. 再重排真实配置、进度、适应度曲线、初始／最佳轨迹和 MAP-Elites 分区；没有真实接口前不加入 top-N 候选或约束结果。
+3. 验证 `applyEvolved()` 仍创建设计子分支和算法 Operation，且可撤销；导航往返、重复启动和陈旧响应不得制造重复运行。
+4. P1 独立通过功能、浏览器和中英文响应式验收后，再进入 P2 仿真与回放，不同时展开两个切片。
 
 ## 12. 决策记录
 

@@ -8,6 +8,7 @@ import {
 	PHENOTYPES,
 } from "./digital-beach-sim";
 import { t } from "./i18n/index.svelte";
+import { theme } from "./theme.svelte";
 
 let host: HTMLDivElement;
 const sim = new DigitalBeachSim();
@@ -76,6 +77,7 @@ $effect(() => {
 });
 
 $effect(() => {
+	theme.mode;
 	let disposed = false;
 	let raf = 0;
 	let cleanup = () => {};
@@ -88,7 +90,7 @@ $effect(() => {
 
 		if (disposed || !host) return;
 
-		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+		const dark = document.documentElement.dataset.theme === "dark";
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 		renderer.setSize(host.clientWidth, host.clientHeight);

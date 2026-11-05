@@ -92,9 +92,10 @@ function handleInput(f: SchemaField, e: Event) {
 				{#each groupFields as f (f.path)}
 					{@const currentVal = readFieldValue(f)}
 					{@const labelText = i18n.locale === "zh" ? f.doc.zh : f.doc.en}
+					{@const controlId = `schema-${f.path.replace(/[^a-zA-Z0-9_-]/g, "-")}`}
 					<div class="schema-field" title={f.path}>
 						<div class="field-header">
-							<span class="field-label">{labelText}</span>
+							<label class="field-label" for={controlId}>{labelText}</label>
 							{#if f.unit}
 								<span class="badge unit">{f.unit}</span>
 							{/if}
@@ -120,6 +121,7 @@ function handleInput(f: SchemaField, e: Event) {
 						<div class="field-control">
 							{#if f.kind === "enum" && f.enumValues}
 								<select
+									id={controlId}
 									value={String(currentVal ?? "")}
 									onchange={(e) => handleInput(f, e)}
 								>
@@ -129,12 +131,14 @@ function handleInput(f: SchemaField, e: Event) {
 								</select>
 							{:else if f.kind === "boolean"}
 								<input
+									id={controlId}
 									type="checkbox"
 									checked={Boolean(currentVal)}
 									onchange={(e) => handleInput(f, e)}
 								/>
 							{:else if f.kind === "number" || f.kind === "integer"}
 								<input
+									id={controlId}
 									type="number"
 									min={f.min}
 									max={f.max}
@@ -146,6 +150,7 @@ function handleInput(f: SchemaField, e: Event) {
 								/>
 							{:else}
 								<input
+									id={controlId}
 									type="text"
 									value={String(currentVal ?? "")}
 									onchange={(e) => handleInput(f, e)}

@@ -35,9 +35,11 @@ async function open(page: Page, language: string, tab = "design") {
 }
 
 async function openAtlas(page: Page, language: string) {
-	await page
-		.getByRole("button", { name: label(language, "common.pause"), exact: true })
-		.click();
+	const pause = page.getByRole("button", {
+		name: label(language, "common.pause"),
+		exact: true,
+	});
+	if (await pause.isVisible()) await pause.click();
 	// Existing backend assets change this expanded panel's fractional height.
 	// Use its real disclosure control so the atlas has one repeatable raster origin.
 	const assets = page
@@ -48,6 +50,14 @@ async function openAtlas(page: Page, language: string) {
 	}
 	await page.locator("#map-elites > summary").click();
 	return page.locator("#map-elites .qd-container");
+}
+
+async function openDesignPanel(page: Page, language: string, key: string) {
+	const summary = page
+		.locator("details > summary")
+		.filter({ hasText: label(language, key) });
+	if ((await summary.locator("..").getAttribute("open")) === null)
+		await summary.click();
 }
 
 async function downloadJson(page: Page, button: Locator) {
@@ -114,14 +124,21 @@ test("measurement import preserves provenance, calibration applies to a real run
 	);
 	design.walker.legs = 2;
 	await open(page, language);
+	await openDesignPanel(page, language, "design.file");
 	await page.getByLabel(t("design.importJson"), { exact: true }).setInputFiles({
 		name: "calibration-design.json",
 		mimeType: "application/json",
 		buffer: Buffer.from(JSON.stringify(design)),
 	});
+	await expect(page.locator(".project-context strong")).toHaveAttribute(
+		"title",
+		design.id,
+	);
 	const loaded = await downloadJson(
 		page,
-		page.getByRole("button", { name: t("design.downloadJson"), exact: true }),
+		page
+			.locator(".project-actions")
+			.getByRole("button", { name: t("design.downloadJson"), exact: true }),
 	);
 	expect(loaded).toEqual(design);
 	const started = await request.post(`${api}/runs`, {
@@ -251,11 +268,16 @@ test("manufacturing previews real parts and downloads a verifiable local pack", 
 		readFileSync("schemas/examples/design-jansen-small-6leg.json", "utf8"),
 	);
 	await open(page, language);
+	await openDesignPanel(page, language, "design.file");
 	await page.getByLabel(t("design.importJson"), { exact: true }).setInputFiles({
 		name: "manufacturing-design.json",
 		mimeType: "application/json",
 		buffer: Buffer.from(JSON.stringify(design)),
 	});
+	await expect(page.locator(".project-context strong")).toHaveAttribute(
+		"title",
+		design.id,
+	);
 	await page.getByRole("button", { name: t("nav.fab"), exact: true }).click();
 	const clearance = page.getByRole("spinbutton", {
 		name: t("fab.clearance"),
@@ -435,6 +457,7 @@ test("evolves the current design through the real API and loads its elite", asyn
 	const { language } = info.project.metadata;
 	const t = (key: string) => label(language, key);
 	await open(page, language);
+	await openDesignPanel(page, language, "design.configuration");
 	const name = `browser-current-${language}`;
 	await page.locator('.schema-field[title="name"] input').fill(name);
 	await page.locator('.schema-field[title="name"] input').blur();
@@ -478,7 +501,9 @@ test("evolves the current design through the real API and loads its elite", asyn
 		.click();
 	const loaded = await downloadJson(
 		page,
-		page.getByRole("button", { name: t("design.downloadJson"), exact: true }),
+		page
+			.locator(".project-actions")
+			.getByRole("button", { name: t("design.downloadJson"), exact: true }),
 	);
 	expect(loaded).toEqual(best.design);
 	await info.attach("evolved-atlas", {
@@ -497,6 +522,7 @@ test("saves a design, simulates it and replays real telemetry", async ({
 	const { language } = info.project.metadata;
 	const t = (key: string) => label(language, key);
 	await open(page, language);
+	await openDesignPanel(page, language, "design.configuration");
 	const name = `browser-saved-${language}`;
 	await page.locator('.schema-field[title="name"] input').fill(name);
 	await page.locator('.schema-field[title="name"] input').blur();
@@ -504,6 +530,7 @@ test("saves a design, simulates it and replays real telemetry", async ({
 		.locator('.schema-field[title="walker.body_mass_kg"] input')
 		.fill("0.42");
 	await page.locator('.schema-field[title="walker.body_mass_kg"] input').blur();
+	await openDesignPanel(page, language, "design.file");
 	const saveRequest = page.waitForRequest(
 		(request) =>
 			request.method() === "POST" && request.url() === `${api}/designs`,
@@ -710,7 +737,7 @@ test("static mode plays the baked scene without backend requests @visual", async
 	await expect(
 		player.getByRole("button", { name: t("scenes.run"), exact: true }),
 	).toHaveCount(0);
-	await expect(page.locator("header .api")).toHaveCount(0);
+	await expect(page.locator(".api")).toHaveCount(0);
 	await page.mouse.move(0, 0);
 	await expect(player.locator(".views")).toHaveScreenshot("baked-replay.png", {
 		timeout: 60_000,

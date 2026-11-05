@@ -9,6 +9,7 @@ import {
 	type Replay,
 	type Scene,
 } from "./replay-types";
+import { theme } from "./theme.svelte";
 
 /** One 3D view of a recorded run at a given time, with the glass-box overlays: contact force arrows, slip, centre of mass,
  * support polygon, wind streamlines, footprint trails, and Theo Jansen PVC styling. */
@@ -82,6 +83,7 @@ const STREAMLINES = Array.from({ length: 28 }, (_, i) => ({
 }));
 
 $effect(() => {
+	theme.mode;
 	let disposed = false;
 	let raf = 0;
 	let cleanup = () => {};
@@ -94,7 +96,7 @@ $effect(() => {
 			"three/examples/jsm/utils/BufferGeometryUtils.js"
 		);
 		if (disposed) return;
-		const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+		const dark = document.documentElement.dataset.theme === "dark";
 		const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 		renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 		renderer.shadowMap.enabled = true;

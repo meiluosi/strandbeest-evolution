@@ -19,10 +19,8 @@ import {
 	op,
 	openDocument,
 	previewDesign,
-	redo,
 	setLength,
 	setProperty,
-	undo,
 } from "./editor.svelte";
 import HistoryPanel from "./HistoryPanel.svelte";
 import { t } from "./i18n/index.svelte";
@@ -38,19 +36,30 @@ import { encodeShare, STATIC } from "./static";
 import { view } from "./store.svelte";
 import WindPanel from "./WindPanel.svelte";
 
-let { oncommand, onsim }: { oncommand: () => void; onsim: () => void } =
-	$props();
+let {
+	oncommand,
+	onsim,
+	onevolve,
+	evolve = false,
+}: {
+	oncommand: () => void;
+	onsim: () => void;
+	onevolve: () => void;
+	evolve?: boolean;
+} = $props();
 let evolveOpen = $state(false);
-function goEvolve() {
+$effect(() => {
+	if (!evolve) return;
 	evolveOpen = true;
 	queueMicrotask(() =>
-		document.getElementById("evolver")?.scrollIntoView({ behavior: "smooth" }),
+		document.getElementById("evolver")?.scrollIntoView({ block: "start" }),
 	);
-}
+});
 
 let saved = $state<string[]>([]);
 let pick = $state("");
 let msg = $state<{ text: string; kind: "info" | "error" } | null>(null);
+let busy = $state<"save" | "share" | "card" | "load" | "import" | null>(null);
 let metrics = $state<{
 	strokeLength: number;
 	lift: number;
@@ -63,7 +72,6 @@ let windSpeed = $state(0);
 let stalledAt = $state<number | null>(null);
 let viewerRef: ReturnType<typeof LinkageViewer> | null = null;
 
-/** what is shown: the committed design, or the draft of a slider / dragged point over it */
 const shown = $derived(previewDesign());
 const shownLinkage = $derived(shown.linkage);
 
@@ -72,12 +80,16 @@ const rejected = (r: { ok: boolean; message?: string }) => {
 	msg = r.ok ? null : { text: r.message ?? "", kind: "error" };
 };
 
-async function guard(fn: () => Promise<void>) {
+async function guard(fn: () => Promise<void>, action?: typeof busy) {
+	if (action && busy) return;
 	msg = null;
+	if (action) busy = action;
 	try {
 		await fn();
 	} catch (e) {
 		fail(e instanceof Error ? e.message : String(e));
+	} finally {
+		if (action) busy = null;
 	}
 }
 
@@ -90,7 +102,7 @@ const save = () =>
 		await call("/designs", currentDesign());
 		saved = await call("/designs");
 		msg = { text: t("design.saved", { name: view.name }), kind: "info" };
-	});
+	}, "save");
 
 function apply(doc: any) {
 	if (!doc?.linkage?.params || !Array.isArray(doc.linkage.joints)) {
@@ -106,14 +118,15 @@ function loadPreset(e: Event) {
 	sel.value = "";
 }
 
-const load = () => guard(async () => apply(await call(`/designs/${pick}`)));
+const load = () =>
+	guard(async () => apply(await call(`/designs/${pick}`)), "load");
 async function share() {
 	await guard(async () => {
 		const url = `${location.origin}${location.pathname}#d=${await encodeShare(currentDesign())}`;
 		history.replaceState(null, "", url);
 		await navigator.clipboard.writeText(url);
 		msg = { text: t("design.shareCopied"), kind: "info" };
-	});
+	}, "share");
 }
 async function exportCard() {
 	await guard(async () => {
@@ -135,7 +148,7 @@ async function exportCard() {
 			footer: t("card.footer"),
 		});
 		saveBlob(`${view.name}.png`, png);
-	});
+	}, "card");
 }
 const exportJson = () =>
 	download(`${view.name}.json`, JSON.stringify(currentDesign(), null, 2));
@@ -151,11 +164,9 @@ async function importJson(e: Event) {
 				throw new Error(t("design.invalid", { join: v.errors.join("; ") }));
 		}
 		apply(doc);
-	});
+	}, "import");
 }
 
-// ---- every edit below is an operation in the log -------------------------------------------------------------------
-/** Operation that sets a length: a named param uses set_param, an inline number uses set_length. */
 function lengthOp(key: string, value: number): Operation {
 	return key in currentDesign().linkage.params
 		? op("set_param", { name: key, value })
@@ -190,7 +201,6 @@ function applySchemaField(field: SchemaField, value: unknown) {
 	rejected(setProperty(field.pointer, value));
 }
 
-/** The best genome of the evolver forks a child design in the genealogy tree and commits the evolved parameters as algorithm operations. */
 function applyEvolved(spec: LinkageSpec) {
 	const parent = currentDesign();
 	const now = parent.linkage.params;
@@ -208,19 +218,31 @@ function applyEvolved(spec: LinkageSpec) {
 }
 </script>
 
-<div class="stack">
-	<Onboarding onevolve={goEvolve} {onsim} />
-	<div class="row center toolbar">
-		<button class="btn small" disabled={!editor.canUndo} onclick={() => rejected(undo())}>{t("history.undo")}</button>
-		<button class="btn small" disabled={!editor.canRedo} onclick={() => rejected(redo())}>{t("history.redo")}</button>
-		<button class="btn small primary" onclick={oncommand}>{t("palette.open")} <kbd>⌘K</kbd></button>
-		<small class="muted">{t("design.editHint")}</small>
-	</div>
-	{#if msg}<p class="notice {msg.kind}">{msg.text}</p>{/if}
-	<div class="grid2">
-		<div class="card">
-			<h2>{t("design.footPath")}</h2>
-			<p class="muted">{t("design.footPath.hint")}</p>
+<div class="design-workspace">
+	<header class="workspace-header">
+		<div>
+			<span class="eyebrow">{t("design.workspaceEyebrow")}</span>
+			<h2>{t("design.workspaceTitle")}</h2>
+			<p>{t("design.workspaceDescription")}</p>
+		</div>
+		<div class="workspace-actions">
+			<button class="btn" onclick={oncommand}>{t("palette.open")}<kbd>Ctrl K</kbd></button>
+			<button class="btn primary" onclick={onsim}>{t("design.toSimulation")}</button>
+		</div>
+	</header>
+
+	{#if msg}<p class="notice {msg.kind}" role={msg.kind === "error" ? "alert" : "status"}>{msg.text}</p>{/if}
+
+	<div class="design-grid">
+		<section class="mechanism-panel" aria-label={t("design.footPath")}>
+			<header class="panel-heading">
+				<div>
+					<span class="eyebrow">{t("design.mechanismEyebrow")}</span>
+					<h3>{t("design.footPath")}</h3>
+				</div>
+				<span class="evidence-label">{t("design.kinematicEvidence")}</span>
+			</header>
+			<p class="canvas-hint">{t("design.footPath.hint")}</p>
 			<LinkageViewer
 				bind:this={viewerRef}
 				spec={shownLinkage}
@@ -233,79 +255,148 @@ function applyEvolved(spec: LinkageSpec) {
 				onedit={dragEdit}
 			/>
 			{#if metrics}
-				<div class="row">
-					<div class="chip"><b>{(metrics.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
-					<div class="chip"><b>{metrics.lift.toFixed(1)}</b><span>{t("metric.liftHeight")}</span></div>
-					<div class="chip"><b>{metrics.strokeLength.toFixed(1)}</b><span>{t("metric.flatLength")}</span></div>
+				<div class="metric-strip" aria-label={t("design.metrics")}>
+					<div class="metric"><b>{(metrics.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
+					<div class="metric"><b>{metrics.lift.toFixed(1)}</b><span>{t("metric.liftHeight")}</span></div>
+					<div class="metric"><b>{metrics.strokeLength.toFixed(1)}</b><span>{t("metric.flatLength")}</span></div>
 					<small>{t("design.unitNote", { unitMm: view.unitMm })}</small>
 				</div>
 			{:else}
-				<p class="notice error">{t("design.unassemblable")}</p>
+				<p class="notice error geometry-error" role="alert">{t("design.unassemblable")}</p>
 			{/if}
-		</div>
-		<div class="card">
-			<div class="row center" style="justify-content: space-between; margin-top: 0">
-				<h2 style="margin: 0">{t("design.lengths")}</h2>
+		</section>
+
+		<aside class="inspector" aria-label={t("design.lengths")}>
+			<header class="inspector-heading">
+				<div><span class="eyebrow">{t("design.inspectorEyebrow")}</span><h3>{t("design.lengths")}</h3></div>
 				<select class="small" onchange={loadPreset} aria-label={t("design.preset")}>
 					<option value="">{t("design.preset")}</option>
 					{#each PRESETS as p}<option value={p.id}>{p.id}</option>{/each}
 				</select>
-			</div>
+			</header>
+			<p class="inspector-note">{t("design.editHint")} {t("design.unitNote", { unitMm: view.unitMm })}</p>
 			<LengthSliders spec={shownLinkage} onpreview={previewLength} oncommit={commitLength} />
-		</div>
+		</aside>
 	</div>
 
-	<div class="card">
-		<h2>{t("design.file")}</h2>
-		<SchemaForm
-			schema={designSchema as Record<string, unknown>}
-			sections={["", "walker"]}
-			value={shown as unknown as Record<string, unknown>}
-			onchange={applySchemaField}
-		/>
-		<div class="row center">
-			{#if !STATIC}
-				<button class="btn primary" onclick={save}>{t("design.saveBackend")}</button>
-				<select bind:value={pick} onfocus={refresh}>
-					<option value="">{t("design.loadPlaceholder")}</option>
-					{#each saved as n}<option value={n}>{n}</option>{/each}
-				</select>
-				<button class="btn" disabled={!pick} onclick={load}>{t("common.load")}</button>
-			{/if}
-			<button class="btn" class:primary={STATIC} onclick={share}>{t("design.share")}</button>
-			<button class="btn" onclick={exportCard}>{t("design.exportCard")}</button>
-			<button class="btn" onclick={exportJson}>{t("design.downloadJson")}</button>
-			<label class="inline btn" style="cursor:pointer">{t("design.importJson")} <input type="file" accept="application/json" onchange={importJson} hidden /></label>
-		</div>
-		{#if msg}<p class="notice {msg.kind}">{msg.text}</p>{/if}
-	</div>
+	<Onboarding onevolve={onevolve} {onsim} />
 
-	<details class="card" open>
-		<summary><b>{t("assets.title")}</b> <small>{t("assets.subtitle")}</small></summary>
-		<AssetBrowserPanel onmessage={(text, kind = "info") => (msg = { text, kind })} />
-	</details>
-	<details class="card" open>
-		<summary><b>{t("history.title")}</b> <small>{t("history.subtitle")}</small></summary>
-		<HistoryPanel onmessage={fail} />
-	</details>
-	<details class="card" open>
-		<summary><b>{t("wind.title")}</b> <small>{t("wind.subtitle")}</small></summary>
-		<WindPanel
-			spec={shownLinkage}
-			bind:theta
-			bind:windDrive
-			bind:windOmega
-			bind:windSpeed
-			bind:stalledAt
-			ongust={() => viewerRef?.triggerGust()}
-		/>
-	</details>
-	<details class="card" id="evolver" bind:open={evolveOpen}>
-		<summary><b>{t("evolve.title")}</b> <small>{t("evolve.subtitle")}</small></summary>
-		<Evolver spec={view.linkage} onapply={applyEvolved} />
-	</details>
-	<details class="card" id="map-elites">
-		<summary><b>{t("map_elites.title")}</b> <small>{t("map_elites.subtitle")}</small></summary>
-		<MapElitesGrid onload={apply} />
-	</details>
+	<div class="secondary-panels">
+		<details class="card">
+			<summary><b>{t("design.configuration")}</b><small>{t("design.configurationHint")}</small></summary>
+			<SchemaForm
+				schema={designSchema as Record<string, unknown>}
+				sections={["", "walker"]}
+				value={shown as unknown as Record<string, unknown>}
+				onchange={applySchemaField}
+			/>
+		</details>
+
+		<details class="card">
+			<summary><b>{t("design.file")}</b><small>{t("design.fileHint")}</small></summary>
+			<div class="file-actions">
+				{#if !STATIC}
+					<button class="btn primary" disabled={busy !== null} onclick={save}>{busy === "save" ? t("design.saving") : t("design.saveBackend")}</button>
+					<select bind:value={pick} onfocus={refresh} aria-label={t("design.loadPlaceholder")}>
+						<option value="">{t("design.loadPlaceholder")}</option>
+						{#each saved as n}<option value={n}>{n}</option>{/each}
+					</select>
+					<button class="btn" disabled={!pick || busy !== null} onclick={load}>{busy === "load" ? t("design.loading") : t("common.load")}</button>
+				{/if}
+				<button class="btn" class:primary={STATIC} disabled={busy !== null} onclick={share}>{busy === "share" ? t("design.sharing") : t("design.share")}</button>
+				<button class="btn" disabled={busy !== null} onclick={exportCard}>{busy === "card" ? t("design.exporting") : t("design.exportCard")}</button>
+				<button class="btn" onclick={exportJson}>{t("design.downloadJson")}</button>
+				<label class="inline btn import-button" aria-disabled={busy !== null}>{busy === "import" ? t("design.importing") : t("design.importJson")}<input type="file" accept="application/json" disabled={busy !== null} onchange={importJson} hidden /></label>
+			</div>
+		</details>
+
+		<details class="card">
+			<summary><b>{t("assets.title")}</b><small>{t("assets.subtitle")}</small></summary>
+			<AssetBrowserPanel onmessage={(text, kind = "info") => (msg = { text, kind })} />
+		</details>
+		<details class="card">
+			<summary><b>{t("history.title")}</b><small>{t("history.subtitle")}</small></summary>
+			<HistoryPanel onmessage={fail} />
+		</details>
+		<details class="card">
+			<summary><b>{t("wind.title")}</b><small>{t("wind.subtitle")}</small></summary>
+			<WindPanel
+				spec={shownLinkage}
+				bind:theta
+				bind:windDrive
+				bind:windOmega
+				bind:windSpeed
+				bind:stalledAt
+				ongust={() => viewerRef?.triggerGust()}
+			/>
+		</details>
+		<details class="card" id="evolver" bind:open={evolveOpen}>
+			<summary><b>{t("evolve.title")}</b><small>{t("evolve.subtitle")}</small></summary>
+			<Evolver spec={view.linkage} onapply={applyEvolved} />
+		</details>
+		<details class="card" id="map-elites">
+			<summary><b>{t("map_elites.title")}</b><small>{t("map_elites.subtitle")}</small></summary>
+			<MapElitesGrid onload={apply} />
+		</details>
+	</div>
 </div>
+
+<style>
+	.design-workspace { max-width: 1480px; margin: 0 auto; }
+	.workspace-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+	.eyebrow { display: block; color: var(--accent-strong); font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
+	.workspace-header h2 { margin-top: 4px; font-size: clamp(24px, 2.3vw, 32px); letter-spacing: -0.04em; }
+	.workspace-header p { margin-top: 5px; color: var(--text-soft); }
+	.workspace-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+	.workspace-actions .btn { display: inline-flex; align-items: center; gap: 10px; }
+	kbd { font-family: var(--font-mono); font-size: 10px; opacity: 0.65; }
+	.design-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+	.mechanism-panel, .inspector { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+	.mechanism-panel { overflow: hidden; }
+	.panel-heading, .inspector-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
+	.panel-heading h3, .inspector-heading h3 { margin: 2px 0 0; }
+	.evidence-label { color: var(--success); background: var(--success-soft); border-radius: 999px; padding: 3px 9px; font-size: 11px; white-space: nowrap; }
+	.canvas-hint { margin: 0; padding: 10px 16px 0; color: var(--text-muted); font-size: 12px; }
+	.inspector { padding-bottom: 12px; }
+	.inspector-heading { align-items: flex-start; }
+	.inspector-heading select { max-width: 132px; font-size: 11px; }
+	.inspector-note { margin: 0; padding: 12px 16px 4px; color: var(--text-muted); font-size: 11px; }
+	.metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border-top: 1px solid var(--line); background: var(--line); }
+	.metric { display: flex; flex-direction: column; gap: 2px; padding: 13px 16px; background: var(--surface-raised); }
+	.metric b { font-family: var(--font-mono); font-size: 21px; font-weight: 500; }
+	.metric span { color: var(--text-muted); font-size: 11px; }
+	.metric-strip > small { grid-column: 1 / -1; padding: 7px 16px; background: var(--surface-raised); }
+	.geometry-error { margin: 12px 16px 16px; }
+	.secondary-panels { margin-top: 16px; }
+	.secondary-panels details { scroll-margin-top: 90px; }
+	.secondary-panels summary small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+	.file-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
+	.file-actions select { max-width: 240px; }
+	.import-button { cursor: pointer; }
+	.import-button[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+	@media (max-width: 1120px) {
+		.design-grid { grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; }
+		.panel-heading, .inspector-heading { padding: 11px 12px; }
+		.inspector-heading { flex-direction: column; }
+		.inspector-heading select { max-width: 100%; width: 100%; }
+	}
+	@media (max-width: 920px) {
+		.design-grid { grid-template-columns: minmax(0, 1fr); }
+		.inspector-heading { flex-direction: row; align-items: center; }
+		.inspector-heading select { width: auto; max-width: 160px; }
+	}
+	@media (max-width: 600px) {
+		.workspace-header { align-items: flex-start; flex-direction: column; gap: 14px; margin-bottom: 16px; }
+		.workspace-actions { width: 100%; }
+		.workspace-actions .btn { flex: 1; justify-content: center; }
+		.workspace-actions kbd { display: none; }
+		.panel-heading { align-items: flex-start; }
+		.evidence-label { white-space: normal; text-align: right; }
+		.canvas-hint { padding: 9px 12px 0; }
+		.metric { padding: 11px 10px; }
+		.metric b { font-size: 18px; }
+		.secondary-panels summary { align-items: flex-start; flex-wrap: wrap; }
+		.secondary-panels summary small { width: 100%; white-space: normal; }
+		.file-actions .btn, .file-actions select { max-width: 100%; }
+	}
+</style>
