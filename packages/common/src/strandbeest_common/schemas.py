@@ -25,7 +25,7 @@ def schema_dir() -> Path:
 def validator(name: str) -> Draft202012Validator:
     if name not in NAMES:
         raise KeyError(f"unknown schema '{name}'; available: {NAMES}")
-    schema = json.loads((schema_dir() / f"{name}.schema.json").read_text())
+    schema = json.loads((schema_dir() / f"{name}.schema.json").read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
 

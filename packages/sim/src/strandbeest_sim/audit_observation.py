@@ -72,7 +72,7 @@ class AuditObservation:
 
 @lru_cache(maxsize=1)
 def _validator():
-    schema = json.loads((schema_dir() / 'run.schema.json').read_text())
+    schema = json.loads((schema_dir() / 'run.schema.json').read_text(encoding='utf-8'))
     return Draft202012Validator({'$ref': '#/$defs/AuditObservation', '$defs': schema['$defs']})
 
 

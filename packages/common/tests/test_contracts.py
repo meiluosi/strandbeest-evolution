@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from strandbeest_common import Design, solve_pose, validate
-from strandbeest_common.schemas import schema_dir
+from strandbeest_common.schemas import schema_dir, validator
 
 EX = schema_dir() / "examples"
 
@@ -13,6 +13,23 @@ EX = schema_dir() / "examples"
 def test_examples_validate(name):
     for f in EX.glob(f"{name}-*.json"):
         validate(name, json.loads(f.read_text()))
+
+
+def test_schema_loader_is_independent_of_windows_locale(monkeypatch):
+    original = Path.read_text
+
+    def read_as_system_locale(self, *args, **kwargs):
+        if self.parent == schema_dir() and "encoding" not in kwargs:
+            return original(self, encoding="gbk")
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", read_as_system_locale)
+    validator.cache_clear()
+    try:
+        design = json.loads((EX / "design-jansen-small-6leg.json").read_text(encoding="utf-8"))
+        validate("design", design)
+    finally:
+        validator.cache_clear()
 
 
 def test_design_rejects_unknown_field_and_bad_value():

@@ -11,10 +11,26 @@ from strandbeest_sim.backend import FootLoad
 from strandbeest_sim.backends.mujoco_backend import MujocoBackend
 from strandbeest_sim.config import SimConfig
 from strandbeest_sim.audit import audit_report
-from strandbeest_sim.audit_observation import AuditObservation, observation_issues
+from strandbeest_sim.audit_observation import AuditObservation, _validator, observation_issues
 
 ROOT = Path(__file__).resolve().parents[3]
 CASES = json.loads((ROOT/'contracts/sim-observation/cases.json').read_text())['cases']
+
+
+def test_observation_schema_is_independent_of_windows_locale(monkeypatch):
+    original = Path.read_text
+
+    def read_as_system_locale(self, *args, **kwargs):
+        if self.name == 'run.schema.json' and 'encoding' not in kwargs:
+            return original(self, encoding='gbk')
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'read_text', read_as_system_locale)
+    _validator.cache_clear()
+    try:
+        assert _validator().schema['$ref'] == '#/$defs/AuditObservation'
+    finally:
+        _validator.cache_clear()
 
 
 def injected_run(monkeypatch, record_every):
