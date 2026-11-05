@@ -1,16 +1,9 @@
 <script lang="ts">
-import {
-	type LinkageSpec,
-	migrateDesign,
-	type Operation,
-	trace,
-} from "strandbeest-core";
+import { migrateDesign, type Operation, trace } from "strandbeest-core";
 import designSchema from "../../../schemas/design.schema.json";
 import AssetBrowserPanel from "./AssetBrowserPanel.svelte";
 import { call, download } from "./api";
-import Evolver from "./Evolver.svelte";
 import {
-	branchDesign,
 	commit,
 	currentDesign,
 	edit,
@@ -26,7 +19,6 @@ import HistoryPanel from "./HistoryPanel.svelte";
 import { t } from "./i18n/index.svelte";
 import LengthSliders from "./LengthSliders.svelte";
 import LinkageViewer, { type LengthEdit } from "./LinkageViewer.svelte";
-import MapElitesGrid from "./MapElitesGrid.svelte";
 import Onboarding from "./Onboarding.svelte";
 import { PRESETS } from "./presets";
 import SchemaForm from "./SchemaForm.svelte";
@@ -40,21 +32,11 @@ let {
 	oncommand,
 	onsim,
 	onevolve,
-	evolve = false,
 }: {
 	oncommand: () => void;
 	onsim: () => void;
 	onevolve: () => void;
-	evolve?: boolean;
 } = $props();
-let evolveOpen = $state(false);
-$effect(() => {
-	if (!evolve) return;
-	evolveOpen = true;
-	queueMicrotask(() =>
-		document.getElementById("evolver")?.scrollIntoView({ block: "start" }),
-	);
-});
 
 let saved = $state<string[]>([]);
 let pick = $state("");
@@ -200,22 +182,6 @@ function applySchemaField(field: SchemaField, value: unknown) {
 	}
 	rejected(setProperty(field.pointer, value));
 }
-
-function applyEvolved(spec: LinkageSpec) {
-	const parent = currentDesign();
-	const now = parent.linkage.params;
-	const ops = Object.entries(spec.params)
-		.filter(([k, v]) => now[k] !== v)
-		.map(([k, v]) =>
-			op("set_param", { name: k, value: v }, "evolver: best of the run", {
-				kind: "algorithm",
-				id: "ga",
-			}),
-		);
-	if (!ops.length) return;
-	branchDesign(`${parent.name}-evolved`);
-	rejected(commit(ops));
-}
 </script>
 
 <div class="design-workspace">
@@ -329,14 +295,6 @@ function applyEvolved(spec: LinkageSpec) {
 				bind:stalledAt
 				ongust={() => viewerRef?.triggerGust()}
 			/>
-		</details>
-		<details class="card" id="evolver" bind:open={evolveOpen}>
-			<summary><b>{t("evolve.title")}</b><small>{t("evolve.subtitle")}</small></summary>
-			<Evolver spec={view.linkage} onapply={applyEvolved} />
-		</details>
-		<details class="card" id="map-elites">
-			<summary><b>{t("map_elites.title")}</b><small>{t("map_elites.subtitle")}</small></summary>
-			<MapElitesGrid onload={apply} />
 		</details>
 	</div>
 </div>

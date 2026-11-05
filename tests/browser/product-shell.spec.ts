@@ -21,7 +21,11 @@ async function open(page: Page, language: string, tab = "design") {
 		"data-kernel",
 		"rust-wasm/0.1.0",
 	);
-	await expect(page.locator(".design-workspace")).toBeVisible();
+	await expect(
+		page.locator(
+			tab === "evolve" ? ".evolution-workspace" : ".design-workspace",
+		),
+	).toBeVisible();
 }
 
 async function navigate(page: Page, language: string, key: string) {
@@ -56,8 +60,9 @@ test("shell deep links, primary workflows and command keyboard access", async ({
 }, info) => {
 	const { language, mode } = info.project.metadata;
 	await open(page, language, "evolve");
-	await expect(page.locator("#evolver")).toHaveAttribute("open", "");
-	await expect(page.locator("#evolver .evolver")).toBeVisible();
+	await expect(page.locator(".evolution-workspace")).toBeVisible();
+	await expect(page.locator(".evolver")).toBeVisible();
+	await expect(page.locator(".design-workspace")).toHaveCount(0);
 	await expect(
 		page.getByRole("button", { name: label(language, "history.undo") }),
 	).toBeDisabled();

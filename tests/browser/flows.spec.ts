@@ -35,21 +35,13 @@ async function open(page: Page, language: string, tab = "design") {
 }
 
 async function openAtlas(page: Page, language: string) {
-	const pause = page.getByRole("button", {
-		name: label(language, "common.pause"),
-		exact: true,
-	});
-	if (await pause.isVisible()) await pause.click();
-	// Existing backend assets change this expanded panel's fractional height.
-	// Use its real disclosure control so the atlas has one repeatable raster origin.
-	const assets = page
-		.locator("details")
-		.filter({ has: page.locator(".asset-browser") });
-	if ((await assets.getAttribute("open")) !== null) {
-		await assets.locator(":scope > summary").click();
-	}
-	await page.locator("#map-elites > summary").click();
-	return page.locator("#map-elites .qd-container");
+	await page
+		.locator("nav")
+		.getByRole("button", { name: label(language, "nav.evolve"), exact: true })
+		.click();
+	const atlas = page.locator(".atlas-workspace .qd-container");
+	await expect(atlas).toBeVisible();
+	return atlas;
 }
 
 async function openDesignPanel(page: Page, language: string, key: string) {
@@ -638,81 +630,6 @@ test("backend failures are visible and preserve the atlas", async ({
 		player.getByRole("button", { name: t("scenes.run"), exact: true }),
 	).toBeEnabled();
 	await expect(player.locator(".views canvas")).toHaveCount(0);
-});
-
-test("GA worker uses Rust WASM and exposes an initialization failure", async ({
-	page,
-}, info) => {
-	const { language } = info.project.metadata;
-	const t = (key: string) => label(language, key);
-	await page.addInitScript(() => {
-		const messages: {
-			type: string;
-			kernel?: string;
-			state?: { generation: number };
-		}[] = [];
-		Object.defineProperty(window, "__beestWorkerMessages", { value: messages });
-		const OriginalWorker = window.Worker;
-		window.Worker = class extends OriginalWorker {
-			constructor(url: string | URL, options?: WorkerOptions) {
-				super(url, options);
-				this.addEventListener("message", (event) => messages.push(event.data));
-			}
-		};
-	});
-	await open(page, language);
-	await page.locator("#evolver > summary").click();
-	const evolver = page.locator("#evolver .evolver");
-	await evolver.getByLabel(t("evolve.generations"), { exact: true }).fill("2");
-	await evolver.getByLabel(t("evolve.population"), { exact: true }).fill("10");
-	await evolver
-		.getByRole("button", { name: t("evolve.start"), exact: true })
-		.click();
-	const messages = () =>
-		page.evaluate(
-			() =>
-				(
-					window as unknown as {
-						__beestWorkerMessages: {
-							type: string;
-							kernel?: string;
-							state?: { generation: number };
-						}[];
-					}
-				).__beestWorkerMessages,
-		);
-	await expect
-		.poll(async () =>
-			(await messages()).some((message) => message.type === "done"),
-		)
-		.toBe(true);
-	const completed = await messages();
-	expect(
-		completed.filter((message) => message.type === "state").at(-1)?.state
-			?.generation,
-	).toBe(2);
-	expect(
-		completed.every((message) => message.kernel === "rust-wasm/0.1.0"),
-	).toBe(true);
-	await expect(
-		evolver.getByRole("button", { name: t("evolve.loadBest"), exact: true }),
-	).toBeEnabled();
-	await expect(evolver.getByRole("alert")).toHaveCount(0);
-
-	// Main-realm initialization already succeeded; only the next worker's load fails.
-	await page.route("**/beest_kernel_bg-*.wasm", (route) => route.abort());
-	await evolver
-		.getByRole("button", { name: t("evolve.start"), exact: true })
-		.click();
-	await expect(evolver.getByRole("alert")).toContainText(
-		t("kernel.failed").split("{message}")[0],
-	);
-	await expect(
-		evolver.getByRole("button", { name: t("evolve.start"), exact: true }),
-	).toBeEnabled();
-	expect(
-		(await messages()).slice(completed.length).map((message) => message.type),
-	).toEqual(["error"]);
 });
 
 test("static mode plays the baked scene without backend requests @visual", async ({

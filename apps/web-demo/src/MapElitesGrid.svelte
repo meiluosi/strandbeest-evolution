@@ -740,4 +740,19 @@ async function triggerQdEvolution() {
 		font-size: 0.85rem;
 		padding: 6px 12px;
 	}
+
+	.qd-actions { flex-wrap: wrap; }
+	:global(:root[data-theme="light"]) .qd-subtitle,
+	:global(:root[data-theme="light"]) .stat-label,
+	:global(:root[data-theme="light"]) .stat-value small,
+	:global(:root[data-theme="light"]) .metric-row.sub,
+	:global(:root[data-theme="light"]) .qd-inspector .muted { color: var(--text-muted); }
+	:global(:root[data-theme="light"]) .qd-stats-bar,
+	:global(:root[data-theme="light"]) .hud-card { background: var(--surface-muted); border-color: var(--line); }
+	:global(:root[data-theme="light"]) .stat-value,
+	:global(:root[data-theme="light"]) .hud-header h4,
+	:global(:root[data-theme="light"]) .hud-metrics { color: var(--text); }
+	:global(:root[data-theme="light"]) .stat-value.highlight,
+	:global(:root[data-theme="light"]) .metric-row strong.highlight { color: var(--accent-strong); }
+	:global(:root[data-theme="light"]) .select-card { border-color: var(--accent); }
 </style>

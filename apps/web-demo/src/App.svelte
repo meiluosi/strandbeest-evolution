@@ -1,11 +1,16 @@
 <script lang="ts">
+import type { LinkageSpec } from "strandbeest-core";
 import { call, download } from "./api";
 import CommandPalette from "./CommandPalette.svelte";
 import DesignTab from "./DesignTab.svelte";
 import DigitalBeach from "./DigitalBeach.svelte";
+import EvolveTab from "./EvolveTab.svelte";
 import {
+	branchDesign,
+	commit,
 	currentDesign,
 	editor,
+	op,
 	openDocument,
 	redo,
 	undo,
@@ -113,6 +118,23 @@ function exportCurrent() {
 	download(`${view.name}.json`, JSON.stringify(currentDesign(), null, 2));
 }
 
+function applyEvolved(spec: LinkageSpec) {
+	const parent = currentDesign();
+	const now = parent.linkage.params;
+	const ops = Object.entries(spec.params)
+		.filter(([key, value]) => now[key] !== value)
+		.map(([key, value]) =>
+			op("set_param", { name: key, value }, "evolver: best of the run", {
+				kind: "algorithm",
+				id: "ga",
+			}),
+		);
+	if (!ops.length) return;
+	branchDesign(`${parent.name}-evolved`);
+	const result = commit(ops);
+	editMessage = result.ok ? "" : (result.message ?? "");
+}
+
 async function ping() {
 	try {
 		await call("/health");
@@ -208,7 +230,7 @@ $effect(() => {
 			<p class="notice error environment-notice">{t("app.backend.unreachable.before", { api: store.api })} <code>strandbeest-api</code>{t("app.backend.unreachable.or")} <code>docker compose up</code>{t("app.backend.unreachable.after")}</p>
 		{/if}
 		{#if editMessage}<p class="notice error environment-notice">{editMessage}</p>{/if}
-		{#if tab === "design" || tab === "evolve"}<DesignTab evolve={tab === "evolve"} oncommand={() => (paletteOpen = true)} onevolve={() => navigate("evolve")} onsim={() => navigate("sim")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else if tab === "beach"}<DigitalBeach />{:else}<LabTab />{/if}
+		{#if tab === "design"}<DesignTab oncommand={() => (paletteOpen = true)} onevolve={() => navigate("evolve")} onsim={() => navigate("sim")} />{:else if tab === "evolve"}<EvolveTab spec={view.linkage} onapply={applyEvolved} ondesign={() => navigate("design")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else if tab === "beach"}<DigitalBeach />{:else}<LabTab />{/if}
 	</main>
 </div>
 <CommandPalette bind:open={paletteOpen} onmessage={(m) => (editMessage = m)} />
