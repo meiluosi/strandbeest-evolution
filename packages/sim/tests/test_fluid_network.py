@@ -418,3 +418,163 @@ def test_extreme_pressure_gradient_mass_conservation() -> None:
     assert not np.any(np.isnan(res.total_mass))
 
 
+# ==============================================================================
+# 8. Thermodynamic Wall Temperature ODE Coupling Tests (H3-02)
+# ==============================================================================
+
+
+def test_thermodynamic_wall_temperature_ode_rates() -> None:
+    """Verify instantaneous rate equations for gas-wall-ambient heat exchange:
+
+    Q_int = h_int * A * (T_air - T_wall)
+    Q_ext = h_ext * A * (T_wall - T_amb)
+    C_wall * d(T_wall)/dt = Q_int - Q_ext
+    m_air * c_v * d(T_air)/dt = -Q_int
+    """
+    T_air_0 = 360.0
+    T_wall_0 = 310.0
+    T_amb = 295.0
+    A = 0.44
+    h_int = 15.0
+    h_ext = 10.0
+    C_wall = 250.0  # J/K
+    V = 0.008  # 8 L
+    p = 200_000.0
+
+    node = FluidNode(
+        name="bottle",
+        pressure=p,
+        volume=V,
+        temperature=T_air_0,
+        n=GAMMA_AIR,
+        heat_transfer_area=A,
+        ambient_temperature=T_amb,
+        wall_thermal_capacitance=C_wall,
+        T_wall=T_wall_0,
+        h_int=h_int,
+        h_ext=h_ext,
+    )
+    net = FluidNetwork(track_mass=True)
+    net.add_node(node)
+
+    # 1. Verify analytical heat exchange fluxes
+    Q_int_expected = h_int * A * (T_air_0 - T_wall_0)  # 15 * 0.44 * (360 - 310) = 330 W
+    Q_ext_expected = h_ext * A * (T_wall_0 - T_amb)    # 10 * 0.44 * (310 - 295) = 66 W
+    assert math.isclose(node.compute_heat_transfer_int(), Q_int_expected, rel_tol=1e-12)
+    assert math.isclose(node.compute_heat_transfer_ext(), Q_ext_expected, rel_tol=1e-12)
+
+    # 2. Verify wall rate of temperature change: d(T_wall)/dt = (Q_int - Q_ext) / C_wall
+    dT_wall_dt_expected = (Q_int_expected - Q_ext_expected) / C_wall
+    assert math.isclose(dT_wall_dt_expected, (330.0 - 66.0) / 250.0, rel_tol=1e-12)
+
+    # 3. Verify gas internal energy rate: dU_gas/dt = -Q_int
+    # dp/dt = (gamma - 1) * (-Q_int) / V
+    dp_dt_expected = (GAMMA_AIR - 1.0) * (-Q_int_expected) / V
+
+    # Extract state vector and derivatives from network
+    y = net.get_state()
+    # y layout: [p, V, m, T_wall]
+    assert len(y) == 4
+    assert math.isclose(y[0], p, rel_tol=1e-12)
+    assert math.isclose(y[1], V, rel_tol=1e-12)
+    assert math.isclose(y[3], T_wall_0, rel_tol=1e-12)
+
+    dy, balance = net._derivatives_and_balance(0.0, y)
+    dp_dt_actual = dy[0]
+    dv_dt_actual = dy[1]
+    dm_dt_actual = dy[2]
+    dT_wall_dt_actual = dy[3]
+
+    assert dv_dt_actual == 0.0
+    assert dm_dt_actual == 0.0
+    assert math.isclose(dp_dt_actual, dp_dt_expected, rel_tol=1e-12)
+    assert math.isclose(dT_wall_dt_actual, dT_wall_dt_expected, rel_tol=1e-12)
+
+
+def test_wall_thermal_capacitance_insulated_equilibrium() -> None:
+    """Verify that an insulated container (h_ext = 0) reaches the exact analytical equilibrium temperature:
+
+    T_eq = (m_air * c_v * T_air_0 + C_wall * T_wall_0) / (m_air * c_v + C_wall)
+    with zero energy loss (E_in - E_loss - Delta U = 0).
+    """
+    T_air_0 = 380.0
+    T_wall_0 = 290.0
+    V = 0.005
+    p_0 = 300_000.0
+    m_air = (p_0 * V) / (R_AIR * T_air_0)
+    C_wall = 180.0  # J/K
+
+    # Analytical mixture equilibrium temperature
+    T_eq_expected = (m_air * CV_AIR * T_air_0 + C_wall * T_wall_0) / (m_air * CV_AIR + C_wall)
+
+    node = FluidNode(
+        name="insulated_bottle",
+        pressure=p_0,
+        volume=V,
+        temperature=T_air_0,
+        n=GAMMA_AIR,
+        heat_transfer_area=0.3,
+        wall_thermal_capacitance=C_wall,
+        T_wall=T_wall_0,
+        h_int=20.0,
+        h_ext=0.0,  # Perfectly insulated exterior
+        ambient_temperature=T_wall_0,
+    )
+    net = FluidNetwork(track_mass=True)
+    net.add_node(node)
+
+    res = net.simulate(t_span=(0.0, 150.0), dt=0.01)
+
+    # 1. Equilibrium temperatures must match analytical prediction
+    T_air_final = res.temperatures["insulated_bottle"][-1]
+    T_wall_final = res.wall_temperatures["insulated_bottle"][-1]
+    assert math.isclose(T_air_final, T_eq_expected, rel_tol=1e-4)
+    assert math.isclose(T_wall_final, T_eq_expected, rel_tol=1e-4)
+    assert math.isclose(T_air_final, T_wall_final, rel_tol=1e-4)
+
+    # 2. Strict energy conservation: residual must be zero within ODE tolerances
+    assert np.max(np.abs(res.balance["energy_residual_j"])) < 1e-7
+    assert res.mass_conservation_relative_error < 1e-12
+
+
+def test_wall_temperature_coupling_ambient_heat_loss_energy_ledger() -> None:
+    """Verify coupled wall dynamics with heat loss to ambient:
+
+    1. Wall temperature initially heats up (absorbing heat from hot air).
+    2. Air and wall both cool down toward ambient.
+    3. Energy balance ledger satisfies E_in - E_loss - Delta U = 0.
+    """
+    bank = PETBottleBank(
+        num_bottles=4,
+        volume_per_bottle=0.002,
+        precharge_pressure=400_000.0,
+        ambient_temperature=293.15,
+        heat_transfer_coeff=10.0,
+    )
+    # Start enclosed air hot at 360 K, wall at ambient 293.15 K
+    node = bank.to_node(
+        name="bottle",
+        initial_pressure=400_000.0,
+        initial_temperature=360.0,
+        initial_wall_temperature=293.15,
+    )
+    net = FluidNetwork(track_mass=True)
+    net.add_node(node)
+
+    res = net.simulate(t_span=(0.0, 20.0), dt=0.005)
+
+    wall_temps = res.wall_temperatures["bottle"]
+    air_temps = res.temperatures["bottle"]
+
+    # 1. Wall temperature initially increases because T_air > T_wall
+    assert wall_temps[50] > wall_temps[0]
+
+    # 2. Air temperature decreases monotonically
+    assert air_temps[-1] < air_temps[0]
+
+    # 3. Energy conservation in ledger: Delta U + Q_loss = 0
+    assert np.max(np.abs(res.balance["energy_residual_j"])) < 1e-7
+    assert res.balance["convective_heat_j"][-1] < 0.0  # Heat lost to ambient
+
+
+

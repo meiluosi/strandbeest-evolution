@@ -6,6 +6,7 @@ import copy
 from typing import Any
 
 from .config import Scenario, SimConfig
+from .fluids.coupling import PneumaticCoupler
 from .registry import drives, winds
 from .runner import Sim, make_sim
 
@@ -23,6 +24,11 @@ class InteractiveSession:
         self.t = 0.0
         self.dt = self.be.timestep
         self.psi_start = self.sim.psi()
+        self.pneu: PneumaticCoupler | None = (
+            PneumaticCoupler(self.sc, psi_start=self.psi_start)
+            if getattr(self.sc, "pneumatics", None) is not None
+            else None
+        )
 
     @classmethod
     def create(cls, sc: Scenario | SimConfig, backend: str = "mujoco") -> InteractiveSession:
@@ -33,13 +39,17 @@ class InteractiveSession:
         """Advance the physics by `steps` timesteps and return the latest telemetry."""
         for _ in range(steps):
             if not self.paused:
+                tau_pump, f_anchor = self.pneu.pre_step(self.sim, self.drive, self.t) if self.pneu is not None else (0.0, 0.0)
                 self.drive.control(self.sim, self.t, driving=True)
                 self.be.step()
+                if self.pneu is not None:
+                    observed = self.be.step_observation() if callable(getattr(self.be, "step_observation", None)) else self.be
+                    self.pneu.post_step(self.sim, observed, self.drive, self.dt, self.t)
                 self.t += self.dt
 
         torso = self.be.body_position("torso")
         loads = self.be.foot_loads()
-        return {
+        telemetry: dict[str, Any] = {
             "t": round(self.t, 4),
             "psi": round(self.sim.psi() - self.psi_start, 4),
             "x": round(torso[0], 4),
@@ -49,6 +59,18 @@ class InteractiveSession:
             "paused": self.paused,
             "foot_loads": [round(l.normal, 2) for l in loads],
         }
+        if self.pneu is not None:
+            s = self.pneu.sample()
+            pneu_dict = {
+                "p_bottle": round(float(s.p_bottle), 2),
+                "p_cyl": round(float(s.p_cyl), 2),
+                "feeler_vacuum": round(float(s.feeler_vacuum), 2),
+                "valve_state": int(s.valve_state),
+                "anchor_depth": round(float(s.anchor_depth), 4),
+            }
+            telemetry["pneumatics"] = pneu_dict
+            telemetry.update(pneu_dict)
+        return telemetry
 
     def pause(self) -> None:
         self.paused = True
@@ -88,6 +110,17 @@ class InteractiveSession:
         those together (including released actuators), without recompiling MJCF.
         These opaque checkpoints are not a portable or serialized asset format.
         """
+        pneu_snap = self.pneu.snapshot() if self.pneu is not None else None
+        pneu_series = None
+        if self.pneu is not None:
+            s = self.pneu.sample()
+            pneu_series = {
+                "p_bottle": float(s.p_bottle),
+                "p_cyl": float(s.p_cyl),
+                "feeler_vacuum": float(s.feeler_vacuum),
+                "valve_state": int(s.valve_state),
+                "anchor_depth": float(s.anchor_depth),
+            }
         return {
             "snapshot_version": 2,
             "t": self.t,
@@ -95,6 +128,8 @@ class InteractiveSession:
             "paused": self.paused,
             "sim": copy.deepcopy(self.sim),
             "drive_state": self._drive_state(),
+            "pneu_state": pneu_snap,
+            "pneumatics": pneu_series,
         }
 
     def restore(self, snap_dict: dict[str, Any]) -> None:
@@ -120,6 +155,13 @@ class InteractiveSession:
         self.t = t
         self.psi_start = psi_start
         self.paused = paused
+        if getattr(self.sc, "pneumatics", None) is not None:
+            if self.pneu is None:
+                self.pneu = PneumaticCoupler(self.sc, psi_start=self.psi_start)
+            if snap_dict.get("pneu_state") is not None:
+                self.pneu.restore(snap_dict["pneu_state"])
+        else:
+            self.pneu = None
 
     def _drive_state(self) -> dict[str, Any]:
         # Wind closures may hold the mutable Scenario or a lazy stochastic
@@ -142,4 +184,6 @@ class InteractiveSession:
         forked_sess.psi_start = self.psi_start
         forked_sess.paused = self.paused
         forked_sess.drive.__dict__.update(self._drive_state())
+        if self.pneu is not None and forked_sess.pneu is not None:
+            forked_sess.pneu.restore(self.pneu.snapshot())
         return forked_sess

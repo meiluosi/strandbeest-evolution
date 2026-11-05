@@ -80,6 +80,7 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
     f_foot_pos, f_foot_force, f_foot_slip, f_com = [], [], [], []
     frame_every = max(1, round(1.0 / (sc.run.frame_rate * dt))) if sc.run.frame_rate > 0 else 0
     f_t, f_pos, f_quat, f_contact = [], [], [], []
+    f_p_bottle, f_p_cyl, f_feeler_vacuum, f_valve_state, f_anchor_depth = [], [], [], [], []
     settle_steps = int(round(sc.run.settle / dt))
     for _ in range(settle_steps):
         drive.control(sim, 0.0, driving=False)
@@ -168,6 +169,13 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
             f_foot_force.append([f.force for f in loads])
             f_foot_slip.append([f.slip for f in loads])
             f_com.append(observed.center_of_mass())
+            if pneu is not None:
+                p_samp = pneu.sample()
+                f_p_bottle.append(p_samp.p_bottle)
+                f_p_cyl.append(p_samp.p_cyl)
+                f_feeler_vacuum.append(p_samp.feeler_vacuum)
+                f_valve_state.append(p_samp.valve_state)
+                f_anchor_depth.append(p_samp.anchor_depth)
         omega = -sc.walker.direction * be.joint_velocity(info.crank_joint)
         vx = be.joint_velocity("tx")
         f_drag = drive.body_drag_force(sim) if hasattr(drive, "body_drag_force") else getattr(drive, "f_drag", 0.0)
@@ -189,13 +197,34 @@ def run(sc: Scenario | SimConfig | dict, backend: str | PhysicsBackend = "mujoco
             stalled = True  # the crank has not moved: the drive cannot start this walker
             break
 
+    if pneu is not None:
+        if "p_bottle" in ser and "bottle_pressure_pa" not in ser:
+            ser["bottle_pressure_pa"] = ser["p_bottle"]
+        if "feeler_vacuum" in ser and "feeler_vacuum_pa" not in ser:
+            ser["feeler_vacuum_pa"] = ser["feeler_vacuum"]
+        if "anchor_depth" in ser and "anchor_deployed" not in ser:
+            ser["anchor_deployed"] = [1.0 if d > 0.01 else 0.0 for d in ser["anchor_depth"]]
     res = Result(sc, np.array(t_), np.array(psi_), np.array(x_), np.array(z_), np.array(tau_), stalled=stalled)
     res.series = {k: np.array(v, dtype=float) for k, v in ser.items() if len(v)}
     if f_t:
         res.scene = be.describe_scene()
-        res.frames = {"t": np.array(f_t), "pos": np.array(f_pos, np.float32), "quat": np.array(f_quat, np.float32), "contact": np.array(f_contact, bool),
-                      "foot_pos": np.array(f_foot_pos, np.float32), "foot_force": np.array(f_foot_force, np.float32),
-                      "foot_slip": np.array(f_foot_slip, np.float32), "com": np.array(f_com, np.float32)}
+        frames_dict = {
+            "t": np.array(f_t), "pos": np.array(f_pos, np.float32), "quat": np.array(f_quat, np.float32), "contact": np.array(f_contact, bool),
+            "foot_pos": np.array(f_foot_pos, np.float32), "foot_force": np.array(f_foot_force, np.float32),
+            "foot_slip": np.array(f_foot_slip, np.float32), "com": np.array(f_com, np.float32)
+        }
+        if pneu is not None:
+            frames_dict.update({
+                "p_bottle": np.array(f_p_bottle, np.float32),
+                "bottle_pressure_pa": np.array(f_p_bottle, np.float32),
+                "p_cyl": np.array(f_p_cyl, np.float32),
+                "feeler_vacuum": np.array(f_feeler_vacuum, np.float32),
+                "feeler_vacuum_pa": np.array(f_feeler_vacuum, np.float32),
+                "valve_state": np.array(f_valve_state, np.int8),
+                "anchor_depth": np.array(f_anchor_depth, np.float32),
+                "anchor_deployed": (np.array(f_anchor_depth) > 0.01).astype(np.uint8),
+            })
+        res.frames = frames_dict
     res.audit_observation = audit_observation.document(k)
     res.metrics["max_loop_violation"] = res.audit_observation["max_loop_residual_m"]
     res.metrics["max_penetration"] = res.audit_observation["max_penetration_m"]

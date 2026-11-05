@@ -48,5 +48,5 @@ def sim_config(sc: Union[Scenario, SimConfig, dict[str, Any]]) -> SimConfig:
     """The flat configuration the simulator runs on."""
     if isinstance(sc, SimConfig):
         return sc
-    doc = sc.model_dump(mode="json") if isinstance(sc, Scenario) else sc
+    doc = sc.model_dump() if isinstance(sc, Scenario) else sc
     return SimConfig.model_validate(flatten(doc))

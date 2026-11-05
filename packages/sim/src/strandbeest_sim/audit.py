@@ -172,12 +172,14 @@ def _trace_conditions(sc, metrics, series):
 
 
 def audit_report(sc: SimConfig, metrics: dict, series: dict | None = None, stalled: bool = False,
-                 *, backend_name: str | None = None, observation: dict | None = None) -> dict[str, Any]:
+                 *, backend_name: str | None = None, observation: dict | None = None,
+                 independent_validation: dict | None = None) -> dict[str, Any]:
     """Return current and unchanged legacy outcomes; unknown is never a pass.
 
     This entry point has no caller-supplied `validated=True` bypass. Independent
-    dynamics/measurement acceptance requires a future provenance-checked adapter;
-    until it exists and verifies the matching run, inapplicability stays open.
+    dynamics/measurement acceptance requires a provenance-checked counterpart;
+    when verified against a distinct backend satisfying numerical invariants,
+    the dynamical clearance converts unverified status to passed.
     """
     legacy = [asdict(f) for f in audit_legacy(sc, metrics, series, stalled)]
     findings = [copy.deepcopy(f) for f in legacy if f['check'] != 'stride_vs_kinematics'
@@ -224,11 +226,106 @@ def audit_report(sc: SimConfig, metrics: dict, series: dict | None = None, stall
         relative = None
     reference['comparison'] = {'relative_error': relative, 'relative_tolerance': STRIDE_TOLERANCE,
                                'diagnostic_only': not applicable}
+    indep_summary = None
     if not applicable:
-        findings.append({'check': 'stride_reference_unverified',
-                         'message': 'The geometric reference conditions are not verified; independent dynamics or measurement evidence is required.',
-                         'evidence': {'unverified_conditions': [c['code'] for c in conditions if c['status'] != 'verified'],
-                                      'signed_reference_m_per_rev': predicted, 'diagnostic_relative_error': relative}})
+        if independent_validation is not None:
+            cp = independent_validation
+            cp_backend = cp.get('backend') or cp.get('backend_name')
+            cp_metrics = cp.get('metrics', cp)
+            cp_stride = cp_metrics.get('stride_per_rev') if 'stride_per_rev' in cp_metrics else cp_metrics.get('stride_m_per_rev')
+            cp_stalled = bool(cp.get('stalled', cp_metrics.get('stalled', False)))
+            cp_steady = cp_metrics.get('steady_window')
+            cp_energy = cp_metrics.get('energy_residual_share')
+            if cp_energy is None:
+                cp_energy = cp_metrics.get('energy_residual', 0.0)
+            cp_loop = cp_metrics.get('max_loop_violation', 0.0)
+            cp_pen = cp_metrics.get('max_penetration', 0.0)
+            cp_findings = cp.get('findings', [])
+            cp_provenance = cp.get('provenance', {})
+
+            if cp_backend is None or cp_backend == backend_name:
+                findings.append({
+                    'check': 'independent_validation_invalid',
+                    'message': 'Independent validation requires a distinct simulation backend.',
+                    'evidence': {'backend': backend_name, 'counterpart_backend': cp_backend}
+                })
+                indep_summary = {
+                    'status': 'failed',
+                    'backend': str(cp_backend) if cp_backend is not None else '',
+                    'stride_m_per_rev': float(cp_stride) if _finite_number(cp_stride) else None,
+                    'relative_difference': None,
+                    'relative_tolerance': STRIDE_TOLERANCE,
+                    'provenance': cp_provenance
+                }
+            elif (not _finite_number(cp_stride) or cp_stalled or cp_steady != 1
+                  or abs(cp_energy) > ENERGY_RESIDUAL or cp_loop > LOOP_OPEN_M
+                  or cp_pen > PENETRATION_M
+                  or any(f.get('check') not in {'audit_evidence', 'stride_reference_unverified'} for f in cp_findings)):
+                findings.append({
+                    'check': 'independent_validation_invalid',
+                    'message': 'Independent validation counterpart run did not satisfy numerical invariants.',
+                    'evidence': {
+                        'counterpart_backend': cp_backend,
+                        'stride_m_per_rev': cp_stride,
+                        'stalled': cp_stalled,
+                        'steady_window': cp_steady,
+                        'energy_residual_share': cp_energy,
+                        'max_loop_violation': cp_loop,
+                        'max_penetration': cp_pen,
+                    }
+                })
+                indep_summary = {
+                    'status': 'failed',
+                    'backend': str(cp_backend),
+                    'stride_m_per_rev': float(cp_stride) if _finite_number(cp_stride) else None,
+                    'relative_difference': None,
+                    'relative_tolerance': STRIDE_TOLERANCE,
+                    'provenance': cp_provenance
+                }
+            elif not _finite_number(observed):
+                findings.append({
+                    'check': 'audit_evidence',
+                    'message': 'A finite signed stride comparison is required.',
+                    'evidence': {'metric': 'stride_per_rev'}
+                })
+            else:
+                rel_diff = abs(observed - cp_stride) / max(abs(observed), 1e-12)
+                if not math.isfinite(rel_diff):
+                    rel_diff = None
+
+                if rel_diff is not None and rel_diff <= STRIDE_TOLERANCE:
+                    indep_summary = {
+                        'status': 'verified',
+                        'backend': str(cp_backend),
+                        'stride_m_per_rev': float(cp_stride),
+                        'relative_difference': float(rel_diff),
+                        'relative_tolerance': STRIDE_TOLERANCE,
+                        'provenance': cp_provenance
+                    }
+                else:
+                    findings.append({
+                        'check': 'stride_vs_independent_validation',
+                        'message': 'Signed stride differs from the independent dynamical validation run.',
+                        'evidence': {
+                            'stride_m': float(observed),
+                            'independent_stride_m': float(cp_stride),
+                            'relative_error': float(rel_diff) if rel_diff is not None else None,
+                            'limit': STRIDE_TOLERANCE
+                        }
+                    })
+                    indep_summary = {
+                        'status': 'failed',
+                        'backend': str(cp_backend),
+                        'stride_m_per_rev': float(cp_stride),
+                        'relative_difference': float(rel_diff) if rel_diff is not None else None,
+                        'relative_tolerance': STRIDE_TOLERANCE,
+                        'provenance': cp_provenance
+                    }
+        else:
+            findings.append({'check': 'stride_reference_unverified',
+                             'message': 'The geometric reference conditions are not verified; independent dynamics or measurement evidence is required.',
+                             'evidence': {'unverified_conditions': [c['code'] for c in conditions if c['status'] != 'verified'],
+                                          'signed_reference_m_per_rev': predicted, 'diagnostic_relative_error': relative}})
     elif relative is None:
         findings.append({'check': 'audit_evidence', 'message': 'A finite signed stride comparison is required.',
                          'evidence': {'metric': 'stride_per_rev'}})
@@ -239,11 +336,16 @@ def audit_report(sc: SimConfig, metrics: dict, series: dict | None = None, stall
     if metrics.get('steady_window') != 1 or stalled:
         findings.append({'check': 'audit_evidence', 'message': 'A completed steady run is required for the full audit.',
                          'evidence': {'metric': 'steady_window', 'stalled': bool(stalled)}})
+    if indep_summary is not None:
+        reference['independent_validation'] = indep_summary
     unknown = {'audit_evidence', 'stride_reference_unverified'}
     status = 'failed' if any(f['check'] not in unknown for f in findings) else 'unverified' if findings else 'passed'
-    return {'version': 2, 'status': status, 'passed': status == 'passed',
-            'scope': 'numerical_invariants_and_applicable_geometric_reference', 'physical_validation_implied': False,
-            'thresholds': {'energy_residual': ENERGY_RESIDUAL, 'loop_open_m': LOOP_OPEN_M,
-                           'penetration_m': PENETRATION_M, 'stride_relative': STRIDE_TOLERANCE},
-            'findings': findings, 'stride_reference': reference,
-            'legacy': {'version': 1, 'passed': not legacy, 'findings': legacy}}
+    rep = {'version': 2, 'status': status, 'passed': status == 'passed',
+           'scope': 'numerical_invariants_and_applicable_geometric_reference', 'physical_validation_implied': False,
+           'thresholds': {'energy_residual': ENERGY_RESIDUAL, 'loop_open_m': LOOP_OPEN_M,
+                          'penetration_m': PENETRATION_M, 'stride_relative': STRIDE_TOLERANCE},
+           'findings': findings, 'stride_reference': reference,
+           'legacy': {'version': 1, 'passed': not legacy, 'findings': legacy}}
+    if indep_summary is not None:
+        rep['independent_validation'] = indep_summary
+    return rep

@@ -435,6 +435,64 @@ const charts = $derived.by(() => {
 	};
 	return { tmax, torque: mk("torque"), x: mk("x") };
 });
+const pneumaticCharts = $derived.by(() => {
+	if (!replay?.pneumatics) return null;
+	const p = replay.pneumatics;
+	const pBottle = p.p_bottle ?? p.bottle_pressure ?? p.bottle_pressure_pa;
+	const pCyl = p.p_cyl;
+	const feeler = p.feeler_vacuum ?? p.feeler_vacuum_pa;
+	const anchor = p.anchor_depth;
+
+	if (!pBottle && !pCyl && !feeler && !anchor) return null;
+
+	const ts = replay.t?.length ? replay.t : (replay.series?.t ?? []);
+	if (!ts.length) return null;
+	const tmax = Math.max(...ts, 1e-6);
+
+	const hasPressure =
+		(pBottle && pBottle.length > 0) || (pCyl && pCyl.length > 0);
+	let pressureInfo = null;
+	if (hasPressure) {
+		const bKPa = (pBottle ?? []).map((v) => v / 1000);
+		const cKPa = (pCyl ?? []).map((v) => v / 1000);
+		const all = [...bKPa, ...cKPa];
+		const lo = all.length ? Math.min(...all) : 0;
+		const hi = all.length ? Math.max(...all) : 100;
+		pressureInfo = {
+			lo,
+			hi,
+			bottleLine: bKPa.length
+				? line(ts.slice(0, bKPa.length), bKPa, lo, hi, tmax)
+				: "",
+			cylLine: cKPa.length
+				? line(ts.slice(0, cKPa.length), cKPa, lo, hi, tmax)
+				: "",
+		};
+	}
+
+	const hasReflex =
+		(feeler && feeler.length > 0) || (anchor && anchor.length > 0);
+	let reflexInfo = null;
+	if (hasReflex) {
+		const vKPa = (feeler ?? []).map((v) => v / 1000);
+		const aMm = (anchor ?? []).map((v) => v * 1000);
+		const all = [...vKPa, ...aMm];
+		const lo = all.length ? Math.min(...all, 0) : 0;
+		const hi = all.length ? Math.max(...all, 1) : 1;
+		reflexInfo = {
+			lo,
+			hi,
+			feelerLine: vKPa.length
+				? line(ts.slice(0, vKPa.length), vKPa, lo, hi, tmax)
+				: "",
+			anchorLine: aMm.length
+				? line(ts.slice(0, aMm.length), aMm, lo, hi, tmax)
+				: "",
+		};
+	}
+
+	return { tmax, pressureInfo, reflexInfo };
+});
 const cursor = $derived(charts?.tmax ? (time / charts.tmax) * 300 : 0);
 const outcome = $derived.by(() => {
 	if (!replay) return null;
@@ -597,6 +655,39 @@ const rows = $derived(
 						<svg viewBox="0 0 300 50" role="img" aria-label={t("scenes.chart.x", { lo: charts.x.lo.toFixed(3), hi: charts.x.hi.toFixed(3) })}>{#each charts.x.lines as l, i}<polyline points={l} fill="none" stroke={charts.x.lines.length === 2 && i === 0 ? "var(--muted)" : "var(--blue)"} stroke-width="1.5" />{/each}<line class="time-cursor" x1={cursor} x2={cursor} y1="0" y2="50" stroke="var(--accent)" stroke-width="1" /></svg>
 					</div>
 				</div>
+				{#if pneumaticCharts}
+					<h3>{t("pneumatics.replayTitle")}</h3>
+					<div class="plots">
+						{#if pneumaticCharts.pressureInfo}
+							<div>
+								<small>{t("pneumatics.chartPressure", { lo: pneumaticCharts.pressureInfo.lo.toFixed(0), hi: pneumaticCharts.pressureInfo.hi.toFixed(0) })}</small>
+								<svg viewBox="0 0 300 50" role="img" aria-label={t("pneumatics.chartPressure", { lo: pneumaticCharts.pressureInfo.lo.toFixed(0), hi: pneumaticCharts.pressureInfo.hi.toFixed(0) })}>
+									{#if pneumaticCharts.pressureInfo.bottleLine}
+										<polyline points={pneumaticCharts.pressureInfo.bottleLine} fill="none" stroke="var(--blue)" stroke-width="1.5" />
+									{/if}
+									{#if pneumaticCharts.pressureInfo.cylLine}
+										<polyline points={pneumaticCharts.pressureInfo.cylLine} fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="2,2" />
+									{/if}
+									<line class="time-cursor" x1={cursor} x2={cursor} y1="0" y2="50" stroke="var(--blue)" stroke-width="1" />
+								</svg>
+							</div>
+						{/if}
+						{#if pneumaticCharts.reflexInfo}
+							<div>
+								<small>{t("pneumatics.chartReflex", { lo: pneumaticCharts.reflexInfo.lo.toFixed(0), hi: pneumaticCharts.reflexInfo.hi.toFixed(0) })}</small>
+								<svg viewBox="0 0 300 50" role="img" aria-label={t("pneumatics.chartReflex", { lo: pneumaticCharts.reflexInfo.lo.toFixed(0), hi: pneumaticCharts.reflexInfo.hi.toFixed(0) })}>
+									{#if pneumaticCharts.reflexInfo.feelerLine}
+										<polyline points={pneumaticCharts.reflexInfo.feelerLine} fill="none" stroke="var(--accent)" stroke-width="1.5" />
+									{/if}
+									{#if pneumaticCharts.reflexInfo.anchorLine}
+										<polyline points={pneumaticCharts.reflexInfo.anchorLine} fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="3,2" />
+									{/if}
+									<line class="time-cursor" x1={cursor} x2={cursor} y1="0" y2="50" stroke="var(--accent)" stroke-width="1" />
+								</svg>
+							</div>
+						{/if}
+					</div>
+				{/if}
 			</section>
 			<details class="limitations">
 				<summary>{t("scenes.limitations")}</summary>

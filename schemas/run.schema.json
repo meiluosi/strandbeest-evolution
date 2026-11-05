@@ -649,6 +649,39 @@
 									"type": "boolean"
 								}
 							}
+						},
+						"independent_validation": {
+							"type": ["object", "null"],
+							"additionalProperties": false,
+							"required": [
+								"status",
+								"backend",
+								"stride_m_per_rev",
+								"relative_difference",
+								"relative_tolerance"
+							],
+							"properties": {
+								"status": {
+									"enum": ["verified", "unverified", "failed"]
+								},
+								"backend": {
+									"type": "string"
+								},
+								"stride_m_per_rev": {
+									"type": ["number", "null"],
+									"x-unit": "m"
+								},
+								"relative_difference": {
+									"type": ["number", "null"],
+									"x-unit": "1"
+								},
+								"relative_tolerance": {
+									"const": 0.15
+								},
+								"provenance": {
+									"type": "object"
+								}
+							}
 						}
 					},
 					"allOf": [
@@ -723,6 +756,39 @@
 							}
 						}
 					}
+				},
+				"independent_validation": {
+					"type": ["object", "null"],
+					"additionalProperties": false,
+					"required": [
+						"status",
+						"backend",
+						"stride_m_per_rev",
+						"relative_difference",
+						"relative_tolerance"
+					],
+					"properties": {
+						"status": {
+							"enum": ["verified", "unverified", "failed"]
+						},
+						"backend": {
+							"type": "string"
+						},
+						"stride_m_per_rev": {
+							"type": ["number", "null"],
+							"x-unit": "m"
+						},
+						"relative_difference": {
+							"type": ["number", "null"],
+							"x-unit": "1"
+						},
+						"relative_tolerance": {
+							"const": 0.15
+						},
+						"provenance": {
+							"type": "object"
+						}
+					}
 				}
 			},
 			"allOf": [
@@ -741,15 +807,39 @@
 							},
 							"findings": {
 								"maxItems": 0
-							},
-							"stride_reference": {
+							}
+						},
+						"anyOf": [
+							{
 								"properties": {
-									"applicability": {
-										"const": "verified"
+									"stride_reference": {
+										"properties": {
+											"applicability": {
+												"const": "verified"
+											}
+										},
+										"required": ["applicability"]
+									}
+								}
+							},
+							{
+								"properties": {
+									"stride_reference": {
+										"properties": {
+											"independent_validation": {
+												"properties": {
+													"status": {
+														"const": "verified"
+													}
+												},
+												"required": ["status"]
+											}
+										},
+										"required": ["independent_validation"]
 									}
 								}
 							}
-						}
+						]
 					},
 					"else": {
 						"properties": {

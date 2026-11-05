@@ -3079,3 +3079,127 @@ The goal remains **9 accepted / 4 in progress / 4 pending**. K2 time convergence
      - **Stored-air windless walking (`wind.speed = 0.0`):** With `precharge_pa = 350 kPa`, the walker self-starts and walks `0.5 rev` (`final_psi = 3.092 rad`, `distance = +23.52 mm`, `bottle_pressure_rise = -3,774.15 Pa`, `pump_work_j = -4.2755 J` delivered by gas to crank, mass error `1.23e-16`, energy relative error `2.92e-9`), whereas uncharged control (`precharge_pa = 101.325 kPa`) stalls (`final_psi = 0.127 rad`, `bottle_pressure_rise = 0.0 Pa`).
      - **Reflexes & checkpointing:** `water_level_m = 0.08 m` trips `WaterFeeler` (`100.49 kPa` vacuum) and reverses `valve_state` to `-1`; `slope_deg = 20 deg` fires `StormAnchor` (`critical_tilt`, `2,797.60 N` holding force); `snapshot()` + `restore()` reproduces continuation trajectories to `1e-12`. Vessel-wall thermal capacitance ODE coupling and `H2-01` dependency remain open, so `H3-02` remains `▶`.
 
+## 79. 多种子演化优化与双求解器排名稳定性复验 (H2-02) (2026-11-05)
+
+**任务卡**：`H2-02`（优化结论复验：§41 修订代理后在相同候选/预算/场景下重跑；至少10个优化种子，MuJoCo/K2复评；报告 Spearman、前5重合、失败比例及不确定性；预先声明采信门槛，不稳定排名不输出为已验证优胜）
+**依赖**：`H2-01`、`W-08`、`O-07`、`V-04`
+**代码**：
+- 评测与复现脚本：`packages/opt/scripts/h2_02_multiseed_stability.py`
+- 稳定性分析框架：`packages/opt/src/strandbeest_opt/stability.py`（新增 `confidence_interval`、`StabilityThresholds`、`MultiSeedStabilityResult`、`analyze_multiseed_stability`）
+- 单元测试：`packages/opt/tests/test_stability.py`
+**原始数据**：`experiments/hardening-h2-02-multiseed-dual-solver-2026-11-05.json`（全量 10 个种子、100 个候选设计在 MuJoCo 与 K2 的双端指标、置信区间及门槛裁决）
+
+### 1. 实验协议与预先声明采信门槛
+
+按 `ACTIONS.md` H2-02 与 ADR-0004 决策原则，优化算法在真实 MuJoCo 与 K2 物理求解器中执行跨种子复评。为防止因单一求解器的接触微元或正则化假设导致"伪优胜构型"，预先声明采信门槛：
+1. **Spearman 秩相关系数门槛**：$\rho_s \ge 0.70$（显著正相关且相对排序大体保留）；
+2. **Top-5 重合率门槛**：$\text{Overlap Ratio} \ge 60.0\%$（前 5 名优胜设计至少保留 3 个）；
+3. **失败比例门槛**：$\text{Failure Rate} \le 5.0\%$（求解器发散、卡死或步幅非正样本不超过 5%）；
+4. **硬性守门准则**：未同时满足上述门槛的演化结果判定为 `UNSTABLE (REJECTED)`，**绝对禁止输出为已验证优胜（`verified_winners = []`）**。
+
+### 2. 优化搜索空间与工况参数
+
+* **基准机型**：Jansen 经典 6 腿走兽（`schemas/examples/design-jansen-small-6leg.json`）；
+* **候选参数空间（5维）**：
+  * 连杆基因：`m`（曲柄 [12.0, 18.0]）、`a`（髋偏置 [36.0, 40.0]）、`h`（大腿长 [60.0, 70.0]）；
+  * 帆基因：`sail_area_m2`（帆面积 [0.010, 0.080] $\text{m}^2$）、`sail_gear`（传动比 [4.0, 24.0]）；
+  * 每项边界均保留具名假设（AGENTS.md 要求）。
+* **工况场景**：定常风速 $3.0\text{ m/s}$，风向偏角 $\text{yaw} = 0.0^\circ$，平地地面摩擦系数 $\mu = 1.5$，曲柄转动 $0.3\text{ rev}$，时间步长 $dt = 0.001\text{ s}$；
+* **演化预算**：10 个独立优化种子（Seeds 1..10），CMA-ES 种群大小 8，迭代 5 代（每种子 40 次评估，全局 400 次）；每种子取前 10 个非重复最优候选设计（共 100 个候选设计评测）。
+
+### 3. 双端复评实测数据与逐种子对比
+
+对 10 个种子挑选出的全部候选设计，分别使用 `MujocoBackend` 与 `K2Backend` 在完全相同的物理工况下进行高保真重跑：
+
+| 种子 (Seed) | Spearman $\rho_s$ | Top-5 重合率 | Top-5 Jaccard | MuJoCo 失败数 | K2 失败数 | 门槛状态 | 单种子耗时 (s) |
+|---|---:|---:|---:|---:|---:|:---:|---:|
+| Seed 1 | +0.2606 | 40.0% | 0.250 | 0/10 | 0/10 | FAIL | 8.51 |
+| Seed 2 | +0.6364 | 80.0% | 0.667 | 0/10 | 0/10 | FAIL ($\rho < 0.7$) | 8.26 |
+| Seed 3 | +0.7455 | 80.0% | 0.667 | 0/10 | 0/10 | **PASS** | 7.33 |
+| Seed 4 | +0.4303 | 60.0% | 0.429 | 0/10 | 1/10 | FAIL ($\rho < 0.7$, fail 10%) | 6.95 |
+| Seed 5 | +0.6970 | 100.0% | 1.000 | 0/10 | 1/10 | FAIL ($\rho < 0.7$, fail 10%) | 6.97 |
+| Seed 6 | +0.7091 | 80.0% | 0.667 | 0/10 | 0/10 | **PASS** | 7.77 |
+| Seed 7 | +0.8667 | 100.0% | 1.000 | 0/10 | 0/10 | **PASS** | 7.13 |
+| Seed 8 | +0.9273 | 100.0% | 1.000 | 0/10 | 0/10 | **PASS** | 7.08 |
+| Seed 9 | +0.4182 | 60.0% | 0.429 | 0/10 | 0/10 | FAIL ($\rho < 0.7$) | 7.18 |
+| Seed 10 | +0.1030 | 60.0% | 0.429 | 0/10 | 0/10 | FAIL ($\rho < 0.7$) | 7.87 |
+
+### 4. 统计不确定性区间 (95% Student-t 置信区间)
+
+基于 10 个独立优化种子（自由度 $\nu = 9, t_{0.975} = 2.262$）计算均值、样本标准差及 95% 置信区间：
+
+* **Spearman $\rho_s$**：$\text{Mean} = 0.5794, \text{Std} = 0.2670, \mathbf{95\%\text{ CI}} = [\mathbf{0.3884}, \mathbf{0.7704}]$
+* **Top-5 Overlap Ratio**：$\text{Mean} = 76.00\%, \text{Std} = 20.66\%, \mathbf{95\%\text{ CI}} = [\mathbf{61.22\%}, \mathbf{90.78\%}]$
+* **Top-5 Jaccard Index**：$\text{Mean} = 0.6536, \text{Std} = 0.2739, \mathbf{95\%\text{ CI}} = [\mathbf{0.4576}, \mathbf{0.8495}]$
+* **MuJoCo 失败比例**：$\text{Mean} = 0.00\%, \text{Std} = 0.00\%, \mathbf{95\%\text{ CI}} = [\mathbf{0.00\%}, \mathbf{0.00\%}]$
+* **K2 失败比例**：$\text{Mean} = 2.00\%, \text{Std} = 4.22\%, \mathbf{95\%\text{ CI}} = [\mathbf{-1.02\%}, \mathbf{5.02\%}]$
+
+### 5. 全局混合检验 (Pooled Overall) 与采信裁决
+
+将全部 10 个种子得到的 100 个候选设计混合池化（Pooled $N=100$）分析：
+* **池化 Spearman 秩相关**：$\rho_{\text{pooled}} = \mathbf{+0.6591}$（低于声明门槛 $\rho_s \ge 0.70$）；
+* **池化 Top-5 重合率**：$\text{Overlap}_{\text{pooled}} = \mathbf{20.0\%}$（Jaccard 0.1111，严重低于声明门槛 $\ge 60.0\%$）；
+* **种子达标比例**：仅 4/10 个种子满足门槛（Seeds 3, 6, 7, 8 达标；Seeds 1, 2, 4, 5, 9, 10 未达标）；
+* **裁决结论**：**`UNSTABLE (REJECTED)`**。
+  在相近的紧密候选簇内（位移差异在数毫米至厘米量级），MuJoCo（软接触、双足同时着地分担自重）与 K2（理想刚体单边接触、微米级间隙即切断法向力）对于具体设计优劣的相对排序出现显著翻转。池化前 5 名仅有 1 个设计重合（20%）。
+* **优胜输出守门**：按预先声明门槛，**输出 `verified_winners = []`（0 个验证优胜）**，避免向用户虚假宣称未经交叉验证的"最优参数"。
+
+## 80. H2-01 独立动力学验证收官 (64样本全量清零) 与 H3-02 显式壁温热容闭环 (2026-11-05)
+
+**任务卡**：`H2-01`（完整仿真审计，ADR-0012 独立动力学对照清零）；`H3-02`（气动机械双向闭环，显式壁温与遥测回放收口）
+**依赖**：`H1-01`、`H1-05`、`ADR-0010`、`ADR-0012`
+**代码**：
+- K2 接触柔度与阻尼 CFM：`packages/sim/src/strandbeest_sim/backends/k2_backend.py`
+- 独立动力学验证器：`packages/sim/src/strandbeest_sim/audit.py` 与 `packages/sim-web/src/audit.ts`
+- 验证器测试：`packages/sim/tests/test_audit_v2.py` (30 项全过) 与 `packages/sim-web/src/audit.test.ts` (28 项全过)
+- 气动显式壁温热容热力学 ODE：`packages/sim/src/strandbeest_sim/fluids/{storage,network}.py`
+- 交互快照与遥测回放：`packages/sim/src/strandbeest_sim/{interactive,runner}.py` 与 `apps/web-demo/src/ScenePlayer.svelte`
+- 审计收官产物：`experiments/hardening-h2-01-independent-validation-2026-11-05.json`
+
+### 1. K2 默认平地接触柔度与阻尼 CFM 修复 (第 61/20 号静摩擦楔死根除)
+
+在 `packages/sim/src/strandbeest_sim/backends/k2_backend.py` 中：
+1. **质量归一化刚度映射**：将 `solver.contact_stiffness`（$k_{\text{norm}}$，单位 $1/\text{s}^2$）与 `contact_damping_ratio`（$\zeta$）映射为物理接触法向柔度参数：
+   $$c_{\text{stiff}} = M_{\text{total}} \cdot k_{\text{norm}}, \quad c_{\text{damp}} = M_{\text{total}} \cdot 2\zeta \sqrt{k_{\text{norm}}}$$
+2. **约束力混合因子 (CFM) 平滑阻尼项**：在冲量积分时间步 $dt$ 下，将法向柔度对角松弛项 `cfm_n` 修正为包含阻尼能量耗散的严密分母：
+   $$\text{cfm}_n = \frac{\beta}{c_{\text{stiff}} dt^2 + c_{\text{damp}} dt}$$
+3. **消除微米共面静摩擦楔死**：
+   - 在第 61 号样本双足微米共面窗口（$|z_a - z_b| < 2\ \mu\text{m}$），法向柔顺接触分配使单点微元法向力平滑交接，消除了刚性单点 LCP 的静摩擦楔死（$0.3496\text{ N}\cdot\text{m} > 0.30\text{ N}\cdot\text{m}$），在 $dt = 0.5\text{ ms}, 0.1\text{ ms}, 0.05\text{ ms}, 0.025\text{ ms}$ 全时间步网格下单调收敛且无停转（`stalled = False`）：
+     - $dt = 0.5\text{ ms}$：$+3.81\text{ mm/rev}$
+     - $dt = 0.1\text{ ms}$：$+4.07\text{ mm/rev}$
+     - $dt = 0.05\text{ ms}$：$+4.10\text{ mm/rev}$
+     - $dt = 0.025\text{ ms}$：$+4.11\text{ mm/rev}$
+     与极限刚度细步长 MuJoCo（$+4.35\text{ mm/rev}$）相对偏差仅 **$5.45\% \le 15\%$**。
+   - 在第 20 号样本上，$0.1\text{ ms}$ 步幅为 $-121.29\text{ mm/rev}$，$0.025\text{ ms}$ 为 $-121.26\text{ mm/rev}$，与细步长 MuJoCo（$-121.46\text{ mm/rev}$）相对偏差仅 **$0.16\% \le 15\%$**。
+
+### 2. ADR-0012 独立动力学对照验证器 (Independent Dynamical Validation)
+
+在 `packages/sim/src/strandbeest_sim/audit.py` 与 `packages/sim-web/src/audit.ts` 中接通独立验证契约：
+1. **触发时机**：当几何刚性无滑移无腾空参考不适用（柔顺动力学/多足支撑运行）时，支持传入带出处签名的独立物理求解器对照记录（`counterpart_backend != backend_name`，如 K2 ↔ MuJoCo）；
+2. **严格不变式校验**：核验对照记录无数值违规（`stalled == False`、`steady_window == 1`、能量残差 $\le 2\%$、闭环开度 $\le 5\text{ mm}$、穿透量 $\le 5\text{ mm}$、腾空率 $\le 5\%$）；
+3. **跨求解器步幅门槛**：两独立求解器相对步幅偏差满足：
+   $$\frac{|s_{\text{observed}} - s_{\text{counterpart}}|}{\max(|s_{\text{observed}}|, 10^{-12})} \le 15\%$$
+   验证通过后，不添加 `stride_reference_unverified` 待定项，审计报告状态正式转为 **`passed`**。
+
+### 3. 64 样本全量队列达标验收统计
+
+对原始 64 样本执行 MuJoCo 与 K2 双求解器跨端审计（`experiments/hardening-h2-01-independent-validation-2026-11-05.json`）：
+- **v2 审计状态**：**`64 passed / 0 failed / 0 unverified`**（100% 通过，未验证清零）；
+- **legacy v1 审计状态**：严格保留历史 61 通过 / 3 失败（第 20/56/61 号几何参考启发式失败原样留存）；
+- **双求解器步幅吻合度**：
+  - 队列中位相对偏差：**`3.17%`**
+  - 90分位相对偏差：**`12.55%`**
+  - 最大相对偏差：**`14.91%`**（全部严格收拢在 $15\%$ 容差范围内）；
+- **物理模型边界说明（ADR-0012 §31）**：
+  - 在平地平坦地形下，K2 与 MuJoCo 的 57 个样本步幅直接吻合（中位数 4.21%）；
+  - 在第 23/31 号（bumps 障碍）及第 37/43/54/62 号（slope 坡道）上，明确区分 K2 平面接触算法与 MuJoCo 3D 凸起几何阻挡/坡道切向顺应性蠕变；在同构平地物理对照下两求解器步幅差异仅 $0.64\% - 4.05\%$。
+
+### 4. H3-02 显式壁温热容 ODE 与交互式回放收口
+
+1. **PET 瓶壁显式热容与热交换**：
+   在 `storage.py` 与 `network.py` 中引入显式瓶壁温度状态 $T_{\text{wall}}$ 与热容 $C_{\text{wall}}$，建立空气-内壁热交换 $Q_{\text{int}} = h_{\text{int}} A (T_{\text{air}} - T_{\text{wall}})$ 与外壁-环境热交换 $Q_{\text{ext}} = h_{\text{ext}} A (T_{\text{wall}} - T_{\text{amb}})$ 的双区集总热力学 ODE。总能量账 $U_{\text{total}} = U_{\text{gas}} + U_{\text{wall}}$ 在充放气瞬态全过程闭合，能量守恒残差 $< 10^{-7}\text{ J}$。
+2. **交互式快照与前端回放**：
+   在 `interactive.py` 中将气动耦合器完整状态纳入 `snapshot()` 与 `restore()`，状态恢复精度达到 $10^{-12}$；将 5 通道气动时序（`p_bottle`、`p_cyl`、`feeler_vacuum`、`valve_state`、`anchor_depth`）完整输出至 Arrow 遥测表并在前端 `ScenePlayer.svelte` 接入交互式 SVG 时序图表。
+
+
+

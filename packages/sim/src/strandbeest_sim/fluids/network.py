@@ -244,10 +244,21 @@ class FluidNode:
     ambient_temperature: float = T_0
     thermal_capacitance: Optional[float] = None
     volume_func: Optional[Callable[[float], tuple[float, float]]] = None
+    wall_thermal_capacitance: float = 0.0
+    T_wall: float = T_0
+    h_int: float = 0.0
+    h_ext: float = 0.0
 
     def __post_init__(self) -> None:
         if self.mass <= 0.0 and self.volume > 0.0 and self.pressure > 0.0:
             self.mass = (self.pressure * self.volume) / (R_AIR * max(self.temperature, 1.0))
+        if self.wall_thermal_capacitance > 0.0:
+            if self.h_int <= 0.0 and self.heat_transfer_coeff > 0.0:
+                self.h_int = self.heat_transfer_coeff
+            if self.h_ext <= 0.0 and self.heat_transfer_coeff > 0.0:
+                self.h_ext = self.heat_transfer_coeff
+            if self.T_wall <= 0.0:
+                self.T_wall = self.ambient_temperature
 
     def update_volume(self, t: float) -> tuple[float, float]:
         """Update node volume from kinematic volume_func if present.
@@ -264,18 +275,54 @@ class FluidNode:
         return self.volume, 0.0
 
     def compute_heat_transfer(self) -> float:
-        """Compute convective heat exchange rate Q_dot with ambient [W].
+        """Compute convective heat exchange rate into enclosed gas [W].
 
-        Q_dot = h * A * (T_amb - T)
+        When wall_thermal_capacitance > 0:
+            Q_int = h_int * A * (T_air - T_wall)
+            Heat flux into enclosed air is -Q_int = h_int * A * (T_wall - T_air).
+        Otherwise:
+            Q_dot = h * A * (T_amb - T_air).
         """
+        if self.wall_thermal_capacitance > 0.0:
+            h_int = self.h_int if self.h_int > 0.0 else self.heat_transfer_coeff
+            if h_int <= 0.0 or self.heat_transfer_area <= 0.0:
+                return 0.0
+            return h_int * self.heat_transfer_area * (self.T_wall - self.temperature)
+
         if self.heat_transfer_coeff <= 0.0 or self.heat_transfer_area <= 0.0:
             return 0.0
         return self.heat_transfer_coeff * self.heat_transfer_area * (self.ambient_temperature - self.temperature)
 
+    def compute_heat_transfer_int(self) -> float:
+        """Compute internal heat flux Q_int = h_int * A * (T_air - T_wall) from gas to wall [W]."""
+        h_int = self.h_int if self.h_int > 0.0 else self.heat_transfer_coeff
+        if h_int <= 0.0 or self.heat_transfer_area <= 0.0:
+            return 0.0
+        return h_int * self.heat_transfer_area * (self.temperature - self.T_wall)
+
+    def compute_heat_transfer_ext(self) -> float:
+        """Compute external heat flux Q_ext = h_ext * A * (T_wall - T_amb) from wall to ambient [W]."""
+        h_ext = self.h_ext if self.h_ext > 0.0 else self.heat_transfer_coeff
+        if h_ext <= 0.0 or self.heat_transfer_area <= 0.0:
+            return 0.0
+        return h_ext * self.heat_transfer_area * (self.T_wall - self.ambient_temperature)
+
+    @property
+    def gas_internal_energy_j(self) -> float:
+        """Gas internal energy pV/(gamma-1) [J]."""
+        return self.pressure * self.volume / (GAMMA_AIR - 1.0)
+
+    @property
+    def wall_internal_energy_j(self) -> float:
+        """Wall thermal internal energy C_wall * T_wall [J]."""
+        if self.wall_thermal_capacitance > 0.0:
+            return self.wall_thermal_capacitance * self.T_wall
+        return 0.0
+
     @property
     def internal_energy_j(self) -> float:
-        """Gas internal energy pV/(gamma-1); excludes unmodelled vessel walls."""
-        return self.pressure * self.volume / (GAMMA_AIR - 1.0)
+        """Total thermodynamic internal energy of node (gas + wall) [J]."""
+        return self.gas_internal_energy_j + self.wall_internal_energy_j
 
     def energy_rates(
         self, m_dot_net: float, dV_dt: float = 0.0, Q_dot: float = 0.0,
@@ -433,6 +480,7 @@ class FluidSimulationResult:
     total_mass: np.ndarray
     mass_conservation_relative_error: float
     balance: dict[str, np.ndarray] = field(default_factory=dict)
+    wall_temperatures: dict[str, np.ndarray] = field(default_factory=dict)
 
 
 # Integrated with the same RK stages as p, V and m. These are signed inputs to
@@ -484,30 +532,58 @@ class FluidNetwork:
         """List of non-boundary dynamic nodes."""
         return [self.nodes[name] for name in self._dynamic_node_names]
 
+    @property
+    def wall_nodes(self) -> list[FluidNode]:
+        """List of dynamic nodes with explicit wall thermal capacitance."""
+        return [node for node in self.dynamic_nodes if node.wall_thermal_capacitance > 0.0]
+
     def get_state(self) -> np.ndarray:
         """Extract state vector y for dynamic nodes.
 
         Layout:
-        - If track_mass is False: [p_1, ..., p_K, V_1, ..., V_K] (length 2K)
-        - If track_mass is True:  [p_1, ..., p_K, V_1, ..., V_K, m_1, ..., m_K] (length 3K)
+        - If no wall nodes:
+            - If track_mass is False: [p_1, ..., p_K, V_1, ..., V_K] (length 2K)
+            - If track_mass is True:  [p_1, ..., p_K, V_1, ..., V_K, m_1, ..., m_K] (length 3K)
+        - If W wall nodes:
+            - If track_mass is False: [p_1, ..., p_K, V_1, ..., V_K, T_wall_1, ..., T_wall_W] (length 2K + W)
+            - If track_mass is True:  [p_1, ..., p_K, V_1, ..., V_K, m_1, ..., m_K, T_wall_1, ..., T_wall_W] (length 3K + W)
         """
         dyn = self.dynamic_nodes
+        wn = self.wall_nodes
         p = [n.pressure for n in dyn]
         v = [n.volume for n in dyn]
+        tw = [n.T_wall for n in wn]
         if self.track_mass:
             m = [n.mass for n in dyn]
-            return np.array(p + v + m, dtype=np.float64)
-        return np.array(p + v, dtype=np.float64)
+            return np.array(p + v + m + tw, dtype=np.float64)
+        return np.array(p + v + tw, dtype=np.float64)
 
     def set_state(self, y: np.ndarray, t: float = 0.0) -> None:
-        """Update node pressures, volumes, masses, and temperatures from state vector y."""
+        """Update node pressures, volumes, masses, temperatures, and wall temperatures from state vector y."""
         dyn = self.dynamic_nodes
+        wn = self.wall_nodes
         k = len(dyn)
-        if len(y) not in (k, 2 * k, 3 * k) or not np.all(np.isfinite(y)):
+        w = len(wn)
+        valid_lengths = {k, 2 * k, 3 * k}
+        if w > 0:
+            valid_lengths.update({2 * k + w, 3 * k + w})
+        if len(y) not in valid_lengths or not np.all(np.isfinite(y)):
             raise ValueError("Invalid fluid state length or non-finite state")
-        if len(y) != 3 * k and any(not node.is_fixed_temperature for node in dyn):
+        if len(y) not in (3 * k, 3 * k + w) and any(not node.is_fixed_temperature for node in dyn):
             raise ValueError("Non-isothermal fluid state requires pressure, volume and mass")
-        if len(y) == 2 * k:
+
+        if len(y) in (3 * k, 3 * k + w):
+            for i, node in enumerate(dyn):
+                node.pressure = float(y[i])
+                node.volume = float(y[k + i])
+                node.mass = float(y[2 * k + i])
+                node.update_volume(t)
+                if not node.is_fixed_temperature and node.mass > 0.0:
+                    node.temperature = (node.pressure * node.volume) / (node.mass * R_AIR)
+            if len(y) == 3 * k + w:
+                for j, wnode in enumerate(wn):
+                    wnode.T_wall = float(y[3 * k + j])
+        elif len(y) in (2 * k, 2 * k + w):
             for i, node in enumerate(dyn):
                 node.pressure = float(y[i])
                 node.volume = float(y[k + i])
@@ -519,14 +595,9 @@ class FluidNetwork:
                         node.temperature = (node.pressure * node.volume) / (node.mass * R_AIR)
                     else:
                         node.mass = (node.pressure * node.volume) / (R_AIR * node.temperature)
-        elif len(y) == 3 * k:
-            for i, node in enumerate(dyn):
-                node.pressure = float(y[i])
-                node.volume = float(y[k + i])
-                node.mass = float(y[2 * k + i])
-                node.update_volume(t)
-                if not node.is_fixed_temperature and node.mass > 0.0:
-                    node.temperature = (node.pressure * node.volume) / (node.mass * R_AIR)
+            if len(y) == 2 * k + w:
+                for j, wnode in enumerate(wn):
+                    wnode.T_wall = float(y[2 * k + j])
         elif len(y) == k:
             for i, node in enumerate(dyn):
                 node.pressure = float(y[i])
@@ -536,7 +607,9 @@ class FluidNetwork:
                 elif node.mass > 0.0:
                     node.temperature = (node.pressure * node.volume) / (node.mass * R_AIR)
         for node in dyn:
-            values = (node.pressure, node.volume, node.mass, node.temperature)
+            values = [node.pressure, node.volume, node.mass, node.temperature]
+            if node.wall_thermal_capacitance > 0.0:
+                values.append(node.T_wall)
             if not all(math.isfinite(value) and value > 0.0 for value in values):
                 raise ValueError(f"Non-positive thermodynamic state or non-finite value in node '{node.name}'; reduce dt")
 
@@ -582,12 +655,15 @@ class FluidNetwork:
     def _derivatives_and_balance(self, t: float, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         self.set_state(y, t)
         dyn = self.dynamic_nodes
+        wn = self.wall_nodes
         k = len(dyn)
+        w = len(wn)
         net_flows, net_enthalpy = self.compute_node_fluxes()
 
         dp_dt = np.zeros(k, dtype=np.float64)
         dv_dt = np.zeros(k, dtype=np.float64)
         dm_dt = np.zeros(k, dtype=np.float64)
+        dt_wall_dt = np.zeros(w, dtype=np.float64)
         balance = np.zeros(len(BALANCE_CHANNELS), dtype=np.float64)
 
         for i, node in enumerate(dyn):
@@ -600,11 +676,28 @@ class FluidNetwork:
             rates = node.energy_rates(m_dot_net, dv_i, q_dot, enthalpy_net_w=net_enthalpy[node.name])
             dp_dt[i] = ((GAMMA_AIR - 1.0) * rates.net_energy_w - node.pressure * dv_i) / node.volume
             dm_dt[i] = node.compute_dm_dt(m_dot_net)
-            balance += (m_dot_net, rates.enthalpy_w, rates.compression_work_w,
-                        rates.convective_heat_w, rates.polytropic_heat_w, rates.thermostat_heat_w)
 
-        if len(y) == 3 * k:
+            # Heat exchange with external ambient environment
+            if node.wall_thermal_capacitance > 0.0:
+                h_ext = node.h_ext if node.h_ext > 0.0 else node.heat_transfer_coeff
+                q_ambient = h_ext * node.heat_transfer_area * (node.ambient_temperature - node.T_wall)
+            else:
+                q_ambient = rates.convective_heat_w
+
+            balance += (m_dot_net, rates.enthalpy_w, rates.compression_work_w,
+                        q_ambient, rates.polytropic_heat_w, rates.thermostat_heat_w)
+
+        for j, wnode in enumerate(wn):
+            q_int = wnode.compute_heat_transfer_int()
+            q_ext = wnode.compute_heat_transfer_ext()
+            dt_wall_dt[j] = (q_int - q_ext) / wnode.wall_thermal_capacitance
+
+        if len(y) == 3 * k + w:
+            return np.concatenate([dp_dt, dv_dt, dm_dt, dt_wall_dt]), balance
+        elif len(y) == 3 * k:
             return np.concatenate([dp_dt, dv_dt, dm_dt]), balance
+        elif len(y) == 2 * k + w:
+            return np.concatenate([dp_dt, dv_dt, dt_wall_dt]), balance
         elif len(y) == 2 * k:
             return np.concatenate([dp_dt, dv_dt]), balance
         return dp_dt, balance
@@ -686,9 +779,13 @@ class FluidNetwork:
         v_hist = {name: np.zeros(n_steps + 1) for name in all_names}
         t_hist = {name: np.zeros(n_steps + 1) for name in all_names}
         m_hist = {name: np.zeros(n_steps + 1) for name in all_names}
+        wall_names = [name for name, node in self.nodes.items() if node.wall_thermal_capacitance > 0.0]
+        wall_t_hist = {name: np.zeros(n_steps + 1) for name in wall_names}
         tot_mass = np.zeros(n_steps + 1)
         balance = {key: np.zeros(n_steps + 1) for key in BALANCE_CHANNELS}
         balance["internal_energy_j"] = np.zeros(n_steps + 1)
+        balance["gas_internal_energy_j"] = np.zeros(n_steps + 1)
+        balance["wall_internal_energy_j"] = np.zeros(n_steps + 1)
 
         # Initial state recording
         for name, node in self.nodes.items():
@@ -696,8 +793,12 @@ class FluidNetwork:
             v_hist[name][0] = node.volume
             t_hist[name][0] = node.temperature
             m_hist[name][0] = node.mass
+        for name in wall_names:
+            wall_t_hist[name][0] = self.nodes[name].T_wall
         tot_mass[0] = sum(self.nodes[name].mass for name in self._dynamic_node_names)
         balance["internal_energy_j"][0] = math.fsum(node.internal_energy_j for node in self.dynamic_nodes)
+        balance["gas_internal_energy_j"][0] = math.fsum(node.gas_internal_energy_j for node in self.dynamic_nodes)
+        balance["wall_internal_energy_j"][0] = math.fsum(node.wall_internal_energy_j for node in self.dynamic_nodes)
 
         curr_t = t0
         for step_idx in range(1, n_steps + 1):
@@ -709,10 +810,14 @@ class FluidNetwork:
                 v_hist[name][step_idx] = node.volume
                 t_hist[name][step_idx] = node.temperature
                 m_hist[name][step_idx] = node.mass
+            for name in wall_names:
+                wall_t_hist[name][step_idx] = self.nodes[name].T_wall
             tot_mass[step_idx] = sum(self.nodes[name].mass for name in self._dynamic_node_names)
             for key in BALANCE_CHANNELS:
                 balance[key][step_idx] = balance[key][step_idx - 1] + self.last_step_balance[key]
             balance["internal_energy_j"][step_idx] = math.fsum(node.internal_energy_j for node in self.dynamic_nodes)
+            balance["gas_internal_energy_j"][step_idx] = math.fsum(node.gas_internal_energy_j for node in self.dynamic_nodes)
+            balance["wall_internal_energy_j"][step_idx] = math.fsum(node.wall_internal_energy_j for node in self.dynamic_nodes)
 
         balance["mass_residual_kg"] = tot_mass - tot_mass[0] - balance["boundary_mass_kg"]
         balance["energy_residual_j"] = (balance["internal_energy_j"] - balance["internal_energy_j"][0]
@@ -732,4 +837,5 @@ class FluidNetwork:
             total_mass=tot_mass,
             mass_conservation_relative_error=rel_err,
             balance=balance,
+            wall_temperatures=wall_t_hist,
         )

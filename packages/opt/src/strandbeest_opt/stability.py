@@ -257,3 +257,251 @@ def evaluate_stability_suite(
             scores_by_cond[c_name].append(score)
 
     return check_ranking_stability(scores_by_cond, k=k)
+
+
+def confidence_interval(data: Sequence[float], confidence: float = 0.95) -> tuple[float, float, float, float]:
+    """Calculate (mean, std, ci_lower, ci_upper) for a sample of values.
+
+    Uses Student's t distribution when scipy is available, falling back to standard t-values.
+    """
+    n = len(data)
+    if n == 0:
+        return 0.0, 0.0, 0.0, 0.0
+    if n == 1:
+        v = float(data[0])
+        return v, 0.0, v, v
+    mean = sum(data) / n
+    var = sum((x - mean) ** 2 for x in data) / (n - 1)
+    std = math.sqrt(max(0.0, var))
+    if std < 1e-12:
+        return float(mean), 0.0, float(mean), float(mean)
+
+    try:
+        from scipy.stats import t
+
+        t_crit = float(t.ppf((1.0 + confidence) / 2.0, df=n - 1))
+    except ImportError:
+        t_table = {
+            1: 12.706,
+            2: 4.303,
+            3: 3.182,
+            4: 2.776,
+            5: 2.571,
+            6: 2.447,
+            7: 2.365,
+            8: 2.306,
+            9: 2.262,
+            10: 2.228,
+            15: 2.131,
+            20: 2.086,
+            30: 2.042,
+        }
+        df = n - 1
+        t_crit = t_table.get(df, 1.96)
+
+    margin = t_crit * (std / math.sqrt(n))
+    return float(mean), float(std), float(mean - margin), float(mean + margin)
+
+
+@dataclass(frozen=True)
+class StabilityThresholds:
+    """Pre-declared acceptance thresholds for cross-solver rank stability verification (H2-02)."""
+
+    min_spearman: float = 0.70
+    min_top_k_overlap: float = 0.60
+    max_failure_rate: float = 0.05
+
+
+@dataclass
+class MultiSeedStabilityResult:
+    """Aggregated results of multi-seed cross-solver rank stability verification."""
+
+    seed_results: list[dict[str, Any]]
+    uncertainty: dict[str, dict[str, float]]
+    pooled_spearman: float
+    pooled_top_k_overlap: float
+    pooled_top_k_jaccard: float
+    pooled_mujoco_failure_rate: float
+    pooled_k2_failure_rate: float
+    thresholds: StabilityThresholds
+    passed_seeds: list[int]
+    failed_seeds: list[int]
+    is_stable: bool
+    is_verified_winner: bool
+    verdict: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "seed_results": self.seed_results,
+            "uncertainty": self.uncertainty,
+            "pooled_spearman": float(self.pooled_spearman),
+            "pooled_top_k_overlap": float(self.pooled_top_k_overlap),
+            "pooled_top_k_jaccard": float(self.pooled_top_k_jaccard),
+            "pooled_mujoco_failure_rate": float(self.pooled_mujoco_failure_rate),
+            "pooled_k2_failure_rate": float(self.pooled_k2_failure_rate),
+            "thresholds": asdict(self.thresholds),
+            "passed_seeds": self.passed_seeds,
+            "failed_seeds": self.failed_seeds,
+            "is_stable": self.is_stable,
+            "is_verified_winner": self.is_verified_winner,
+            "verdict": self.verdict,
+        }
+
+
+def analyze_multiseed_stability(
+    seed_records: Sequence[dict[str, Any]],
+    thresholds: StabilityThresholds | None = None,
+    top_k: int = 5,
+) -> MultiSeedStabilityResult:
+    """Compute uncertainty intervals and apply pre-declared acceptance thresholds across seeds."""
+    thresh = thresholds or StabilityThresholds()
+    if not seed_records:
+        raise ValueError("seed_records cannot be empty")
+
+    passed_seeds: list[int] = []
+    failed_seeds: list[int] = []
+
+    rhos = []
+    overlaps = []
+    jaccards = []
+    fail_rates_mj = []
+    fail_rates_k2 = []
+
+    all_scores_mj: list[float] = []
+    all_scores_k2: list[float] = []
+    total_runs_mj = 0
+    total_runs_k2 = 0
+    total_fails_mj = 0
+    total_fails_k2 = 0
+
+    processed_records = []
+
+    for rec in seed_records:
+        s = rec["seed"]
+        s_mj = list(rec["mujoco_scores"])
+        s_k2 = list(rec["k2_scores"])
+        n_cands = len(s_mj)
+
+        if "spearman_rho" in rec:
+            rho = float(rec["spearman_rho"])
+        else:
+            rho = spearman_rank_correlation(s_mj, s_k2)
+
+        if "top_k_overlap" in rec and "top_k_jaccard" in rec:
+            ov = float(rec["top_k_overlap"])
+            jac = float(rec["top_k_jaccard"])
+        else:
+            jac, ov, _, _ = top_k_overlap(s_mj, s_k2, k=min(top_k, n_cands))
+
+        if "mujoco_failures" in rec:
+            f_mj = rec["mujoco_failures"]
+            n_fail_mj = sum(1 for x in f_mj if x) if isinstance(f_mj, list) else int(f_mj)
+        else:
+            n_fail_mj = sum(1 for v in s_mj if v <= 0.0)
+
+        if "k2_failures" in rec:
+            f_k2 = rec["k2_failures"]
+            n_fail_k2 = sum(1 for x in f_k2 if x) if isinstance(f_k2, list) else int(f_k2)
+        else:
+            n_fail_k2 = sum(1 for v in s_k2 if v <= 0.0)
+
+        mj_rate = n_fail_mj / n_cands if n_cands > 0 else 0.0
+        k2_rate = n_fail_k2 / n_cands if n_cands > 0 else 0.0
+
+        rhos.append(rho)
+        overlaps.append(ov)
+        jaccards.append(jac)
+        fail_rates_mj.append(mj_rate)
+        fail_rates_k2.append(k2_rate)
+
+        all_scores_mj.extend(s_mj)
+        all_scores_k2.extend(s_k2)
+        total_runs_mj += n_cands
+        total_runs_k2 += n_cands
+        total_fails_mj += n_fail_mj
+        total_fails_k2 += n_fail_k2
+
+        passes_seed = (
+            rho >= thresh.min_spearman
+            and ov >= thresh.min_top_k_overlap
+            and mj_rate <= thresh.max_failure_rate
+            and k2_rate <= thresh.max_failure_rate
+        )
+        if passes_seed:
+            passed_seeds.append(s)
+        else:
+            failed_seeds.append(s)
+
+        out_rec = dict(rec)
+        out_rec["spearman_rho"] = rho
+        out_rec["top_k_overlap"] = ov
+        out_rec["top_k_jaccard"] = jac
+        out_rec["mujoco_failure_rate"] = mj_rate
+        out_rec["k2_failure_rate"] = k2_rate
+        out_rec["is_stable"] = passes_seed
+        processed_records.append(out_rec)
+
+    # Uncertainty calculations (mean, std, 95% CI)
+    def _pack_ci(vals: Sequence[float]) -> dict[str, float]:
+        m, s, lo, hi = confidence_interval(vals, confidence=0.95)
+        return {"mean": m, "std": s, "ci_95_lo": lo, "ci_95_hi": hi}
+
+    uncertainty = {
+        "spearman_rho": _pack_ci(rhos),
+        "top_k_overlap": _pack_ci(overlaps),
+        "top_k_jaccard": _pack_ci(jaccards),
+        "mujoco_failure_rate": _pack_ci(fail_rates_mj),
+        "k2_failure_rate": _pack_ci(fail_rates_k2),
+    }
+
+    # Pooled calculations
+    pooled_rho = spearman_rank_correlation(all_scores_mj, all_scores_k2)
+    p_jac, p_ov, _, _ = top_k_overlap(all_scores_mj, all_scores_k2, k=min(top_k, len(all_scores_mj)))
+    pooled_mj_rate = total_fails_mj / total_runs_mj if total_runs_mj > 0 else 0.0
+    pooled_k2_rate = total_fails_k2 / total_runs_k2 if total_runs_k2 > 0 else 0.0
+
+    pooled_passes = (
+        pooled_rho >= thresh.min_spearman
+        and p_ov >= thresh.min_top_k_overlap
+        and pooled_mj_rate <= thresh.max_failure_rate
+        and pooled_k2_rate <= thresh.max_failure_rate
+    )
+
+    # Overall stability requires pooled passes AND majority of seeds pass without severe flips
+    seed_pass_fraction = len(passed_seeds) / len(seed_records)
+    is_stable = pooled_passes and (seed_pass_fraction >= 0.80)
+    is_verified_winner = is_stable
+
+    if is_stable:
+        verdict = (
+            f"STABLE: Dual-solver rankings agree across {len(passed_seeds)}/{len(seed_records)} seeds "
+            f"(pooled rho={pooled_rho:.4f} >= {thresh.min_spearman}, top-{top_k} overlap={p_ov:.1%} >= {thresh.min_top_k_overlap:.1%})."
+        )
+    else:
+        reasons = []
+        if pooled_rho < thresh.min_spearman:
+            reasons.append(f"pooled Spearman rho {pooled_rho:.4f} < {thresh.min_spearman}")
+        if p_ov < thresh.min_top_k_overlap:
+            reasons.append(f"pooled top-{top_k} overlap {p_ov:.1%} < {thresh.min_top_k_overlap:.1%}")
+        if len(failed_seeds) > 0:
+            reasons.append(f"{len(failed_seeds)}/{len(seed_records)} seeds failed stability criteria")
+        verdict = (
+            f"UNSTABLE (REJECTED): Cross-solver ranking inconsistency detected ({'; '.join(reasons)}). "
+            f"Candidates cannot be output as verified winners without experimental physical elevation."
+        )
+
+    return MultiSeedStabilityResult(
+        seed_results=processed_records,
+        uncertainty=uncertainty,
+        pooled_spearman=pooled_rho,
+        pooled_top_k_overlap=p_ov,
+        pooled_top_k_jaccard=p_jac,
+        pooled_mujoco_failure_rate=pooled_mj_rate,
+        pooled_k2_failure_rate=pooled_k2_rate,
+        thresholds=thresh,
+        passed_seeds=passed_seeds,
+        failed_seeds=failed_seeds,
+        is_stable=is_stable,
+        is_verified_winner=is_verified_winner,
+        verdict=verdict,
+    )

@@ -277,4 +277,125 @@ describe("sim-web v2 audit policy (ADR-0012)", () => {
 		expect(JSON.parse(JSON.stringify(value))).toEqual(value);
 		expect(c).toEqual(before);
 	});
+
+	it("independent validation verifies non-applicable run and passes", () => {
+		const c = makeControlled();
+		c.sc.terrain.kind = "slope";
+		const stride = c.metrics.stride_per_rev as number;
+		const counterpart = {
+			backend: "k2",
+			stride_per_rev: stride * 1.02,
+			stalled: false,
+			steady_window: 1,
+			energy_residual_share: 0.001,
+			max_loop_violation: 0.0001,
+			max_penetration: 0.0001,
+			provenance: { study: "test_independent" },
+		};
+		const value = auditReport(c.sc, c.metrics, c.series, false, {
+			backendName: "mujoco",
+			observation: c.observation,
+			independentValidation: counterpart,
+		});
+		expect(value.version).toBe(2);
+		expect(value.status).toBe("passed");
+		expect(value.passed).toBe(true);
+		expect(value.findings).toEqual([]);
+		expect(value.stride_reference.applicability).toBe("unverified");
+		expect(value.stride_reference.independent_validation?.status).toBe(
+			"verified",
+		);
+		expect(value.independent_validation?.status).toBe("verified");
+		expect(
+			Math.abs((value.independent_validation?.relative_difference ?? 0) - 0.02),
+		).toBeLessThan(1e-6);
+	});
+
+	it("independent validation rejects same backend", () => {
+		const c = makeControlled();
+		c.sc.terrain.kind = "slope";
+		const counterpart = {
+			backend: "mujoco",
+			stride_per_rev: c.metrics.stride_per_rev as number,
+			stalled: false,
+			steady_window: 1,
+			energy_residual_share: 0,
+			max_loop_violation: 0,
+			max_penetration: 0,
+		};
+		const value = auditReport(c.sc, c.metrics, c.series, false, {
+			backendName: "mujoco",
+			observation: c.observation,
+			independentValidation: counterpart,
+		});
+		expect(value.status).toBe("failed");
+		expect(
+			value.findings.some((f) => f.check === "independent_validation_invalid"),
+		).toBe(true);
+	});
+
+	it("independent validation rejects counterpart invariant failures", () => {
+		const c = makeControlled();
+		c.sc.terrain.kind = "slope";
+		const stalledCp = {
+			backend: "k2",
+			stride_per_rev: c.metrics.stride_per_rev as number,
+			stalled: true,
+			steady_window: 1,
+		};
+		const vStalled = auditReport(c.sc, c.metrics, c.series, false, {
+			backendName: "mujoco",
+			observation: c.observation,
+			independentValidation: stalledCp,
+		});
+		expect(vStalled.status).toBe("failed");
+		expect(
+			vStalled.findings.some(
+				(f) => f.check === "independent_validation_invalid",
+			),
+		).toBe(true);
+
+		const leakyCp = {
+			backend: "k2",
+			stride_per_rev: c.metrics.stride_per_rev as number,
+			stalled: false,
+			steady_window: 1,
+			energy_residual_share: 0.05,
+		};
+		const vLeaky = auditReport(c.sc, c.metrics, c.series, false, {
+			backendName: "mujoco",
+			observation: c.observation,
+			independentValidation: leakyCp,
+		});
+		expect(vLeaky.status).toBe("failed");
+		expect(
+			vLeaky.findings.some((f) => f.check === "independent_validation_invalid"),
+		).toBe(true);
+	});
+
+	it("independent validation rejects stride difference over tolerance", () => {
+		const c = makeControlled();
+		c.sc.terrain.kind = "slope";
+		const stride = c.metrics.stride_per_rev as number;
+		const counterpart = {
+			backend: "k2",
+			stride_per_rev: stride * 1.25,
+			stalled: false,
+			steady_window: 1,
+			energy_residual_share: 0,
+			max_loop_violation: 0,
+			max_penetration: 0,
+		};
+		const value = auditReport(c.sc, c.metrics, c.series, false, {
+			backendName: "mujoco",
+			observation: c.observation,
+			independentValidation: counterpart,
+		});
+		expect(value.status).toBe("failed");
+		expect(
+			value.findings.some(
+				(f) => f.check === "stride_vs_independent_validation",
+			),
+		).toBe(true);
+	});
 });

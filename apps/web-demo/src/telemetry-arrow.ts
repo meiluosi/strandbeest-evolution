@@ -16,11 +16,14 @@ export interface DecodedTelemetry {
 	torque?: Float32Array;
 	bottle_pressure_pa?: Float32Array;
 	bottle_pressure?: Float32Array;
+	p_bottle?: Float32Array;
+	p_cyl?: Float32Array;
 	feeler_vacuum_pa?: Float32Array;
 	feeler_vacuum?: Float32Array;
 	valve_state?: Int8Array;
 	step_count?: Uint8Array;
 	anchor_deployed?: Uint8Array;
+	anchor_depth?: Float32Array;
 	shapes: Record<string, number[]>;
 	meta: Record<string, any>;
 	toReplay(): Replay;
@@ -138,9 +141,14 @@ export function decodeArrowTelemetry(
 		extractFlatVector<Float32Array>(table.getChild("torque")) ?? undefined;
 	const bottle_pressure_pa =
 		extractFlatVector<Float32Array>(
-			table.getChild("bottle_pressure_pa") ?? table.getChild("bottle_pressure"),
+			table.getChild("bottle_pressure_pa") ??
+				table.getChild("bottle_pressure") ??
+				table.getChild("p_bottle"),
 		) ?? undefined;
 	const bottle_pressure = bottle_pressure_pa;
+	const p_bottle = bottle_pressure_pa;
+	const p_cyl =
+		extractFlatVector<Float32Array>(table.getChild("p_cyl")) ?? undefined;
 	const feeler_vacuum_pa =
 		extractFlatVector<Float32Array>(
 			table.getChild("feeler_vacuum_pa") ?? table.getChild("feeler_vacuum"),
@@ -150,9 +158,14 @@ export function decodeArrowTelemetry(
 		extractFlatVector<Int8Array>(table.getChild("valve_state")) ?? undefined;
 	const step_count =
 		extractFlatVector<Uint8Array>(table.getChild("step_count")) ?? undefined;
+	const anchor_depth =
+		extractFlatVector<Float32Array>(table.getChild("anchor_depth")) ??
+		undefined;
 	const anchor_deployed =
 		extractFlatVector<Uint8Array>(table.getChild("anchor_deployed")) ??
-		undefined;
+		(anchor_depth
+			? new Uint8Array(Array.from(anchor_depth).map((d) => (d > 0.01 ? 1 : 0)))
+			: undefined);
 
 	return {
 		table,
@@ -169,20 +182,26 @@ export function decodeArrowTelemetry(
 		torque,
 		bottle_pressure_pa,
 		bottle_pressure,
+		p_bottle,
+		p_cyl,
 		feeler_vacuum_pa,
 		feeler_vacuum,
 		valve_state,
 		step_count,
 		anchor_deployed,
+		anchor_depth,
 		shapes,
 		meta,
 		toReplay(): Replay {
 			const pneumatics =
 				bottle_pressure_pa ||
+				p_bottle ||
+				p_cyl ||
 				feeler_vacuum_pa ||
 				valve_state ||
 				step_count ||
 				anchor_deployed ||
+				anchor_depth ||
 				meta.pneumatics
 					? {
 							bottle_pressure_pa: bottle_pressure_pa
@@ -191,12 +210,19 @@ export function decodeArrowTelemetry(
 							bottle_pressure: bottle_pressure
 								? Array.from(bottle_pressure)
 								: meta.pneumatics?.bottle_pressure,
+							p_bottle: p_bottle
+								? Array.from(p_bottle)
+								: (meta.pneumatics?.p_bottle ??
+									meta.pneumatics?.bottle_pressure_pa ??
+									meta.pneumatics?.bottle_pressure),
+							p_cyl: p_cyl ? Array.from(p_cyl) : meta.pneumatics?.p_cyl,
 							feeler_vacuum_pa: feeler_vacuum_pa
 								? Array.from(feeler_vacuum_pa)
 								: meta.pneumatics?.feeler_vacuum_pa,
 							feeler_vacuum: feeler_vacuum
 								? Array.from(feeler_vacuum)
-								: meta.pneumatics?.feeler_vacuum,
+								: (meta.pneumatics?.feeler_vacuum ??
+									meta.pneumatics?.feeler_vacuum_pa),
 							valve_state: valve_state
 								? Array.from(valve_state)
 								: meta.pneumatics?.valve_state,
@@ -206,6 +232,9 @@ export function decodeArrowTelemetry(
 							anchor_deployed: anchor_deployed
 								? Array.from(anchor_deployed)
 								: meta.pneumatics?.anchor_deployed,
+							anchor_depth: anchor_depth
+								? Array.from(anchor_depth)
+								: meta.pneumatics?.anchor_depth,
 						}
 					: undefined;
 

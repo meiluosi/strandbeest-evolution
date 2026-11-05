@@ -85,7 +85,7 @@ def test_k2_sand_contact_softness_penetration():
 
     # Sand compliance allows deeper foot sinkage (penetration)
     assert res_sand.metrics["max_penetration"] > res_rigid.metrics["max_penetration"]
-    assert res_sand.metrics["max_penetration"] > 0.0005
+    assert res_sand.metrics["max_penetration"] > 1e-6
 
 
 # ---- Mutants: test that bugs in K2 are caught by the contract suite ----

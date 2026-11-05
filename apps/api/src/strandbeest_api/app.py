@@ -709,6 +709,16 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
         if "energy" in active_layers and "e_in" in ar:
             res_payload["energy"] = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", "e_in", "e_contact", "e_loops", "e_friction", "kinetic", "potential", "loop_residual", "penetration") if k in ar}
 
+        if "pneumatics" in active_layers or "series" in active_layers:
+            pneu_payload = {}
+            for k in ("p_bottle", "bottle_pressure_pa", "bottle_pressure", "p_cyl", "feeler_vacuum", "feeler_vacuum_pa", "valve_state", "anchor_depth", "anchor_deployed", "step_count"):
+                if k in fr:
+                    pneu_payload[k] = np.round(fr[k][::step], 4).tolist()
+                elif k in ar:
+                    pneu_payload[k] = np.round(ar[k][::sstep], 4).tolist()
+            if pneu_payload:
+                res_payload["pneumatics"] = pneu_payload
+
         return res_payload
 
     @app.get("/runs/{rid}/telemetry.arrow")

@@ -162,3 +162,101 @@ def test_audit_is_read_only_and_serializable(controlled):
     assert controlled[0] == before[0] and controlled[1] == before[1]
     for key in controlled[2]: np.testing.assert_array_equal(controlled[2][key], before[2][key])
     assert controlled[3] == before[3]
+
+
+def test_independent_validation_verifies_nonapplicable_run_and_passes(controlled):
+    from jsonschema import Draft202012Validator
+    sc, metrics, series, observation = controlled
+    # Make geometric reference unverified (e.g. slope terrain)
+    sc.terrain.kind = 'slope'
+    stride = float(metrics['stride_per_rev'])
+    counterpart = {
+        'backend': 'k2',
+        'stride_per_rev': stride * 1.02,  # 2% difference, well within 15%
+        'stalled': False,
+        'steady_window': 1.0,
+        'energy_residual_share': 0.001,
+        'max_loop_violation': 0.0001,
+        'max_penetration': 0.0001,
+        'provenance': {'study': 'test_independent'}
+    }
+    value = audit_report(sc, metrics, series, backend_name='mujoco',
+                         observation=observation, independent_validation=counterpart)
+    assert value['version'] == 2 and value['status'] == 'passed'
+    assert value['passed'] is True
+    assert value['findings'] == []
+    assert value['stride_reference']['applicability'] == 'unverified'
+    assert value['stride_reference']['independent_validation']['status'] == 'verified'
+    assert value['independent_validation']['status'] == 'verified'
+    assert abs(value['independent_validation']['relative_difference'] - 0.02) < 1e-6
+
+    # Verify JSON schema accepts the passed report with independent_validation
+    schema = json.loads((schema_dir() / 'run.schema.json').read_text())
+    validator = Draft202012Validator({'$ref': '#/$defs/SimulationAudit', '$defs': schema['$defs']})
+    validator.validate(value)
+
+
+def test_independent_validation_rejects_same_backend(controlled):
+    sc, metrics, series, observation = controlled
+    sc.terrain.kind = 'slope'
+    counterpart = {
+        'backend': 'mujoco',  # Same backend!
+        'stride_per_rev': float(metrics['stride_per_rev']),
+        'stalled': False,
+        'steady_window': 1.0,
+        'energy_residual_share': 0.0,
+        'max_loop_violation': 0.0,
+        'max_penetration': 0.0,
+    }
+    value = audit_report(sc, metrics, series, backend_name='mujoco',
+                         observation=observation, independent_validation=counterpart)
+    assert value['status'] == 'failed'
+    assert any(f['check'] == 'independent_validation_invalid' for f in value['findings'])
+
+
+def test_independent_validation_rejects_counterpart_invariant_failures(controlled):
+    sc, metrics, series, observation = controlled
+    sc.terrain.kind = 'slope'
+    # Test stalled counterpart
+    stalled_cp = {
+        'backend': 'k2',
+        'stride_per_rev': float(metrics['stride_per_rev']),
+        'stalled': True,
+        'steady_window': 1.0,
+    }
+    v_stalled = audit_report(sc, metrics, series, backend_name='mujoco',
+                             observation=observation, independent_validation=stalled_cp)
+    assert v_stalled['status'] == 'failed'
+    assert any(f['check'] == 'independent_validation_invalid' for f in v_stalled['findings'])
+
+    # Test excess energy residual
+    leaky_cp = {
+        'backend': 'k2',
+        'stride_per_rev': float(metrics['stride_per_rev']),
+        'stalled': False,
+        'steady_window': 1.0,
+        'energy_residual_share': 0.05,  # > 0.02 limit
+    }
+    v_leaky = audit_report(sc, metrics, series, backend_name='mujoco',
+                           observation=observation, independent_validation=leaky_cp)
+    assert v_leaky['status'] == 'failed'
+    assert any(f['check'] == 'independent_validation_invalid' for f in v_leaky['findings'])
+
+
+def test_independent_validation_rejects_stride_difference_over_tolerance(controlled):
+    sc, metrics, series, observation = controlled
+    sc.terrain.kind = 'slope'
+    stride = float(metrics['stride_per_rev'])
+    counterpart = {
+        'backend': 'k2',
+        'stride_per_rev': stride * 1.25,  # 25% difference > 15%
+        'stalled': False,
+        'steady_window': 1.0,
+        'energy_residual_share': 0.0,
+        'max_loop_violation': 0.0,
+        'max_penetration': 0.0,
+    }
+    value = audit_report(sc, metrics, series, backend_name='mujoco',
+                         observation=observation, independent_validation=counterpart)
+    assert value['status'] == 'failed'
+    assert any(f['check'] == 'stride_vs_independent_validation' for f in value['findings'])

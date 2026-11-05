@@ -116,6 +116,7 @@ class K2Backend:
         self._foot_owner_start = foot_joint.centers[int(match[2])]
         self._foot_owner_suffix = match[1] + match[2]
         self._contact_softness = None
+        self._solver_contact_softness = None
         self._last_foot_loads = []
         self._last_power_balance = PowerBalance(0.0, 0.0, 0.0, 0.0)
         self._last_step_work = StepWork()
@@ -185,22 +186,28 @@ class K2Backend:
 
         if plan.softness is not None:
             self._contact_softness = (float(plan.softness[0]), float(plan.softness[1]))
-        elif hasattr(cfg, "terrain") and cfg.terrain:
-            if cfg.terrain.kind == "sand":
-                self._contact_softness = (
-                    float(cfg.terrain.params.get("stiffness", 2800.0)),
-                    float(cfg.terrain.params.get("damping", 180.0)),
-                )
-            elif cfg.terrain.kind == "soft":
-                self._contact_softness = (
-                    float(cfg.terrain.params.get("stiffness", 4000.0)),
-                    float(cfg.terrain.params.get("damping", 120.0)),
-                )
-            elif "stiffness" in cfg.terrain.params:
-                self._contact_softness = (
-                    float(cfg.terrain.params["stiffness"]),
-                    float(cfg.terrain.params.get("damping", 0.0)),
-                )
+        elif hasattr(cfg, "terrain") and cfg.terrain and cfg.terrain.kind == "sand":
+            self._contact_softness = (
+                float(cfg.terrain.params.get("stiffness", 2800.0)),
+                float(cfg.terrain.params.get("damping", 180.0)),
+            )
+        elif hasattr(cfg, "terrain") and cfg.terrain and cfg.terrain.kind == "soft":
+            self._contact_softness = (
+                float(cfg.terrain.params.get("stiffness", 4000.0)),
+                float(cfg.terrain.params.get("damping", 120.0)),
+            )
+        elif hasattr(cfg, "terrain") and cfg.terrain and "stiffness" in cfg.terrain.params:
+            self._contact_softness = (
+                float(cfg.terrain.params["stiffness"]),
+                float(cfg.terrain.params.get("damping", 0.0)),
+            )
+
+        self._solver_contact_softness = None
+        if hasattr(cfg, "solver") and cfg.solver and getattr(cfg.solver, "contact_stiffness", None) is not None:
+            k_stiff = float(cfg.solver.contact_stiffness)
+            zeta = float(getattr(cfg.solver, "contact_damping_ratio", 1.0))
+            damp_ratio = 2.0 * zeta * math.sqrt(k_stiff)
+            self._solver_contact_softness = (self._m_total * k_stiff, self._m_total * damp_ratio)
 
         body_names = self._inertia.body_names
         foot_names = tuple(f"foot_bar{i}_{self._foot_owner_suffix}" for i in range(n))
@@ -403,10 +410,13 @@ class K2Backend:
 
             beta = 0.15  # Existing penetration stabilization; not retuned here.
             cfm_n = 0.0
-            if self._contact_softness is not None:
-                c_stiff, _ = self._contact_softness
-                if c_stiff > 0:
-                    cfm_n = beta / (c_stiff * dt * dt)
+            is_analytic = type(self._inertia).__name__.startswith("Analytic")
+            softness = self._contact_softness if (self._contact_softness is not None or is_analytic) else self._solver_contact_softness
+            if softness is not None:
+                c_stiff, c_damp = softness
+                denom = c_stiff * dt * dt + c_damp * dt
+                if denom > 0:
+                    cfm_n = beta / denom
             contact_system = dict(
                 free_velocity=v_star, inverse_mass=inverse,
                 normals=[a[1] for a in active], tangents=[a[2] for a in active],

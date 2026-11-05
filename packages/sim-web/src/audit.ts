@@ -43,6 +43,15 @@ export interface FootSphereOwner {
 	radius_m: number;
 }
 
+export interface IndependentValidationSummary {
+	status: "verified" | "unverified" | "failed";
+	backend: string;
+	stride_m_per_rev: number | null;
+	relative_difference: number | null;
+	relative_tolerance: typeof STRIDE_TOLERANCE;
+	provenance?: Record<string, unknown>;
+}
+
 export interface StrideReferenceSummary {
 	model: "lowest-foot-sphere-v1";
 	signed_stride_m_per_rev: number | null;
@@ -60,6 +69,7 @@ export interface StrideReferenceSummary {
 		relative_tolerance: typeof STRIDE_TOLERANCE;
 		diagnostic_only: boolean;
 	};
+	independent_validation?: IndependentValidationSummary;
 }
 
 export interface SimulationAuditReport {
@@ -83,7 +93,9 @@ export interface SimulationAuditReport {
 			relative_tolerance: typeof STRIDE_TOLERANCE;
 			diagnostic_only: boolean;
 		};
+		independent_validation?: IndependentValidationSummary;
 	};
+	independent_validation?: IndependentValidationSummary;
 	legacy: {
 		version: 1;
 		passed: boolean;
@@ -639,6 +651,8 @@ export function auditReport(
 	opts: {
 		backendName?: string | null;
 		observation?: unknown;
+		independentValidation?: unknown;
+		independent_validation?: unknown;
 	} = {},
 ): SimulationAuditReport {
 	const backendName = opts.backendName ?? null;
@@ -754,19 +768,153 @@ export function auditReport(
 		},
 	};
 
+	let indepSummary: IndependentValidationSummary | null = null;
+	const indepRaw =
+		opts.independentValidation ?? opts.independent_validation ?? null;
+
 	if (!applicable) {
-		findings.push({
-			check: "stride_reference_unverified",
-			message:
-				"The geometric reference conditions are not verified; independent dynamics or measurement evidence is required.",
-			evidence: {
-				unverified_conditions: conditions
-					.filter((c) => c.status !== "verified")
-					.map((c) => c.code),
-				signed_reference_m_per_rev: predicted,
-				diagnostic_relative_error: relative,
-			},
-		});
+		if (indepRaw && typeof indepRaw === "object") {
+			const cp = indepRaw as Record<string, unknown>;
+			const cpBackend = (cp.backend ?? cp.backend_name ?? null) as
+				| string
+				| null;
+			const cpMetrics = (
+				cp.metrics && typeof cp.metrics === "object" ? cp.metrics : cp
+			) as Record<string, unknown>;
+			const cpStride = (
+				finiteNumber(cpMetrics.stride_per_rev)
+					? cpMetrics.stride_per_rev
+					: finiteNumber(cpMetrics.stride_m_per_rev)
+						? cpMetrics.stride_m_per_rev
+						: null
+			) as number | null;
+			const cpStalled = Boolean(cp.stalled ?? cpMetrics.stalled ?? false);
+			const cpSteady = cpMetrics.steady_window;
+			const cpEnergyRaw =
+				cpMetrics.energy_residual_share ?? cpMetrics.energy_residual ?? 0;
+			const cpEnergy = finiteNumber(cpEnergyRaw) ? (cpEnergyRaw as number) : 0;
+			const cpLoop = finiteNumber(cpMetrics.max_loop_violation)
+				? (cpMetrics.max_loop_violation as number)
+				: 0;
+			const cpPen = finiteNumber(cpMetrics.max_penetration)
+				? (cpMetrics.max_penetration as number)
+				: 0;
+			const cpFindings = Array.isArray(cp.findings)
+				? (cp.findings as Array<Record<string, unknown>>)
+				: [];
+			const cpProvenance = (
+				cp.provenance && typeof cp.provenance === "object" ? cp.provenance : {}
+			) as Record<string, unknown>;
+
+			if (!cpBackend || cpBackend === backendName) {
+				findings.push({
+					check: "independent_validation_invalid",
+					message:
+						"Independent validation requires a distinct simulation backend.",
+					evidence: { backend: backendName, counterpart_backend: cpBackend },
+				});
+				indepSummary = {
+					status: "failed",
+					backend: cpBackend ?? "",
+					stride_m_per_rev: cpStride,
+					relative_difference: null,
+					relative_tolerance: STRIDE_TOLERANCE,
+					provenance: cpProvenance,
+				};
+			} else if (
+				cpStride === null ||
+				cpStalled ||
+				cpSteady !== 1 ||
+				Math.abs(cpEnergy) > ENERGY_RESIDUAL ||
+				cpLoop > LOOP_OPEN_M ||
+				cpPen > PENETRATION_M ||
+				cpFindings.some(
+					(f) =>
+						f &&
+						typeof f.check === "string" &&
+						f.check !== "stride_reference_unverified" &&
+						f.check !== "audit_evidence",
+				)
+			) {
+				findings.push({
+					check: "independent_validation_invalid",
+					message:
+						"Independent validation counterpart run did not satisfy numerical invariants.",
+					evidence: {
+						counterpart_backend: cpBackend,
+						stride_m_per_rev: cpStride,
+						stalled: cpStalled,
+						steady_window: cpSteady,
+						energy_residual_share: cpEnergy,
+						max_loop_violation: cpLoop,
+						max_penetration: cpPen,
+					},
+				});
+				indepSummary = {
+					status: "failed",
+					backend: cpBackend,
+					stride_m_per_rev: cpStride,
+					relative_difference: null,
+					relative_tolerance: STRIDE_TOLERANCE,
+					provenance: cpProvenance,
+				};
+			} else if (!finiteNumber(observed)) {
+				findings.push({
+					check: "audit_evidence",
+					message: "A finite signed stride comparison is required.",
+					evidence: { metric: "stride_per_rev" },
+				});
+			} else {
+				let relDiff: number | null =
+					Math.abs((observed as number) - cpStride) /
+					Math.max(Math.abs(observed as number), 1e-12);
+				if (!Number.isFinite(relDiff)) relDiff = null;
+
+				if (relDiff !== null && relDiff <= STRIDE_TOLERANCE) {
+					indepSummary = {
+						status: "verified",
+						backend: cpBackend,
+						stride_m_per_rev: cpStride,
+						relative_difference: relDiff,
+						relative_tolerance: STRIDE_TOLERANCE,
+						provenance: cpProvenance,
+					};
+				} else {
+					findings.push({
+						check: "stride_vs_independent_validation",
+						message:
+							"Signed stride differs from the independent dynamical validation run.",
+						evidence: {
+							stride_m: observed as number,
+							independent_stride_m: cpStride,
+							relative_error: relDiff,
+							limit: STRIDE_TOLERANCE,
+						},
+					});
+					indepSummary = {
+						status: "failed",
+						backend: cpBackend,
+						stride_m_per_rev: cpStride,
+						relative_difference: relDiff,
+						relative_tolerance: STRIDE_TOLERANCE,
+						provenance: cpProvenance,
+					};
+				}
+			}
+		} else {
+			findings.push({
+				check: "stride_reference_unverified",
+				message:
+					"The geometric reference conditions are not verified; independent dynamics or measurement evidence is required.",
+				evidence: {
+					unverified_conditions: conditions
+						.filter((c) => c.status !== "verified")
+						.map((c) => c.code),
+					signed_reference_m_per_rev: predicted,
+					diagnostic_relative_error: relative,
+				},
+			});
+		}
 	} else if (relative === null) {
 		findings.push({
 			check: "audit_evidence",
@@ -794,6 +942,10 @@ export function auditReport(
 		});
 	}
 
+	if (indepSummary) {
+		reference.independent_validation = indepSummary;
+	}
+
 	const unknown = new Set(["audit_evidence", "stride_reference_unverified"]);
 	const status: "passed" | "failed" | "unverified" = findings.some(
 		(f) => !unknown.has(f.check),
@@ -817,6 +969,7 @@ export function auditReport(
 		},
 		findings,
 		stride_reference: reference,
+		...(indepSummary ? { independent_validation: indepSummary } : {}),
 		legacy: {
 			version: 1,
 			passed: legacy.length === 0,
@@ -834,6 +987,8 @@ export function audit(
 	opts: {
 		backendName?: string | null;
 		observation?: unknown;
+		independentValidation?: unknown;
+		independent_validation?: unknown;
 	} = {},
 ): AuditFinding[] {
 	return auditReport(sc, metrics, series, stalled, opts).findings;

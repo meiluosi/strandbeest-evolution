@@ -62,6 +62,9 @@ class PETBottleBank:
     specific_heat_pet: float = 1200.0  # J/(kg*K)
     ambient_temperature: float = T_0  # 293.15 K
     polytropic_exponent: float = 1.25
+    h_int: Optional[float] = None  # Internal heat transfer coefficient [W/(m^2*K)]
+    h_ext: Optional[float] = None  # External heat transfer coefficient [W/(m^2*K)]
+    initial_wall_temperature: Optional[float] = None
 
     @property
     def total_volume(self) -> float:
@@ -110,6 +113,22 @@ class PETBottleBank:
         """
         return self.heat_transfer_coeff * self.total_surface_area * (self.ambient_temperature - temperature)
 
+    def heat_exchange_int(self, T_air: float, T_wall: float) -> float:
+        """Internal heat exchange rate Q_int = h_int * A * (T_air - T_wall) [W].
+
+        Positive when heat transfers from enclosed air into the bottle wall.
+        """
+        h_int = self.h_int if self.h_int is not None else self.heat_transfer_coeff
+        return h_int * self.total_surface_area * (T_air - T_wall)
+
+    def heat_exchange_ext(self, T_wall: float) -> float:
+        """External heat exchange rate Q_ext = h_ext * A * (T_wall - T_amb) [W].
+
+        Positive when heat transfers from the bottle wall into the ambient environment.
+        """
+        h_ext = self.h_ext if self.h_ext is not None else self.heat_transfer_coeff
+        return h_ext * self.total_surface_area * (T_wall - self.ambient_temperature)
+
     def stored_mass(self, pressure: float, temperature: float = T_0) -> float:
         """Compute total enclosed air mass using ideal gas equation of state [kg].
 
@@ -140,11 +159,17 @@ class PETBottleBank:
         name: str = "bottle_bank",
         initial_pressure: Optional[float] = None,
         initial_temperature: Optional[float] = None,
+        initial_wall_temperature: Optional[float] = None,
     ) -> FluidNode:
         """Create an integrated FluidNode representing this PET bottle bank."""
         p_init = initial_pressure if initial_pressure is not None else self.precharge_pressure
         t_init = initial_temperature if initial_temperature is not None else self.ambient_temperature
+        t_wall_init = initial_wall_temperature if initial_wall_temperature is not None else (
+            self.initial_wall_temperature if self.initial_wall_temperature is not None else self.ambient_temperature
+        )
         init_air_mass = (p_init * self.total_volume) / (R_AIR * max(t_init, 1.0))
+        h_int = self.h_int if self.h_int is not None else self.heat_transfer_coeff
+        h_ext = self.h_ext if self.h_ext is not None else self.heat_transfer_coeff
 
         return FluidNode(
             name=name,
@@ -159,4 +184,8 @@ class PETBottleBank:
             heat_transfer_area=self.total_surface_area,
             ambient_temperature=self.ambient_temperature,
             thermal_capacitance=self.total_thermal_capacitance(init_air_mass),
+            wall_thermal_capacitance=self.wall_thermal_capacitance,
+            T_wall=t_wall_init,
+            h_int=h_int,
+            h_ext=h_ext,
         )

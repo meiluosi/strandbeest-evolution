@@ -199,24 +199,30 @@ describe("telemetry-arrow IPC stream", () => {
 			101325.0, 200000.0, 400000.0, 600000.0,
 		]);
 		const vacuumData = new Float32Array([0.0, 5000.0, 15000.0, 25000.0]);
+		const cylData = new Float32Array([101325.0, 120000.0, 200000.0, 101325.0]);
 		const valveData = new Int8Array([1, 1, -1, 1]);
 		const stepData = new Uint8Array([0, 1, 2, 3]);
 		const anchorData = new Uint8Array([0, 0, 1, 1]);
+		const anchorDepthData = new Float32Array([0.0, 0.0, 0.05, 0.12]);
 
 		const tVector = arrow.vectorFromArray(tData);
 		const bottleVector = arrow.vectorFromArray(bottleData);
+		const cylVector = arrow.vectorFromArray(cylData);
 		const vacuumVector = arrow.vectorFromArray(vacuumData);
 		const valveVector = arrow.vectorFromArray(valveData);
 		const stepVector = arrow.vectorFromArray(stepData);
 		const anchorVector = arrow.vectorFromArray(anchorData);
+		const anchorDepthVector = arrow.vectorFromArray(anchorDepthData);
 
 		const fields = [
 			new arrow.Field("t", tVector.type),
 			new arrow.Field("bottle_pressure_pa", bottleVector.type),
+			new arrow.Field("p_cyl", cylVector.type),
 			new arrow.Field("feeler_vacuum_pa", vacuumVector.type),
 			new arrow.Field("valve_state", valveVector.type),
 			new arrow.Field("step_count", stepVector.type),
 			new arrow.Field("anchor_deployed", anchorVector.type),
+			new arrow.Field("anchor_depth", anchorDepthVector.type),
 		];
 		const schema = new arrow.Schema(
 			fields,
@@ -228,10 +234,12 @@ describe("telemetry-arrow IPC stream", () => {
 			children: [
 				tVector.data[0],
 				bottleVector.data[0],
+				cylVector.data[0],
 				vacuumVector.data[0],
 				valveVector.data[0],
 				stepVector.data[0],
 				anchorVector.data[0],
+				anchorDepthVector.data[0],
 			],
 		});
 		const table = new arrow.Table([new arrow.RecordBatch(schema, structData)]);
@@ -242,6 +250,9 @@ describe("telemetry-arrow IPC stream", () => {
 		expect(decoded.bottle_pressure).toBeInstanceOf(Float32Array);
 		expect(decoded.bottle_pressure_pa?.[0]).toBeCloseTo(101325);
 		expect(decoded.bottle_pressure_pa?.[3]).toBeCloseTo(600000);
+
+		expect(decoded.p_cyl).toBeInstanceOf(Float32Array);
+		expect(decoded.p_cyl?.[2]).toBeCloseTo(200000);
 
 		expect(decoded.feeler_vacuum_pa).toBeInstanceOf(Float32Array);
 		expect(decoded.feeler_vacuum).toBeInstanceOf(Float32Array);
@@ -256,10 +267,17 @@ describe("telemetry-arrow IPC stream", () => {
 		expect(decoded.anchor_deployed).toBeInstanceOf(Uint8Array);
 		expect(decoded.anchor_deployed?.[2]).toBe(1);
 
+		expect(decoded.anchor_depth).toBeInstanceOf(Float32Array);
+		expect(decoded.anchor_depth?.[3]).toBeCloseTo(0.12);
+
 		const replay = decoded.toReplay();
 		expect(replay.pneumatics).toBeDefined();
 		expect(replay.pneumatics?.bottle_pressure?.[3]).toBeCloseTo(600000);
+		expect(replay.pneumatics?.p_bottle?.[3]).toBeCloseTo(600000);
+		expect(replay.pneumatics?.p_cyl?.[2]).toBeCloseTo(200000);
+		expect(replay.pneumatics?.feeler_vacuum?.[2]).toBeCloseTo(15000);
 		expect(replay.pneumatics?.valve_state?.[2]).toBe(-1);
 		expect(replay.pneumatics?.anchor_deployed?.[2]).toBe(1);
+		expect(replay.pneumatics?.anchor_depth?.[3]).toBeCloseTo(0.12);
 	});
 });

@@ -3,7 +3,7 @@
 
 > Metadata and metrics of one simulation run. Time series live next to it in an arrays file.
 
-- **Fields documented**: 123
+- **Fields documented**: 125
 - **Assumed parameters (`x-assumption: true`)**: 0
 - **Calibratable parameters (`x-calibratable: true`)**: 0
 
@@ -111,6 +111,7 @@
 | `audit.stride_reference.comparison.relative_error` | `number` \| `null` | *(required)* | `1` | – | – | – |
 | `audit.stride_reference.comparison.relative_tolerance` | const `0.15` | *(required)* | – | – | – | – |
 | `audit.stride_reference.comparison.diagnostic_only` | `boolean` | *(required)* | – | – | – | – |
+| `audit.stride_reference.independent_validation` | `object` \| `null` | – | – | – | – | – |
 | `audit.legacy` | `object` | *(required)* | – | – | – | – |
 | `audit.legacy.version` | const `1` | *(required)* | – | – | – | – |
 | `audit.legacy.passed` | `boolean` | *(required)* | – | – | – | – |
@@ -118,6 +119,7 @@
 | `audit.legacy.findings[].check` | `string` | *(required)* | – | – | – | – |
 | `audit.legacy.findings[].message` | `string` | *(required)* | – | – | – | – |
 | `audit.legacy.findings[].evidence` | `object` | *(required)* | – | – | – | – |
+| `audit.independent_validation` | `object` \| `null` | – | – | – | – | – |
 | `audit_observation` | `AuditObservation` | – | – | – | – | 驱动阶段逐步累计的支撑与峰值证据，不依赖轨迹记录频率。旧记录缺失时保持未知，不补造。<br>Support and peak evidence accumulated at every driven step, independently of telemetry cadence. Missing historical coverage remains unknown and is never synthesized. |
 | `audit_observation.version` | const `1` | *(required)* | – | – | – | 逐步审计观测格式版本<br>All-step audit observation format version |
 | `audit_observation.scope` | const `"driven_steps_excluding_settle"` | *(required)* | – | – | – | 驱动阶段每个积分步，不包括预静置<br>Every driven integration step, excluding settling |

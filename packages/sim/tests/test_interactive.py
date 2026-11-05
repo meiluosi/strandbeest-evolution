@@ -193,3 +193,50 @@ def test_k2_session_snapshot_restores_parameters_and_drive_state():
     assert current.step(400) == reference.step(400)
     np.testing.assert_array_equal(current.be._q, reference.be._q)
     np.testing.assert_array_equal(current.be._v, reference.be._v)
+
+
+def test_interactive_session_pneumatics_step_snapshot_and_fork():
+    """InteractiveSession captures the 5 pneumatic series in telemetry and snapshot, and fork continues deterministically."""
+    from strandbeest_sim.fluids.constants import P_ATM
+
+    overrides = {
+        "drive": {"kind": "motor", "omega": 2.0},
+        "pneumatics": {
+            "bottle_count": 2,
+            "bottle_volume_l": 1.0,
+            "precharge_pa": P_ATM,
+            "pump_bore_m": 0.03,
+            "pump_stroke_m": 0.05,
+            "feeler_enabled": True,
+            "anchor_enabled": True,
+        },
+    }
+    current = session(overrides)
+    assert current.pneu is not None
+
+    # Step and verify telemetry contains the 5 pneumatic series
+    telemetry = current.step(100)
+    for key in ("p_bottle", "p_cyl", "feeler_vacuum", "valve_state", "anchor_depth"):
+        assert key in telemetry
+        assert key in telemetry["pneumatics"]
+    assert telemetry["p_bottle"] >= P_ATM
+
+    # Snapshot and verify the 5 series are captured
+    saved = current.snapshot()
+    assert "pneumatics" in saved
+    assert saved["pneumatics"] is not None
+    for key in ("p_bottle", "p_cyl", "feeler_vacuum", "valve_state", "anchor_depth"):
+        assert key in saved["pneumatics"]
+    assert "pneu_state" in saved
+    assert saved["pneu_state"] is not None
+
+    # Fork session and verify deterministic continuation
+    forked = current.fork()
+    assert forked.pneu is not None
+
+    step_cur = current.step(100)
+    step_fork = forked.step(100)
+
+    assert step_cur["p_bottle"] == pytest.approx(step_fork["p_bottle"], abs=1e-6)
+    assert step_cur["p_cyl"] == pytest.approx(step_fork["p_cyl"], abs=1e-6)
+    assert step_cur["x"] == pytest.approx(step_fork["x"], abs=1e-6)

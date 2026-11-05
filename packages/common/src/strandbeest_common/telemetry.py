@@ -157,7 +157,8 @@ def build_telemetry_table(
     if "feet" in active_layers:
         needed_fr.update({"foot_pos", "foot_force", "foot_slip", "com"})
     if "pneumatics" in active_layers:
-        needed_fr.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed"})
+        needed_fr.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed",
+                          "p_bottle", "p_cyl", "feeler_vacuum", "anchor_depth"})
 
     # Read frames
     if has_frames_parquet:
@@ -177,7 +178,7 @@ def build_telemetry_table(
         arr = fr[c][::step]
         if c == "contact" and arr.dtype == bool:
             arr = arr.astype(np.uint8)
-        elif c in ("bottle_pressure_pa", "feeler_vacuum_pa"):
+        elif c in ("bottle_pressure_pa", "feeler_vacuum_pa", "p_bottle", "p_cyl", "feeler_vacuum", "anchor_depth"):
             arr = arr.astype(np.float32)
         elif c == "valve_state":
             arr = arr.astype(np.int8)
@@ -194,7 +195,8 @@ def build_telemetry_table(
     if "energy" in active_layers:
         needed_ar.update(("t", *_ENERGY_COLUMNS))
     if "pneumatics" in active_layers:
-        needed_ar.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed"})
+        needed_ar.update({"bottle_pressure_pa", "feeler_vacuum_pa", "valve_state", "step_count", "anchor_deployed",
+                          "p_bottle", "p_cyl", "feeler_vacuum", "anchor_depth"})
 
     ar: dict[str, np.ndarray] = {}
     if needed_ar:
@@ -230,9 +232,18 @@ def build_telemetry_table(
             energy_dict = {k: np.round(ar[k][::sstep], 7).tolist() for k in ("t", *_ENERGY_COLUMNS) if k in ar}
 
         if "pneumatics" in active_layers:
-            for c in ("bottle_pressure_pa", "feeler_vacuum_pa"):
+            for c in ("bottle_pressure_pa", "feeler_vacuum_pa", "p_bottle", "p_cyl", "feeler_vacuum", "anchor_depth"):
                 if c in ar and ar[c].ndim == 1 and c not in sliced_fr:
                     sliced_ar[c] = np.interp(t_sliced, ar_t, ar[c]).astype(np.float32)
+            if "p_bottle" in ar and "bottle_pressure_pa" not in sliced_fr and "bottle_pressure_pa" not in sliced_ar:
+                sliced_ar["bottle_pressure_pa"] = np.interp(t_sliced, ar_t, ar["p_bottle"]).astype(np.float32)
+            if "feeler_vacuum" in ar and "feeler_vacuum_pa" not in sliced_fr and "feeler_vacuum_pa" not in sliced_ar:
+                sliced_ar["feeler_vacuum_pa"] = np.interp(t_sliced, ar_t, ar["feeler_vacuum"]).astype(np.float32)
+            if "anchor_depth" in ar and "anchor_deployed" not in sliced_fr and "anchor_deployed" not in sliced_ar:
+                idx = np.searchsorted(ar_t, t_sliced, side="right") - 1
+                idx = np.clip(idx, 0, len(ar_t) - 1)
+                sliced_ar["anchor_deployed"] = (ar["anchor_depth"][idx] > 0.01).astype(np.uint8)
+
             for c in ("valve_state",):
                 if c in ar and ar[c].ndim == 1 and c not in sliced_fr:
                     idx = np.searchsorted(ar_t, t_sliced, side="right") - 1
@@ -299,13 +310,20 @@ def build_telemetry_table(
     if energy_dict is not None and "energy" in active_layers:
         run_meta["energy"] = energy_dict
 
+    all_arrays = {**sliced_fr, **sliced_ar}
+    pneu_meta: dict[str, Any] = {}
+    for k in ("p_bottle", "bottle_pressure_pa", "bottle_pressure", "p_cyl", "feeler_vacuum", "feeler_vacuum_pa", "valve_state", "anchor_depth", "anchor_deployed", "step_count"):
+        if k in all_arrays and all_arrays[k].ndim == 1:
+            pneu_meta[k] = np.round(all_arrays[k], 4).tolist()
+    if pneu_meta:
+        run_meta["pneumatics"] = pneu_meta
+
     # Convert all sliced arrays into Arrow arrays
     arrow_arrays: list[pa.Array] = []
     names: list[str] = []
     shapes: dict[str, list[int]] = {}
     dtypes: dict[str, str] = {}
 
-    all_arrays = {**sliced_fr, **sliced_ar}
     for name, arr in all_arrays.items():
         pa_arr, shp, dt = _array_to_arrow(arr)
         arrow_arrays.append(pa_arr)

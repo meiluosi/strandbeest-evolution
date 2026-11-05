@@ -60,11 +60,14 @@ export type Replay = {
 	pneumatics?: {
 		bottle_pressure_pa?: number[];
 		bottle_pressure?: number[];
+		p_bottle?: number[];
+		p_cyl?: number[];
 		feeler_vacuum_pa?: number[];
 		feeler_vacuum?: number[];
 		valve_state?: number[];
 		step_count?: number[];
 		anchor_deployed?: number[];
+		anchor_depth?: number[];
 	};
 	info: {
 		terrain: {

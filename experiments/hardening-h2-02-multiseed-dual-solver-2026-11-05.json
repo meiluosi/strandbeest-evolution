@@ -1,0 +1,4844 @@
+{
+  "metadata": {
+    "card_id": "H2-02",
+    "title": "Multi-seed optimization x dual-solver rank stability verification",
+    "timestamp": "2026-11-04T22:47:29Z",
+    "total_wall_clock_s": 75.06258511543274,
+    "solvers": [
+      "mujoco",
+      "k2"
+    ]
+  },
+  "predeclared_thresholds": {
+    "min_spearman_rho": 0.7,
+    "min_top_k_overlap": 0.6,
+    "max_failure_rate": 0.05,
+    "rule": "Unstable rankings failing pre-declared thresholds are NOT output as verified winners."
+  },
+  "gene_space": {
+    "names": [
+      "m",
+      "a",
+      "h",
+      "sail_area_m2",
+      "sail_gear"
+    ],
+    "dimension": 5,
+    "link_genes": [
+      {
+        "name": "m",
+        "low": 12.0,
+        "high": 18.0,
+        "unit": "length units (1 unit = 2 mm)",
+        "reference": 15.0,
+        "assumption": "assumption: crank length box [12, 18] around reference 15; declared box from O-07."
+      },
+      {
+        "name": "a",
+        "low": 36.0,
+        "high": 40.0,
+        "unit": "length units (1 unit = 2 mm)",
+        "reference": 38.0,
+        "assumption": "assumption: hip offset box [36, 40] around reference 38; declared box from O-07."
+      },
+      {
+        "name": "h",
+        "low": 60.0,
+        "high": 70.0,
+        "unit": "length units (1 unit = 2 mm)",
+        "reference": 65.7,
+        "assumption": "assumption: thigh length box [60, 70] around reference 65.7; declared box from O-07."
+      }
+    ],
+    "sail_genes": [
+      {
+        "name": "sail_area_m2",
+        "low": 0.01,
+        "high": 0.08,
+        "unit": "m2",
+        "reference": 0.03,
+        "assumption": "assumption: sail panel area [0.010, 0.080] m2 around reference 0.030 m2; declared box from W-08."
+      },
+      {
+        "name": "sail_gear",
+        "low": 4.0,
+        "high": 24.0,
+        "unit": "1 (sail turns per crank turn)",
+        "reference": 10.0,
+        "assumption": "assumption: sail reduction gear ratio [4, 24] around reference 10; declared box from W-08."
+      }
+    ],
+    "reference_genome": [
+      15.0,
+      38.0,
+      65.7,
+      0.03,
+      10.0
+    ],
+    "fixed_sail": false
+  },
+  "scenario": {
+    "drive": {
+      "kind": "sail"
+    },
+    "wind": {
+      "kind": "constant",
+      "speed": 3.0,
+      "params": {
+        "yaw_deg": 0.0
+      }
+    },
+    "run": {
+      "revolutions": 0.3,
+      "settle": 0.1,
+      "frame_rate": 0
+    },
+    "solver": {
+      "timestep": 0.001
+    }
+  },
+  "parameters": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "popsize": 8,
+    "generations": 5,
+    "top_n_candidates_per_seed": 10,
+    "top_k": 5
+  },
+  "results": {
+    "seed_results": [
+      {
+        "seed": 1,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.0883017624485809,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              16.01351,
+              38.19264,
+              65.07619,
+              0.04725,
+              20.14993
+            ],
+            "params": {
+              "m": 16.01351,
+              "a": 38.19264,
+              "h": 65.07619,
+              "sail_area_m2": 0.04725,
+              "sail_gear": 20.14993
+            },
+            "mujoco": {
+              "score": 0.0883017624485809,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0883017624485809,
+                "stride_per_rev": 0.29800975139836294,
+                "mean_speed": 0.07884085932909098,
+                "max_loop_violation": 0.004552832845612885
+              }
+            },
+            "k2": {
+              "score": 0.09555429478436914,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09555429478436914,
+                "stride_per_rev": 0.31893975918113676,
+                "mean_speed": 0.08847619887441653,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              15.29152,
+              37.58668,
+              63.94056,
+              0.04811,
+              17.70234
+            ],
+            "params": {
+              "m": 15.29152,
+              "a": 37.58668,
+              "h": 63.94056,
+              "sail_area_m2": 0.04811,
+              "sail_gear": 17.70234
+            },
+            "mujoco": {
+              "score": 0.08797745626574645,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08797745626574645,
+                "stride_per_rev": 0.2937132165087705,
+                "mean_speed": 0.08977291455688406,
+                "max_loop_violation": 0.005868970994808792
+              }
+            },
+            "k2": {
+              "score": 0.08859504408309964,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08859504408309964,
+                "stride_per_rev": 0.29962994691807526,
+                "mean_speed": 0.09629896095989084,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              16.00312,
+              38.11347,
+              66.00071,
+              0.02008,
+              14.42739
+            ],
+            "params": {
+              "m": 16.00312,
+              "a": 38.11347,
+              "h": 66.00071,
+              "sail_area_m2": 0.02008,
+              "sail_gear": 14.42739
+            },
+            "mujoco": {
+              "score": 0.08620565745733526,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08620565745733526,
+                "stride_per_rev": 0.2899459823610807,
+                "mean_speed": 0.08796495658911754,
+                "max_loop_violation": 0.004711655581067564
+              }
+            },
+            "k2": {
+              "score": 0.07958558884521248,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07958558884521248,
+                "stride_per_rev": 0.26950598561810707,
+                "mean_speed": 0.08842843205023602,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.32902,
+              37.65883,
+              64.89397,
+              0.05309,
+              17.21097
+            ],
+            "params": {
+              "m": 15.32902,
+              "a": 37.65883,
+              "h": 64.89397,
+              "sail_area_m2": 0.05309,
+              "sail_gear": 17.21097
+            },
+            "mujoco": {
+              "score": 0.08596004794247993,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08596004794247993,
+                "stride_per_rev": 0.29201688135936654,
+                "mean_speed": 0.08954171660674985,
+                "max_loop_violation": 0.004727363181990657
+              }
+            },
+            "k2": {
+              "score": 0.09206995347873131,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09206995347873131,
+                "stride_per_rev": 0.3119914272107127,
+                "mean_speed": 0.09794675901992686,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              14.9848,
+              37.10614,
+              65.46884,
+              0.06824,
+              16.9683
+            ],
+            "params": {
+              "m": 14.9848,
+              "a": 37.10614,
+              "h": 65.46884,
+              "sail_area_m2": 0.06824,
+              "sail_gear": 16.9683
+            },
+            "mujoco": {
+              "score": 0.08541741494263594,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08541741494263594,
+                "stride_per_rev": 0.28831427111476327,
+                "mean_speed": 0.09086959036450624,
+                "max_loop_violation": 0.00310814388997116
+              }
+            },
+            "k2": {
+              "score": 0.08801832094858095,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08801832094858095,
+                "stride_per_rev": 0.2977941503772353,
+                "mean_speed": 0.09567208798758792,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              15.11039,
+              37.81153,
+              64.9812,
+              0.04319,
+              15.99069
+            ],
+            "params": {
+              "m": 15.11039,
+              "a": 37.81153,
+              "h": 64.9812,
+              "sail_area_m2": 0.04319,
+              "sail_gear": 15.99069
+            },
+            "mujoco": {
+              "score": 0.08507739869381188,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08507739869381188,
+                "stride_per_rev": 0.2870959518924922,
+                "mean_speed": 0.09247543336283894,
+                "max_loop_violation": 0.004667142424638865
+              }
+            },
+            "k2": {
+              "score": 0.09178092267501375,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09178092267501375,
+                "stride_per_rev": 0.3077214971253008,
+                "mean_speed": 0.10197880297223742,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              14.33309,
+              37.00151,
+              64.66541,
+              0.03653,
+              10.16222
+            ],
+            "params": {
+              "m": 14.33309,
+              "a": 37.00151,
+              "h": 64.66541,
+              "sail_area_m2": 0.03653,
+              "sail_gear": 10.16222
+            },
+            "mujoco": {
+              "score": 0.08498560607336857,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08498560607336857,
+                "stride_per_rev": 0.2841991991343536,
+                "mean_speed": 0.1287660698081341,
+                "max_loop_violation": 0.004749740596432309
+              }
+            },
+            "k2": {
+              "score": 0.08804554925332286,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08804554925332286,
+                "stride_per_rev": 0.29920059968813345,
+                "mean_speed": 0.13757117070831687,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              15.25091,
+              38.12504,
+              64.58832,
+              0.04672,
+              11.50541
+            ],
+            "params": {
+              "m": 15.25091,
+              "a": 38.12504,
+              "h": 64.58832,
+              "sail_area_m2": 0.04672,
+              "sail_gear": 11.50541
+            },
+            "mujoco": {
+              "score": 0.08466339649168395,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08466339649168395,
+                "stride_per_rev": 0.28900858731742635,
+                "mean_speed": 0.12450499484071159,
+                "max_loop_violation": 0.007505590791195622
+              }
+            },
+            "k2": {
+              "score": 0.08904748981267868,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08904748981267868,
+                "stride_per_rev": 0.3008479445562777,
+                "mean_speed": 0.1349204391101191,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              14.72249,
+              37.66399,
+              65.12597,
+              0.04158,
+              15.37231
+            ],
+            "params": {
+              "m": 14.72249,
+              "a": 37.66399,
+              "h": 65.12597,
+              "sail_area_m2": 0.04158,
+              "sail_gear": 15.37231
+            },
+            "mujoco": {
+              "score": 0.08412485448589928,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08412485448589928,
+                "stride_per_rev": 0.28212031578099317,
+                "mean_speed": 0.09347206053988802,
+                "max_loop_violation": 0.004385137929458417
+              }
+            },
+            "k2": {
+              "score": 0.0898768797049411,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0898768797049411,
+                "stride_per_rev": 0.3025518580850992,
+                "mean_speed": 0.1021328178465239,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              15.86289,
+              37.91134,
+              66.41814,
+              0.03954,
+              16.29373
+            ],
+            "params": {
+              "m": 15.86289,
+              "a": 37.91134,
+              "h": 66.41814,
+              "sail_area_m2": 0.03954,
+              "sail_gear": 16.29373
+            },
+            "mujoco": {
+              "score": 0.08380443241477227,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08380443241477227,
+                "stride_per_rev": 0.2848796605071787,
+                "mean_speed": 0.0855147269538492,
+                "max_loop_violation": 0.00624799726539238
+              }
+            },
+            "k2": {
+              "score": 0.08043212793865488,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08043212793865488,
+                "stride_per_rev": 0.27107143386684784,
+                "mean_speed": 0.08742622602027698,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.0883017624485809,
+          0.08797745626574645,
+          0.08620565745733526,
+          0.08596004794247993,
+          0.08541741494263594,
+          0.08507739869381188,
+          0.08498560607336857,
+          0.08466339649168395,
+          0.08412485448589928,
+          0.08380443241477227
+        ],
+        "k2_scores": [
+          0.09555429478436914,
+          0.08859504408309964,
+          0.07958558884521248,
+          0.09206995347873131,
+          0.08801832094858095,
+          0.09178092267501375,
+          0.08804554925332286,
+          0.08904748981267868,
+          0.0898768797049411,
+          0.08043212793865488
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.2606060606060606,
+        "top_k_overlap": 0.4,
+        "top_k_jaccard": 0.25,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          3,
+          5,
+          8,
+          7
+        ],
+        "time_s": 8.508377075195312,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": false
+      },
+      {
+        "seed": 2,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.09004405687085058,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              16.17804,
+              38.25457,
+              65.08086,
+              0.01427,
+              17.75992
+            ],
+            "params": {
+              "m": 16.17804,
+              "a": 38.25457,
+              "h": 65.08086,
+              "sail_area_m2": 0.01427,
+              "sail_gear": 17.75992
+            },
+            "mujoco": {
+              "score": 0.09004405687085058,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09004405687085058,
+                "stride_per_rev": 0.3024121502635594,
+                "mean_speed": 0.07898601479899277,
+                "max_loop_violation": 0.0038603929133060877
+              }
+            },
+            "k2": {
+              "score": 0.09559809473768502,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09559809473768502,
+                "stride_per_rev": 0.3209472207142497,
+                "mean_speed": 0.09018688182800524,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              16.12343,
+              38.59112,
+              64.87167,
+              0.03352,
+              18.26368
+            ],
+            "params": {
+              "m": 16.12343,
+              "a": 38.59112,
+              "h": 64.87167,
+              "sail_area_m2": 0.03352,
+              "sail_gear": 18.26368
+            },
+            "mujoco": {
+              "score": 0.08867927487610716,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08867927487610716,
+                "stride_per_rev": 0.300183626657278,
+                "mean_speed": 0.0886792748761071,
+                "max_loop_violation": 0.005134121292554958
+              }
+            },
+            "k2": {
+              "score": 0.09297650608429478,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09297650608429478,
+                "stride_per_rev": 0.31061436640509255,
+                "mean_speed": 0.09685052717114032,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              15.37365,
+              38.08264,
+              64.40135,
+              0.04104,
+              17.09542
+            ],
+            "params": {
+              "m": 15.37365,
+              "a": 38.08264,
+              "h": 64.40135,
+              "sail_area_m2": 0.04104,
+              "sail_gear": 17.09542
+            },
+            "mujoco": {
+              "score": 0.08768546558063071,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08768546558063071,
+                "stride_per_rev": 0.2936900919242327,
+                "mean_speed": 0.09133902664649025,
+                "max_loop_violation": 0.005806738843789183
+              }
+            },
+            "k2": {
+              "score": 0.08865640363047089,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08865640363047089,
+                "stride_per_rev": 0.299794106009986,
+                "mean_speed": 0.09850711514496759,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.32685,
+              37.9001,
+              64.65016,
+              0.01796,
+              12.98893
+            ],
+            "params": {
+              "m": 15.32685,
+              "a": 37.9001,
+              "h": 64.65016,
+              "sail_area_m2": 0.01796,
+              "sail_gear": 12.98893
+            },
+            "mujoco": {
+              "score": 0.08698657059289804,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08698657059289804,
+                "stride_per_rev": 0.29204521366737435,
+                "mean_speed": 0.10114717510802089,
+                "max_loop_violation": 0.0040986311017855125
+              }
+            },
+            "k2": {
+              "score": 0.09148337970448052,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09148337970448052,
+                "stride_per_rev": 0.30706725978578797,
+                "mean_speed": 0.11156509720058591,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              14.84635,
+              37.43956,
+              64.12164,
+              0.02977,
+              16.72164
+            ],
+            "params": {
+              "m": 14.84635,
+              "a": 37.43956,
+              "h": 64.12164,
+              "sail_area_m2": 0.02977,
+              "sail_gear": 16.72164
+            },
+            "mujoco": {
+              "score": 0.08672675682202127,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08672675682202127,
+                "stride_per_rev": 0.29378425889065746,
+                "mean_speed": 0.09034037168960542,
+                "max_loop_violation": 0.004783390859424454
+              }
+            },
+            "k2": {
+              "score": 0.08952312599554874,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08952312599554874,
+                "stride_per_rev": 0.2987225303064989,
+                "mean_speed": 0.09523736808037092,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              16.63003,
+              39.41804,
+              65.68277,
+              0.02144,
+              16.19737
+            ],
+            "params": {
+              "m": 16.63003,
+              "a": 39.41804,
+              "h": 65.68277,
+              "sail_area_m2": 0.02144,
+              "sail_gear": 16.19737
+            },
+            "mujoco": {
+              "score": 0.08436296698697596,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08436296698697596,
+                "stride_per_rev": 0.2844443936021142,
+                "mean_speed": 0.08111823748747718,
+                "max_loop_violation": 0.003935370288349872
+              }
+            },
+            "k2": {
+              "score": 0.093125287692375,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.093125287692375,
+                "stride_per_rev": 0.31207021816819785,
+                "mean_speed": 0.10347254188041659,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              15.4783,
+              38.39026,
+              64.29363,
+              0.01563,
+              11.1554
+            ],
+            "params": {
+              "m": 15.4783,
+              "a": 38.39026,
+              "h": 64.29363,
+              "sail_area_m2": 0.01563,
+              "sail_gear": 11.1554
+            },
+            "mujoco": {
+              "score": 0.08419053612431365,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08419053612431365,
+                "stride_per_rev": 0.28268331997023355,
+                "mean_speed": 0.10022682871942094,
+                "max_loop_violation": 0.004679475170535845
+              }
+            },
+            "k2": {
+              "score": 0.08529429584612438,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08529429584612438,
+                "stride_per_rev": 0.29064926557700993,
+                "mean_speed": 0.11526256195422206,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              14.87372,
+              37.49426,
+              63.79947,
+              0.05188,
+              14.47099
+            ],
+            "params": {
+              "m": 14.87372,
+              "a": 37.49426,
+              "h": 63.79947,
+              "sail_area_m2": 0.05188,
+              "sail_gear": 14.47099
+            },
+            "mujoco": {
+              "score": 0.08407869757849498,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08407869757849498,
+                "stride_per_rev": 0.2844866589756399,
+                "mean_speed": 0.10253499704694502,
+                "max_loop_violation": 0.006785099206579902
+              }
+            },
+            "k2": {
+              "score": 0.08621009688169258,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08621009688169258,
+                "stride_per_rev": 0.2915706605400127,
+                "mean_speed": 0.11052576523293912,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              15.78739,
+              37.82228,
+              63.693,
+              0.04296,
+              11.32098
+            ],
+            "params": {
+              "m": 15.78739,
+              "a": 37.82228,
+              "h": 63.693,
+              "sail_area_m2": 0.04296,
+              "sail_gear": 11.32098
+            },
+            "mujoco": {
+              "score": 0.08393982401723242,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08393982401723242,
+                "stride_per_rev": 0.2864233049597305,
+                "mean_speed": 0.11343219461788157,
+                "max_loop_violation": 0.012438873642237391
+              }
+            },
+            "k2": {
+              "score": 0.08767693841025354,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08767693841025354,
+                "stride_per_rev": 0.2956850771940174,
+                "mean_speed": 0.13284384607614164,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              15.94543,
+              39.05992,
+              65.61288,
+              0.01421,
+              15.31476
+            ],
+            "params": {
+              "m": 15.94543,
+              "a": 39.05992,
+              "h": 65.61288,
+              "sail_area_m2": 0.01421,
+              "sail_gear": 15.31476
+            },
+            "mujoco": {
+              "score": 0.08286885689114111,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08286885689114111,
+                "stride_per_rev": 0.28109546941238195,
+                "mean_speed": 0.07968159316455904,
+                "max_loop_violation": 0.0037958722983238193
+              }
+            },
+            "k2": {
+              "score": 0.0888738526981797,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0888738526981797,
+                "stride_per_rev": 0.2967692875302424,
+                "mean_speed": 0.09454665180657407,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.09004405687085058,
+          0.08867927487610716,
+          0.08768546558063071,
+          0.08698657059289804,
+          0.08672675682202127,
+          0.08436296698697596,
+          0.08419053612431365,
+          0.08407869757849498,
+          0.08393982401723242,
+          0.08286885689114111
+        ],
+        "k2_scores": [
+          0.09559809473768502,
+          0.09297650608429478,
+          0.08865640363047089,
+          0.09148337970448052,
+          0.08952312599554874,
+          0.093125287692375,
+          0.08529429584612438,
+          0.08621009688169258,
+          0.08767693841025354,
+          0.0888738526981797
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.6363636363636364,
+        "top_k_overlap": 0.8,
+        "top_k_jaccard": 0.6666666666666666,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          5,
+          1,
+          3,
+          4
+        ],
+        "time_s": 8.26334810256958,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": false
+      },
+      {
+        "seed": 3,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.09003398157225008,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              16.18151,
+              38.26204,
+              64.67718,
+              0.07234,
+              14.70532
+            ],
+            "params": {
+              "m": 16.18151,
+              "a": 38.26204,
+              "h": 64.67718,
+              "sail_area_m2": 0.07234,
+              "sail_gear": 14.70532
+            },
+            "mujoco": {
+              "score": 0.09003398157225008,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09003398157225008,
+                "stride_per_rev": 0.30437211679165244,
+                "mean_speed": 0.11254247696531251,
+                "max_loop_violation": 0.006911028056612041
+              }
+            },
+            "k2": {
+              "score": 0.09368900502663205,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09368900502663205,
+                "stride_per_rev": 0.3145836084681181,
+                "mean_speed": 0.12011410900850254,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              16.18667,
+              38.26074,
+              64.09966,
+              0.06179,
+              15.97191
+            ],
+            "params": {
+              "m": 16.18667,
+              "a": 38.26074,
+              "h": 64.09966,
+              "sail_area_m2": 0.06179,
+              "sail_gear": 15.97191
+            },
+            "mujoco": {
+              "score": 0.08724285834219674,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08724285834219674,
+                "stride_per_rev": 0.29375520961689183,
+                "mean_speed": 0.09913961175249622,
+                "max_loop_violation": 0.005903245581191902
+              }
+            },
+            "k2": {
+              "score": 0.09032527216554798,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09032527216554798,
+                "stride_per_rev": 0.30143580777766094,
+                "mean_speed": 0.110152770933595,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              15.32411,
+              38.06963,
+              64.98125,
+              0.06784,
+              11.97337
+            ],
+            "params": {
+              "m": 15.32411,
+              "a": 38.06963,
+              "h": 64.98125,
+              "sail_area_m2": 0.06784,
+              "sail_gear": 11.97337
+            },
+            "mujoco": {
+              "score": 0.08553994441505514,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08553994441505514,
+                "stride_per_rev": 0.28682926113301327,
+                "mean_speed": 0.12219992059293582,
+                "max_loop_violation": 0.006011444236205345
+              }
+            },
+            "k2": {
+              "score": 0.08988843123793626,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08988843123793626,
+                "stride_per_rev": 0.30932897209777355,
+                "mean_speed": 0.13619459278475182,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.2341,
+              38.17529,
+              65.05357,
+              0.0337,
+              15.63127
+            ],
+            "params": {
+              "m": 15.2341,
+              "a": 38.17529,
+              "h": 65.05357,
+              "sail_area_m2": 0.0337,
+              "sail_gear": 15.63127
+            },
+            "mujoco": {
+              "score": 0.08439749362119632,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08439749362119632,
+                "stride_per_rev": 0.28548690620930794,
+                "mean_speed": 0.09173640610999594,
+                "max_loop_violation": 0.004581227394051854
+              }
+            },
+            "k2": {
+              "score": 0.09092363529768262,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09092363529768262,
+                "stride_per_rev": 0.3073025918577775,
+                "mean_speed": 0.10332231283827563,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              15.46748,
+              38.23334,
+              66.03112,
+              0.05269,
+              13.38931
+            ],
+            "params": {
+              "m": 15.46748,
+              "a": 38.23334,
+              "h": 66.03112,
+              "sail_area_m2": 0.05269,
+              "sail_gear": 13.38931
+            },
+            "mujoco": {
+              "score": 0.08363074384009331,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08363074384009331,
+                "stride_per_rev": 0.28110605853837506,
+                "mean_speed": 0.10453842980011656,
+                "max_loop_violation": 0.0034426918584305605
+              }
+            },
+            "k2": {
+              "score": 0.07746783415742095,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07746783415742095,
+                "stride_per_rev": 0.2629824960187945,
+                "mean_speed": 0.10193136073344854,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              15.16777,
+              38.46352,
+              65.19842,
+              0.0673,
+              15.43832
+            ],
+            "params": {
+              "m": 15.16777,
+              "a": 38.46352,
+              "h": 65.19842,
+              "sail_area_m2": 0.0673,
+              "sail_gear": 15.43832
+            },
+            "mujoco": {
+              "score": 0.08290927311137891,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08290927311137891,
+                "stride_per_rev": 0.28142242048183325,
+                "mean_speed": 0.09640613152485912,
+                "max_loop_violation": 0.0054009455390559916
+              }
+            },
+            "k2": {
+              "score": 0.08939380753111913,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08939380753111913,
+                "stride_per_rev": 0.3043246918993519,
+                "mean_speed": 0.10901683845258422,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              15.56564,
+              38.84388,
+              66.08778,
+              0.05874,
+              10.85229
+            ],
+            "params": {
+              "m": 15.56564,
+              "a": 38.84388,
+              "h": 66.08778,
+              "sail_area_m2": 0.05874,
+              "sail_gear": 10.85229
+            },
+            "mujoco": {
+              "score": 0.08227933995026523,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08227933995026523,
+                "stride_per_rev": 0.27529122626988134,
+                "mean_speed": 0.12099902933862526,
+                "max_loop_violation": 0.004530151664405249
+              }
+            },
+            "k2": {
+              "score": 0.07724785383548256,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07724785383548256,
+                "stride_per_rev": 0.2650150611488129,
+                "mean_speed": 0.12459331263787501,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              16.05667,
+              38.61017,
+              66.53854,
+              0.07914,
+              15.52204
+            ],
+            "params": {
+              "m": 16.05667,
+              "a": 38.61017,
+              "h": 66.53854,
+              "sail_area_m2": 0.07914,
+              "sail_gear": 15.52204
+            },
+            "mujoco": {
+              "score": 0.08218049323148414,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08218049323148414,
+                "stride_per_rev": 0.2772775175381915,
+                "mean_speed": 0.09338692412668646,
+                "max_loop_violation": 0.002490734122775562
+              }
+            },
+            "k2": {
+              "score": 0.07478017139387443,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07478017139387443,
+                "stride_per_rev": 0.25421664302785574,
+                "mean_speed": 0.09119533096813948,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              15.04264,
+              38.17619,
+              64.95658,
+              0.06061,
+              10.02168
+            ],
+            "params": {
+              "m": 15.04264,
+              "a": 38.17619,
+              "h": 64.95658,
+              "sail_area_m2": 0.06061,
+              "sail_gear": 10.02168
+            },
+            "mujoco": {
+              "score": 0.08198248821315789,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08198248821315789,
+                "stride_per_rev": 0.2813852198732734,
+                "mean_speed": 0.13663748035526305,
+                "max_loop_violation": 0.0062662633778564555
+              }
+            },
+            "k2": {
+              "score": 0.08863131290605997,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08863131290605997,
+                "stride_per_rev": 0.303578115915144,
+                "mean_speed": 0.15281260845872396,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              15.22541,
+              37.69866,
+              63.40021,
+              0.06177,
+              16.81744
+            ],
+            "params": {
+              "m": 15.22541,
+              "a": 37.69866,
+              "h": 63.40021,
+              "sail_area_m2": 0.06177,
+              "sail_gear": 16.81744
+            },
+            "mujoco": {
+              "score": 0.08144015526155962,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08144015526155962,
+                "stride_per_rev": 0.27298030451280164,
+                "mean_speed": 0.0866384630442123,
+                "max_loop_violation": 0.005808917225481672
+              }
+            },
+            "k2": {
+              "score": 0.08386794441363168,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08386794441363168,
+                "stride_per_rev": 0.2803708307691878,
+                "mean_speed": 0.09752086559724607,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.09003398157225008,
+          0.08724285834219674,
+          0.08553994441505514,
+          0.08439749362119632,
+          0.08363074384009331,
+          0.08290927311137891,
+          0.08227933995026523,
+          0.08218049323148414,
+          0.08198248821315789,
+          0.08144015526155962
+        ],
+        "k2_scores": [
+          0.09368900502663205,
+          0.09032527216554798,
+          0.08988843123793626,
+          0.09092363529768262,
+          0.07746783415742095,
+          0.08939380753111913,
+          0.07724785383548256,
+          0.07478017139387443,
+          0.08863131290605997,
+          0.08386794441363168
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.7454545454545455,
+        "top_k_overlap": 0.8,
+        "top_k_jaccard": 0.6666666666666666,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          3,
+          1,
+          2,
+          5
+        ],
+        "time_s": 7.331185817718506,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": true
+      },
+      {
+        "seed": 4,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.08704027031033226,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              15.70671,
+              37.73811,
+              65.2359,
+              0.05284,
+              12.44944
+            ],
+            "params": {
+              "m": 15.70671,
+              "a": 37.73811,
+              "h": 65.2359,
+              "sail_area_m2": 0.05284,
+              "sail_gear": 12.44944
+            },
+            "mujoco": {
+              "score": 0.08704027031033226,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08704027031033226,
+                "stride_per_rev": 0.2947836094248804,
+                "mean_speed": 0.11159009014145153,
+                "max_loop_violation": 0.014487811460316413
+              }
+            },
+            "k2": {
+              "score": 0.09357356012468782,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09357356012468782,
+                "stride_per_rev": 0.3183545126678085,
+                "mean_speed": 0.1299632779509552,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              15.01692,
+              37.21702,
+              64.37345,
+              0.04546,
+              10.74789
+            ],
+            "params": {
+              "m": 15.01692,
+              "a": 37.21702,
+              "h": 64.37345,
+              "sail_area_m2": 0.04546,
+              "sail_gear": 10.74789
+            },
+            "mujoco": {
+              "score": 0.08627485108760514,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08627485108760514,
+                "stride_per_rev": 0.2945978354698922,
+                "mean_speed": 0.13071947134485618,
+                "max_loop_violation": 0.005594682293242899
+              }
+            },
+            "k2": {
+              "score": 0.09012775754911821,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09012775754911821,
+                "stride_per_rev": 0.3079510128411391,
+                "mean_speed": 0.1408246211704971,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              15.731,
+              37.78747,
+              63.81564,
+              0.0499,
+              14.72442
+            ],
+            "params": {
+              "m": 15.731,
+              "a": 37.78747,
+              "h": 63.81564,
+              "sail_area_m2": 0.0499,
+              "sail_gear": 14.72442
+            },
+            "mujoco": {
+              "score": 0.08578740794669683,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08578740794669683,
+                "stride_per_rev": 0.2921815209544207,
+                "mean_speed": 0.10212786660321044,
+                "max_loop_violation": 0.006152228603180848
+              }
+            },
+            "k2": {
+              "score": 0.0880851917567275,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0880851917567275,
+                "stride_per_rev": 0.2991102129067148,
+                "mean_speed": 0.11292973302144542,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.12605,
+              37.50376,
+              64.73367,
+              0.04817,
+              12.01098
+            ],
+            "params": {
+              "m": 15.12605,
+              "a": 37.50376,
+              "h": 64.73367,
+              "sail_area_m2": 0.04817,
+              "sail_gear": 12.01098
+            },
+            "mujoco": {
+              "score": 0.08575713949315884,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08575713949315884,
+                "stride_per_rev": 0.2895931551286098,
+                "mean_speed": 0.11910713818494276,
+                "max_loop_violation": 0.005364516629916452
+              }
+            },
+            "k2": {
+              "score": 0.09140059916335322,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09140059916335322,
+                "stride_per_rev": 0.3091777153265928,
+                "mean_speed": 0.13057228451907593,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              16.185,
+              38.10992,
+              63.7386,
+              0.04942,
+              14.78458
+            ],
+            "params": {
+              "m": 16.185,
+              "a": 38.10992,
+              "h": 63.7386,
+              "sail_area_m2": 0.04942,
+              "sail_gear": 14.78458
+            },
+            "mujoco": {
+              "score": 0.08545920516933318,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08545920516933318,
+                "stride_per_rev": 0.28725677263490296,
+                "mean_speed": 0.09289044040144905,
+                "max_loop_violation": 0.020259814059803594
+              }
+            },
+            "k2": {
+              "score": -1.0,
+              "failed": true,
+              "metrics": {
+                "solver_exception": "linkage cannot assemble over the K2 trajectory table"
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              14.97926,
+              37.15931,
+              65.47327,
+              0.05884,
+              8.10236
+            ],
+            "params": {
+              "m": 14.97926,
+              "a": 37.15931,
+              "h": 65.47327,
+              "sail_area_m2": 0.05884,
+              "sail_gear": 8.10236
+            },
+            "mujoco": {
+              "score": 0.0853330740242763,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0853330740242763,
+                "stride_per_rev": 0.2869772936764562,
+                "mean_speed": 0.1580242111560671,
+                "max_loop_violation": 0.004652353934812226
+              }
+            },
+            "k2": {
+              "score": 0.08919628370409721,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08919628370409721,
+                "stride_per_rev": 0.29767760220321227,
+                "mean_speed": 0.17153131481557143,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              15.7424,
+              37.92961,
+              65.85016,
+              0.04965,
+              9.37255
+            ],
+            "params": {
+              "m": 15.7424,
+              "a": 37.92961,
+              "h": 65.85016,
+              "sail_area_m2": 0.04965,
+              "sail_gear": 9.37255
+            },
+            "mujoco": {
+              "score": 0.08519047397959942,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08519047397959942,
+                "stride_per_rev": 0.2887312844792064,
+                "mean_speed": 0.13740399028967637,
+                "max_loop_violation": 0.00497870291288538
+              }
+            },
+            "k2": {
+              "score": 0.08090998943994136,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08090998943994136,
+                "stride_per_rev": 0.27284542362525604,
+                "mean_speed": 0.13949998179300224,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              15.50562,
+              38.79079,
+              64.75349,
+              0.06507,
+              12.98546
+            ],
+            "params": {
+              "m": 15.50562,
+              "a": 38.79079,
+              "h": 64.75349,
+              "sail_area_m2": 0.06507,
+              "sail_gear": 12.98546
+            },
+            "mujoco": {
+              "score": 0.08351843842486645,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08351843842486645,
+                "stride_per_rev": 0.28297015004867054,
+                "mean_speed": 0.11286275462819782,
+                "max_loop_violation": 0.0070972395912269615
+              }
+            },
+            "k2": {
+              "score": 0.08703267359556174,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08703267359556174,
+                "stride_per_rev": 0.2925161991876775,
+                "mean_speed": 0.1243323908508024,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              15.13082,
+              37.91048,
+              65.84489,
+              0.05267,
+              14.38773
+            ],
+            "params": {
+              "m": 15.13082,
+              "a": 37.91048,
+              "h": 65.84489,
+              "sail_area_m2": 0.05267,
+              "sail_gear": 14.38773
+            },
+            "mujoco": {
+              "score": 0.08350703126297121,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08350703126297121,
+                "stride_per_rev": 0.2814689342461448,
+                "mean_speed": 0.09941313245591803,
+                "max_loop_violation": 0.0034229503958414648
+              }
+            },
+            "k2": {
+              "score": 0.08088490119478944,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08088490119478944,
+                "stride_per_rev": 0.2702705071955924,
+                "mean_speed": 0.09864012340827974,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              14.78016,
+              37.76064,
+              65.05406,
+              0.06587,
+              19.53638
+            ],
+            "params": {
+              "m": 14.78016,
+              "a": 37.76064,
+              "h": 65.05406,
+              "sail_area_m2": 0.06587,
+              "sail_gear": 19.53638
+            },
+            "mujoco": {
+              "score": 0.08347132293245366,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08347132293245366,
+                "stride_per_rev": 0.28305214811458423,
+                "mean_speed": 0.07874653106835294,
+                "max_loop_violation": 0.004528133516433698
+              }
+            },
+            "k2": {
+              "score": 0.0906981674850878,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0906981674850878,
+                "stride_per_rev": 0.30292110169822284,
+                "mean_speed": 0.08556430894819651,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.08704027031033226,
+          0.08627485108760514,
+          0.08578740794669683,
+          0.08575713949315884,
+          0.08545920516933318,
+          0.0853330740242763,
+          0.08519047397959942,
+          0.08351843842486645,
+          0.08350703126297121,
+          0.08347132293245366
+        ],
+        "k2_scores": [
+          0.09357356012468782,
+          0.09012775754911821,
+          0.0880851917567275,
+          0.09140059916335322,
+          -1.0,
+          0.08919628370409721,
+          0.08090998943994136,
+          0.08703267359556174,
+          0.08088490119478944,
+          0.0906981674850878
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.4303030303030303,
+        "top_k_overlap": 0.6,
+        "top_k_jaccard": 0.42857142857142855,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          3,
+          9,
+          1,
+          5
+        ],
+        "time_s": 6.952983617782593,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.1,
+        "is_stable": false
+      },
+      {
+        "seed": 5,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.08945460548290173,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              16.43553,
+              38.56794,
+              64.88803,
+              0.01016,
+              8.40697
+            ],
+            "params": {
+              "m": 16.43553,
+              "a": 38.56794,
+              "h": 64.88803,
+              "sail_area_m2": 0.01016,
+              "sail_gear": 8.40697
+            },
+            "mujoco": {
+              "score": 0.08945460548290173,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08945460548290173,
+                "stride_per_rev": 0.30363885672678953,
+                "mean_speed": 0.10909098229622154,
+                "max_loop_violation": 0.003749977340290034
+              }
+            },
+            "k2": {
+              "score": 0.09389831748616563,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09389831748616563,
+                "stride_per_rev": 0.3169154982345328,
+                "mean_speed": 0.12688961822454806,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              15.85491,
+              38.04732,
+              64.27336,
+              0.04505,
+              13.57626
+            ],
+            "params": {
+              "m": 15.85491,
+              "a": 38.04732,
+              "h": 64.27336,
+              "sail_area_m2": 0.04505,
+              "sail_gear": 13.57626
+            },
+            "mujoco": {
+              "score": 0.08943732888094535,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08943732888094535,
+                "stride_per_rev": 0.2982728046277301,
+                "mean_speed": 0.11179666110118161,
+                "max_loop_violation": 0.006450417040505849
+              }
+            },
+            "k2": {
+              "score": 0.09164975103066098,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09164975103066098,
+                "stride_per_rev": 0.30540405958617506,
+                "mean_speed": 0.12059177767192225,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              16.04721,
+              38.04507,
+              65.12405,
+              0.0421,
+              12.75528
+            ],
+            "params": {
+              "m": 16.04721,
+              "a": 38.04507,
+              "h": 65.12405,
+              "sail_area_m2": 0.0421,
+              "sail_gear": 12.75528
+            },
+            "mujoco": {
+              "score": 0.08878962579310673,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08878962579310673,
+                "stride_per_rev": 0.2976996857843136,
+                "mean_speed": 0.10570193546798412,
+                "max_loop_violation": 0.01674073183594449
+              }
+            },
+            "k2": {
+              "score": 0.09653616098866423,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09653616098866423,
+                "stride_per_rev": 0.3215863456851732,
+                "mean_speed": 0.12702126445876863,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.83868,
+              37.99158,
+              64.78597,
+              0.0133,
+              12.36986
+            ],
+            "params": {
+              "m": 15.83868,
+              "a": 37.99158,
+              "h": 64.78597,
+              "sail_area_m2": 0.0133,
+              "sail_gear": 12.36986
+            },
+            "mujoco": {
+              "score": 0.0884178279177669,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0884178279177669,
+                "stride_per_rev": 0.30057601062390543,
+                "mean_speed": 0.10047480445200775,
+                "max_loop_violation": 0.0036506253576515484
+              }
+            },
+            "k2": {
+              "score": 0.09406880463213853,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09406880463213853,
+                "stride_per_rev": 0.31551867122756777,
+                "mean_speed": 0.11198667218111721,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              16.14383,
+              38.1626,
+              65.16478,
+              0.04331,
+              12.66245
+            ],
+            "params": {
+              "m": 16.14383,
+              "a": 38.1626,
+              "h": 65.16478,
+              "sail_area_m2": 0.04331,
+              "sail_gear": 12.66245
+            },
+            "mujoco": {
+              "score": 0.08840716081004397,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08840716081004397,
+                "stride_per_rev": 0.2981135401637873,
+                "mean_speed": 0.10781361074395598,
+                "max_loop_violation": 0.014893525913044714
+              }
+            },
+            "k2": {
+              "score": 0.09551070474866133,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09551070474866133,
+                "stride_per_rev": 0.32265207190251005,
+                "mean_speed": 0.12906851993062332,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              16.37025,
+              38.51373,
+              65.84163,
+              0.01149,
+              12.92907
+            ],
+            "params": {
+              "m": 16.37025,
+              "a": 38.51373,
+              "h": 65.84163,
+              "sail_area_m2": 0.01149,
+              "sail_gear": 12.92907
+            },
+            "mujoco": {
+              "score": 0.08736080873767901,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08736080873767901,
+                "stride_per_rev": 0.29313057828653855,
+                "mean_speed": 0.085647851703607,
+                "max_loop_violation": 0.0036557634391842786
+              }
+            },
+            "k2": {
+              "score": 0.08780337635949084,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08780337635949084,
+                "stride_per_rev": 0.2958827585265963,
+                "mean_speed": 0.09543845256466389,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              15.98478,
+              38.788,
+              65.05455,
+              0.0114,
+              12.55402
+            ],
+            "params": {
+              "m": 15.98478,
+              "a": 38.788,
+              "h": 65.05455,
+              "sail_area_m2": 0.0114,
+              "sail_gear": 12.55402
+            },
+            "mujoco": {
+              "score": 0.08700029307313295,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08700029307313295,
+                "stride_per_rev": 0.29352140771774254,
+                "mean_speed": 0.09456553594905748,
+                "max_loop_violation": 0.0041979480474220385
+              }
+            },
+            "k2": {
+              "score": 0.0907046508843021,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0907046508843021,
+                "stride_per_rev": 0.30837311342828216,
+                "mean_speed": 0.10798172724321671,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              15.79543,
+              38.35194,
+              64.47288,
+              0.01882,
+              12.1344
+            ],
+            "params": {
+              "m": 15.79543,
+              "a": 38.35194,
+              "h": 64.47288,
+              "sail_area_m2": 0.01882,
+              "sail_gear": 12.1344
+            },
+            "mujoco": {
+              "score": 0.08694984219096139,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08694984219096139,
+                "stride_per_rev": 0.29475773183267856,
+                "mean_speed": 0.1060363929158065,
+                "max_loop_violation": 0.005055900456244815
+              }
+            },
+            "k2": {
+              "score": 0.08911866193702705,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08911866193702705,
+                "stride_per_rev": 0.30197386662829034,
+                "mean_speed": 0.11726139728556183,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              15.93663,
+              38.65646,
+              64.90061,
+              0.01188,
+              10.83765
+            ],
+            "params": {
+              "m": 15.93663,
+              "a": 38.65646,
+              "h": 64.90061,
+              "sail_area_m2": 0.01188,
+              "sail_gear": 10.83765
+            },
+            "mujoco": {
+              "score": 0.08693344205466327,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08693344205466327,
+                "stride_per_rev": 0.29408743116179503,
+                "mean_speed": 0.1034921929222181,
+                "max_loop_violation": 0.004193409009794508
+              }
+            },
+            "k2": {
+              "score": 0.0910643098831346,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0910643098831346,
+                "stride_per_rev": 0.3069417970070812,
+                "mean_speed": 0.11674911523478787,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              16.37938,
+              38.31412,
+              63.95534,
+              0.01,
+              8.50604
+            ],
+            "params": {
+              "m": 16.37938,
+              "a": 38.31412,
+              "h": 63.95534,
+              "sail_area_m2": 0.01,
+              "sail_gear": 8.50604
+            },
+            "mujoco": {
+              "score": 0.08677076886215612,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08677076886215612,
+                "stride_per_rev": 0.2914214318797391,
+                "mean_speed": 0.08343343159822735,
+                "max_loop_violation": 0.0061308292059143454
+              }
+            },
+            "k2": {
+              "score": -1.0,
+              "failed": true,
+              "metrics": {
+                "solver_exception": "linkage cannot assemble over the K2 trajectory table"
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.08945460548290173,
+          0.08943732888094535,
+          0.08878962579310673,
+          0.0884178279177669,
+          0.08840716081004397,
+          0.08736080873767901,
+          0.08700029307313295,
+          0.08694984219096139,
+          0.08693344205466327,
+          0.08677076886215612
+        ],
+        "k2_scores": [
+          0.09389831748616563,
+          0.09164975103066098,
+          0.09653616098866423,
+          0.09406880463213853,
+          0.09551070474866133,
+          0.08780337635949084,
+          0.0907046508843021,
+          0.08911866193702705,
+          0.0910643098831346,
+          -1.0
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          true
+        ],
+        "spearman_rho": 0.696969696969697,
+        "top_k_overlap": 1.0,
+        "top_k_jaccard": 1.0,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          2,
+          4,
+          3,
+          0,
+          1
+        ],
+        "time_s": 6.972073793411255,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.1,
+        "is_stable": false
+      },
+      {
+        "seed": 6,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.08971021612435681,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              15.54863,
+              37.8121,
+              64.57562,
+              0.04572,
+              17.93297
+            ],
+            "params": {
+              "m": 15.54863,
+              "a": 37.8121,
+              "h": 64.57562,
+              "sail_area_m2": 0.04572,
+              "sail_gear": 17.93297
+            },
+            "mujoco": {
+              "score": 0.08971021612435681,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08971021612435681,
+                "stride_per_rev": 0.30002928571279314,
+                "mean_speed": 0.08971021612435676,
+                "max_loop_violation": 0.004978702239451245
+              }
+            },
+            "k2": {
+              "score": 0.09208582205912673,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09208582205912673,
+                "stride_per_rev": 0.31103581523457463,
+                "mean_speed": 0.09592273131159026,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              15.2654,
+              37.5845,
+              64.2066,
+              0.03407,
+              20.34535
+            ],
+            "params": {
+              "m": 15.2654,
+              "a": 37.5845,
+              "h": 64.2066,
+              "sail_area_m2": 0.03407,
+              "sail_gear": 20.34535
+            },
+            "mujoco": {
+              "score": 0.0889030609748018,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0889030609748018,
+                "stride_per_rev": 0.29948253308852496,
+                "mean_speed": 0.07937773301321678,
+                "max_loop_violation": 0.0054357822156811675
+              }
+            },
+            "k2": {
+              "score": 0.09062364649640128,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09062364649640128,
+                "stride_per_rev": 0.3043230725460684,
+                "mean_speed": 0.08391078379296478,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              15.41378,
+              37.57892,
+              64.00175,
+              0.04398,
+              17.75545
+            ],
+            "params": {
+              "m": 15.41378,
+              "a": 37.57892,
+              "h": 64.00175,
+              "sail_area_m2": 0.04398,
+              "sail_gear": 17.75545
+            },
+            "mujoco": {
+              "score": 0.08838335692289688,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08838335692289688,
+                "stride_per_rev": 0.2974522875563064,
+                "mean_speed": 0.09018709890091511,
+                "max_loop_violation": 0.005797525900905487
+              }
+            },
+            "k2": {
+              "score": 0.09027019734547675,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09027019734547675,
+                "stride_per_rev": 0.3029822686578711,
+                "mean_speed": 0.09603212483561349,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.3495,
+              37.28163,
+              64.5677,
+              0.03554,
+              15.49271
+            ],
+            "params": {
+              "m": 15.3495,
+              "a": 37.28163,
+              "h": 64.5677,
+              "sail_area_m2": 0.03554,
+              "sail_gear": 15.49271
+            },
+            "mujoco": {
+              "score": 0.08822083303368354,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08822083303368354,
+                "stride_per_rev": 0.2964666489411812,
+                "mean_speed": 0.09002125819763619,
+                "max_loop_violation": 0.01588385408651649
+              }
+            },
+            "k2": {
+              "score": 0.09367414477774086,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09367414477774086,
+                "stride_per_rev": 0.31385489870702293,
+                "mean_speed": 0.10408238308637865,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              15.50138,
+              37.79816,
+              64.04438,
+              0.05474,
+              12.65188
+            ],
+            "params": {
+              "m": 15.50138,
+              "a": 37.79816,
+              "h": 64.04438,
+              "sail_area_m2": 0.05474,
+              "sail_gear": 12.65188
+            },
+            "mujoco": {
+              "score": 0.087333683182759,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.087333683182759,
+                "stride_per_rev": 0.2924986506175781,
+                "mean_speed": 0.11801849078751207,
+                "max_loop_violation": 0.007135799770079963
+              }
+            },
+            "k2": {
+              "score": 0.08912062689419693,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08912062689419693,
+                "stride_per_rev": 0.3004318323300238,
+                "mean_speed": 0.1273151812774241,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              15.37287,
+              37.38695,
+              65.03905,
+              0.04985,
+              12.64824
+            ],
+            "params": {
+              "m": 15.37287,
+              "a": 37.38695,
+              "h": 65.03905,
+              "sail_area_m2": 0.04985,
+              "sail_gear": 12.64824
+            },
+            "mujoco": {
+              "score": 0.08728545308404059,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08728545308404059,
+                "stride_per_rev": 0.29352547869398754,
+                "mean_speed": 0.10910681635505066,
+                "max_loop_violation": 0.0152929711485299
+              }
+            },
+            "k2": {
+              "score": 0.09306960159599509,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09306960159599509,
+                "stride_per_rev": 0.31421140135248865,
+                "mean_speed": 0.12576973188647975,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              14.99925,
+              37.89718,
+              64.38914,
+              0.04087,
+              17.19725
+            ],
+            "params": {
+              "m": 14.99925,
+              "a": 37.89718,
+              "h": 64.38914,
+              "sail_area_m2": 0.04087,
+              "sail_gear": 17.19725
+            },
+            "mujoco": {
+              "score": 0.08623484131745203,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08623484131745203,
+                "stride_per_rev": 0.2908101517870542,
+                "mean_speed": 0.08982795970567913,
+                "max_loop_violation": 0.005998716227385056
+              }
+            },
+            "k2": {
+              "score": 0.08824848798851735,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08824848798851735,
+                "stride_per_rev": 0.2974277855986289,
+                "mean_speed": 0.09592226955273618,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              15.15498,
+              38.0609,
+              64.68974,
+              0.05388,
+              17.24275
+            ],
+            "params": {
+              "m": 15.15498,
+              "a": 38.0609,
+              "h": 64.68974,
+              "sail_area_m2": 0.05388,
+              "sail_gear": 17.24275
+            },
+            "mujoco": {
+              "score": 0.0860890715195909,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0860890715195909,
+                "stride_per_rev": 0.2883111738113448,
+                "mean_speed": 0.08967611616624045,
+                "max_loop_violation": 0.005155131072711122
+              }
+            },
+            "k2": {
+              "score": 0.09024846188061146,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09024846188061146,
+                "stride_per_rev": 0.30213622807985907,
+                "mean_speed": 0.09809615421805586,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              16.15568,
+              38.4353,
+              64.063,
+              0.07504,
+              15.94813
+            ],
+            "params": {
+              "m": 16.15568,
+              "a": 38.4353,
+              "h": 64.063,
+              "sail_area_m2": 0.07504,
+              "sail_gear": 15.94813
+            },
+            "mujoco": {
+              "score": 0.08553622292431683,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08553622292431683,
+                "stride_per_rev": 0.2860697623431472,
+                "mean_speed": 0.09720025332308722,
+                "max_loop_violation": 0.006048836779352938
+              }
+            },
+            "k2": {
+              "score": 0.08734079662140884,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08734079662140884,
+                "stride_per_rev": 0.29434461097491654,
+                "mean_speed": 0.10917599577676097,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              14.70093,
+              37.6912,
+              64.24811,
+              0.04377,
+              14.28455
+            ],
+            "params": {
+              "m": 14.70093,
+              "a": 37.6912,
+              "h": 64.24811,
+              "sail_area_m2": 0.04377,
+              "sail_gear": 14.28455
+            },
+            "mujoco": {
+              "score": 0.08505349474137007,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08505349474137007,
+                "stride_per_rev": 0.2873744153097041,
+                "mean_speed": 0.10372377407484147,
+                "max_loop_violation": 0.006027198629073208
+              }
+            },
+            "k2": {
+              "score": 0.08810235443464283,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08810235443464283,
+                "stride_per_rev": 0.2937955577074114,
+                "mean_speed": 0.11012794304330345,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.08971021612435681,
+          0.0889030609748018,
+          0.08838335692289688,
+          0.08822083303368354,
+          0.087333683182759,
+          0.08728545308404059,
+          0.08623484131745203,
+          0.0860890715195909,
+          0.08553622292431683,
+          0.08505349474137007
+        ],
+        "k2_scores": [
+          0.09208582205912673,
+          0.09062364649640128,
+          0.09027019734547675,
+          0.09367414477774086,
+          0.08912062689419693,
+          0.09306960159599509,
+          0.08824848798851735,
+          0.09024846188061146,
+          0.08734079662140884,
+          0.08810235443464283
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.7090909090909091,
+        "top_k_overlap": 0.8,
+        "top_k_jaccard": 0.6666666666666666,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          3,
+          5,
+          0,
+          1,
+          2
+        ],
+        "time_s": 7.771723031997681,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": true
+      },
+      {
+        "seed": 7,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.0892306349643963,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              15.82458,
+              37.76709,
+              64.90947,
+              0.02816,
+              13.38008
+            ],
+            "params": {
+              "m": 15.82458,
+              "a": 37.76709,
+              "h": 64.90947,
+              "sail_area_m2": 0.02816,
+              "sail_gear": 13.38008
+            },
+            "mujoco": {
+              "score": 0.0892306349643963,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0892306349643963,
+                "stride_per_rev": 0.29749027322805244,
+                "mean_speed": 0.09492620740893216,
+                "max_loop_violation": 0.01592753873934849
+              }
+            },
+            "k2": {
+              "score": 0.09456434853006432,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09456434853006432,
+                "stride_per_rev": 0.31934022242660165,
+                "mean_speed": 0.11257660539293363,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              14.27946,
+              36.57376,
+              63.56522,
+              0.05089,
+              15.15323
+            ],
+            "params": {
+              "m": 14.27946,
+              "a": 36.57376,
+              "h": 63.56522,
+              "sail_area_m2": 0.05089,
+              "sail_gear": 15.15323
+            },
+            "mujoco": {
+              "score": 0.08663713348193608,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08663713348193608,
+                "stride_per_rev": 0.2904267365189616,
+                "mean_speed": 0.10074085288597211,
+                "max_loop_violation": 0.005451006407120505
+              }
+            },
+            "k2": {
+              "score": 0.0881393609430793,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0881393609430793,
+                "stride_per_rev": 0.29608997851503804,
+                "mean_speed": 0.10492781064652289,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              15.08436,
+              37.68428,
+              65.53333,
+              0.04475,
+              14.49386
+            ],
+            "params": {
+              "m": 15.08436,
+              "a": 37.68428,
+              "h": 65.53333,
+              "sail_area_m2": 0.04475,
+              "sail_gear": 14.49386
+            },
+            "mujoco": {
+              "score": 0.08500192472674085,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08500192472674085,
+                "stride_per_rev": 0.2845471879150862,
+                "mean_speed": 0.09883944735667534,
+                "max_loop_violation": 0.004113113369868443
+              }
+            },
+            "k2": {
+              "score": 0.0907920159178101,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0907920159178101,
+                "stride_per_rev": 0.3028304429339201,
+                "mean_speed": 0.10808573323548813,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              14.87956,
+              37.6956,
+              64.84171,
+              0.07867,
+              13.88676
+            ],
+            "params": {
+              "m": 14.87956,
+              "a": 37.6956,
+              "h": 64.84171,
+              "sail_area_m2": 0.07867,
+              "sail_gear": 13.88676
+            },
+            "mujoco": {
+              "score": 0.08454260976497496,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08454260976497496,
+                "stride_per_rev": 0.2844005342426026,
+                "mean_speed": 0.1083879612371473,
+                "max_loop_violation": 0.005645657279160457
+              }
+            },
+            "k2": {
+              "score": 0.09001890426549733,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09001890426549733,
+                "stride_per_rev": 0.3042894488860146,
+                "mean_speed": 0.11844592666512797,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              15.12994,
+              37.39431,
+              65.2091,
+              0.06782,
+              8.63352
+            ],
+            "params": {
+              "m": 15.12994,
+              "a": 37.39431,
+              "h": 65.2091,
+              "sail_area_m2": 0.06782,
+              "sail_gear": 8.63352
+            },
+            "mujoco": {
+              "score": 0.08424584422867727,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08424584422867727,
+                "stride_per_rev": 0.2879330453307413,
+                "mean_speed": 0.15601082264569854,
+                "max_loop_violation": 0.005599841159714902
+              }
+            },
+            "k2": {
+              "score": 0.08952722785904024,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08952722785904024,
+                "stride_per_rev": 0.3088446507387164,
+                "mean_speed": 0.1721677458827696,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              14.98596,
+              37.59352,
+              65.6037,
+              0.05287,
+              15.68989
+            ],
+            "params": {
+              "m": 14.98596,
+              "a": 37.59352,
+              "h": 65.6037,
+              "sail_area_m2": 0.05287,
+              "sail_gear": 15.68989
+            },
+            "mujoco": {
+              "score": 0.08415272730543848,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08415272730543848,
+                "stride_per_rev": 0.28357508587220226,
+                "mean_speed": 0.09350303033937601,
+                "max_loop_violation": 0.0038814156490729543
+              }
+            },
+            "k2": {
+              "score": 0.0871303821220472,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0871303821220472,
+                "stride_per_rev": 0.29381051485002796,
+                "mean_speed": 0.09901179786596265,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              14.04224,
+              37.02769,
+              65.27339,
+              0.07327,
+              12.04685
+            ],
+            "params": {
+              "m": 14.04224,
+              "a": 37.02769,
+              "h": 65.27339,
+              "sail_area_m2": 0.07327,
+              "sail_gear": 12.04685
+            },
+            "mujoco": {
+              "score": 0.08289814636986748,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08289814636986748,
+                "stride_per_rev": 0.27644533553036815,
+                "mean_speed": 0.11842592338552488,
+                "max_loop_violation": 0.003517496088131504
+              }
+            },
+            "k2": {
+              "score": 0.0852102629825447,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0852102629825447,
+                "stride_per_rev": 0.2878397793911713,
+                "mean_speed": 0.125309210268448,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              14.58038,
+              37.64486,
+              65.37337,
+              0.03762,
+              13.23287
+            ],
+            "params": {
+              "m": 14.58038,
+              "a": 37.64486,
+              "h": 65.37337,
+              "sail_area_m2": 0.03762,
+              "sail_gear": 13.23287
+            },
+            "mujoco": {
+              "score": 0.08241256207225656,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08241256207225656,
+                "stride_per_rev": 0.278767427620947,
+                "mean_speed": 0.10301570259032061,
+                "max_loop_violation": 0.004154909629667913
+              }
+            },
+            "k2": {
+              "score": 0.08795453907622439,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08795453907622439,
+                "stride_per_rev": 0.2974943941627191,
+                "mean_speed": 0.11276222958490298,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              14.12487,
+              37.82777,
+              65.18969,
+              0.04388,
+              12.31367
+            ],
+            "params": {
+              "m": 14.12487,
+              "a": 37.82777,
+              "h": 65.18969,
+              "sail_area_m2": 0.04388,
+              "sail_gear": 12.31367
+            },
+            "mujoco": {
+              "score": 0.08039103778403793,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08039103778403793,
+                "stride_per_rev": 0.2715844384908318,
+                "mean_speed": 0.10863653754599713,
+                "max_loop_violation": 0.0047843396446802106
+              }
+            },
+            "k2": {
+              "score": 0.08584017374810679,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08584017374810679,
+                "stride_per_rev": 0.29209639870798765,
+                "mean_speed": 0.11922246353903712,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              14.77114,
+              38.81718,
+              65.89131,
+              0.05639,
+              14.29383
+            ],
+            "params": {
+              "m": 14.77114,
+              "a": 38.81718,
+              "h": 65.89131,
+              "sail_area_m2": 0.05639,
+              "sail_gear": 14.29383
+            },
+            "mujoco": {
+              "score": 0.07948565527592896,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07948565527592896,
+                "stride_per_rev": 0.2670530501230705,
+                "mean_speed": 0.09462578009039155,
+                "max_loop_violation": 0.004179837596614659
+              }
+            },
+            "k2": {
+              "score": 0.07782905719529658,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07782905719529658,
+                "stride_per_rev": 0.26165798236048265,
+                "mean_speed": 0.09728632149412064,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.0892306349643963,
+          0.08663713348193608,
+          0.08500192472674085,
+          0.08454260976497496,
+          0.08424584422867727,
+          0.08415272730543848,
+          0.08289814636986748,
+          0.08241256207225656,
+          0.08039103778403793,
+          0.07948565527592896
+        ],
+        "k2_scores": [
+          0.09456434853006432,
+          0.0881393609430793,
+          0.0907920159178101,
+          0.09001890426549733,
+          0.08952722785904024,
+          0.0871303821220472,
+          0.0852102629825447,
+          0.08795453907622439,
+          0.08584017374810679,
+          0.07782905719529658
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.8666666666666667,
+        "top_k_overlap": 1.0,
+        "top_k_jaccard": 1.0,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          2,
+          3,
+          4,
+          1
+        ],
+        "time_s": 7.128877878189087,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": true
+      },
+      {
+        "seed": 8,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.08571114155696276,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              15.47515,
+              37.78464,
+              65.27397,
+              0.05298,
+              15.84724
+            ],
+            "params": {
+              "m": 15.47515,
+              "a": 37.78464,
+              "h": 65.27397,
+              "sail_area_m2": 0.05298,
+              "sail_gear": 15.84724
+            },
+            "mujoco": {
+              "score": 0.08571114155696276,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08571114155696276,
+                "stride_per_rev": 0.291484160535995,
+                "mean_speed": 0.09523460172995855,
+                "max_loop_violation": 0.00461806125239865
+              }
+            },
+            "k2": {
+              "score": 0.09258198126219999,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09258198126219999,
+                "stride_per_rev": 0.31438056750039733,
+                "mean_speed": 0.10520679688886354,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              15.30634,
+              37.52409,
+              63.82217,
+              0.06198,
+              13.99715
+            ],
+            "params": {
+              "m": 15.30634,
+              "a": 37.52409,
+              "h": 63.82217,
+              "sail_area_m2": 0.06198,
+              "sail_gear": 13.99715
+            },
+            "mujoco": {
+              "score": 0.08567711796407614,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08567711796407614,
+                "stride_per_rev": 0.2915387762679794,
+                "mean_speed": 0.10984245892830266,
+                "max_loop_violation": 0.007005473758320217
+              }
+            },
+            "k2": {
+              "score": 0.08914923400658918,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08914923400658918,
+                "stride_per_rev": 0.29840634860661674,
+                "mean_speed": 0.11730162369288041,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              14.57196,
+              37.65444,
+              64.29033,
+              0.06716,
+              12.65003
+            ],
+            "params": {
+              "m": 14.57196,
+              "a": 37.65444,
+              "h": 64.29033,
+              "sail_area_m2": 0.06716,
+              "sail_gear": 12.65003
+            },
+            "mujoco": {
+              "score": 0.08497839288156774,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08497839288156774,
+                "stride_per_rev": 0.2855888476759743,
+                "mean_speed": 0.11802554566884399,
+                "max_loop_violation": 0.006296374320704394
+              }
+            },
+            "k2": {
+              "score": 0.08754173794938232,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08754173794938232,
+                "stride_per_rev": 0.2934334215779685,
+                "mean_speed": 0.12505962564197465,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.34566,
+              37.91,
+              65.30099,
+              0.07481,
+              13.88711
+            ],
+            "params": {
+              "m": 15.34566,
+              "a": 37.91,
+              "h": 65.30099,
+              "sail_area_m2": 0.07481,
+              "sail_gear": 13.88711
+            },
+            "mujoco": {
+              "score": 0.08457108376957563,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08457108376957563,
+                "stride_per_rev": 0.28833451136677096,
+                "mean_speed": 0.10842446637125072,
+                "max_loop_violation": 0.005322792439291027
+              }
+            },
+            "k2": {
+              "score": 0.09125683537853206,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09125683537853206,
+                "stride_per_rev": 0.3118463205642083,
+                "mean_speed": 0.12007478339280525,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              15.15544,
+              38.44611,
+              64.57705,
+              0.05833,
+              14.16916
+            ],
+            "params": {
+              "m": 15.15544,
+              "a": 38.44611,
+              "h": 64.57705,
+              "sail_area_m2": 0.05833,
+              "sail_gear": 14.16916
+            },
+            "mujoco": {
+              "score": 0.08384146330204749,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08384146330204749,
+                "stride_per_rev": 0.28342226062492515,
+                "mean_speed": 0.10480182912755928,
+                "max_loop_violation": 0.006829163798885457
+              }
+            },
+            "k2": {
+              "score": 0.0865937895800096,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0865937895800096,
+                "stride_per_rev": 0.2912300751321331,
+                "mean_speed": 0.11393919681580202,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              14.7664,
+              37.35358,
+              66.53077,
+              0.07077,
+              16.08404
+            ],
+            "params": {
+              "m": 14.7664,
+              "a": 37.35358,
+              "h": 66.53077,
+              "sail_area_m2": 0.07077,
+              "sail_gear": 16.08404
+            },
+            "mujoco": {
+              "score": 0.08201847950370612,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08201847950370612,
+                "stride_per_rev": 0.27503415836543466,
+                "mean_speed": 0.09113164389300674,
+                "max_loop_violation": 0.0027159183757519134
+              }
+            },
+            "k2": {
+              "score": 0.0807694381971611,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0807694381971611,
+                "stride_per_rev": 0.2702352550895718,
+                "mean_speed": 0.09178345249677392,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              16.20927,
+              38.79135,
+              66.53371,
+              0.07935,
+              12.30257
+            ],
+            "params": {
+              "m": 16.20927,
+              "a": 38.79135,
+              "h": 66.53371,
+              "sail_area_m2": 0.07935,
+              "sail_gear": 12.30257
+            },
+            "mujoco": {
+              "score": 0.08107294142341986,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08107294142341986,
+                "stride_per_rev": 0.2763573234417476,
+                "mean_speed": 0.1126013075325275,
+                "max_loop_violation": 0.0027695179381050927
+              }
+            },
+            "k2": {
+              "score": 0.07413399058899556,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07413399058899556,
+                "stride_per_rev": 0.24929517401750523,
+                "mean_speed": 0.10902057439558162,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              15.15779,
+              37.71154,
+              66.69156,
+              0.07554,
+              5.42642
+            ],
+            "params": {
+              "m": 15.15779,
+              "a": 37.71154,
+              "h": 66.69156,
+              "sail_area_m2": 0.07554,
+              "sail_gear": 5.42642
+            },
+            "mujoco": {
+              "score": 0.08019899066441641,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08019899066441641,
+                "stride_per_rev": 0.27110191584311555,
+                "mean_speed": 0.20049747666104087,
+                "max_loop_violation": 0.005362376997124052
+              }
+            },
+            "k2": {
+              "score": 0.07867925688347885,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07867925688347885,
+                "stride_per_rev": 0.2680566764934762,
+                "mean_speed": 0.20705067600915472,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              15.4469,
+              37.77659,
+              69.83487,
+              0.0716,
+              13.05716
+            ],
+            "params": {
+              "m": 15.4469,
+              "a": 37.77659,
+              "h": 69.83487,
+              "sail_area_m2": 0.0716,
+              "sail_gear": 13.05716
+            },
+            "mujoco": {
+              "score": 0.07861782008026667,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07861782008026667,
+                "stride_per_rev": 0.262227948553643,
+                "mean_speed": 0.1062402974057657,
+                "max_loop_violation": 0.003382887076417429
+              }
+            },
+            "k2": {
+              "score": 0.07757306356963727,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07757306356963727,
+                "stride_per_rev": 0.2620747185951512,
+                "mean_speed": 0.10774036606894057,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              14.7723,
+              38.82144,
+              66.16019,
+              0.04293,
+              15.87696
+            ],
+            "params": {
+              "m": 14.7723,
+              "a": 38.82144,
+              "h": 66.16019,
+              "sail_area_m2": 0.04293,
+              "sail_gear": 15.87696
+            },
+            "mujoco": {
+              "score": 0.07809886809487142,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07809886809487142,
+                "stride_per_rev": 0.26374426873101076,
+                "mean_speed": 0.08308390222858655,
+                "max_loop_violation": 0.003115193268083266
+              }
+            },
+            "k2": {
+              "score": 0.07072578096265165,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.07072578096265165,
+                "stride_per_rev": 0.24092672650629482,
+                "mean_speed": 0.08037020563937682,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.08571114155696276,
+          0.08567711796407614,
+          0.08497839288156774,
+          0.08457108376957563,
+          0.08384146330204749,
+          0.08201847950370612,
+          0.08107294142341986,
+          0.08019899066441641,
+          0.07861782008026667,
+          0.07809886809487142
+        ],
+        "k2_scores": [
+          0.09258198126219999,
+          0.08914923400658918,
+          0.08754173794938232,
+          0.09125683537853206,
+          0.0865937895800096,
+          0.0807694381971611,
+          0.07413399058899556,
+          0.07867925688347885,
+          0.07757306356963727,
+          0.07072578096265165
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.9272727272727272,
+        "top_k_overlap": 1.0,
+        "top_k_jaccard": 1.0,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          3,
+          1,
+          2,
+          4
+        ],
+        "time_s": 7.08051609992981,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": true
+      },
+      {
+        "seed": 9,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.08939928239728996,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              15.32576,
+              37.44376,
+              64.41559,
+              0.03393,
+              14.7121
+            ],
+            "params": {
+              "m": 15.32576,
+              "a": 37.44376,
+              "h": 64.41559,
+              "sail_area_m2": 0.03393,
+              "sail_gear": 14.7121
+            },
+            "mujoco": {
+              "score": 0.08939928239728996,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08939928239728996,
+                "stride_per_rev": 0.30016682220394586,
+                "mean_speed": 0.10159009363328397,
+                "max_loop_violation": 0.004766450483132505
+              }
+            },
+            "k2": {
+              "score": 0.09138503020840649,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09138503020840649,
+                "stride_per_rev": 0.31117539819809725,
+                "mean_speed": 0.10879170262905527,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              15.26073,
+              37.28054,
+              63.96958,
+              0.03865,
+              13.21522
+            ],
+            "params": {
+              "m": 15.26073,
+              "a": 37.28054,
+              "h": 63.96958,
+              "sail_area_m2": 0.03865,
+              "sail_gear": 13.21522
+            },
+            "mujoco": {
+              "score": 0.08886576061278346,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08886576061278346,
+                "stride_per_rev": 0.29846020861017625,
+                "mean_speed": 0.10837287879607732,
+                "max_loop_violation": 0.010391987658102675
+              }
+            },
+            "k2": {
+              "score": 0.09013189588484846,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09013189588484846,
+                "stride_per_rev": 0.30617091952075737,
+                "mean_speed": 0.11859459984848474,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              14.42264,
+              36.78612,
+              64.01824,
+              0.04163,
+              11.40811
+            ],
+            "params": {
+              "m": 14.42264,
+              "a": 36.78612,
+              "h": 64.01824,
+              "sail_area_m2": 0.04163,
+              "sail_gear": 11.40811
+            },
+            "mujoco": {
+              "score": 0.08753829543605626,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08753829543605626,
+                "stride_per_rev": 0.2918825383028586,
+                "mean_speed": 0.12505470776579458,
+                "max_loop_violation": 0.005457170244630376
+              }
+            },
+            "k2": {
+              "score": 0.08856403534494778,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08856403534494778,
+                "stride_per_rev": 0.3000741899066412,
+                "mean_speed": 0.1302412284484525,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              15.55901,
+              38.11052,
+              64.73553,
+              0.03836,
+              10.86317
+            ],
+            "params": {
+              "m": 15.55901,
+              "a": 38.11052,
+              "h": 64.73553,
+              "sail_area_m2": 0.03836,
+              "sail_gear": 10.86317
+            },
+            "mujoco": {
+              "score": 0.08729074592865835,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08729074592865835,
+                "stride_per_rev": 0.29347873832105775,
+                "mean_speed": 0.12836874401273277,
+                "max_loop_violation": 0.0066368520160966435
+              }
+            },
+            "k2": {
+              "score": 0.09255662348549426,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09255662348549426,
+                "stride_per_rev": 0.30822885454874765,
+                "mean_speed": 0.14023730831135484,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              15.1312,
+              37.15556,
+              64.52107,
+              0.03361,
+              14.01345
+            ],
+            "params": {
+              "m": 15.1312,
+              "a": 37.15556,
+              "h": 64.52107,
+              "sail_area_m2": 0.03361,
+              "sail_gear": 14.01345
+            },
+            "mujoco": {
+              "score": 0.08711006597248688,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08711006597248688,
+                "stride_per_rev": 0.29497116243446025,
+                "mean_speed": 0.09898871133237139,
+                "max_loop_violation": 0.009143665923791788
+              }
+            },
+            "k2": {
+              "score": 0.09328597114575561,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09328597114575561,
+                "stride_per_rev": 0.3107530640815792,
+                "mean_speed": 0.11105472755447088,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              14.88884,
+              36.99361,
+              63.89634,
+              0.03115,
+              10.17576
+            ],
+            "params": {
+              "m": 14.88884,
+              "a": 36.99361,
+              "h": 63.89634,
+              "sail_area_m2": 0.03115,
+              "sail_gear": 10.17576
+            },
+            "mujoco": {
+              "score": 0.08651611075256703,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08651611075256703,
+                "stride_per_rev": 0.296550793791651,
+                "mean_speed": 0.12722957463612788,
+                "max_loop_violation": 0.006272788539992802
+              }
+            },
+            "k2": {
+              "score": 0.08886280629571043,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08886280629571043,
+                "stride_per_rev": 0.3045877440222791,
+                "mean_speed": 0.13884813483704744,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              15.07673,
+              37.81437,
+              64.92388,
+              0.02651,
+              14.33318
+            ],
+            "params": {
+              "m": 15.07673,
+              "a": 37.81437,
+              "h": 64.92388,
+              "sail_area_m2": 0.02651,
+              "sail_gear": 14.33318
+            },
+            "mujoco": {
+              "score": 0.08473926407978033,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08473926407978033,
+                "stride_per_rev": 0.2865144940277066,
+                "mean_speed": 0.09629461827247758,
+                "max_loop_violation": 0.004340311578616127
+              }
+            },
+            "k2": {
+              "score": 0.09191717671844175,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09191717671844175,
+                "stride_per_rev": 0.30688336259704924,
+                "mean_speed": 0.10688043804469963,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              15.07992,
+              37.72579,
+              65.48262,
+              0.02863,
+              12.56468
+            ],
+            "params": {
+              "m": 15.07992,
+              "a": 37.72579,
+              "h": 65.48262,
+              "sail_area_m2": 0.02863,
+              "sail_gear": 12.56468
+            },
+            "mujoco": {
+              "score": 0.0840970753419086,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.0840970753419086,
+                "stride_per_rev": 0.28447393451751596,
+                "mean_speed": 0.10512134417738568,
+                "max_loop_violation": 0.003888354077050831
+              }
+            },
+            "k2": {
+              "score": 0.09097252909691773,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09097252909691773,
+                "stride_per_rev": 0.30492541281623153,
+                "mean_speed": 0.11663144756015086,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              14.53381,
+              37.17622,
+              64.86377,
+              0.03592,
+              14.52115
+            ],
+            "params": {
+              "m": 14.53381,
+              "a": 37.17622,
+              "h": 64.86377,
+              "sail_area_m2": 0.03592,
+              "sail_gear": 14.52115
+            },
+            "mujoco": {
+              "score": 0.08381372804621494,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08381372804621494,
+                "stride_per_rev": 0.2840991652007913,
+                "mean_speed": 0.09745782330955217,
+                "max_loop_violation": 0.004218768282039945
+              }
+            },
+            "k2": {
+              "score": 0.08830866315288394,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08830866315288394,
+                "stride_per_rev": 0.30148005587100574,
+                "mean_speed": 0.10512936089629032,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              15.98628,
+              38.87884,
+              64.57048,
+              0.01828,
+              11.6817
+            ],
+            "params": {
+              "m": 15.98628,
+              "a": 38.87884,
+              "h": 64.57048,
+              "sail_area_m2": 0.01828,
+              "sail_gear": 11.6817
+            },
+            "mujoco": {
+              "score": 0.08361310239979552,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08361310239979552,
+                "stride_per_rev": 0.2844546723211205,
+                "mean_speed": 0.09953940761880412,
+                "max_loop_violation": 0.004732422914845998
+              }
+            },
+            "k2": {
+              "score": 0.08761516816962171,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08761516816962171,
+                "stride_per_rev": 0.29282504831497885,
+                "mean_speed": 0.11528311601266006,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.08939928239728996,
+          0.08886576061278346,
+          0.08753829543605626,
+          0.08729074592865835,
+          0.08711006597248688,
+          0.08651611075256703,
+          0.08473926407978033,
+          0.0840970753419086,
+          0.08381372804621494,
+          0.08361310239979552
+        ],
+        "k2_scores": [
+          0.09138503020840649,
+          0.09013189588484846,
+          0.08856403534494778,
+          0.09255662348549426,
+          0.09328597114575561,
+          0.08886280629571043,
+          0.09191717671844175,
+          0.09097252909691773,
+          0.08830866315288394,
+          0.08761516816962171
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.41818181818181815,
+        "top_k_overlap": 0.6,
+        "top_k_jaccard": 0.42857142857142855,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          4,
+          3,
+          6,
+          0,
+          7
+        ],
+        "time_s": 7.182600259780884,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": false
+      },
+      {
+        "seed": 10,
+        "evaluations_in_opt": 40,
+        "best_opt_fitness": 0.08740250649511204,
+        "n_candidates": 10,
+        "candidates": [
+          {
+            "rank_in_seed": 1,
+            "genome": [
+              15.401,
+              37.38994,
+              64.71269,
+              0.03729,
+              16.19949
+            ],
+            "params": {
+              "m": 15.401,
+              "a": 37.38994,
+              "h": 64.71269,
+              "sail_area_m2": 0.03729,
+              "sail_gear": 16.19949
+            },
+            "mujoco": {
+              "score": 0.08740250649511204,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08740250649511204,
+                "stride_per_rev": 0.29550050701220565,
+                "mean_speed": 0.0891862311174612,
+                "max_loop_violation": 0.01020226350465725
+              }
+            },
+            "k2": {
+              "score": 0.09243412591672362,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09243412591672362,
+                "stride_per_rev": 0.31430080975269414,
+                "mean_speed": 0.10047187599643864,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 2,
+            "genome": [
+              14.91525,
+              37.75046,
+              64.3635,
+              0.06278,
+              15.10958
+            ],
+            "params": {
+              "m": 14.91525,
+              "a": 37.75046,
+              "h": 64.3635,
+              "sail_area_m2": 0.06278,
+              "sail_gear": 15.10958
+            },
+            "mujoco": {
+              "score": 0.08687187429622394,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08687187429622394,
+                "stride_per_rev": 0.2913912782456108,
+                "mean_speed": 0.10341889797169508,
+                "max_loop_violation": 0.005853674671002111
+              }
+            },
+            "k2": {
+              "score": 0.08945999448797862,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08945999448797862,
+                "stride_per_rev": 0.29825519524323546,
+                "mean_speed": 0.10909755425363238,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 3,
+            "genome": [
+              14.19483,
+              36.77918,
+              64.82323,
+              0.03008,
+              14.01621
+            ],
+            "params": {
+              "m": 14.19483,
+              "a": 36.77918,
+              "h": 64.82323,
+              "sail_area_m2": 0.03008,
+              "sail_gear": 14.01621
+            },
+            "mujoco": {
+              "score": 0.08522676112593093,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08522676112593093,
+                "stride_per_rev": 0.2847632872172367,
+                "mean_speed": 0.09910088503015217,
+                "max_loop_violation": 0.0037571233755949417
+              }
+            },
+            "k2": {
+              "score": 0.08818838834216348,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08818838834216348,
+                "stride_per_rev": 0.29676341829778174,
+                "mean_speed": 0.10498617659781359,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 4,
+            "genome": [
+              14.97376,
+              37.5973,
+              64.72237,
+              0.03629,
+              17.4363
+            ],
+            "params": {
+              "m": 14.97376,
+              "a": 37.5973,
+              "h": 64.72237,
+              "sail_area_m2": 0.03629,
+              "sail_gear": 17.4363
+            },
+            "mujoco": {
+              "score": 0.08511112899659247,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08511112899659247,
+                "stride_per_rev": 0.2874440176515131,
+                "mean_speed": 0.08511112899659241,
+                "max_loop_violation": 0.004423695356269075
+              }
+            },
+            "k2": {
+              "score": 0.09135789911952234,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09135789911952234,
+                "stride_per_rev": 0.30591369658980977,
+                "mean_speed": 0.09322234604032885,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 5,
+            "genome": [
+              15.09344,
+              37.87416,
+              64.58594,
+              0.04996,
+              11.00326
+            ],
+            "params": {
+              "m": 15.09344,
+              "a": 37.87416,
+              "h": 64.58594,
+              "sail_area_m2": 0.04996,
+              "sail_gear": 11.00326
+            },
+            "mujoco": {
+              "score": 0.08498460085737054,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08498460085737054,
+                "stride_per_rev": 0.28830953073376403,
+                "mean_speed": 0.12876454675359164,
+                "max_loop_violation": 0.006012342147353918
+              }
+            },
+            "k2": {
+              "score": 0.08974010465613934,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08974010465613934,
+                "stride_per_rev": 0.30296158752013375,
+                "mean_speed": 0.14021891352521762,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 6,
+            "genome": [
+              15.17265,
+              37.66347,
+              63.99571,
+              0.05855,
+              12.638
+            ],
+            "params": {
+              "m": 15.17265,
+              "a": 37.66347,
+              "h": 63.99571,
+              "sail_area_m2": 0.05855,
+              "sail_gear": 12.638
+            },
+            "mujoco": {
+              "score": 0.08485316700244648,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08485316700244648,
+                "stride_per_rev": 0.2892204144690556,
+                "mean_speed": 0.11785162083673113,
+                "max_loop_violation": 0.0074719682330207995
+              }
+            },
+            "k2": {
+              "score": 0.08847221327463521,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08847221327463521,
+                "stride_per_rev": 0.2969214584665473,
+                "mean_speed": 0.12638887610662164,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 7,
+            "genome": [
+              14.84121,
+              37.49021,
+              64.50511,
+              0.04601,
+              14.65658
+            ],
+            "params": {
+              "m": 14.84121,
+              "a": 37.49021,
+              "h": 64.50511,
+              "sail_area_m2": 0.04601,
+              "sail_gear": 14.65658
+            },
+            "mujoco": {
+              "score": 0.08434382309842194,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08434382309842194,
+                "stride_per_rev": 0.28694444329399427,
+                "mean_speed": 0.100409313212407,
+                "max_loop_violation": 0.005097163141484853
+              }
+            },
+            "k2": {
+              "score": 0.08976999540223404,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08976999540223404,
+                "stride_per_rev": 0.3035084769137723,
+                "mean_speed": 0.10947560414906582,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 8,
+            "genome": [
+              14.86321,
+              37.45314,
+              65.04271,
+              0.06547,
+              12.8766
+            ],
+            "params": {
+              "m": 14.86321,
+              "a": 37.45314,
+              "h": 65.04271,
+              "sail_area_m2": 0.06547,
+              "sail_gear": 12.8766
+            },
+            "mujoco": {
+              "score": 0.08429600682199374,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08429600682199374,
+                "stride_per_rev": 0.2857620676311042,
+                "mean_speed": 0.11391352273242389,
+                "max_loop_violation": 0.005143547777866103
+              }
+            },
+            "k2": {
+              "score": 0.08926434567171103,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08926434567171103,
+                "stride_per_rev": 0.3056905068350043,
+                "mean_speed": 0.12397825787737633,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 9,
+            "genome": [
+              15.13926,
+              37.76245,
+              65.33633,
+              0.03275,
+              16.73298
+            ],
+            "params": {
+              "m": 15.13926,
+              "a": 37.76245,
+              "h": 65.33633,
+              "sail_area_m2": 0.03275,
+              "sail_gear": 16.73298
+            },
+            "mujoco": {
+              "score": 0.08427039476041727,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08427039476041727,
+                "stride_per_rev": 0.2865899519657104,
+                "mean_speed": 0.0859901987351196,
+                "max_loop_violation": 0.003932254503498725
+              }
+            },
+            "k2": {
+              "score": 0.09107149839851078,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.09107149839851078,
+                "stride_per_rev": 0.30853475646013706,
+                "mean_speed": 0.09486614416511532,
+                "max_loop_violation": 0.0
+              }
+            }
+          },
+          {
+            "rank_in_seed": 10,
+            "genome": [
+              14.67922,
+              37.56055,
+              65.26542,
+              0.03833,
+              19.2341
+            ],
+            "params": {
+              "m": 14.67922,
+              "a": 37.56055,
+              "h": 65.26542,
+              "sail_area_m2": 0.03833,
+              "sail_gear": 19.2341
+            },
+            "mujoco": {
+              "score": 0.08415606013271412,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08415606013271412,
+                "stride_per_rev": 0.28194818480136924,
+                "mean_speed": 0.076505509211559,
+                "max_loop_violation": 0.003682168734725176
+              }
+            },
+            "k2": {
+              "score": 0.08970855544799784,
+              "failed": false,
+              "metrics": {
+                "stalled": false,
+                "distance_m": 0.08970855544799784,
+                "stride_per_rev": 0.30072497918803787,
+                "mean_speed": 0.0830634772666653,
+                "max_loop_violation": 0.0
+              }
+            }
+          }
+        ],
+        "mujoco_scores": [
+          0.08740250649511204,
+          0.08687187429622394,
+          0.08522676112593093,
+          0.08511112899659247,
+          0.08498460085737054,
+          0.08485316700244648,
+          0.08434382309842194,
+          0.08429600682199374,
+          0.08427039476041727,
+          0.08415606013271412
+        ],
+        "k2_scores": [
+          0.09243412591672362,
+          0.08945999448797862,
+          0.08818838834216348,
+          0.09135789911952234,
+          0.08974010465613934,
+          0.08847221327463521,
+          0.08976999540223404,
+          0.08926434567171103,
+          0.09107149839851078,
+          0.08970855544799784
+        ],
+        "mujoco_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "k2_failures": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "spearman_rho": 0.10303030303030303,
+        "top_k_overlap": 0.6,
+        "top_k_jaccard": 0.42857142857142855,
+        "top_k_mujoco_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "top_k_k2_indices": [
+          0,
+          3,
+          8,
+          6,
+          4
+        ],
+        "time_s": 7.870595932006836,
+        "mujoco_failure_rate": 0.0,
+        "k2_failure_rate": 0.0,
+        "is_stable": false
+      }
+    ],
+    "uncertainty": {
+      "spearman_rho": {
+        "mean": 0.5793939393939394,
+        "std": 0.2670367801919965,
+        "ci_95_lo": 0.38836733453542427,
+        "ci_95_hi": 0.7704205442524544
+      },
+      "top_k_overlap": {
+        "mean": 0.76,
+        "std": 0.2065591117977289,
+        "ci_95_lo": 0.6122365128843281,
+        "ci_95_hi": 0.9077634871156719
+      },
+      "top_k_jaccard": {
+        "mean": 0.6535714285714286,
+        "std": 0.27392164716040385,
+        "ci_95_lo": 0.457619686580374,
+        "ci_95_hi": 0.8495231705624832
+      },
+      "mujoco_failure_rate": {
+        "mean": 0.0,
+        "std": 0.0,
+        "ci_95_lo": 0.0,
+        "ci_95_hi": 0.0
+      },
+      "k2_failure_rate": {
+        "mean": 0.02,
+        "std": 0.04216370213557839,
+        "ci_95_lo": -0.010162095503976062,
+        "ci_95_hi": 0.05016209550397606
+      }
+    },
+    "pooled_spearman": 0.6590538825528689,
+    "pooled_top_k_overlap": 0.2,
+    "pooled_top_k_jaccard": 0.1111111111111111,
+    "pooled_mujoco_failure_rate": 0.0,
+    "pooled_k2_failure_rate": 0.02,
+    "thresholds": {
+      "min_spearman": 0.7,
+      "min_top_k_overlap": 0.6,
+      "max_failure_rate": 0.05
+    },
+    "passed_seeds": [
+      3,
+      6,
+      7,
+      8
+    ],
+    "failed_seeds": [
+      1,
+      2,
+      4,
+      5,
+      9,
+      10
+    ],
+    "is_stable": false,
+    "is_verified_winner": false,
+    "verdict": "UNSTABLE (REJECTED): Cross-solver ranking inconsistency detected (pooled Spearman rho 0.6591 < 0.7; pooled top-5 overlap 20.0% < 60.0%; 6/10 seeds failed stability criteria). Candidates cannot be output as verified winners without experimental physical elevation."
+  },
+  "verified_winners": []
+}

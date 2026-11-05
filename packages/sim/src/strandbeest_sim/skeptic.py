@@ -129,14 +129,16 @@ def audit_legacy(sc: SimConfig, metrics: dict[str, Any], series: dict[str, np.nd
 
 
 def audit(sc: SimConfig, metrics: dict[str, Any], series: dict[str, np.ndarray] | None = None,
-          stalled: bool = False, *, backend_name: str | None = None, observation: dict | None = None) -> list[Finding]:
+          stalled: bool = False, *, backend_name: str | None = None, observation: dict | None = None,
+          independent_validation: dict | None = None) -> list[Finding]:
     """Version 2 findings: missing applicability is not a successful audit.
 
     Use audit_report for the version, scoped status and full legacy comparison.
     """
     from .audit import audit_report
 
-    report = audit_report(sc, metrics, series, stalled, backend_name=backend_name, observation=observation)
+    report = audit_report(sc, metrics, series, stalled, backend_name=backend_name,
+                          observation=observation, independent_validation=independent_validation)
     return [Finding(**f) for f in report['findings']]
 
 
