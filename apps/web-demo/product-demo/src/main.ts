@@ -7,6 +7,7 @@ import {
 	Check,
 	ChevronDown,
 	CircleGauge,
+	createIcons,
 	Dna,
 	Download,
 	DraftingCompass,
@@ -35,7 +36,6 @@ import {
 	Wind,
 	X,
 	Zap,
-	createIcons,
 } from "lucide";
 import "@fontsource/manrope/400.css";
 import "@fontsource/manrope/500.css";
@@ -45,20 +45,20 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/600.css";
 import "./styles.css";
+import { getLocale, setLocale, t } from "./i18n";
 import {
 	DEFAULT_PARAMS,
-	LINKS,
-	PARAM_GROUPS,
 	dragParams,
+	LINKS,
 	metrics,
-	solve,
-	svgPoint,
-	trace,
+	PARAM_GROUPS,
 	type Params,
 	type Point,
 	type Pose,
+	solve,
+	svgPoint,
+	trace,
 } from "./kinematics";
-import { getLocale, setLocale, t } from "./i18n";
 
 const iconSet = {
 	Activity,
