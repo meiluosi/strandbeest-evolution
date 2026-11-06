@@ -166,15 +166,29 @@ export function makeWind(w: SimConfig["wind"]): WindFn {
 		case "recorded": {
 			const ts = (p.timestamps as number[]) ?? [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
 			const sp = (p.speeds as number[]) ?? [5.0, 6.0, 7.0, 6.5, 5.5, 5.0];
+			const dirs = p.directions_deg as number[] | undefined;
 			const speedScale = Number(
 				p.speed_scale ?? (w.speed > 0 ? w.speed / 6.0 : 1.0),
 			);
+			const yawOffset = Number(p.yaw_offset_deg ?? yawDeg);
 			return (t, _z) => {
 				const firstT = ts[0];
 				const lastT = ts[ts.length - 1];
 				if (firstT === undefined || lastT === undefined) return 0.0;
-				if (t <= firstT) return (sp[0] ?? 0.0) * speedScale * cosYaw;
-				if (t >= lastT) return (sp[sp.length - 1] ?? 0.0) * speedScale * cosYaw;
+				if (t <= firstT) {
+					const s = (sp[0] ?? 0.0) * speedScale;
+					const d =
+						dirs && dirs[0] !== undefined ? dirs[0] + yawOffset : yawDeg;
+					return Math.max(0.0, s * Math.cos((d * Math.PI) / 180.0));
+				}
+				if (t >= lastT) {
+					const s = (sp[sp.length - 1] ?? 0.0) * speedScale;
+					const d =
+						dirs && dirs[dirs.length - 1] !== undefined
+							? (dirs[dirs.length - 1] ?? 0) + yawOffset
+							: yawDeg;
+					return Math.max(0.0, s * Math.cos((d * Math.PI) / 180.0));
+				}
 				// Linear search / interpolation
 				let idx = 0;
 				while (idx < ts.length - 1 && (ts[idx + 1] ?? 0) <= t) {
@@ -185,7 +199,13 @@ export function makeWind(w: SimConfig["wind"]): WindFn {
 				const alpha = t1 > t0 ? (t - t0) / (t1 - t0) : 0.0;
 				const v =
 					(1.0 - alpha) * (sp[idx] ?? 0.0) + alpha * (sp[idx + 1] ?? 0.0);
-				return Math.max(0.0, v * speedScale * cosYaw);
+				const d =
+					dirs && dirs[idx] !== undefined && dirs[idx + 1] !== undefined
+						? (1.0 - alpha) * (dirs[idx] ?? 0) +
+							alpha * (dirs[idx + 1] ?? 0) +
+							yawOffset
+						: yawDeg;
+				return Math.max(0.0, v * speedScale * Math.cos((d * Math.PI) / 180.0));
 			};
 		}
 		default:

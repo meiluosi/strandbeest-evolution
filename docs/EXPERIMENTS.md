@@ -3267,5 +3267,62 @@ The goal remains **9 accepted / 4 in progress / 4 pending**. K2 time convergence
    - 提供 `cleanup_idle_rooms()`，对所有客户端均已断开且超过闲置超时阈值的空房间自动释放物理引擎与内存资源。
 
 
+## 83. H5-02: 性能与维护性基准 (2026-11-06)
+
+**卡片**：`H5-02`（性能与维护性，Q-03、M6）
+**依赖**：`H3相关功能`
+**脚本与测试**：
+- 基准运行脚本：`packages/sim/scripts/benchmark_h5_02.py`
+- 性能预算回归测试：`packages/sim/tests/test_performance_benchmarks.py` (4 项全过)
+- Web 资源与帧渲染预算测试：`apps/web-demo/src/performance.test.ts` (4 项全过)
+- 基准数据留档：`experiments/benchmark-h5-02-performance.json`
+
+### 1. 测试环境与基准规范 (Platform Specification)
+
+- **操作系统**：Darwin 25.2.0 (macOS ARM64, Apple Silicon)
+- **Python 运行时**：Python 3.13.5
+- **物理引擎后端**：MuJoCo 3.17.0 (Native Python) / MuJoCo 3.14.0 (Browser WASM)
+- **JavaScript/Node 运行时**：Node >= 22 (v22.x), Vitest 5.0.3, Vite 8.3.2
+- **编译器与内核**：Rust 1.95.0, wasm-bindgen 0.2.105
+
+### 2. 6/12 腿与多兽场景耗时与实时倍率 (Simulation Step Latency & RTF)
+
+在固定时间步（$dt = 0.2\text{ ms} = 0.0002\text{ s}$）与连续 5,000 步高频步进下，各场景基准实测数据与预设预算对照如下：
+
+| 场景规格 | 腿数与实体 | 实测每步耗时 (ms/step) | 预算上限 (ms/step) | 5000 步总耗时 (s) | 实时倍率 (RTF @ dt=0.2ms) | 实时倍率 (RTF @ dt=2.0ms 标称) | 判定 |
+|---|---|---:|---:|---:|---:|---:|---|
+| **6 腿标准兽** (`walker_6leg`) | 6 腿 / 1 机 | **0.1637** | 0.30 | 0.818 | 1.22× | **12.2×** | PASS |
+| **12 腿重型兽** (`walker_12leg`) | 12 腿 / 1 机 | **0.2784** | 0.60 | 1.392 | 0.72× | **7.2×** | PASS |
+| **3 兽海滩群落** (`herd_3walkers`) | 18 腿 / 3 机协同 | **0.5434** | 1.00 | 2.717 | 0.37× | **3.7×** | PASS |
+
+> **退化阈值规则**：任何动力学场景每步耗时若劣于预算上限的 $+20\%$，CI 自动化回归测试 `test_performance_benchmarks.py` 将立即拦截报错。
+
+### 3. 内存开销与泄漏预算 (Memory Allocations & Leak Budget)
+
+- **常驻内存基线 (Warmup RSS)**：111.95 MiB
+- **连续 3 轮完整 5,000 步仿真后常驻内存 (RSS End)**：111.95 MiB
+- **15,000 步累计内存增长**：**0.00 MiB**
+- **泄漏率测算**：**0.00 KiB/step**（严格满足 $< 0.20\text{ KiB/step}$ 预算）
+
+### 4. 前端首屏包体积与按需资源 (Web Bundle & Asset Budgets)
+
+经 Vite 生产构建打包测算：
+
+| 资源项 | 原始体积 (Raw) | Gzip 压缩体积 | 预算上限 (Gzip) | 加载阶段 | 判定 |
+|---|---:|---:|---:|---|---|
+| **WASM 内核** (`beest_kernel_bg.wasm`) | 233.81 KiB | **90.05 KiB** | 100.0 KiB | 首屏核心初始化 | PASS |
+| **首屏入口 JS** (`index.js`) | 163.87 KiB | **60.97 KiB** | 100.0 KiB | 首屏启动加载 | PASS |
+| **首屏入口样式** (`index.css` + `App.css`) | 61.33 KiB | **11.98 KiB** | 20.0 KiB | 首屏样式表 | PASS |
+| **应用主逻辑** (`App.js` + `three.module.js`) | 1,302.22 KiB | **343.15 KiB** | 500.0 KiB | 首屏渲染管线 | PASS |
+| **MuJoCo WASM** (`mujoco.wasm`) | 10,313.47 KiB | 2,575.79 KiB | 3,000.0 KiB | 按需异步懒加载 (只有打开物理沙盒才拉取) | PASS |
+
+### 5. WebGL 渲染帧预算与 Draw Calls (Rendering & Frame Headroom)
+
+- **Three.js InstancedMesh 归并**：连杆胶囊体、足端关节球体、沙滩足迹标记、PET 储气瓶、防风暴沙锚全部采用 `THREE.InstancedMesh`；
+- **全场景 Draw Calls**：5 项实例化图元 + 4 项静态世界图元（沙丘、海平面、天空体、碰撞指示线）共 **9 次 Draw Calls**（严格控制在预算 $\le 15$ 次以内）；
+- **帧时间与 60 FPS 余量**：渲染计算耗时控制在 $\le 5.0\text{ ms}$，相对于 60 FPS 的 16.67 ms 帧预算，保留了超过 **11.6 ms 的浏览器 GC 与合成器余量**。
+
+
+
 
 

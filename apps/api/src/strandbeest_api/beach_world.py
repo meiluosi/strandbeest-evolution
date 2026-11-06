@@ -61,6 +61,7 @@ class WorldEntity:
     owner_client_id: str
     name: str
     design: dict[str, Any]
+    drive_kind: str = "motor"
     x: float = 0.0
     y: float = 0.0
     z: float = 0.16
@@ -87,6 +88,7 @@ class WorldEntity:
             "entity_id": self.entity_id,
             "owner": self.owner_client_id,
             "name": self.name,
+            "drive_kind": self.drive_kind,
             "x": round(self.x, 5),
             "y": round(self.y, 5),
             "z": round(self.z, 5),
@@ -120,10 +122,12 @@ class BeachWorldRoom:
         self,
         world_id: str,
         max_clients: int = 8,
+        max_entities: int = 32,
         dt: float = 0.05,
     ) -> None:
         self.world_id = world_id
         self.max_clients = max_clients
+        self.max_entities = max_entities
         self.dt = dt
 
         self.clients: dict[str, ClientSession] = {}  # client_id -> ClientSession
@@ -144,12 +148,12 @@ class BeachWorldRoom:
         self.last_activity = time.time()
         cid = client_id or f"client_{new_ulid()}"
 
-        # If existing client reconnecting without token (e.g. same client_id)
+        # Prevent session hijacking: joining as an existing client requires reconnecting with token
         if cid in self.clients:
-            session = self.clients[cid]
-            session.websocket = websocket
-            session.last_seen = time.time()
-            return session, self.get_snapshot()
+            raise BeachWorldError(
+                f"Client ID '{cid}' is already in use; use reconnect with token",
+                code="E_CLIENT_EXISTS",
+            )
 
         # Check concurrency budget
         if self.active_client_count >= self.max_clients:
@@ -198,22 +202,43 @@ class BeachWorldRoom:
         if not cid:
             raise InvalidTokenError("Unauthorized: invalid session token")
 
+        # Check entity capacity
+        if len(self.entities) >= self.max_entities:
+            raise BeachWorldError(
+                f"Room '{self.world_id}' has reached maximum entity limit ({self.max_entities})",
+                code="E_ROOM_ENTITY_LIMIT",
+            )
+
         session = self.clients[cid]
         entity_id = f"ent_{new_ulid()}"
         pos_x = float(x if x is not None else 0.0)
         pos_y = float(y if y is not None else 0.0)
-        if not math.isfinite(pos_x) or not math.isfinite(pos_y):
-            raise InvalidInputError("Coordinates x and y must be finite numbers")
+        try:
+            head_val = float(heading)
+        except (ValueError, TypeError) as exc:
+            raise InvalidInputError(f"Heading must be a valid number: {exc}")
+
+        if not (math.isfinite(pos_x) and math.isfinite(pos_y) and math.isfinite(head_val)):
+            raise InvalidInputError("Coordinates x, y and heading must be finite real numbers")
+
+        # Determine drive kind from design
+        drive_kind = "motor"
+        if isinstance(design, dict):
+            comp = design.get("components", {})
+            d = comp.get("drive", {}) if isinstance(comp, dict) else {}
+            if d.get("kind") == "sail" or design.get("drive", {}).get("kind") == "sail":
+                drive_kind = "sail"
 
         ent = WorldEntity(
             entity_id=entity_id,
             owner_client_id=cid,
             name=name or f"Walker_{entity_id[:6]}",
             design=design,
+            drive_kind=drive_kind,
             x=pos_x,
             y=pos_y,
             z=_dune_height(pos_x, pos_y) + 0.16,
-            heading=float(heading),
+            heading=head_val,
             direction=1 if direction >= 0 else -1,
         )
         self.entities[entity_id] = ent
@@ -245,13 +270,21 @@ class BeachWorldRoom:
         params = params or {}
         if action == "steer":
             if "direction" in params:
-                d = int(params["direction"])
-                ent.direction = 1 if d >= 0 else -1
+                try:
+                    d = int(params["direction"])
+                    if d not in (-1, 1):
+                        raise InvalidInputError("Direction must be 1 (forward) or -1 (reverse)")
+                    ent.direction = d
+                except (ValueError, TypeError) as exc:
+                    raise InvalidInputError(f"Invalid direction: {exc}")
             if "heading" in params:
-                h = float(params["heading"])
-                if not math.isfinite(h):
-                    raise InvalidInputError("Heading must be a finite number")
-                ent.heading = h
+                try:
+                    h = float(params["heading"])
+                    if not math.isfinite(h):
+                        raise InvalidInputError("Heading must be a finite number")
+                    ent.heading = h
+                except (ValueError, TypeError) as exc:
+                    raise InvalidInputError(f"Invalid heading: {exc}")
         elif action == "anchor":
             deploy = bool(params.get("deployed", True))
             ent.anchor_deployed = deploy
@@ -309,7 +342,15 @@ class BeachWorldRoom:
                 cos_h = math.cos(ent.heading)
                 sin_h = math.sin(ent.heading)
                 wind_eff = w_speed * cos_h
-                speed_ratio = max(0.2, 1.0 + 0.06 * wind_eff)
+
+                if ent.drive_kind == "sail":
+                    # Wind-driven sail walker: strictly zero speed when wind_eff <= 0 (no self driving in zero wind)
+                    if wind_eff <= 0.0:
+                        speed_ratio = 0.0
+                    else:
+                        speed_ratio = min(3.0, 0.16 * wind_eff)
+                else:
+                    speed_ratio = max(0.2, 1.0 + 0.06 * wind_eff)
 
                 ent.crank_omega = 2.0 * speed_ratio
                 ent.crank_angle += ent.direction * ent.crank_omega * dt
@@ -373,6 +414,7 @@ class BeachWorldManager:
         self.rooms: dict[str, BeachWorldRoom] = {}
 
     def get_or_create_room(self, world_id: str) -> BeachWorldRoom:
+        self.cleanup_idle_rooms()
         if world_id not in self.rooms:
             self.rooms[world_id] = BeachWorldRoom(
                 world_id=world_id,

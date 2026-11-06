@@ -970,7 +970,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
                             "world_id": room.world_id,
                             "snapshot": snapshot,
                         })
-                    except RoomFullError as e:
+                    except BeachWorldError as e:
                         await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
                     except Exception as exc:
                         await websocket.send_json({"event": "error", "code": "E_JOIN_FAILED", "message": str(exc)})
@@ -986,8 +986,10 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
                             "token": session.token,
                             "snapshot": snapshot,
                         })
-                    except InvalidTokenError as e:
+                    except BeachWorldError as e:
                         await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+                    except Exception as exc:
+                        await websocket.send_json({"event": "error", "code": "E_RECONNECT_FAILED", "message": str(exc)})
 
                 elif cmd == "spawn":
                     if not current_session:
@@ -1014,6 +1016,8 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
                                     pass
                     except BeachWorldError as e:
                         await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+                    except (ValueError, TypeError) as exc:
+                        await websocket.send_json({"event": "error", "code": "E_INVALID_INPUT", "message": str(exc)})
                     except Exception as exc:
                         await websocket.send_json({"event": "error", "code": "E_SPAWN_FAILED", "message": str(exc)})
 
@@ -1030,6 +1034,8 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
                         await websocket.send_json(ack)
                     except BeachWorldError as e:
                         await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+                    except (ValueError, TypeError) as exc:
+                        await websocket.send_json({"event": "error", "code": "E_INVALID_INPUT", "message": str(exc)})
                     except Exception as exc:
                         await websocket.send_json({"event": "error", "code": "E_COMMAND_FAILED", "message": str(exc)})
 

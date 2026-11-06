@@ -224,3 +224,79 @@ def test_beach_multiplayer_concurrency_budget_and_cleanup(client):
     room.last_activity = 0.0  # Force idle
     cleaned = beach_manager.cleanup_idle_rooms()
     assert cleaned >= 1
+
+
+def test_beach_multiplayer_session_hijacking_protection(client):
+    """Verify that an attacker cannot hijack an existing session by passing someone else's client_id."""
+    world_id = "hijack_test"
+    with client.websocket_connect(f"/ws/beach?world_id={world_id}") as ws_alice:
+        ws_alice.send_json({"cmd": "join", "client_id": "alice"})
+        resp = ws_alice.receive_json()
+        assert resp["event"] == "joined"
+        token = resp["token"]
+        assert token
+
+        # Attacker tries to join using "alice" without knowing the token
+        with client.websocket_connect(f"/ws/beach?world_id={world_id}") as ws_eve:
+            ws_eve.send_json({"cmd": "join", "client_id": "alice"})
+            err = ws_eve.receive_json()
+            assert err["event"] == "error"
+            assert err["code"] == "E_CLIENT_EXISTS"
+
+
+def test_beach_multiplayer_entity_capacity_and_sail_zero_wind(client):
+    """Verify entity capacity limit and that wind sail walkers produce zero speed in zero wind."""
+    world_id = "sail_zero_wind_test"
+    room = beach_manager.get_or_create_room(world_id)
+    room.max_entities = 2
+
+    with client.websocket_connect(f"/ws/beach?world_id={world_id}") as ws:
+        ws.send_json({"cmd": "join", "client_id": "captain"})
+        token = ws.receive_json()["token"]
+
+        # Spawn entity 1 (sail drive)
+        sail_design = {
+            "name": "SailWalker",
+            "components": {
+                "drive": {"kind": "sail", "sail_area": 0.05},
+            },
+        }
+        ws.send_json({
+            "cmd": "spawn",
+            "token": token,
+            "name": "SailWalker1",
+            "design": sail_design,
+            "heading": 0.0,
+        })
+        assert ws.receive_json()["event"] == "spawned"
+
+        # Spawn entity 2
+        ws.send_json({
+            "cmd": "spawn",
+            "token": token,
+            "name": "SailWalker2",
+            "design": sail_design,
+        })
+        assert ws.receive_json()["event"] == "spawned"
+
+        # 3rd spawn exceeds capacity
+        ws.send_json({
+            "cmd": "spawn",
+            "token": token,
+            "name": "SailWalker3",
+            "design": sail_design,
+        })
+        err = ws.receive_json()
+        assert err["event"] == "error"
+        assert err["code"] == "E_ROOM_ENTITY_LIMIT"
+
+        # Under zero wind, verify that sail walker does not self-drive
+        room.wind.v0 = 0.0
+        room.wind.amplitude = 0.0
+        ws.send_json({"cmd": "step", "count": 20})
+        snap = ws.receive_json()["snapshot"]
+        e1 = snap["entities"][0]
+        assert e1["drive_kind"] == "sail"
+        assert e1["vx"] == 0.0
+        assert e1["vy"] == 0.0
+
