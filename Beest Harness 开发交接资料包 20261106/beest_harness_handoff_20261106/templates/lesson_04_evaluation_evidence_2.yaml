@@ -1,0 +1,40 @@
+schema_version: 1
+suite_id: beest-history-rollout-draft
+stage: development
+claim_target: simulator_dynamics_prediction
+model_ref: <immutable-model-artifact-ref>
+dataset_snapshot_ref: <immutable-snapshot-ref>
+reference_implementation_ref: <simulator-identity-ref>
+observation:
+  contract_ref: <observable-fields-and-units-ref>
+  privileged_state: forbidden
+  future_exogenous_policy: hold_last_observed
+rollout:
+  mode: free_running
+  initialization: observed_context_only
+  resampling_spec_ref: <frozen-resampling-spec-ref>
+  horizons_seconds: null
+  reference_state_reset: forbidden
+metrics:
+  primary_metric_ref: <frozen-rollout-metric-ref>
+  secondary_metric_refs: []
+  normalizer_ref: <train-only-normalizer-ref>
+statistics:
+  estimand: method_performance_on_declared_test_population
+  training_replicate_ids: []
+  test_group_manifest_ref: <design-family-and-episode-groups-ref>
+  procedure_ref: <reviewed-grouped-statistical-procedure-ref>
+  attempts_are_replicates: false
+failure_policy:
+  model_nan: record_model_failure
+  infrastructure_error: bounded_retry_with_attempt_log
+  invalid_reference: quarantine_with_reason
+  physical_stall: valid_task_outcome
+  missing_required_channel: unverified
+release_gate:
+  policy_ref: null
+  default_decision: INCONCLUSIVE
+  required_claims: []
+access:
+  sealed_test_read: forbidden
+  evaluator_mutation_by_research_agent: forbidden

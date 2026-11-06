@@ -1,0 +1,12 @@
+flowchart TD
+  S[冻结的 EvaluationSuite 与候选模型] --> P[前置检查]
+  D[Dataset Snapshot 与来源证据] --> P
+  P --> W[L3 调度 L2 Evaluation Worker]
+  W --> R[逐例预测与 EvaluationRun]
+  R --> M[指标与物理审计]
+  M --> A[分组统计与失败分析]
+  A --> E[EvidenceRecord]
+  E --> G[Claim 与 GateDecision]
+  G --> U[风力兽回放与证据面板]
+  A -->|仅开发集反馈| Q[L6 Research Agent]
+  Q -->|建议新协议| S

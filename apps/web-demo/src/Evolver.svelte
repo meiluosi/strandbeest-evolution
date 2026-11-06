@@ -7,7 +7,10 @@ import {
 } from "strandbeest-core";
 import { onDestroy } from "svelte";
 import type { WorkerRequest } from "./ga.worker";
+import Icon from "./Icon.svelte";
 import { t } from "./i18n/index.svelte";
+import MetricStrip from "./MetricStrip.svelte";
+import StateBadge from "./StateBadge.svelte";
 
 let {
 	spec,
@@ -49,6 +52,15 @@ let error = $state("");
 const running = $derived(status === "running");
 const last = $derived(history.at(-1));
 const runGenerations = $derived(run?.generations ?? generations);
+const statusTone = $derived(
+	status === "running"
+		? "accent"
+		: status === "done"
+			? "success"
+			: status === "stopped" || status === "error"
+				? "danger"
+				: "neutral",
+);
 
 function dispose(target: Worker | null) {
 	if (!target) return;
@@ -122,6 +134,32 @@ onDestroy(() => {
 function formatFitness(value: number | undefined): string {
 	return value !== undefined && Number.isFinite(value) ? value.toFixed(6) : "—";
 }
+
+const runMetricItems = $derived(
+	last && run
+		? [
+				{
+					key: "generation",
+					label: t("evolve.currentGeneration"),
+					value: String(last.generation),
+					detail: `/ ${run.generations}`,
+					valueClass: "generation-value",
+				},
+				{
+					key: "best",
+					label: t("evolve.bestFitness"),
+					value: formatFitness(last.bestFitness),
+					valueClass: "best-fitness",
+				},
+				{
+					key: "mean",
+					label: t("evolve.meanFitness"),
+					value: formatFitness(last.meanFitness),
+					valueClass: "mean-fitness",
+				},
+			]
+		: [],
+);
 
 const bestSpec = $derived(
 	last && run ? genomeSpace(run.spec).toSpec(last.best) : null,
@@ -229,27 +267,41 @@ function applyBest() {
 					<span class="eyebrow">{t("evolve.runEyebrow")}</span>
 					<h3>{t("evolve.runTitle")}</h3>
 				</div>
-				<span class="run-status {status}" data-state={status} role="status">{t(STATUS_KEYS[status])}</span>
+				<StateBadge
+					label={t(STATUS_KEYS[status])}
+					tone={statusTone}
+					state={status}
+					live={true}
+					className="run-status {status}"
+				/>
 			</header>
 			{#if error}<p class="notice error" role="alert">{error}</p>{/if}
 			{#if last && run}
-				<div class="run-metrics">
-					<div><span>{t("evolve.currentGeneration")}</span><b class="generation-value">{last.generation}</b><small>/ {run.generations}</small></div>
-					<div><span>{t("evolve.bestFitness")}</span><b class="best-fitness">{formatFitness(last.bestFitness)}</b></div>
-					<div><span>{t("evolve.meanFitness")}</span><b class="mean-fitness">{formatFitness(last.meanFitness)}</b></div>
-				</div>
+				<MetricStrip
+					items={runMetricItems}
+					label={t("evolve.runPanel")}
+					variant="run"
+				/>
 				<div class="generation-progress">
 					<progress max={run.generations} value={last.generation} aria-label={t("evolve.progressAria")}></progress>
 					<small>{t("evolve.runSummary", { generation: last.generation, generations: run.generations, population: run.population, seed: run.seed })}</small>
 				</div>
 			{:else}
 				<div class="run-empty">
+					<span class="empty-run-icon"><Icon name="evolve" /></span>
 					<strong>{t(EMPTY_KEYS[status])}</strong>
 					<p>{t("evolve.emptyHint")}</p>
 				</div>
 			{/if}
 		</section>
 	</div>
+
+	{#if last && run}
+		<footer class="apply-bar">
+			<span>{canApply ? t("evolve.applyNote") : t("evolve.noChanges")}</span>
+			<button class="btn primary" disabled={!canApply} onclick={applyBest}>{t("evolve.loadBest")}</button>
+		</footer>
+	{/if}
 
 	<div class="analysis-grid">
 		<section class="evolve-panel fitness-panel">
@@ -295,51 +347,37 @@ function applyBest() {
 			{/if}
 		</section>
 	</div>
-
-	{#if last && run}
-		<footer class="apply-bar">
-			<span>{canApply ? t("evolve.applyNote") : t("evolve.noChanges")}</span>
-			<button class="btn primary" disabled={!canApply} onclick={applyBest}>{t("evolve.loadBest")}</button>
-		</footer>
-	{/if}
 </div>
 
 <style>
 	.evolver { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-	.run-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: stretch; }
+	.run-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: stretch; }
 	.analysis-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; }
 	.evolve-panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
 	.config-panel { display: flex; flex-direction: column; padding: 18px; }
 	.panel-title { margin-bottom: 15px; }
-	.panel-title h3, .run-heading h3 { margin: 2px 0 3px; font-size: 15px; }
-	.panel-title p { margin: 0; color: var(--text-muted); font-size: 11px; }
-	.eyebrow { color: var(--accent-strong); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; }
+	.panel-title h3, .run-heading h3 { margin: 3px 0; font-size: 15px; }
+	.panel-title p { margin: 0; color: var(--text-muted); font-size: 11px; line-height: 1.55; }
+	.eyebrow { color: var(--text-faint); font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.12em; }
 	.config-fields { display: flex; flex-direction: column; gap: 13px; min-width: 0; margin: 0; padding: 0; border: 0; }
 	.config-fields label { width: 100%; color: var(--text-soft); }
-	.config-fields input, .config-fields select { width: 100%; min-height: 38px; margin-top: 3px; }
+	.config-fields input, .config-fields select { width: 100%; min-height: 38px; margin-top: 4px; }
 	.config-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-	.scope-note { margin: 14px 0; padding: 10px; border-radius: var(--radius-sm); background: var(--surface-muted); color: var(--text-muted); font-size: 11px; }
+	.scope-note { margin: 14px 0; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-inset); color: var(--text-muted); font-size: 10px; line-height: 1.6; }
 	.run-control { width: 100%; margin-top: auto; }
 	.run-panel { display: flex; flex-direction: column; padding: 18px; }
 	.run-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-	.run-status { display: inline-flex; align-items: center; min-height: 26px; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-muted); color: var(--text-muted); font-size: 11px; white-space: nowrap; }
-	.run-status.running { color: var(--accent-strong); background: var(--accent-soft); border-color: transparent; }
-	.run-status.done { color: var(--success); background: var(--success-soft); border-color: transparent; }
-	.run-status.stopped, .run-status.error { color: var(--danger); }
-	.run-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 20px 0; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
-	.run-metrics > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; padding: 16px; background: var(--surface-raised); }
-	.run-metrics span { flex-basis: 100%; color: var(--text-muted); font-size: 11px; }
-	.run-metrics b { min-width: 0; font-family: var(--font-mono); font-size: clamp(17px, 2vw, 25px); font-weight: 500; overflow-wrap: anywhere; }
-	.run-metrics small { font-family: var(--font-mono); }
 	.generation-progress { margin-top: auto; }
 	progress { display: block; width: 100%; height: 7px; border: 0; border-radius: 999px; overflow: hidden; background: var(--surface-muted); accent-color: var(--accent); }
 	progress::-webkit-progress-bar { background: var(--surface-muted); }
 	progress::-webkit-progress-value { background: var(--accent); }
 	progress::-moz-progress-bar { background: var(--accent); }
 	.generation-progress small { display: block; margin-top: 8px; }
-	.run-empty { flex: 1; min-height: 160px; display: grid; align-content: center; justify-items: center; text-align: center; color: var(--text-muted); }
+	.run-empty { flex: 1; min-height: 190px; display: grid; align-content: center; justify-items: center; text-align: center; color: var(--text-muted); }
+	.empty-run-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-inset); color: var(--text-faint); }
+	.empty-run-icon :global(svg) { width: 19px; height: 19px; }
 	.run-empty strong { color: var(--text-soft); font-weight: 500; }
-	.run-empty p { max-width: 420px; }
+	.run-empty p { max-width: 420px; margin-bottom: 0; font-size: 11px; line-height: 1.6; }
 	.fitness-panel, .paths-panel { padding: 18px; }
 	.fitness-chart, .path-chart { width: 100%; height: auto; border-radius: var(--radius-sm); background: var(--canvas-bg); }
 	.chart-grid { stroke: var(--grid-line); stroke-width: 1; }
@@ -358,13 +396,12 @@ function applyBest() {
 	.path-best { fill: color-mix(in srgb, var(--accent) 10%, transparent); stroke: var(--accent); stroke-width: 2; }
 	.paths-panel > small { display: block; margin-top: 10px; }
 	.chart-empty { min-height: 190px; display: grid; place-items: center; margin: 0; padding: 24px; border-radius: var(--radius-sm); background: var(--canvas-bg); color: var(--text-muted); text-align: center; }
-	.apply-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
-	.apply-bar span { color: var(--text-muted); font-size: 12px; }
+	.apply-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius-md); background: var(--surface); }
+	.apply-bar span { color: var(--text-muted); font-size: 11px; line-height: 1.55; }
 	.apply-bar .btn { flex: 0 0 auto; }
 	@media (max-width: 1120px) {
 		.run-layout { grid-template-columns: 250px minmax(0, 1fr); gap: 12px; }
 		.analysis-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-		.run-metrics > div { padding: 12px; }
 	}
 	@media (max-width: 820px) {
 		.run-layout { grid-template-columns: minmax(0, 1fr); }
@@ -375,10 +412,7 @@ function applyBest() {
 	@media (max-width: 520px) {
 		.config-panel, .run-panel, .fitness-panel, .paths-panel { padding: 14px; }
 		.config-fields { display: flex; }
-		.run-metrics { grid-template-columns: minmax(0, 1fr); }
-		.run-metrics > div { padding: 10px 12px; }
-		.run-metrics span { flex-basis: auto; margin-right: auto; }
-		.run-empty { min-height: 130px; }
+		.run-empty { min-height: 150px; }
 		.apply-bar { align-items: stretch; flex-direction: column; }
 		.apply-bar .btn { width: 100%; }
 	}

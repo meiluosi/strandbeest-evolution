@@ -1,0 +1,17 @@
+schema_version: 1
+kind: train_dynamics
+experiment_revision_ref: <不可变协议引用>
+trial_ref: <逻辑重复引用>
+consumers: [<Trial引用>]
+inputs:
+  dataset_snapshot_ref: <不可变数据引用>
+  model_spec_revision_ref: <模型结构与输入输出引用>
+  training_config_ref: <有效训练配置引用>
+implementation_ref: <获准代码及依赖身份>
+resource_profile_ref: <CPU或MPS等已预检能力配置>
+authorization_ref: <有权限主体签发的范围授权>
+budget_allocation_ref: <持久化预算分配>
+randomness_ref: <初始化与数据顺序等种子配置>
+retry_policy_ref: <有限重试与错误分类>
+resume_policy_ref: <完整恢复或明确warm start的规则>
+cache_policy: disabled_for_independent_replication

@@ -1,0 +1,27 @@
+{
+  "export_date": "2026-11-06",
+  "checks": {
+    "source_page_count": 10,
+    "original_text_files": 10,
+    "reading_copies": 10,
+    "original_bodies_fully_present_in_compilation": true,
+    "local_link_copy_reversible": true,
+    "utf8_decoding": true,
+    "fenced_blocks_balanced": true,
+    "mermaid_blocks": 3,
+    "yaml_drafts": 3,
+    "invariants": 12,
+    "work_packages": 8,
+    "acceptance_scenarios": 20
+  },
+  "not_checked": [
+    "External URL availability/currentness",
+    "Mermaid or math visual rendering",
+    "Repository tests or implementation",
+    "Scientific validity or current main"
+  ],
+  "limitations": [
+    "Markdown body snapshot, not native Page history/comments/sharing backup",
+    "Checksums are transfer-integrity aids, not authenticity signatures"
+  ]
+}

@@ -1,0 +1,38 @@
+schema_version: 1
+proposal_kind: controlled_comparison
+stage: development
+research_program_ref: null
+research_cycle_ref: null
+question: 历史信息是否改善阵风后长期预测
+hypothesis_refs: []
+evidence_view:
+  artifact_refs: []
+  exposure_class: development
+  source_validity_checked: false
+experiment:
+  dataset_snapshot_ref: null
+  evaluation_suite_ref: null
+  model_spec_refs: []
+  control: 无历史变体
+  treatment: 有限历史变体
+  fixed: [数据切分, 未来信息权限, 评测时长和指标]
+  capacity_control_ref: null
+  budget_matching_rule: null
+  replication_plan_ref: null
+interpretation:
+  supports: 改善超过预先约定实用幅度且容量对照不足以解释全部差异
+  weakens: 精度足够的对照排除约定幅度的收益或表明容量变化可解释改善
+  inconclusive: 差异不稳定或参考不可靠或区间精度不足
+  no_claim: 不直接推断真实物理记忆机制
+resources:
+  compute_limit_ref: null
+  llm_limit_ref: null
+  wall_time_limit_ref: null
+  shared_budget_ledger_ref: null
+execution:
+  proposal_hash: null
+  authorization_ref: null
+  idempotency_key: null
+  allowed_tool_set_ref: null
+  code_change_policy: review_required
+stop_policy_ref: null

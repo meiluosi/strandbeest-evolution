@@ -1,6 +1,6 @@
 # 产品前端重构交接：Strandbeest Studio
 
-> 状态：P0-A／P0-B、P1 演化工作台与 P2 仿真／回放工作台已完成实施；验收证据见第 11、12、14 节。既定三阶段切片均已完成。
+> 状态：P0-A／P0-B、P1 演化工作台与 P2 仿真／回放工作台已完成实施；验收证据见第 11、12、14 节。既定三阶段切片均已完成。2026-11-06 起的新一轮 Harness 研究型整体重构以 [HARNESS-FRONTEND.md](HARNESS-FRONTEND.md)、[ADR-0013](adr/0013-harness-research-workbench.md) 和 ACTIONS 的 HF 卡为入口，本文保留为现有基线与兼容约束。
 >
 > 日期：2026-11-05  
 > 工作分支：`refactor/product-frontend`  
@@ -449,3 +449,40 @@ P1 没有修改 GA 算法、适应度函数、MAP-Elites 契约或仿真／Repla
 P2 没有修改物理模型、Scenario／Run 契约、浏览器仿真 Worker 算法或 Replay 渲染器。运行结果仍属于对应真实来源，证据等级不等于实物验证。浏览器证据限于固定 Linux Chromium，不包括 Firefox／WebKit；未运行完整 Python／Rust 测试，也未把 GA 或回放展示通过当作新的物理验收。
 
 至此，本文规划的 P0、P1、P2 产品前端切片均已有实施与验收记录；后续工作应另开明确任务，不据此宣称次级模块或全部物理任务已经重构完成。
+
+## 15. 新一轮 Harness 架构升级入口（2026-11-06）
+
+用户认可以现有 Studio 为领域基础，再次推进完整前端展示与交互重构。新目标不是重复 P0–P2 或另建概念 Demo，而是形成 Beest Model Experiment Harness 的实验设计、运行／回放、比较／证据研究旅程。
+
+- 新目标架构：[HARNESS-FRONTEND.md](HARNESS-FRONTEND.md)。
+- 已接受决定：[ADR-0013](adr/0013-harness-research-workbench.md)，继续保留 Svelte、现有真实状态源和全部旧工作区。
+- 实施卡：`ACTIONS.md` 的 HF-00–HF-08；M1 与 M3 分开，受控 Research Agent 不作为首版已完成能力。
+- 本文的 Operation、GA、Replay、i18n、live/static、视觉与响应式约束继续有效；若新决策与其冲突，以更新的 ADR 为准并在此追加记录。
+- 当前 Harness API、训练、评测和研究对象仍属规划。新页面不得以演示曲线、静态样例或全绿状态替代真实执行与科学证据。
+
+| 日期 | 决策 | 影响 |
+| --- | --- | --- |
+| 2026-11-06 | 接受 ADR-0013，启动 Harness 研究型整体前端重构 | P0–P2 成为保留基线；后续按 HF 卡实施，不再以本文三阶段计划作为新工作入口 |
+
+### 15.1 HF-01 Shell 与设计系统实施记录
+
+- `App.svelte` 已切换为 Beest Harness Shell：研究、领域工作台和更多工具分组导航；研究上下文未选择实验时明确显示空态，其他页面继续显示真实当前 Design。旧 `?tab=`、命令面板、撤销重做、主题、语言与在线状态保留。
+- 新增 `ResearchTab.svelte` 和 `?tab=research&view=protocol|runs|evidence` 深链。三个视图只呈现真实空态、现有本地 Design 名称／ID／编辑步数及真实领域入口，不伪造 Experiment、Job、训练、评测或证据。
+- `styles.css` 扩充表面、工作区、信息、警告／错误／中性 soft、文字层级和主按钮对比等语义 Token；明暗主题、小屏不换行导航和基础交互状态统一。所有新增文案均在中英文目录中。
+- `tests/browser/product-shell.spec.ts` 新增研究深链、真实空态、领域入口、键盘和四档宽度／明暗视觉回归；8 张研究基线已审查。既有 atlas 与静态回放基线只因实际内容区尺寸变化而审查更新，对应功能与物理数据未改。
+- `pnpm check` 通过：Biome、全部 TypeScript／Svelte 检查及 454 项 JS 测试（core 195、sim-web 198、web 61）；Web 生产构建和硬编码中文检查通过。
+- 固定 Linux Chromium 完整矩阵共 108 项，84 项通过、24 项按 live/static 模式预期跳过；两份真实制造下载各验证 18 个封闭网格及尺寸、数量和文档，3 个负向对照均被拒绝。这不是实体制造或科学验证。
+
+HF-01 完成不代表 HF-00 的盘点已验收，也不代表 HF-02–HF-08 或 Harness API 已实现。浏览器证据仍限于固定 Linux Chromium，不包括 Firefox／WebKit。
+
+
+### 15.2 HF-02 设计与演化工作台实施记录
+
+- 新增 `WorkspaceHeader.svelte`、`DesignContextBar.svelte`、`StateBadge.svelte` 和 `MetricStrip.svelte`，统一两页标题、说明、操作入口、真实设计名称／ID／腿数／编辑步数、预览状态及运行指标。全局命令面板入口和 Ctrl/Cmd+K 保留，设计页不再重复显示命令按钮。
+- `DesignTab.svelte` 继续组合原机构画布、参数检查器、文件、资产、历史、风驱动和 Onboarding；主操作为进入演化／仿真。Operation、预览、撤销、分支和几何指标事实源未变。
+- `EvolveTab.svelte` 与 `Evolver.svelte` 统一 GA 的配置、运行状态、指标、结果回写和分析图层级；应用最佳位于运行结果之后。固定设计与配置快照、Worker 请求序号、停止／失败／完成、onDestroy 清理及 MAP-Elites 的独立 `openDocument()` 路径均未改。空态仍只等待真实 Worker 消息，不创建虚构候选、实验对象或科学状态。
+- `product-shell.spec.ts` 与 `evolution-workspace.spec.ts` 新增设计／演化双主题页面基线，遮罩随机 Design ID；live/static × 中英共 16 张新基线。已审查 375、768、1024、1440 像素截图，主任务可达且无稳定布局的页面级横向溢出。响应式尺寸检查等待重排完成，修正后英文静态研究页连续 10／10 次通过；没有放宽溢出阈值。
+- `pnpm check` 通过：Biome、全部类型／Svelte 检查及 454 项 JS 测试（core 195、sim-web 198、web 61）。Web 生产构建、浏览器测试类型检查、硬编码中文检查和 `git diff --check` 通过。
+- 图鉴／响应式／固定 seed 与 Worker 清理专项矩阵首轮及去掉快照更新后的复验均 8／8 通过。既有图鉴基线因新工作台实际内容尺寸变化更新 8 张，逐张审查后定向复验 4／4 通过；图鉴数据、算法、契约和物理数值未变。
+- 固定 Linux Chromium 完整矩阵最终共 108 项，84 项通过、24 项按 live/static 模式预期跳过；覆盖固定 seed、真实回写与撤销、Worker 清理、真实 API、静态烘焙、制造下载及控制台检查。两份真实制造下载各验证 18 个封闭网格及尺寸、数量和文档，3 个负向对照均被拒绝；这不是实体制造验证。
+- 浏览器证据限于固定 Linux Chromium，不包括 Firefox／WebKit；HF-02 不等于 Harness API、训练／评测、物理或科学验收完成。HF-00 仍独立保留待验收项，HF-03 尚未实施。

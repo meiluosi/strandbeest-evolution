@@ -17,15 +17,26 @@
 	--surface: var(--sand-0);
 	--surface-raised: oklch(0.999 0.003 82);
 	--surface-muted: oklch(0.947 0.01 82);
+	--surface-inset: oklch(0.956 0.008 82);
+	--surface-hover: oklch(0.935 0.012 80);
+	--workspace-bg: oklch(0.972 0.007 82);
 	--text: var(--ink-0);
 	--text-soft: var(--ink-1);
 	--text-muted: var(--ink-2);
+	--text-faint: oklch(0.59 0.015 60);
 	--accent: var(--copper-0);
 	--accent-strong: var(--copper-1);
 	--accent-soft: var(--copper-soft);
+	--accent-contrast: oklch(0.99 0.003 82);
 	--success: var(--sage-0);
 	--success-soft: var(--sage-soft);
+	--info: var(--blue-0);
+	--info-soft: oklch(0.94 0.025 240);
+	--warning: oklch(0.58 0.12 75);
+	--warning-soft: oklch(0.94 0.035 80);
 	--danger: var(--danger-0);
+	--danger-soft: oklch(0.94 0.035 25);
+	--neutral-soft: oklch(0.93 0.008 80);
 	--line: color-mix(in oklch, var(--ink-0) 13%, transparent);
 	--line-strong: color-mix(in oklch, var(--ink-0) 22%, transparent);
 	--canvas-bg: oklch(0.972 0.009 82);
@@ -45,13 +56,16 @@
 	--card: var(--surface);
 	--ink: var(--text);
 	--muted: var(--text-muted);
-	--blue: var(--blue-0);
+	--blue: var(--info);
 	--ok: var(--success);
-	--warn: oklch(0.58 0.12 75);
+	--warn: var(--warning);
 	--bad: var(--danger);
 	--shadow: var(--shadow-sm);
 	font-family: var(--font-ui);
 	font-synthesis: none;
+	font-feature-settings:
+		"ss01" 1,
+		"tnum" 1;
 	text-rendering: optimizeLegibility;
 }
 
@@ -71,6 +85,15 @@
 	--blue-0: oklch(0.72 0.09 235);
 	--surface-raised: oklch(0.27 0.015 62);
 	--surface-muted: oklch(0.225 0.013 62);
+	--surface-inset: oklch(0.19 0.012 62);
+	--surface-hover: oklch(0.3 0.017 62);
+	--workspace-bg: oklch(0.175 0.012 62);
+	--text-faint: oklch(0.59 0.014 74);
+	--accent-contrast: oklch(0.18 0.014 60);
+	--info-soft: oklch(0.29 0.035 240);
+	--warning-soft: oklch(0.3 0.035 75);
+	--danger-soft: oklch(0.3 0.045 25);
+	--neutral-soft: oklch(0.28 0.012 62);
 	--canvas-bg: oklch(0.185 0.012 62);
 	--grid-line: oklch(0.55 0.02 70 / 0.28);
 	--stage-bg: oklch(0.205 0.015 65);
@@ -79,7 +102,8 @@
 	--shadow-sm:
 		0 1px 2px oklch(0.1 0.01 60 / 0.2), 0 4px 14px oklch(0.1 0.01 60 / 0.15);
 	--shadow-lg: 0 18px 50px oklch(0.08 0.01 60 / 0.35);
-	--warn: oklch(0.75 0.12 80);
+	--warn: var(--warning);
+	--warning: oklch(0.75 0.12 80);
 }
 
 * {
@@ -97,6 +121,16 @@ body {
 	color: var(--text);
 	font-size: 14px;
 	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+::selection {
+	background: var(--accent-soft);
+	color: var(--text);
+}
+* {
+	scrollbar-color: var(--line-strong) transparent;
+	scrollbar-width: thin;
 }
 button,
 input,
@@ -265,12 +299,13 @@ input[type="checkbox"] {
 .btn.primary {
 	background: var(--accent-strong);
 	border-color: var(--accent-strong);
-	color: var(--surface-raised);
+	color: var(--accent-contrast);
 	font-weight: 600;
 }
 .btn.primary:hover:not(:disabled) {
 	background: var(--accent);
 	border-color: var(--accent);
+	color: var(--accent-contrast);
 }
 .btn.small {
 	min-height: 32px;

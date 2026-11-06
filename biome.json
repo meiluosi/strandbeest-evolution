@@ -17,6 +17,7 @@
 		"includes": [
 			"**",
 			"!**/node_modules",
+			"!Beest Harness 开发交接资料包 20261106",
 			"!**/dist",
 			"!**/generated",
 			"!experiments",

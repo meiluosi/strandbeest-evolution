@@ -1,0 +1,194 @@
+{
+  "export_date_local": "2026-11-06",
+  "timezone": "Asia/Singapore",
+  "space_id": "page_space_d1845f30bca0819187402a8dc0283145",
+  "space_root_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+  "source_page_count": 10,
+  "scope": "Main content Markdown bodies; no comments, history, private scratch, binary attachments, source repository or datasets",
+  "recorded_repository": "meiluosi/strandbeest-evolution",
+  "recorded_repository_baseline": "610dafc4f00de6e70b2807c07f3932f639c28a37",
+  "current_main_reverified_during_export": false,
+  "repository_modified": false,
+  "training_executed": false,
+  "original_export": "Markdown body snapshots copied from successful current Page reads; UTF-8 LF with final newline",
+  "sources": [
+    {
+      "filename": "space_home.md",
+      "page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "title": "Beest Model Experiment Harness",
+      "source_url": "https://chatgpt.com/space/page_6aeca13ed9b08191baace0ffab03a6f1",
+      "observed_sequence": 1,
+      "observed_updated_at": "2026-11-05T16:08:16.291633Z",
+      "parent_page_id": null,
+      "original_path": "originals/space_home.md",
+      "original_sha256": "9a5aa91923c52e979de367d184dedefcde9b7da5d2fe258c60a6006c519c3457",
+      "original_bytes": 770,
+      "reading_copy_path": "docs/space_home.md",
+      "reading_copy_sha256": "5822e52ec0bfb11704f737121764d620a7be5cfea246969a440cfa63f889f508"
+    },
+    {
+      "filename": "space_directory.md",
+      "page_id": "page_6aeca3efb2ac8191bd53aaf9156103c2",
+      "title": "文档目录与研究导航",
+      "source_url": "https://chatgpt.com/space/page_6aeca3efb2ac8191bd53aaf9156103c2",
+      "observed_sequence": 3,
+      "observed_updated_at": "2026-11-05T17:24:02.721097Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/space_directory.md",
+      "original_sha256": "f8fb1b67f85de7ef88db963cd210caac7ec3e681713d24383dae4d316969bba0",
+      "original_bytes": 2965,
+      "reading_copy_path": "docs/space_directory.md",
+      "reading_copy_sha256": "d321604c9ba2510600b81da4df603f5299f670a96fce439901d2f5c7d1c211e4"
+    },
+    {
+      "filename": "project_overview.md",
+      "page_id": "page_6aeca182083c8191b4eeb85353d5dd6a",
+      "title": "00 项目总览与 Agent 交接上下文",
+      "source_url": "https://chatgpt.com/space/page_6aeca182083c8191b4eeb85353d5dd6a",
+      "observed_sequence": 0,
+      "observed_updated_at": "2026-11-05T15:32:20.873808Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/project_overview.md",
+      "original_sha256": "61ee3dc974a00388b8201d428ca754709e9cd8192eb8aee19f3fca1d38789d56",
+      "original_bytes": 4797,
+      "reading_copy_path": "docs/project_overview.md",
+      "reading_copy_sha256": "77906d9b81f6800e2d1dfb972c1014704eafbce7dd69132147927f6c3ce359e7"
+    },
+    {
+      "filename": "lesson_01_experiment_objects.md",
+      "page_id": "page_6aeca18f4df0819194d1c7c41a847ce7",
+      "title": "01 Lesson 01 - 实验对象与数据模型",
+      "source_url": "https://chatgpt.com/space/page_6aeca18f4df0819194d1c7c41a847ce7",
+      "observed_sequence": 0,
+      "observed_updated_at": "2026-11-05T15:32:34.709375Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/lesson_01_experiment_objects.md",
+      "original_sha256": "cae254594bd4748cb2af0d1ccb13351ce657c39f02e18380d8f102aefcf950d2",
+      "original_bytes": 3573,
+      "reading_copy_path": "docs/lesson_01_experiment_objects.md",
+      "reading_copy_sha256": "f7ab69a455f129892f1dd0473d7a213c7a136418c63d87414b5434fd23a34549"
+    },
+    {
+      "filename": "lesson_02_orchestration.md",
+      "page_id": "page_6aeca1ebf67881918aca4942d04e0ee9",
+      "title": "02 Lesson 02 - 实验编排与调度架构",
+      "source_url": "https://chatgpt.com/space/page_6aeca1ebf67881918aca4942d04e0ee9",
+      "observed_sequence": 0,
+      "observed_updated_at": "2026-11-05T15:34:07.176874Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/lesson_02_orchestration.md",
+      "original_sha256": "ac4b890836d2af93db682e270adccd78c63d0f24cb2bb26487afee9a107ffb65",
+      "original_bytes": 15216,
+      "reading_copy_path": "docs/lesson_02_orchestration.md",
+      "reading_copy_sha256": "f0d2e8cdc5f1a2110aeb428fceac598622a3040abf6f15d44c7a82105b3cd484"
+    },
+    {
+      "filename": "lesson_03_data_models.md",
+      "page_id": "page_6aeca3d3ccec8191a6020c75d829be68",
+      "title": "03 Lesson 03 - Dataset 与 Model 生命周期",
+      "source_url": "https://chatgpt.com/space/page_6aeca3d3ccec8191a6020c75d829be68",
+      "observed_sequence": 0,
+      "observed_updated_at": "2026-11-05T15:42:14.419831Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/lesson_03_data_models.md",
+      "original_sha256": "b3b8adaeb287445ab85cff887c4bcc21e642ccdc0d31a6ba7c26514a72ea3695",
+      "original_bytes": 16712,
+      "reading_copy_path": "docs/lesson_03_data_models.md",
+      "reading_copy_sha256": "04253e953f90b7a4376439fd984fd3fe09d488d2f255d0b5139305644175b0da"
+    },
+    {
+      "filename": "lesson_04_evaluation_evidence.md",
+      "page_id": "page_bc1e45d775408191b7328d225c816716",
+      "title": "04 Lesson 04 模型评测与证据体系",
+      "source_url": "https://chatgpt.com/space/page_bc1e45d775408191b7328d225c816716",
+      "observed_sequence": 1,
+      "observed_updated_at": "2026-11-05T16:07:23.362139Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/lesson_04_evaluation_evidence.md",
+      "original_sha256": "8c900b356ae41bc0d53928f0e3b1a783d90fc17e77cf50cf881d3b0c2bce3edd",
+      "original_bytes": 27265,
+      "reading_copy_path": "docs/lesson_04_evaluation_evidence.md",
+      "reading_copy_sha256": "b1c3343e1970cbbfec34d7edd2529c35b8078595d3d8a3024dd6ebe78492d97d"
+    },
+    {
+      "filename": "lesson_05_research_agent.md",
+      "page_id": "page_50ad9569c65881919236d6d80d2ab5fd",
+      "title": "05 Lesson 05 Research Agent 与自适应实验决策",
+      "source_url": "https://chatgpt.com/space/page_50ad9569c65881919236d6d80d2ab5fd",
+      "observed_sequence": 1,
+      "observed_updated_at": "2026-11-05T16:56:32.108951Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/lesson_05_research_agent.md",
+      "original_sha256": "d7b252367cbebfad26dc2aee402155eff429510e45befb15ba42fab1c6781f8a",
+      "original_bytes": 30106,
+      "reading_copy_path": "docs/lesson_05_research_agent.md",
+      "reading_copy_sha256": "bb28ac4057da6535a7a6779a0f967787f113941b6b16c05fead3ab244a4ad07c"
+    },
+    {
+      "filename": "lesson_06_system_architecture.md",
+      "page_id": "page_bdeb810ef078819183a23a70d00b46a7",
+      "title": "06 Lesson 06 整体系统架构与开发规格",
+      "source_url": "https://chatgpt.com/space/page_bdeb810ef078819183a23a70d00b46a7",
+      "observed_sequence": 1,
+      "observed_updated_at": "2026-11-05T17:23:42.274498Z",
+      "parent_page_id": "page_6aeca13ed9b08191baace0ffab03a6f1",
+      "original_path": "originals/lesson_06_system_architecture.md",
+      "original_sha256": "3f7bc92fe92293fadd569498c534aed482b1ab510a1c3550c177b81e2c062f1e",
+      "original_bytes": 24027,
+      "reading_copy_path": "docs/lesson_06_system_architecture.md",
+      "reading_copy_sha256": "a721e4dc3cfe205c10a04674c67aeecd16177bcd5348608624dfdc7a8dc7de13"
+    },
+    {
+      "filename": "implementation_handoff_spec.md",
+      "page_id": "page_89779898fc6c8191a40b24a0d0f87a90",
+      "title": "实施交接规格 契约 接口 迁移与验收",
+      "source_url": "https://chatgpt.com/space/page_89779898fc6c8191a40b24a0d0f87a90",
+      "observed_sequence": 0,
+      "observed_updated_at": "2026-11-05T17:20:02.024618Z",
+      "parent_page_id": "page_bdeb810ef078819183a23a70d00b46a7",
+      "original_path": "originals/implementation_handoff_spec.md",
+      "original_sha256": "ead194dbe46ac5b8623f76b69e2bd0218dad3732ca2a2f5fe4181b525fd13cdc",
+      "original_bytes": 25045,
+      "reading_copy_path": "docs/implementation_handoff_spec.md",
+      "reading_copy_sha256": "5832cea4b47067ead94dca883254e6b11fe63acb872bf2841d857b0700866cc6"
+    }
+  ],
+  "extracted_examples": [
+    {
+      "path": "diagrams/lesson_04_evaluation_evidence_1.mmd",
+      "source_file": "originals/lesson_04_evaluation_evidence.md",
+      "source_page_id": "page_bc1e45d775408191b7328d225c816716",
+      "language": "mermaid"
+    },
+    {
+      "path": "templates/lesson_04_evaluation_evidence_2.yaml",
+      "source_file": "originals/lesson_04_evaluation_evidence.md",
+      "source_page_id": "page_bc1e45d775408191b7328d225c816716",
+      "language": "yaml"
+    },
+    {
+      "path": "diagrams/lesson_05_research_agent_1.mmd",
+      "source_file": "originals/lesson_05_research_agent.md",
+      "source_page_id": "page_50ad9569c65881919236d6d80d2ab5fd",
+      "language": "mermaid"
+    },
+    {
+      "path": "templates/lesson_05_research_agent_2.yaml",
+      "source_file": "originals/lesson_05_research_agent.md",
+      "source_page_id": "page_50ad9569c65881919236d6d80d2ab5fd",
+      "language": "yaml"
+    },
+    {
+      "path": "diagrams/lesson_06_system_architecture_1.mmd",
+      "source_file": "originals/lesson_06_system_architecture.md",
+      "source_page_id": "page_bdeb810ef078819183a23a70d00b46a7",
+      "language": "mermaid"
+    },
+    {
+      "path": "templates/implementation_handoff_spec_1.yaml",
+      "source_file": "originals/implementation_handoff_spec.md",
+      "source_page_id": "page_89779898fc6c8191a40b24a0d0f87a90",
+      "language": "yaml"
+    }
+  ]
+}

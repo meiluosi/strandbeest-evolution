@@ -345,7 +345,7 @@ test("navigation terminates the worker and ignores stale completion", async ({
 	expect((await workers(page))[0].messages).toHaveLength(count);
 });
 
-test("GA and atlas remain distinct, responsive and readable in both themes", async ({
+test("GA and atlas remain distinct, responsive and readable in both themes @visual", async ({
 	page,
 }, info) => {
 	const { language } = info.project.metadata;
@@ -371,10 +371,19 @@ test("GA and atlas remain distinct, responsive and readable in both themes", asy
 			fullPage: true,
 		});
 	}
+	const dynamicDesignId = page.locator(".design-context-bar dd").first();
+	await expect(page).toHaveScreenshot("evolution-workspace-dark.png", {
+		fullPage: true,
+		mask: [dynamicDesignId],
+	});
 	await page
 		.getByRole("button", { name: label(language, "app.theme.light") })
 		.click();
 	await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+	await expect(page).toHaveScreenshot("evolution-workspace-light.png", {
+		fullPage: true,
+		mask: [dynamicDesignId],
+	});
 	await page.screenshot({
 		path: info.outputPath(`evolution-${language}-1440-light.png`),
 		fullPage: true,

@@ -1,0 +1,14 @@
+flowchart TD
+  UI[现有 Svelte 研究工作台] --> API[FastAPI 应用服务与权限入口]
+  MCP[MCP 适配与 Research Agent] --> API
+  API --> CORE[Experiment 与 Asset 与 Evidence 模块]
+  CORE --> DB[SQLite 元数据 事件 预算]
+  CTRL[独立控制器 调度与研究循环] --> CORE
+  CTRL --> W[受限 Worker 作业进程]
+  W --> DOMAIN[Beest 仿真 校准 数据与训练适配器]
+  W --> STAGE[作业暂存目录]
+  STAGE --> COMMIT[校验与幂等提交]
+  COMMIT --> DB
+  COMMIT --> BLOBS[不可变文件存储]
+  DB --> UI
+  BLOBS --> UI

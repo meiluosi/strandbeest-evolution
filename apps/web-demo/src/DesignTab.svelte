@@ -3,6 +3,7 @@ import { migrateDesign, type Operation, trace } from "strandbeest-core";
 import designSchema from "../../../schemas/design.schema.json";
 import AssetBrowserPanel from "./AssetBrowserPanel.svelte";
 import { call, download } from "./api";
+import DesignContextBar from "./DesignContextBar.svelte";
 import {
 	commit,
 	currentDesign,
@@ -16,24 +17,26 @@ import {
 	setProperty,
 } from "./editor.svelte";
 import HistoryPanel from "./HistoryPanel.svelte";
+import Icon from "./Icon.svelte";
 import { t } from "./i18n/index.svelte";
 import LengthSliders from "./LengthSliders.svelte";
 import LinkageViewer, { type LengthEdit } from "./LinkageViewer.svelte";
+import MetricStrip from "./MetricStrip.svelte";
 import Onboarding from "./Onboarding.svelte";
 import { PRESETS } from "./presets";
 import SchemaForm from "./SchemaForm.svelte";
+import StateBadge from "./StateBadge.svelte";
 import type { SchemaField } from "./schema-form";
 import { designCardPng, saveBlob } from "./share-export";
 import { encodeShare, STATIC } from "./static";
 import { view } from "./store.svelte";
 import WindPanel from "./WindPanel.svelte";
+import WorkspaceHeader from "./WorkspaceHeader.svelte";
 
 let {
-	oncommand,
 	onsim,
 	onevolve,
 }: {
-	oncommand: () => void;
 	onsim: () => void;
 	onevolve: () => void;
 } = $props();
@@ -56,6 +59,27 @@ let viewerRef: ReturnType<typeof LinkageViewer> | null = null;
 
 const shown = $derived(previewDesign());
 const shownLinkage = $derived(shown.linkage);
+const metricItems = $derived(
+	metrics
+		? [
+				{
+					key: "duty",
+					value: `${(metrics.duty * 100).toFixed(0)}%`,
+					label: t("metric.dutyFactor"),
+				},
+				{
+					key: "lift",
+					value: metrics.lift.toFixed(1),
+					label: t("metric.liftHeight"),
+				},
+				{
+					key: "stroke",
+					value: metrics.strokeLength.toFixed(1),
+					label: t("metric.flatLength"),
+				},
+			]
+		: [],
+);
 
 const fail = (text: string) => (msg = { text, kind: "error" });
 const rejected = (r: { ok: boolean; message?: string }) => {
@@ -185,17 +209,24 @@ function applySchemaField(field: SchemaField, value: unknown) {
 </script>
 
 <div class="design-workspace">
-	<header class="workspace-header">
-		<div>
-			<span class="eyebrow">{t("design.workspaceEyebrow")}</span>
-			<h2>{t("design.workspaceTitle")}</h2>
-			<p>{t("design.workspaceDescription")}</p>
-		</div>
-		<div class="workspace-actions">
-			<button class="btn" onclick={oncommand}>{t("palette.open")}<kbd>Ctrl K</kbd></button>
-			<button class="btn primary" onclick={onsim}>{t("design.toSimulation")}</button>
-		</div>
-	</header>
+	<WorkspaceHeader
+		eyebrow={t("design.workspaceEyebrow")}
+		title={t("design.workspaceTitle")}
+		description={t("design.workspaceDescription")}
+	>
+		{#snippet actions()}
+			<button class="btn" onclick={onevolve}><Icon name="evolve" />{t("evolve.workspaceTitle")}</button>
+			<button class="btn primary" onclick={onsim}><Icon name="sim" />{t("design.toSimulation")}</button>
+		{/snippet}
+	</WorkspaceHeader>
+
+	<DesignContextBar
+		name={view.name}
+		designId={view.designId}
+		legs={view.legs}
+		editSteps={editor.steps.length}
+		previewing={editor.preview !== null}
+	/>
 
 	{#if msg}<p class="notice {msg.kind}" role={msg.kind === "error" ? "alert" : "status"}>{msg.text}</p>{/if}
 
@@ -206,7 +237,7 @@ function applySchemaField(field: SchemaField, value: unknown) {
 					<span class="eyebrow">{t("design.mechanismEyebrow")}</span>
 					<h3>{t("design.footPath")}</h3>
 				</div>
-				<span class="evidence-label">{t("design.kinematicEvidence")}</span>
+				<StateBadge label={t("design.kinematicEvidence")} tone="success" />
 			</header>
 			<p class="canvas-hint">{t("design.footPath.hint")}</p>
 			<LinkageViewer
@@ -221,12 +252,11 @@ function applySchemaField(field: SchemaField, value: unknown) {
 				onedit={dragEdit}
 			/>
 			{#if metrics}
-				<div class="metric-strip" aria-label={t("design.metrics")}>
-					<div class="metric"><b>{(metrics.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
-					<div class="metric"><b>{metrics.lift.toFixed(1)}</b><span>{t("metric.liftHeight")}</span></div>
-					<div class="metric"><b>{metrics.strokeLength.toFixed(1)}</b><span>{t("metric.flatLength")}</span></div>
-					<small>{t("design.unitNote", { unitMm: view.unitMm })}</small>
-				</div>
+				<MetricStrip
+					items={metricItems}
+					label={t("design.metrics")}
+					note={t("design.unitNote", { unitMm: view.unitMm })}
+				/>
 			{:else}
 				<p class="notice error geometry-error" role="alert">{t("design.unassemblable")}</p>
 			{/if}
@@ -301,31 +331,19 @@ function applySchemaField(field: SchemaField, value: unknown) {
 
 <style>
 	.design-workspace { max-width: 1480px; margin: 0 auto; }
-	.workspace-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
-	.eyebrow { display: block; color: var(--accent-strong); font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
-	.workspace-header h2 { margin-top: 4px; font-size: clamp(24px, 2.3vw, 32px); letter-spacing: -0.04em; }
-	.workspace-header p { margin-top: 5px; color: var(--text-soft); }
-	.workspace-actions { display: flex; gap: 8px; flex: 0 0 auto; }
-	.workspace-actions .btn { display: inline-flex; align-items: center; gap: 10px; }
-	kbd { font-family: var(--font-mono); font-size: 10px; opacity: 0.65; }
-	.design-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+	.eyebrow { display: block; color: var(--text-faint); font-family: var(--font-mono); font-size: 9px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; }
+	.design-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
 	.mechanism-panel, .inspector { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
 	.mechanism-panel { overflow: hidden; }
-	.panel-heading, .inspector-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--line); }
-	.panel-heading h3, .inspector-heading h3 { margin: 2px 0 0; }
-	.evidence-label { color: var(--success); background: var(--success-soft); border-radius: 999px; padding: 3px 9px; font-size: 11px; white-space: nowrap; }
-	.canvas-hint { margin: 0; padding: 10px 16px 0; color: var(--text-muted); font-size: 12px; }
-	.inspector { padding-bottom: 12px; }
+	.panel-heading, .inspector-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+	.panel-heading h3, .inspector-heading h3 { margin: 3px 0 0; font-size: 15px; }
+	.canvas-hint { margin: 0; padding: 10px 16px 0; color: var(--text-muted); font-size: 11px; }
+	.inspector { position: sticky; top: 88px; padding-bottom: 12px; }
 	.inspector-heading { align-items: flex-start; }
 	.inspector-heading select { max-width: 132px; font-size: 11px; }
-	.inspector-note { margin: 0; padding: 12px 16px 4px; color: var(--text-muted); font-size: 11px; }
-	.metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; border-top: 1px solid var(--line); background: var(--line); }
-	.metric { display: flex; flex-direction: column; gap: 2px; padding: 13px 16px; background: var(--surface-raised); }
-	.metric b { font-family: var(--font-mono); font-size: 21px; font-weight: 500; }
-	.metric span { color: var(--text-muted); font-size: 11px; }
-	.metric-strip > small { grid-column: 1 / -1; padding: 7px 16px; background: var(--surface-raised); }
+	.inspector-note { margin: 0; padding: 12px 16px 4px; color: var(--text-muted); font-size: 11px; line-height: 1.6; }
 	.geometry-error { margin: 12px 16px 16px; }
-	.secondary-panels { margin-top: 16px; }
+	.secondary-panels { margin-top: 18px; padding-top: 10px; border-top: 1px solid var(--line); }
 	.secondary-panels details { scroll-margin-top: 90px; }
 	.secondary-panels summary small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 	.file-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
@@ -340,19 +358,13 @@ function applySchemaField(field: SchemaField, value: unknown) {
 	}
 	@media (max-width: 920px) {
 		.design-grid { grid-template-columns: minmax(0, 1fr); }
+		.inspector { position: static; }
 		.inspector-heading { flex-direction: row; align-items: center; }
 		.inspector-heading select { width: auto; max-width: 160px; }
 	}
 	@media (max-width: 600px) {
-		.workspace-header { align-items: flex-start; flex-direction: column; gap: 14px; margin-bottom: 16px; }
-		.workspace-actions { width: 100%; }
-		.workspace-actions .btn { flex: 1; justify-content: center; }
-		.workspace-actions kbd { display: none; }
 		.panel-heading { align-items: flex-start; }
-		.evidence-label { white-space: normal; text-align: right; }
 		.canvas-hint { padding: 9px 12px 0; }
-		.metric { padding: 11px 10px; }
-		.metric b { font-size: 18px; }
 		.secondary-panels summary { align-items: flex-start; flex-wrap: wrap; }
 		.secondary-panels summary small { width: 100%; white-space: normal; }
 		.file-actions .btn, .file-actions select { max-width: 100%; }

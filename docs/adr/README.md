@@ -19,6 +19,7 @@
 | [0010](0010-k2-independent-solver.md) | K2 独立平面刚体物理求解器设计 | V-02、单向门 #5 | 接受 |
 | [0011](0011-licensing-for-code-designs-and-data.md) | 代码、设计库与实测数据的三类许可证方案 | R-06 | 接受 |
 | [0012](0012-stride-audit-applicability.md) | 步幅审计的参考模型与适用条件 | H2-01 | 接受；用户批准，实施不等于验收 |
+| [0013](0013-harness-research-workbench.md) | 以研究工作台增量演进现有 Svelte 前端 | HN06、HF-00–HF-08 | 接受；目标架构，不等于 Harness 已实现 |
 
 ## 模板
 ```

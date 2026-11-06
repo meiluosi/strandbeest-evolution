@@ -21,11 +21,13 @@ async function open(page: Page, language: string, tab = "design") {
 		"data-kernel",
 		"rust-wasm/0.1.0",
 	);
-	await expect(
-		page.locator(
-			tab === "evolve" ? ".evolution-workspace" : ".design-workspace",
-		),
-	).toBeVisible();
+	const workspace =
+		tab === "evolve"
+			? ".evolution-workspace"
+			: tab === "research"
+				? ".research-workspace"
+				: ".design-workspace";
+	await expect(page.locator(workspace)).toBeVisible();
 }
 
 async function navigate(page: Page, language: string, key: string) {
@@ -99,6 +101,88 @@ test("shell deep links, primary workflows and command keyboard access", async ({
 			page.getByRole("heading", { name: label(language, "lab.title") }),
 		).toBeVisible();
 	}
+});
+
+test("research shell deep links keep honest empty states and domain access", async ({
+	page,
+}, info) => {
+	const { language } = info.project.metadata;
+	await open(page, language, "research");
+	await expect(page.locator(".project-context")).toContainText(
+		label(language, "research.noExperimentShort"),
+	);
+	await expect(page.locator("#research-panel")).toContainText(
+		label(language, "research.emptyProtocolTitle"),
+	);
+	await page.locator("#research-tab-evidence").click();
+	await expect(page).toHaveURL(/[?&]view=evidence/);
+	await expect(page.locator("#research-panel")).toContainText(
+		label(language, "research.emptyEvidenceTitle"),
+	);
+	await page.reload();
+	await expect(page.locator("#research-tab-evidence")).toHaveAttribute(
+		"aria-selected",
+		"true",
+	);
+	await expect(page.locator(".research-workspace .bar")).toHaveCount(0);
+	await page.locator("#research-tab-runs").focus();
+	await page.keyboard.press("Enter");
+	await expect(page).toHaveURL(/[?&]view=runs/);
+	await expect(page.locator("#research-panel")).toContainText(
+		label(language, "research.emptyRunsTitle"),
+	);
+	await page
+		.getByRole("button", {
+			name: label(language, "research.openDesign"),
+			exact: true,
+		})
+		.click();
+	await expect(page.locator(".design-workspace")).toBeVisible();
+	await expect(page).toHaveURL(/[?&]tab=design/);
+	await navigate(page, language, "nav.research");
+	await expect(page.locator(".research-workspace")).toBeVisible();
+});
+
+test("research shell responsive and visual states @visual", async ({
+	page,
+}, info) => {
+	const { language, mode } = info.project.metadata;
+	await open(page, language, "research");
+	for (const width of [375, 768, 1024, 1440]) {
+		await page.setViewportSize({ width, height: 1000 });
+		await expect(page.locator("#research-panel")).toBeVisible();
+		await expect
+			.poll(
+				() =>
+					page.evaluate(
+						() => document.documentElement.scrollWidth <= innerWidth,
+					),
+				`No horizontal document overflow at ${width}px`,
+			)
+			.toBe(true);
+		const panel = await page.locator("#research-panel").boundingBox();
+		expect(panel?.x).toBeGreaterThanOrEqual(0);
+		expect((panel?.x ?? 0) + (panel?.width ?? 0)).toBeLessThanOrEqual(
+			width + 1,
+		);
+		await page.screenshot({
+			path: info.outputPath(`research-${mode}-${language}-${width}-dark.png`),
+			fullPage: true,
+		});
+	}
+	const dynamicDesignId = page.locator(".domain-context dd").first();
+	await expect(page).toHaveScreenshot("research-shell-dark.png", {
+		fullPage: true,
+		mask: [dynamicDesignId],
+	});
+	await page
+		.getByRole("button", { name: label(language, "app.theme.light") })
+		.click();
+	await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+	await expect(page).toHaveScreenshot("research-shell-light.png", {
+		fullPage: true,
+		mask: [dynamicDesignId],
+	});
 });
 
 test("theme and language preferences survive reload", async ({
@@ -225,7 +309,7 @@ test("invalid preview clears stale metrics and rejection restores the design", a
 	).toBeDisabled();
 });
 
-test("reduced motion and responsive layouts keep the canvas reachable", async ({
+test("reduced motion and responsive layouts keep the canvas reachable @visual", async ({
 	page,
 }, info) => {
 	const { language, mode } = info.project.metadata;
@@ -253,9 +337,19 @@ test("reduced motion and responsive layouts keep the canvas reachable", async ({
 			fullPage: true,
 		});
 	}
+	const dynamicDesignId = page.locator(".design-context-bar dd").first();
+	await expect(page).toHaveScreenshot("design-workspace-dark.png", {
+		fullPage: true,
+		mask: [dynamicDesignId],
+	});
 	await page
 		.getByRole("button", { name: label(language, "app.theme.light") })
 		.click();
+	await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+	await expect(page).toHaveScreenshot("design-workspace-light.png", {
+		fullPage: true,
+		mask: [dynamicDesignId],
+	});
 	await page.screenshot({
 		path: info.outputPath(`design-${mode}-${language}-1440-light.png`),
 		fullPage: true,
