@@ -3409,6 +3409,60 @@ flowchart LR
   - 足端 $X$ 通道前向 NRMSE 为 **$4.02\%$**，足端 $Y$ 通道（升降高度）前向 NRMSE 仅为 **$0.19\%$**；
 - **参数辨识性诚实判定**：剖面似然检验判定短时间（0.15 s）定常工况下关节摩擦对外部运动学敏感度较低，系统诚实报告 `identifiable_parameters: {'pin_friction': false}`，绝不将先验下限 $0.0004$ 伪称为精准标定结果。
 
+---
+
+## 86. 真实外场全尺寸走兽公开视频追踪与数字孪生动力学验证 (H4-01 / V-05 / H3-03) (2026-11-06)
+
+**任务卡**：`H4-01`（外部数据与实测验证）、`V-05`（公开视频测量，M8-02）、`H3-03`（数字孪生视频反演贯通）  
+**前置依赖**：`H4-01`、`H3-03`  
+**核心实现与测试**：
+- 无标志点光流与模板跟踪引擎：`packages/rig/src/strandbeest_rig/video_track.py` (`track_point_optical_flow`, `track_natural_feature`)
+- 外场实测视频全链路检验工具：`packages/calib/scripts/validate_binnenhof_walker_video.py`
+- 核心功能库模块：`packages/calib/src/strandbeest_calib/binnenhof_video.py`
+- 物理实测 Schema v2 资产：`experiments/measurement-binnenhof-walker-v2.json`
+- 机器可读实验留档：`experiments/external-binnenhof-video-validation-2026-11-06.json`
+- 单元与集成回归测试：`packages/rig/tests/test_video_track.py` (22 项全过)、`packages/calib/tests/test_binnenhof_video_validation.py` (4 项全过)
+
+### 1. 真实外场全尺寸物理视频源与尺度标定
+
+针对外场真实走兽无粘贴 ArUco 二维码的物理现实，选取并检核公开高清纪录影像：
+- **视频出处与版权**：荷兰海牙国会大厦外场 Theo Jansen 真实全尺寸走兽行走实况（Wikimedia Commons，Tweede Kamer der Staten-Generaal 出品，`CC BY 3.0`）；
+- **数字身份与完整性**：时长 60.80 s，分辨率 1280×720 @ 30 fps，文件大小 72,509,793 字节，SHA-256 校验和为：
+  `9944c693e7326d19c839b208790230fea1b03532eed189cedcd72cc76772e478`；
+- **物理比例尺双重锚定**：
+  - 伴行人物 Theo Jansen 实测身高 $H_{\text{human}} = 1.85\text{ m}$（画面像素高 475 px，得 $0.003895\text{ m/px}$）；
+  - Animaris 主桅顶至地面全高 $H_{\text{beast}} = 2.36\text{ m}$（画面像素高 605 px，得 $0.003901\text{ m/px}$）；
+  - 联合标定物理比例尺为：
+    $$mpp = 0.003895 \pm 0.00021\text{ m/px}\quad (\pm 5.4\%\text{ 1-sigma 不确定度})$$
+
+### 2. 金字塔 Lucas-Kanade 稀疏光流追踪与步态频率解析
+
+在 Shot 3（f=650～950，时长 9.97 s）平稳侧视行走片段中，调用带亚像素精化（`cornerSubPix`）与正反向一致性滤波（Forward-Backward error check，$\le 1.0\text{ px}$）的光流跟踪器：
+- **机架推进观测**：机身中心在 9.97 s 内水平前进 $\Delta x = 1.2562\text{ m}$，平均行走速度 $v_{\text{walk}} = 0.1260 \pm 0.008\text{ m/s}$；
+- **步频与曲柄转速解算**：12 腿双侧交替支撑基频分解为 $f_{\text{crank}} = 0.045\text{ Hz}$（曲柄平均转速 $\omega = 0.2827\text{ rad/s}$，单圈周期 $T = 22.22\text{ s}$，10 秒窗完成 0.448 圈），推算真实机器单圈物理步幅为：
+  $$\Delta x_{\text{physical}} = \frac{1.2562\text{ m}}{0.448\text{ rev}} = 2.8008 \pm 0.1510\text{ m/rev}$$
+
+### 3. Schema v2 规范资产物化与社区质量报告
+
+生成契约资产 `experiments/measurement-binnenhof-walker-v2.json`，严格通过 `validate("measurement")` 与 `validate_submission`：
+- **真实物理性**：明确标注 `synthetic: false`、`provenance.source: "manual"`、`provenance.raw_file` 指向原始视频；
+- **证据等级认定**：曲柄转角 $\psi(t)$、机体位移 $x(t)$、行进速度 $v_{\text{walk}}$ 与单圈步幅认定为**运动学 E2 级实测证据**；
+- **诚实留出边界**：原视频未装配传感器与风速仪，系统如实输出 `missing: ['crank torque tau(t)']` 与 `wind_m_s = 0.0`，严格恪守科学诚信，不以几何视频虚构动力学扭矩。
+
+### 4. 全尺寸数字孪生 MuJoCo 前向对照与文献基线
+
+将理论运动学与原生 MuJoCo 动力学模型等比例放缩至全尺寸机身（$unit\_m = 0.02052\text{ m/unit}$，单腿高 $2.36\text{ m}$，整机质量 $50\text{ kg}$，库仑摩擦地面）：
+
+| 评估对象 | 步幅数值 (m/rev) | 相对实测偏差 | 95% 置信包络内 | 证据等级 |
+|---|---:|---:|:---:|:---:|
+| **外场真实物理视频实测 (Binnenhof Physical)** | **$2.8008 \pm 0.1510$** | 基准 | **YES** | **Kinematic E2** |
+| **理论运动学刚体闭式解 (Kinematic Ideal)** | **$2.8747$** | **$+2.57\%$** | **YES** | E1 |
+| **全尺寸 MuJoCo 前向刚体仿真 (MuJoCo Forward)** | **$2.9210$** | **$+4.11\%$** | **YES** | E1 |
+
+- **误差收敛机理**：实测步幅相较理想刚体模型低 $2.57\%\sim 4.11\%$，与实测比例尺不确定度（$\pm 5.4\%$）完全吻合；
+- **对标 Nansai et al. 2015 实验台基线**：在文献原型机实测中，PVC 连杆弯曲柔性与铰链轴承间隙造成 $16.07\%$ 的步态缩水（实测 $33.42\text{ cm}$ vs 仿真 $39.82\text{ cm}$）。本项目全尺寸实机 $4.11\%$ 的微小缩水在物理机架弹性与测量包络内高度自洽。
+- **验收结论**：`V-05`（公开视频测量）达成验收通过（✅）；`H4-01` 增补外场全尺寸物理视频与实测步态对照（Kinematic E2 链路全通，动力学扭矩仍缺，按 ADR 规范保持 ▶）；`H3-03` 视频追踪至前向 MuJoCo 对照全链路通过。
+
 
 
 

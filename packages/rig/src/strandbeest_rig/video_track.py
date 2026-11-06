@@ -258,6 +258,21 @@ class MultiKeypointTrackResult:
         spl_y = CubicSpline(th_ext, fy_ext)
         return spl_x(query), spl_y(query)
 
+    def to_track_result(self, keypoint: str | None = None) -> TrackResult:
+        """Extract a single-keypoint forward position TrackResult for backward compatibility."""
+        key = keypoint if keypoint is not None else ("hip" if "hip" in self.trajectories else next(iter(self.trajectories)))
+        if key not in self.trajectories:
+            raise KeyError(f"keypoint '{key}' not in trajectories")
+        return TrackResult(
+            t=self.t,
+            x=self.trajectories[key][:, 0],
+            fps=self.fps,
+            frames=self.frames,
+            detected_fraction=self.detected_fractions.get(key, 1.0),
+            metres_per_pixel=self.metres_per_pixel,
+            warnings=list(self.warnings),
+        )
+
 
 def _subpixel_interp(full_idx: np.ndarray, known_idx: np.ndarray, vals: np.ndarray) -> np.ndarray:
     """Interpolate time series with sub-pixel cubic spline or PCHIP where possible."""
@@ -269,6 +284,181 @@ def _subpixel_interp(full_idx: np.ndarray, known_idx: np.ndarray, vals: np.ndarr
         except Exception:
             return np.interp(full_idx, known_idx, vals)
     return np.interp(full_idx, known_idx, vals)
+
+
+def _load_video_frames(
+    video_source: str | Path | Sequence[np.ndarray],
+    fps: float | None,
+) -> tuple[list[np.ndarray], float, str]:
+    """Load video frames and extract or validate video framerate."""
+    import cv2
+
+    if fps is not None and (
+        not isinstance(fps, (int, float)) or isinstance(fps, bool) or not np.isfinite(fps) or fps <= 0
+    ):
+        raise ValueError("fps must be finite and positive")
+    video_fps = float(fps) if fps is not None else None
+    frame_rate_source = "caller" if fps is not None else "video_container"
+
+    frames_list: list[np.ndarray] = []
+    if isinstance(video_source, (list, tuple)):
+        frames_list = list(video_source)
+        if not frames_list:
+            raise ValueError("video sequence has no frames")
+        if video_fps is None:
+            raise ValueError("fps is required for a frame sequence; video timing must not be guessed")
+    else:
+        cap = cv2.VideoCapture(str(video_source))
+        if not cap.isOpened():
+            raise FileNotFoundError(f"cannot open video {video_source}")
+        video_fps = float(fps) if fps is not None else float(cap.get(cv2.CAP_PROP_FPS))
+        if not np.isfinite(video_fps) or video_fps <= 0:
+            cap.release()
+            raise ValueError("video has no valid frame rate; supply a measured fps")
+        while True:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            frames_list.append(frame)
+        cap.release()
+        if not frames_list:
+            raise ValueError("video has no frames")
+
+    return frames_list, video_fps, frame_rate_source
+
+
+def _compute_trajectories_and_kinematics(
+    clean_coords: dict[str, np.ndarray],
+    metres_per_pixel: float,
+    t: np.ndarray,
+    n_frames: int,
+    forward_is_left: bool,
+) -> tuple[dict[str, np.ndarray], np.ndarray, np.ndarray, np.ndarray]:
+    """Compute physical trajectories, crank angular velocity omega(t), and foot path from pixel coordinates."""
+    if "hip" in clean_coords:
+        origin_u, origin_v = clean_coords["hip"][0]
+    elif "crank_pivot" in clean_coords:
+        origin_u, origin_v = clean_coords["crank_pivot"][0]
+    else:
+        first_key = next(iter(clean_coords))
+        origin_u, origin_v = clean_coords[first_key][0]
+
+    sign_x = -1.0 if forward_is_left else 1.0
+    trajectories: dict[str, np.ndarray] = {}
+    for name, uv in clean_coords.items():
+        x_m = (uv[:, 0] - origin_u) * metres_per_pixel * sign_x
+        y_m = -(uv[:, 1] - origin_v) * metres_per_pixel
+        trajectories[name] = np.column_stack([x_m, y_m])
+
+    crank_key = "crank" if "crank" in trajectories else ("crank_pin" if "crank_pin" in trajectories else None)
+    pivot_key = "crank_pivot" if "crank_pivot" in trajectories else None
+
+    if crank_key and pivot_key:
+        rx = trajectories[crank_key][:, 0] - trajectories[pivot_key][:, 0]
+        ry = trajectories[crank_key][:, 1] - trajectories[pivot_key][:, 1]
+    elif crank_key and "hip" in trajectories:
+        r_rel = trajectories[crank_key] - trajectories["hip"]
+        A = np.column_stack([2 * r_rel[:, 0], 2 * r_rel[:, 1], np.ones(len(r_rel))])
+        b = r_rel[:, 0] ** 2 + r_rel[:, 1] ** 2
+        sol, *_ = np.linalg.lstsq(A, b, rcond=None)
+        rx = r_rel[:, 0] - sol[0]
+        ry = r_rel[:, 1] - sol[1]
+    elif crank_key:
+        crank_pts = trajectories[crank_key]
+        A = np.column_stack([2 * crank_pts[:, 0], 2 * crank_pts[:, 1], np.ones(len(crank_pts))])
+        b = crank_pts[:, 0] ** 2 + crank_pts[:, 1] ** 2
+        sol, *_ = np.linalg.lstsq(A, b, rcond=None)
+        rx = crank_pts[:, 0] - sol[0]
+        ry = crank_pts[:, 1] - sol[1]
+    else:
+        rx = np.zeros(n_frames)
+        ry = np.zeros(n_frames)
+
+    if crank_key and len(t) >= 4:
+        theta_raw = np.arctan2(ry, rx)
+        crank_angle = np.unwrap(theta_raw)
+        spl_theta = CubicSpline(t, crank_angle)
+        omega = spl_theta.derivative()(t)
+    elif crank_key and len(t) >= 2:
+        theta_raw = np.arctan2(ry, rx)
+        crank_angle = np.unwrap(theta_raw)
+        omega = np.gradient(crank_angle, t)
+    else:
+        crank_angle = np.zeros(n_frames)
+        omega = np.zeros(n_frames)
+
+    if "foot" in trajectories and "hip" in trajectories:
+        foot_path = trajectories["foot"] - trajectories["hip"]
+    elif "foot" in trajectories:
+        foot_path = trajectories["foot"] - trajectories["foot"][0:1]
+    else:
+        foot_path = np.zeros((n_frames, 2))
+
+    return trajectories, omega, foot_path, crank_angle
+
+
+def _subpixel_peak_fit(res: np.ndarray, max_loc: tuple[int, int]) -> tuple[float, float]:
+    """Fit a local parabolic peak around the integer maximum in normalized correlation score map."""
+    px, py = max_loc
+    h, w = res.shape[:2]
+    dx = 0.0
+    dy = 0.0
+
+    if 0 < px < w - 1:
+        denom_x = float(res[py, px - 1] - 2.0 * res[py, px] + res[py, px + 1])
+        if abs(denom_x) > 1e-6:
+            shift_x = (float(res[py, px - 1]) - float(res[py, px + 1])) / (2.0 * denom_x)
+            if -1.0 <= shift_x <= 1.0:
+                dx = shift_x
+
+    if 0 < py < h - 1:
+        denom_y = float(res[py - 1, px] - 2.0 * res[py, px] + res[py + 1, px])
+        if abs(denom_y) > 1e-6:
+            shift_y = (float(res[py - 1, px]) - float(res[py + 1, px])) / (2.0 * denom_y)
+            if -1.0 <= shift_y <= 1.0:
+                dy = shift_y
+
+    return float(px + dx), float(py + dy)
+
+
+def _resolve_scale(
+    scale_m_per_pixel: float | None,
+    reference_distance_m: float | None,
+    reference_points: tuple[str, str] | Sequence[str] | None,
+    initial_points: dict[str, tuple[float, float]],
+) -> float:
+    """Resolve scale in metres per pixel from explicit scale or reference distance calibration."""
+    if scale_m_per_pixel is not None:
+        if (
+            not isinstance(scale_m_per_pixel, (int, float))
+            or isinstance(scale_m_per_pixel, bool)
+            or not np.isfinite(scale_m_per_pixel)
+            or scale_m_per_pixel <= 0
+        ):
+            raise ValueError("scale_m_per_pixel must be finite and positive")
+        return float(scale_m_per_pixel)
+
+    if reference_distance_m is not None:
+        if (
+            not isinstance(reference_distance_m, (int, float))
+            or isinstance(reference_distance_m, bool)
+            or not np.isfinite(reference_distance_m)
+            or reference_distance_m <= 0
+        ):
+            raise ValueError("reference_distance_m must be finite and positive")
+        if reference_points is None or len(reference_points) != 2:
+            raise ValueError("reference_distance_m requires reference_points pair (e.g. ('hip', 'crank'))")
+        p1, p2 = reference_points[0], reference_points[1]
+        if p1 not in initial_points or p2 not in initial_points:
+            raise ValueError(f"reference_points ('{p1}', '{p2}') must both be present in initial_points")
+        pt1 = initial_points[p1]
+        pt2 = initial_points[p2]
+        dist_px = float(np.hypot(pt1[0] - pt2[0], pt1[1] - pt2[1]))
+        if dist_px <= 0:
+            raise ValueError(f"reference_points '{p1}' and '{p2}' have zero pixel separation")
+        return float(reference_distance_m) / dist_px
+
+    raise ValueError("scale_m_per_pixel or reference distance calibration (reference_distance_m and reference_points) must be provided")
 
 
 def track_keypoints(
@@ -303,37 +493,9 @@ def track_keypoints(
     """
     import cv2
 
-    frames_list: list[np.ndarray] = []
-    if fps is not None and (not np.isfinite(fps) or fps <= 0):
-        raise ValueError("fps must be finite and positive")
     if not np.isfinite(marker_mm) or marker_mm <= 0:
         raise ValueError("marker_mm must be finite and positive")
-    video_fps = fps
-    frame_rate_source = "caller" if fps is not None else "video_container"
-
-    if isinstance(video_source, (list, tuple)):
-        frames_list = list(video_source)
-        if not frames_list:
-            raise ValueError("video sequence has no frames")
-        if video_fps is None:
-            raise ValueError("fps is required for a frame sequence; video timing must not be guessed")
-    else:
-        cap = cv2.VideoCapture(str(video_source))
-        if not cap.isOpened():
-            raise FileNotFoundError(f"cannot open video {video_source}")
-        video_fps = fps if fps is not None else cap.get(cv2.CAP_PROP_FPS)
-        if not np.isfinite(video_fps) or video_fps <= 0:
-            cap.release()
-            raise ValueError("video has no valid frame rate; supply a measured fps")
-        while True:
-            ok, frame = cap.read()
-            if not ok:
-                break
-            frames_list.append(frame)
-        cap.release()
-        if not frames_list:
-            raise ValueError("video has no frames")
-
+    frames_list, video_fps, frame_rate_source = _load_video_frames(video_source, fps)
     n_frames = len(frames_list)
     det_params = cv2.aruco.DetectorParameters()
     if subpixel:
@@ -403,66 +565,13 @@ def track_keypoints(
         v_interp = _subpixel_interp(frames_idx, frames_idx[found], v[found])
         clean_coords[name] = np.column_stack([u_interp, v_interp])
 
-    # Establish spatial origin: hip initial position if available, else crank_pivot, else first keypoint
-    if "hip" in clean_coords:
-        origin_u, origin_v = clean_coords["hip"][0]
-    elif "crank_pivot" in clean_coords:
-        origin_u, origin_v = clean_coords["crank_pivot"][0]
-    else:
-        first_key = next(iter(clean_coords))
-        origin_u, origin_v = clean_coords[first_key][0]
-
-    sign_x = -1.0 if forward_is_left else 1.0
-    trajectories: dict[str, np.ndarray] = {}
-    for name, uv in clean_coords.items():
-        x_m = (uv[:, 0] - origin_u) * metres_per_pixel * sign_x
-        y_m = -(uv[:, 1] - origin_v) * metres_per_pixel  # image v downwards -> world y upwards
-        trajectories[name] = np.column_stack([x_m, y_m])
-
-    # Determine crank rotation, angle theta(t), and instantaneous crank angular velocity omega(t)
-    crank_key = "crank" if "crank" in trajectories else ("crank_pin" if "crank_pin" in trajectories else None)
-    pivot_key = "crank_pivot" if "crank_pivot" in trajectories else None
-
-    if crank_key and pivot_key:
-        rx = trajectories[crank_key][:, 0] - trajectories[pivot_key][:, 0]
-        ry = trajectories[crank_key][:, 1] - trajectories[pivot_key][:, 1]
-    elif crank_key and "hip" in trajectories:
-        # Fit circle to relative trajectory of crank around hip
-        r_rel = trajectories[crank_key] - trajectories["hip"]
-        A = np.column_stack([2 * r_rel[:, 0], 2 * r_rel[:, 1], np.ones(len(r_rel))])
-        b = r_rel[:, 0] ** 2 + r_rel[:, 1] ** 2
-        sol, *_ = np.linalg.lstsq(A, b, rcond=None)
-        rx = r_rel[:, 0] - sol[0]
-        ry = r_rel[:, 1] - sol[1]
-    elif crank_key:
-        # Fit circle to crank trajectory
-        crank_pts = trajectories[crank_key]
-        A = np.column_stack([2 * crank_pts[:, 0], 2 * crank_pts[:, 1], np.ones(len(crank_pts))])
-        b = crank_pts[:, 0] ** 2 + crank_pts[:, 1] ** 2
-        sol, *_ = np.linalg.lstsq(A, b, rcond=None)
-        rx = crank_pts[:, 0] - sol[0]
-        ry = crank_pts[:, 1] - sol[1]
-    else:
-        rx = np.zeros(n_frames)
-        ry = np.zeros(n_frames)
-
-    if crank_key:
-        theta_raw = np.arctan2(ry, rx)
-        crank_angle = np.unwrap(theta_raw)
-        # Smooth sub-pixel derivative for instantaneous crank angular velocity omega(t)
-        spl_theta = CubicSpline(t, crank_angle)
-        omega = spl_theta.derivative()(t)
-    else:
-        crank_angle = np.zeros(n_frames)
-        omega = np.zeros(n_frames)
-
-    # Foot path curve relative to hip
-    if "foot" in trajectories and "hip" in trajectories:
-        foot_path = trajectories["foot"] - trajectories["hip"]
-    elif "foot" in trajectories:
-        foot_path = trajectories["foot"] - trajectories["foot"][0:1]
-    else:
-        foot_path = np.zeros((n_frames, 2))
+    trajectories, omega, foot_path, crank_angle = _compute_trajectories_and_kinematics(
+        clean_coords=clean_coords,
+        metres_per_pixel=metres_per_pixel,
+        t=t,
+        n_frames=n_frames,
+        forward_is_left=forward_is_left,
+    )
 
     warnings: list[str] = []
     for name, frac in detected_fractions.items():
@@ -549,3 +658,348 @@ def track_marker(
     if fps < 25:
         warnings.append(f"video is {fps:.0f} fps; position resolution in time is coarse")
     return TrackResult(frames_idx / fps, x, fps, n, frac, mpp, warnings)
+
+
+def track_point_optical_flow(
+    video_source: str | Path | Sequence[np.ndarray],
+    initial_points: dict[str, tuple[float, float] | Sequence[float] | np.ndarray],
+    scale_m_per_pixel: float | None = None,
+    *,
+    fps: float | None = None,
+    forward_is_left: bool = False,
+    intrinsics: CameraIntrinsics | None = None,
+    subpixel: bool = True,
+    fb_threshold: float = 1.0,
+    template_fallback: bool = True,
+    template_size: int = 21,
+    search_window: int = 41,
+    min_correlation: float = 0.5,
+    tracking_method: str = "optical_flow",
+    reference_points: tuple[str, str] | Sequence[str] | None = None,
+    reference_distance_m: float | None = None,
+    synthetic: bool | None = None,
+    raw_source: str | None = None,
+) -> MultiKeypointTrackResult:
+    """Track natural/markerless features using Lucas-Kanade optical flow and template matching.
+
+    Supports subpixel refinement, bidirectional forward-backward consistency filtering to detect
+    occlusion or tracking drift, and fallback to normalized cross-correlation template matching
+    with sub-pixel parabolic peak fitting.
+
+    Args:
+        video_source: Path to video file, or sequence of image frames (BGR / Grayscale).
+        initial_points: Mapping of keypoint names to initial (u, v) pixel coordinates in frame 0.
+        scale_m_per_pixel: Physical calibration in metres per pixel (positive float).
+        fps: Video framerate (required if passing a frame sequence).
+        forward_is_left: True if forward walking direction corresponds to negative image u-axis.
+        intrinsics: Optional CameraIntrinsics for lens undistortion and camera calibration.
+        subpixel: True to refine initial positions and tracks with sub-pixel interpolation.
+        fb_threshold: Maximum bidirectional forward-backward error in pixels to accept an LK track.
+        template_fallback: True to fall back to template matching when optical flow is lost or occluded.
+        template_size: Patch width/height in pixels for template matching and initial feature extraction.
+        search_window: Search window width/height in pixels for template matching fallback.
+        min_correlation: Minimum normalized cross-correlation score (0 to 1) required to accept template match.
+        tracking_method: "optical_flow" for LK flow with template fallback, or "template" for pure template matching.
+        reference_points: Optional pair of keypoint names for scale calibration if scale_m_per_pixel is omitted.
+        reference_distance_m: Known physical distance in metres between reference_points.
+        synthetic: True for simulator rendered footage, False for physical test rig footage.
+        raw_source: Source video identifier/path for provenance.
+    """
+    import cv2
+
+    if tracking_method not in ("optical_flow", "template"):
+        raise ValueError(f"unknown tracking_method '{tracking_method}', expected 'optical_flow' or 'template'")
+    if fb_threshold <= 0 or not np.isfinite(fb_threshold):
+        raise ValueError("fb_threshold must be finite and positive")
+    if template_size < 3:
+        raise ValueError("template_size must be >= 3")
+    if search_window < template_size:
+        raise ValueError("search_window must be >= template_size")
+    if not (0.0 < min_correlation <= 1.0):
+        raise ValueError("min_correlation must be in (0, 1]")
+
+    frames_list, video_fps, frame_rate_source = _load_video_frames(video_source, fps)
+    n_frames = len(frames_list)
+
+    if not isinstance(initial_points, dict) or not initial_points:
+        raise ValueError("initial_points must be a non-empty dictionary mapping keypoint names to (u, v) coordinates")
+
+    sample_frame = frames_list[0]
+    h, w = sample_frame.shape[:2]
+
+    validated_initial: dict[str, tuple[float, float]] = {}
+    for name, pt in initial_points.items():
+        if not isinstance(name, str) or not name:
+            raise ValueError("keypoint names must be non-empty strings")
+        if not hasattr(pt, "__len__") or len(pt) != 2:
+            raise ValueError(f"initial point for '{name}' must have 2 coordinates (u, v)")
+        u, v = pt[0], pt[1]
+        if (
+            not isinstance(u, (int, float, np.number))
+            or isinstance(u, bool)
+            or not np.isfinite(u)
+            or not isinstance(v, (int, float, np.number))
+            or isinstance(v, bool)
+            or not np.isfinite(v)
+        ):
+            raise ValueError(f"coordinates for '{name}' must be finite numbers")
+        u_f, v_f = float(u), float(v)
+        if not (0 <= u_f < w and 0 <= v_f < h):
+            raise ValueError(f"initial point for '{name}' ({u_f}, {v_f}) is out of frame bounds ({w}x{h})")
+        validated_initial[name] = (u_f, v_f)
+
+    metres_per_pixel = _resolve_scale(
+        scale_m_per_pixel, reference_distance_m, reference_points, validated_initial
+    )
+
+    gray_frames = [
+        cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) if f.ndim == 3 else f
+        for f in frames_list
+    ]
+
+    refined_initial: dict[str, tuple[float, float]] = {}
+    templates: dict[str, dict[str, Any]] = {}
+    subpix_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.03)
+
+    r = max(2, template_size // 2)
+
+    for name, (u0, v0) in validated_initial.items():
+        u_ref, v_ref = u0, v0
+        if subpixel:
+            pt_arr = np.array([[[u0, v0]]], dtype=np.float32)
+            try:
+                pts_refined = cv2.cornerSubPix(gray_frames[0], pt_arr, (5, 5), (-1, -1), subpix_criteria)
+                rf_u = float(pts_refined[0, 0, 0])
+                rf_v = float(pts_refined[0, 0, 1])
+                if np.hypot(rf_u - u0, rf_v - v0) <= 5.0 and 0 <= rf_u < w and 0 <= rf_v < h:
+                    u_ref, v_ref = rf_u, rf_v
+            except Exception:
+                pass
+        refined_initial[name] = (u_ref, v_ref)
+
+        cu, cv_ = int(round(u_ref)), int(round(v_ref))
+        x0 = max(0, cu - r)
+        x1 = min(w, cu + r + 1)
+        y0 = max(0, cv_ - r)
+        y1 = min(h, cv_ + r + 1)
+        patch = gray_frames[0][y0:y1, x0:x1].copy()
+        templates[name] = {
+            "patch": patch,
+            "offset_u": u_ref - x0,
+            "offset_v": v_ref - y0,
+            "valid": patch.shape[0] >= 3 and patch.shape[1] >= 3,
+        }
+
+    raw_coords: dict[str, list[tuple[float, float]]] = {name: [] for name in validated_initial}
+    for name in validated_initial:
+        raw_coords[name].append(refined_initial[name])
+
+    lk_win = (template_size, template_size) if template_size % 2 == 1 else (21, 21)
+    lk_criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01)
+    search_radius = max(5, search_window // 2)
+
+    for i in range(1, n_frames):
+        prev_gray = gray_frames[i - 1]
+        curr_gray = gray_frames[i]
+
+        for name in validated_initial:
+            prev_pt = raw_coords[name][-1]
+            has_prev = not np.isnan(prev_pt[0])
+
+            last_known: tuple[float, float] | None = None
+            for past_pt in reversed(raw_coords[name]):
+                if not np.isnan(past_pt[0]):
+                    last_known = past_pt
+                    break
+
+            curr_pt: tuple[float, float] | None = None
+
+            if tracking_method == "optical_flow" and has_prev:
+                p0 = np.array([[[prev_pt[0], prev_pt[1]]]], dtype=np.float32)
+                p1, st_fwd, _ = cv2.calcOpticalFlowPyrLK(
+                    prev_gray,
+                    curr_gray,
+                    p0,
+                    None,
+                    winSize=lk_win,
+                    maxLevel=3,
+                    criteria=lk_criteria,
+                    flags=0,
+                    minEigThreshold=1e-4,
+                )
+                if st_fwd is not None and st_fwd[0, 0] == 1:
+                    u1, v1 = float(p1[0, 0, 0]), float(p1[0, 0, 1])
+                    if 0 <= u1 < w and 0 <= v1 < h:
+                        p0_back, st_bwd, _ = cv2.calcOpticalFlowPyrLK(
+                            curr_gray,
+                            prev_gray,
+                            p1,
+                            None,
+                            winSize=lk_win,
+                            maxLevel=3,
+                            criteria=lk_criteria,
+                            flags=0,
+                            minEigThreshold=1e-4,
+                        )
+                        if st_bwd is not None and st_bwd[0, 0] == 1:
+                            fb_err = float(
+                                np.hypot(p0[0, 0, 0] - p0_back[0, 0, 0], p0[0, 0, 1] - p0_back[0, 0, 1])
+                            )
+                            if fb_err <= fb_threshold:
+                                if subpixel:
+                                    try:
+                                        pts_cand = np.array([[[u1, v1]]], dtype=np.float32)
+                                        ref = cv2.cornerSubPix(curr_gray, pts_cand, (3, 3), (-1, -1), subpix_criteria)
+                                        ru, rv = float(ref[0, 0, 0]), float(ref[0, 0, 1])
+                                        if np.hypot(ru - u1, rv - v1) <= 2.0 and 0 <= ru < w and 0 <= rv < h:
+                                            u1, v1 = ru, rv
+                                    except Exception:
+                                        pass
+                                curr_pt = (u1, v1)
+
+            should_try_template = (
+                curr_pt is None
+                and (tracking_method == "template" or template_fallback)
+                and templates[name]["valid"]
+                and last_known is not None
+            )
+
+            if should_try_template:
+                t_info = templates[name]
+                patch = t_info["patch"]
+                th, tw = patch.shape[:2]
+                lu, lv = last_known
+                rx0 = max(0, int(round(lu)) - search_radius - r)
+                rx1 = min(w, int(round(lu)) + search_radius + r + 1)
+                ry0 = max(0, int(round(lv)) - search_radius - r)
+                ry1 = min(h, int(round(lv)) + search_radius + r + 1)
+                roi = curr_gray[ry0:ry1, rx0:rx1]
+
+                if roi.shape[0] >= th and roi.shape[1] >= tw:
+                    res = cv2.matchTemplate(roi, patch, cv2.TM_CCOEFF_NORMED)
+                    _, max_val, _, max_loc = cv2.minMaxLoc(res)
+                    if max_val >= min_correlation:
+                        sub_px, sub_py = _subpixel_peak_fit(res, max_loc)
+                        cand_u = rx0 + sub_px + t_info["offset_u"]
+                        cand_v = ry0 + sub_py + t_info["offset_v"]
+                        if 0 <= cand_u < w and 0 <= cand_v < h:
+                            curr_pt = (cand_u, cand_v)
+
+            if curr_pt is not None:
+                raw_coords[name].append(curr_pt)
+            else:
+                raw_coords[name].append((float("nan"), float("nan")))
+
+    frames_idx = np.arange(n_frames)
+    t = frames_idx / video_fps
+    detected_fractions: dict[str, float] = {}
+    clean_coords: dict[str, np.ndarray] = {}
+
+    for name, pts_list in raw_coords.items():
+        arr = np.array(pts_list, dtype=np.float64)
+        u, v = arr[:, 0], arr[:, 1]
+        found = ~np.isnan(u)
+        frac = float(found.mean())
+        detected_fractions[name] = frac
+        if found.sum() < 3:
+            raise ValueError(
+                f"keypoint '{name}' tracked in only {int(found.sum())} of {n_frames} frames"
+            )
+        u_interp = _subpixel_interp(frames_idx, frames_idx[found], u[found])
+        v_interp = _subpixel_interp(frames_idx, frames_idx[found], v[found])
+        uv_clean = np.column_stack([u_interp, v_interp])
+        if intrinsics is not None:
+            uv_clean = intrinsics.undistort_points(uv_clean)
+        clean_coords[name] = uv_clean
+
+    trajectories, omega, foot_path, crank_angle = _compute_trajectories_and_kinematics(
+        clean_coords=clean_coords,
+        metres_per_pixel=metres_per_pixel,
+        t=t,
+        n_frames=n_frames,
+        forward_is_left=forward_is_left,
+    )
+
+    warnings: list[str] = []
+    for name, frac in detected_fractions.items():
+        if frac < 0.9:
+            warnings.append(f"keypoint '{name}' tracked in only {frac * 100:.0f} % of frames; gaps interpolated")
+    if video_fps < 25:
+        warnings.append(f"video is {video_fps:.0f} fps; temporal resolution is coarse")
+
+    tracking_metadata = {
+        "method": "lucas_kanade_optical_flow" if tracking_method == "optical_flow" else "template_matching",
+        "initial_points": {k: [float(c) for c in pt] for k, pt in validated_initial.items()},
+        "scale_m_per_pixel": metres_per_pixel,
+        "forward_is_left": forward_is_left,
+        "subpixel": subpixel,
+        "fb_threshold": fb_threshold,
+        "template_fallback": template_fallback,
+        "tracking_method": tracking_method,
+        "frame_rate_source": frame_rate_source,
+        "first_frame_index": 0,
+    }
+
+    return MultiKeypointTrackResult(
+        t=t,
+        trajectories=trajectories,
+        omega=omega,
+        foot_path=foot_path,
+        crank_angle=crank_angle,
+        fps=video_fps,
+        frames=n_frames,
+        detected_fractions=detected_fractions,
+        metres_per_pixel=metres_per_pixel,
+        warnings=warnings,
+        synthetic=synthetic,
+        raw_source=raw_source or (str(video_source) if isinstance(video_source, (str, Path)) else None),
+        camera_calibration={
+            "camera_matrix": intrinsics.camera_matrix.tolist(),
+            "dist_coeffs": intrinsics.dist_coeffs.tolist(),
+            "image_size": list(intrinsics.image_size),
+            "reprojection_error_px": intrinsics.reprojection_error,
+        } if intrinsics is not None else None,
+        tracking_metadata=tracking_metadata,
+    )
+
+
+def track_natural_feature(
+    video_source: str | Path | Sequence[np.ndarray],
+    initial_points: dict[str, tuple[float, float] | Sequence[float] | np.ndarray],
+    scale_m_per_pixel: float | None = None,
+    *,
+    fps: float | None = None,
+    forward_is_left: bool = False,
+    intrinsics: CameraIntrinsics | None = None,
+    subpixel: bool = True,
+    fb_threshold: float = 1.0,
+    template_fallback: bool = True,
+    template_size: int = 21,
+    search_window: int = 41,
+    min_correlation: float = 0.5,
+    tracking_method: str = "optical_flow",
+    reference_points: tuple[str, str] | Sequence[str] | None = None,
+    reference_distance_m: float | None = None,
+    synthetic: bool | None = None,
+    raw_source: str | None = None,
+) -> MultiKeypointTrackResult:
+    """Track natural/markerless features using optical flow with forward-backward consistency and template fallback."""
+    return track_point_optical_flow(
+        video_source=video_source,
+        initial_points=initial_points,
+        scale_m_per_pixel=scale_m_per_pixel,
+        fps=fps,
+        forward_is_left=forward_is_left,
+        intrinsics=intrinsics,
+        subpixel=subpixel,
+        fb_threshold=fb_threshold,
+        template_fallback=template_fallback,
+        template_size=template_size,
+        search_window=search_window,
+        min_correlation=min_correlation,
+        tracking_method=tracking_method,
+        reference_points=reference_points,
+        reference_distance_m=reference_distance_m,
+        synthetic=synthetic,
+        raw_source=raw_source,
+    )

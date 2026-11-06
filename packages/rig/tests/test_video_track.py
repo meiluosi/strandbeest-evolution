@@ -10,8 +10,11 @@ from strandbeest_common.schemas import validate
 from strandbeest_rig.video_track import (
     CameraIntrinsics,
     MultiKeypointTrackResult,
+    TrackResult,
     calibrate_camera,
     track_keypoints,
+    track_natural_feature,
+    track_point_optical_flow,
 )
 
 
@@ -256,4 +259,239 @@ def test_synthetic_video_is_explicit_and_cannot_be_labelled_as_rig_measurement()
 def test_frame_sequence_without_timing_is_rejected_instead_of_assuming_30_fps():
     with pytest.raises(ValueError, match="fps is required"):
         track_keypoints([np.zeros((20, 20), dtype=np.uint8)], {"hip": 7}, 20.0)
+
+
+def make_feature_frame(
+    w: int = 400,
+    h: int = 300,
+    features: dict[str, tuple[float, float]] | None = None,
+) -> np.ndarray:
+    """Generate a synthetic test frame with high-contrast distinct features."""
+    frame = np.full((h, w), 230, dtype=np.uint8)
+    if features:
+        for name, (cx, cy) in features.items():
+            icx, icy = int(round(cx)), int(round(cy))
+            cv2.circle(frame, (icx, icy), 7, 20, -1)
+            cv2.circle(frame, (icx, icy), 12, 120, 2)
+            cv2.line(frame, (icx - 10, icy), (icx + 10, icy), 0, 1)
+            cv2.line(frame, (icx, icy - 10), (icx, icy + 10), 0, 1)
+    return cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+
+
+def test_track_point_optical_flow_synthetic_moving_feature():
+    fps = 30.0
+    n_frames = 20
+    w, h = 500, 300
+    scale_mpp = 0.001
+
+    true_xs = [100.0 + i * 5.0 for i in range(n_frames)]
+    true_ys = [140.0 for _ in range(n_frames)]
+
+    frames = [
+        make_feature_frame(w, h, {"hip": (true_xs[i], true_ys[i])})
+        for i in range(n_frames)
+    ]
+
+    res = track_point_optical_flow(
+        frames,
+        initial_points={"hip": (100.0, 140.0)},
+        scale_m_per_pixel=scale_mpp,
+        fps=fps,
+        subpixel=True,
+    )
+
+    assert isinstance(res, MultiKeypointTrackResult)
+    assert res.frames == n_frames
+    assert res.detected_fractions["hip"] == 1.0
+    assert len(res.warnings) == 0
+
+    tracked_x_m = res.trajectories["hip"][:, 0]
+    expected_x_m = np.array([(x - 100.0) * scale_mpp for x in true_xs])
+    assert np.allclose(tracked_x_m, expected_x_m, atol=0.0005)
+
+    single_res = res.to_track_result("hip")
+    assert isinstance(single_res, TrackResult)
+    assert len(single_res.x) == n_frames
+    assert single_res.detected_fraction == 1.0
+
+
+def test_track_natural_feature_template_fallback_and_alias():
+    fps = 30.0
+    n_frames = 15
+    w, h = 400, 300
+    scale_mpp = 0.002
+
+    true_xs = [80.0 + i * 3.5 for i in range(n_frames)]
+    true_ys = [120.0 + i * 1.5 for i in range(n_frames)]
+
+    frames = [
+        make_feature_frame(w, h, {"crank": (true_xs[i], true_ys[i])})
+        for i in range(n_frames)
+    ]
+
+    res_template = track_natural_feature(
+        frames,
+        initial_points={"crank": (80.0, 120.0)},
+        scale_m_per_pixel=scale_mpp,
+        fps=fps,
+        tracking_method="template",
+    )
+
+    assert res_template.detected_fractions["crank"] == 1.0
+    tracked_x_m = res_template.trajectories["crank"][:, 0]
+    expected_x_m = np.array([(x - 80.0) * scale_mpp for x in true_xs])
+    assert np.allclose(tracked_x_m, expected_x_m, atol=0.001)
+
+
+def test_optical_flow_forward_backward_consistency_and_occlusion():
+    fps = 30.0
+    n_frames = 20
+    w, h = 400, 300
+    scale_mpp = 0.001
+
+    true_xs = [100.0 + i * 4.0 for i in range(n_frames)]
+    true_ys = [150.0 for _ in range(n_frames)]
+
+    frames = []
+    for i in range(n_frames):
+        if i in (8, 9, 10):
+            frame = make_feature_frame(w, h, None)
+        else:
+            frame = make_feature_frame(w, h, {"joint": (true_xs[i], true_ys[i])})
+        frames.append(frame)
+
+    res = track_point_optical_flow(
+        frames,
+        initial_points={"joint": (100.0, 150.0)},
+        scale_m_per_pixel=scale_mpp,
+        fps=fps,
+        fb_threshold=1.0,
+        template_fallback=True,
+    )
+
+    assert res.detected_fractions["joint"] == pytest.approx(17 / 20)
+    assert any("gaps interpolated" in w for w in res.warnings)
+    assert not np.isnan(res.trajectories["joint"]).any()
+    traj_x = res.trajectories["joint"][:, 0]
+    assert np.all(np.diff(traj_x) > 0)
+
+
+def test_natural_feature_input_validation():
+    sample_frame = make_feature_frame(200, 200, {"hip": (50, 50)})
+
+    with pytest.raises(ValueError, match="scale_m_per_pixel must be finite and positive"):
+        track_point_optical_flow([sample_frame], {"hip": (50, 50)}, scale_m_per_pixel=-0.01, fps=30.0)
+
+    with pytest.raises(ValueError, match="scale_m_per_pixel must be finite and positive"):
+        track_point_optical_flow([sample_frame], {"hip": (50, 50)}, scale_m_per_pixel=0.0, fps=30.0)
+
+    with pytest.raises(ValueError, match="scale_m_per_pixel or reference distance calibration"):
+        track_point_optical_flow([sample_frame], {"hip": (50, 50)}, scale_m_per_pixel=None, fps=30.0)
+
+    with pytest.raises(ValueError, match="fps must be finite and positive"):
+        track_point_optical_flow([sample_frame], {"hip": (50, 50)}, scale_m_per_pixel=0.001, fps=-10.0)
+
+    with pytest.raises(ValueError, match="fps is required"):
+        track_point_optical_flow([sample_frame], {"hip": (50, 50)}, scale_m_per_pixel=0.001, fps=None)
+
+    with pytest.raises(ValueError, match="video sequence has no frames"):
+        track_point_optical_flow([], {"hip": (50, 50)}, scale_m_per_pixel=0.001, fps=30.0)
+
+    with pytest.raises(ValueError, match="initial_points must be a non-empty dictionary"):
+        track_point_optical_flow([sample_frame], {}, scale_m_per_pixel=0.001, fps=30.0)
+
+    with pytest.raises(ValueError, match="out of frame bounds"):
+        track_point_optical_flow([sample_frame], {"hip": (500, 500)}, scale_m_per_pixel=0.001, fps=30.0)
+
+    with pytest.raises(ValueError, match="unknown tracking_method"):
+        track_point_optical_flow(
+            [sample_frame], {"hip": (50, 50)}, scale_m_per_pixel=0.001, fps=30.0, tracking_method="invalid"
+        )
+
+
+def test_natural_feature_reference_distance_calibration():
+    frame1 = make_feature_frame(400, 300, {"hip": (100, 100), "crank": (300, 100)})
+    frame2 = make_feature_frame(400, 300, {"hip": (102, 100), "crank": (302, 100)})
+    frame3 = make_feature_frame(400, 300, {"hip": (104, 100), "crank": (304, 100)})
+
+    res = track_point_optical_flow(
+        [frame1, frame2, frame3],
+        initial_points={"hip": (100.0, 100.0), "crank": (300.0, 100.0)},
+        reference_points=("hip", "crank"),
+        reference_distance_m=0.1,
+        fps=30.0,
+    )
+    assert res.metres_per_pixel == pytest.approx(0.0005)
+
+
+def test_natural_feature_multi_keypoint_to_measurement_schema_v2():
+    fps = 30.0
+    duration = 1.0
+    n_frames = int(fps * duration)
+    w, h = 800, 500
+    scale_mpp = 0.001
+    omega_true = 2.0 * math.pi * 1.5
+    crank_radius_px = 40.0
+
+    frames = []
+    for i in range(n_frames):
+        t = i / fps
+        hip_x = 120.0 + 30.0 * t
+        hip_y = 100.0
+
+        crank_x = hip_x + 180.0 + crank_radius_px * math.cos(omega_true * t)
+        crank_y = 100.0 + crank_radius_px * math.sin(omega_true * t)
+
+        foot_x = hip_x + 80.0 + 30.0 * math.sin(omega_true * t)
+        foot_y = 250.0 + 20.0 * math.cos(omega_true * t)
+
+        frame = make_feature_frame(w, h, {"hip": (hip_x, hip_y), "crank": (crank_x, crank_y), "foot": (foot_x, foot_y)})
+        frames.append(frame)
+
+    res = track_point_optical_flow(
+        frames,
+        initial_points={
+            "hip": (120.0, 100.0),
+            "crank": (120.0 + 180.0 + crank_radius_px, 100.0),
+            "foot": (200.0, 270.0),
+        },
+        scale_m_per_pixel=scale_mpp,
+        fps=fps,
+        synthetic=True,
+    )
+
+    assert res.detected_fractions["hip"] > 0.95
+    assert res.detected_fractions["crank"] > 0.95
+    assert res.detected_fractions["foot"] > 0.95
+    assert float(np.mean(np.abs(res.omega))) == pytest.approx(omega_true, rel=0.15)
+
+    args = {
+        "measurement_id": new_ulid(),
+        "design_id": new_ulid(),
+        "name": "natural-feature-test",
+        "conditions": {"kind": "motor_no_wind", "surface": "synthetic_bench"},
+        "provenance": {
+            "source": "simulator",
+            "calibration": {
+                "uncertainty": {
+                    "t": 0.001,
+                    "psi": 0.02,
+                    "omega": 0.05,
+                    "foot_x": 0.001,
+                    "foot_y": 0.001,
+                    "x": 0.001,
+                }
+            },
+        },
+        "crank_direction": 1,
+    }
+
+    doc = res.to_measurement(**args)
+    validate("measurement", doc)
+    assert doc["id"] == args["measurement_id"]
+    assert doc["synthetic"] is True
+    assert doc["provenance"]["calibration"]["tracking"]["method"] == "lucas_kanade_optical_flow"
+    assert len(doc["channels"]["t"]) == n_frames
+    assert len(doc["channels"]["foot_y"]) == n_frames
+
 

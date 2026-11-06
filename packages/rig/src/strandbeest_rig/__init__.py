@@ -7,6 +7,8 @@ from .video_track import (
     calibrate_camera,
     track_keypoints,
     track_marker,
+    track_natural_feature,
+    track_point_optical_flow,
 )
 
 __all__ = [
@@ -20,4 +22,6 @@ __all__ = [
     "parse_raw",
     "track_keypoints",
     "track_marker",
+    "track_natural_feature",
+    "track_point_optical_flow",
 ]
