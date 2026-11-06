@@ -1,0 +1,274 @@
+{
+  "measurement_id": "01M6R5ZV8HXTE9B1PHWX4QPD9E",
+  "design_id": "0000000000YNGRWX0MDFYPZHXT",
+  "synthetic": true,
+  "nominal_trajectory_rms_m": 0.0006894887199445635,
+  "calibrated_trajectory_rms_m": 0.0006824792615914104,
+  "rms_reduction_ratio": 0.01016616827860032,
+  "forward_channel_nrmse": {
+    "foot_x": 0.04017021818751343,
+    "foot_y": 0.0018947199304313704,
+    "omega": 0.9484393959395665,
+    "x": 0.1644915579167211
+  },
+  "parameter_estimates": {
+    "pin_friction": 0.00040000000000000045
+  },
+  "identifiable_parameters": {
+    "pin_friction": false
+  },
+  "emulator_valid": true,
+  "total_pipeline_time_s": 1.8588856660062447,
+  "calibration_profile": {
+    "schema_version": 2,
+    "id": "01M6R5ZWVFCVYNDPVCNZ4WC15Y",
+    "name": "video-digital-twin-inversion",
+    "parameters": {
+      "pin_friction": 0.00040000000000000045
+    },
+    "provenance": {
+      "measurement_ids": [
+        "01M6R5ZV8HXTE9B1PHWX4QPD9E"
+      ],
+      "design_id": "0000000000YNGRWX0MDFYPZHXT",
+      "design_hash": "sha256:502749cbb7e589eee611e0d0b73c9807190ad477aa842f96acd8aad76a5fb933",
+      "parameter_mapping_version": "beest-physical-v2",
+      "synthetic": true,
+      "method": "MuJoCo trajectory emulator + MCMC; 10 native training runs, 3 independent emulator checks, native MAP/time-holdout validation",
+      "residual": 0.0006824792615914104
+    },
+    "uncertainty": {
+      "pin_friction": {
+        "ci95": [
+          0.0004003638235296555,
+          0.00041375292230657576
+        ],
+        "profile_ci95": [
+          0.0004000000000000001,
+          0.0004619127938757835
+        ],
+        "profile_share_of_prior": 0.0625,
+        "identifiable": false
+      }
+    },
+    "scenario": {
+      "schema_version": 2,
+      "name": "jansen-small-6leg",
+      "world": {
+        "gravity": 9.81,
+        "atmosphere": {
+          "air_density": 1.2
+        },
+        "wind": {
+          "kind": "constant",
+          "speed": 0.0,
+          "params": {}
+        },
+        "terrain": {
+          "kind": "flat",
+          "friction": 1.5,
+          "slope_deg": 0.0,
+          "params": {},
+          "water_level_m": null
+        }
+      },
+      "entities": [
+        {
+          "name": "walker",
+          "kind": "walker",
+          "components": {
+            "linkage": {
+              "spec": {
+                "params": {
+                  "a": 38,
+                  "b": 41.5,
+                  "c": 39.3,
+                  "d": 40.1,
+                  "e": 55.8,
+                  "f": 39.4,
+                  "g": 36.7,
+                  "h": 65.7,
+                  "i": 49,
+                  "j": 50,
+                  "k": 61.9,
+                  "l": 7.8,
+                  "m": 15
+                },
+                "crank": {
+                  "x": "a",
+                  "y": "l",
+                  "length": "m"
+                },
+                "joints": [
+                  {
+                    "id": "K",
+                    "centers": [
+                      "G",
+                      "C"
+                    ],
+                    "radii": [
+                      "b",
+                      "j"
+                    ],
+                    "side": 1
+                  },
+                  {
+                    "id": "L",
+                    "centers": [
+                      "G",
+                      "K"
+                    ],
+                    "radii": [
+                      "d",
+                      "e"
+                    ],
+                    "side": 1
+                  },
+                  {
+                    "id": "M",
+                    "centers": [
+                      "G",
+                      "C"
+                    ],
+                    "radii": [
+                      "c",
+                      "k"
+                    ],
+                    "side": -1
+                  },
+                  {
+                    "id": "N",
+                    "centers": [
+                      "L",
+                      "M"
+                    ],
+                    "radii": [
+                      "f",
+                      "g"
+                    ],
+                    "side": -1
+                  },
+                  {
+                    "id": "F",
+                    "centers": [
+                      "M",
+                      "N"
+                    ],
+                    "radii": [
+                      "i",
+                      "h"
+                    ],
+                    "side": 1
+                  }
+                ],
+                "foot": "F"
+              },
+              "params": {}
+            },
+            "body": {
+              "legs": 2,
+              "mass": 50.0,
+              "body_mass": 0.35,
+              "unit": 0.002,
+              "direction": -1,
+              "tube_mass_per_m": 0.02232,
+              "min_bar_mass": 0.0001,
+              "lateral_spacing": 0.014,
+              "body_length": 0.25,
+              "pitch": "locked",
+              "bar_radius": 0.005,
+              "foot_radius": 0.002,
+              "foot_friction": 1.5,
+              "joint_friction": 0.0,
+              "joint_damping": 0.0,
+              "joint_friction_coeff": 0.0,
+              "joint_pin_radius": 0.003,
+              "body_drag_area": 0.0,
+              "body_drag_coeff": 1.1
+            },
+            "drive": {
+              "kind": "motor",
+              "omega": 4.0,
+              "kp": 17.657999999999998,
+              "max_torque": 0.3,
+              "kv": 1.7658,
+              "ramp": 0.03,
+              "sail_area": 0.03,
+              "sail_radius": 0.08,
+              "sail_drag_coeff": 1.2,
+              "sail_gear": 10.0,
+              "rotor_inertia": 0.0001,
+              "crank_damping": 0.001,
+              "crank_friction": 0.002,
+              "params": {}
+            }
+          }
+        }
+      ],
+      "solver": {
+        "timestep": 0.0001,
+        "iterations": 100,
+        "tolerance": null,
+        "contact_solref": 0.02,
+        "contact_stiffness": 300000.0,
+        "contact_damping_ratio": 1.0,
+        "cone": "pyramidal",
+        "impratio": 1.0,
+        "noslip_iterations": 0,
+        "solref_time": 0.001,
+        "solimp": "0.9 0.95 0.001"
+      },
+      "run": {
+        "settle": 0.05,
+        "revolutions": 1.5,
+        "max_time": 0.25,
+        "record_every": 20,
+        "frame_rate": 30.0,
+        "give_up_after": 0.0
+      }
+    }
+  },
+  "validation_summary": {
+    "native_calls": 16,
+    "native_seconds": 1.2443477509077638,
+    "emulator_holdout_normalized_rmse": 0.0009749414616069718,
+    "native_time_holdout_normalized_rmse": 254.5286883959261
+  },
+  "task": "H3-03",
+  "date": "2026-11-06",
+  "ground_truth_pin_friction": 0.0016,
+  "camera": {
+    "camera_matrix": [
+      [
+        800.0,
+        0.0,
+        500.0
+      ],
+      [
+        0.0,
+        800.0,
+        350.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "image_size": [
+      1000,
+      700
+    ],
+    "reprojection_error_px": 0.05
+  },
+  "tracking_metrics": {
+    "fps": 100.0,
+    "frames": 16,
+    "detected_fractions": {
+      "hip": 1.0,
+      "crank": 1.0,
+      "foot": 1.0
+    },
+    "metres_per_pixel": 0.0010031163710501987
+  }
+}

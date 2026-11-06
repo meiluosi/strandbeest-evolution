@@ -22,8 +22,19 @@ from .calibrate import (
 )
 from .community import CommunityReport, validate_submission
 from .compare import Curves, curves, distance
+from .transducer_baseline import (
+    ATI_GAMMA_15_50_SPEC,
+    TransducerSpecification,
+    TransducerZeroDriftDiagnosis,
+    diagnose_transducer_drift,
+)
+from .video_twin_pipeline import (
+    VideoDigitalTwinPipelineResult,
+    run_video_digital_twin_pipeline,
+)
 
 __all__ = [
+    "ATI_GAMMA_15_50_SPEC",
     "BAR_FLEXIBILITY",
     "CONTACT_STIFFNESS",
     "CalibrationProfile",
@@ -36,13 +47,18 @@ __all__ = [
     "PIN_FRICTION",
     "Param",
     "SAND_RESISTANCE",
+    "TransducerSpecification",
+    "TransducerZeroDriftDiagnosis",
+    "VideoDigitalTwinPipelineResult",
     "calibrate",
     "apply_profile",
     "calibrate_digital_twin_bayes",
     "curves",
+    "diagnose_transducer_drift",
     "distance",
     "log_likelihood_digital_twin",
     "make_synthetic_measurement",
+    "run_video_digital_twin_pipeline",
     "simulate_digital_twin_trajectories",
     "validate_submission",
 ]

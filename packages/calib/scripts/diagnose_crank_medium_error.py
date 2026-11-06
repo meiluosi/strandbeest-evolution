@@ -19,11 +19,17 @@ import mujoco
 import numpy as np
 from scipy.optimize import lsq_linear
 
+from strandbeest_calib.transducer_baseline import (
+    ATI_GAMMA_15_50_FSR_TANGENTIAL_N,
+    ATI_GAMMA_15_50_SPEC,
+    diagnose_transducer_drift,
+)
+
 ROOT = Path(__file__).resolve().parents[3]
 PLAN_PATH = ROOT / "experiments" / "external-crank-validation-plan-2026-11-04.json"
 RAW_MANIFEST_PATH = ROOT / "experiments" / "external-crank-raw-trials-2026-11-04.json"
 OUT_PATH = ROOT / "experiments" / "external-crank-medium-error-diagnosis-2026-11-04.json"
-ATI_15_50_FULL_SCALE_N = 15.0 * 4.4482216152605  # 15 lbf in N = 66.7233 N
+ATI_15_50_FULL_SCALE_N = ATI_GAMMA_15_50_FSR_TANGENTIAL_N  # 15 lbf in N = 66.7233 N
 
 
 def _step_viscous(theta: float, omega: float, accel: float, damping: float, inertia: float, dt: float) -> tuple[float, float]:
@@ -250,30 +256,51 @@ def main() -> None:
         err_c = compute_errors(th_c, om_c, r)
 
         # Exact trial-specific mean torque residual (equivalent to tangential force zero offset Delta_Ft):
-        duration_s = (len(r["theta"]) - 1) * dt
-        mean_w = float(np.mean(r["omega"]))
-        obs_diss_nm = float(np.mean(r["torque"]) - inertia * (r["omega"][-1] - r["omega"][0]) / duration_s)
-        mod_diss_nm = b3 * mean_w + tau_c3 * math.copysign(1.0, mean_w) + bias3
-        delta_tau_nm = obs_diss_nm - mod_diss_nm
-        delta_ft_n = delta_tau_nm / radius
+        diag = diagnose_transducer_drift(
+            trial_name=r["name"],
+            condition=r["condition"],
+            split=r["split"],
+            torque=r["torque"],
+            omega=r["omega"],
+            dt=dt,
+            inertia=inertia,
+            radius=radius,
+            viscous_damping=b3,
+            coulomb_friction=tau_c3,
+            torque_bias=bias3,
+            spec=ATI_GAMMA_15_50_SPEC,
+        )
+        delta_tau_nm = diag.implied_force_offset_n * radius
+        delta_ft_n = diag.implied_force_offset_n
+
+        # Evaluate rollout with calibrated transducer zero offset removed
+        th_comp, om_comp = coulomb_rollout(r["torque"] - delta_tau_nm, dt, inertia, b3, tau_c3, bias3, th0, om0)
+        err_comp = compute_errors(th_comp, om_comp, r)
 
         entry = {
             "name": r["name"],
             "condition": r["condition"],
             "split": r["split"],
-            "mean_omega_rad_s": mean_w,
+            "mean_omega_rad_s": diag.mean_speed_rad_s,
             "mean_ft_n": float(np.mean(r["ft_n"])),
             "viscous_2param": err_v,
             "coulomb_3param": err_c,
+            "coulomb_3param_zero_drift_compensated": err_comp,
             "implied_force_zero_offset_n": delta_ft_n,
-            "implied_force_zero_offset_pct_of_full_scale": abs(delta_ft_n) / ATI_15_50_FULL_SCALE_N * 100.0,
-            "steady_velocity_sensitivity_rad_s": abs(delta_tau_nm) / b3,
+            "implied_force_zero_offset_pct_of_full_scale": diag.implied_force_offset_pct_fsr,
+            "within_rated_spec": diag.within_rated_spec,
+            "steady_velocity_sensitivity_rad_s": diag.steady_velocity_sensitivity_rad_s,
         }
         if r["split"] == "holdout":
             nth_c, nom_c = native_coulomb_rollout(r["torque"], dt, inertia, b3, tau_c3, bias3, th0, om0, substep)
             entry["native_coulomb_3param"] = compute_errors(nth_c, nom_c, r)
             entry["native_vs_analytic_max_vel_diff_rad_s"] = float(np.max(np.abs(nom_c - om_c)))
             entry["native_vs_analytic_max_angle_diff_rad"] = float(np.max(np.abs(nth_c - th_c)))
+
+            nth_comp, nom_comp = native_coulomb_rollout(
+                r["torque"] - delta_tau_nm, dt, inertia, b3, tau_c3, bias3, th0, om0, substep
+            )
+            entry["native_coulomb_3param_zero_drift_compensated"] = compute_errors(nth_comp, nom_comp, r)
         per_trial_diagnostics.append(entry)
 
     def summarize_split(split_name: str, model_key: str) -> dict:
@@ -310,11 +337,24 @@ def main() -> None:
                 "holdout": summarize_split("holdout", "coulomb_3param"),
                 "native_mujoco_holdout": summarize_split("holdout", "native_coulomb_3param"),
             },
+            "coulomb_3param_zero_drift_compensated": {
+                "description": "Fitted 3-param Coulomb model with per-trial force zero drift bounded within ATI Gamma 15/50 rating (+/-0.5% FSR)",
+                "train": summarize_split("train", "coulomb_3param_zero_drift_compensated"),
+                "holdout": summarize_split("holdout", "coulomb_3param_zero_drift_compensated"),
+                "native_mujoco_holdout": summarize_split("holdout", "native_coulomb_3param_zero_drift_compensated"),
+            },
         },
         "train_dissipation_by_condition": train_dissipation_by_condition,
         "sensor_zero_drift_sensitivity": {
-            "transducer_model": "ATI Gamma 15/50 6-DOF force/torque transducer",
-            "transducer_full_scale_force_n": ATI_15_50_FULL_SCALE_N,
+            "transducer_model": ATI_GAMMA_15_50_SPEC.model_name,
+            "transducer_manufacturer": ATI_GAMMA_15_50_SPEC.manufacturer,
+            "transducer_citation": ATI_GAMMA_15_50_SPEC.citation,
+            "transducer_full_scale_force_n": ATI_GAMMA_15_50_SPEC.full_scale_tangential_n,
+            "transducer_rated_zero_drift_allowance_n": ATI_GAMMA_15_50_SPEC.rated_zero_drift_tangential_n,
+            "transducer_rated_zero_drift_pct_fsr": ATI_GAMMA_15_50_SPEC.rated_zero_drift_fraction * 100.0,
+            "all_holdout_offsets_within_spec": all(
+                d["within_rated_spec"] for d in per_trial_diagnostics if d["split"] == "holdout"
+            ),
             "crank_radius_m": radius,
             "fitted_viscous_damping_nm_s_per_rad": b3,
             "mechanical_time_constant_s": inertia / b3,

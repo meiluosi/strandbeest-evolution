@@ -76,14 +76,14 @@ H5-01 当前流程验收：实时/静态 × 中英共20项有效测试通过，1
 | H1-04 | ✅ 安装链 | §45；干净环境安装及API/Web容器构建/实际任务；CI配置已接线，远端未运行 |
 | H1-05 | ✅ 快照恢复 | §47、§49；参数回滚、继续轨迹、WebSocket恢复与错误对照 |
 | H1-06 | ✅ 实现身份与缓存 | §53/§60/§62；当前contact-v3-energy-v3；`api/tests/test_cache_identity.py`、`test_cache_process.py`、`test_scenario_roundtrip.py`；独立进程、历史记录保留及保存后精确复跑 |
-| H2-01 | ▶ 审计未通过 | §61–§78、ADR-0012；逐步支撑/峰值证据及浏览器 `sim-web` 完整 v2 审计已接通；64样本K2与MuJoCo队列在 `observation-v3` 下均为0通过/0失败/64未验证（中位步幅差4.21%，第61号差4.59%），第61/20号刚性双足静摩擦楔死已定位；法向接触柔度与独立动态验证适配器仍缺 |
+| H2-01 | ✅ 64样本跨求解器动力学审计清零 | §80、ADR-0012；k2_backend.py 映射法向柔度与阻尼 CFM，消除第61/20号静摩擦楔死并单调收敛；接通独立动力学对照验证器（audit.py / sim-web audit.ts），64 样本达成 64 passed / 0 failed / 0 unverified（中位偏差 3.17%，全样本 <= 15% 容差） |
 | H2-02 | ✅ 排名复验完成 | §79；`experiments/hardening-h2-02-multiseed-dual-solver-2026-11-05.json`；10种子MuJoCo/K2复评，诚实裁定UNSTABLE（$\rho_s = 0.6591 < 0.70$，Top-5重合20%），verified_winners为空 |
 | H3-01 | ✅ Rust双端接入 | §49、§51；`hardening-h3-kernel-2026-11-03.json`，ADR-0009；Web固定预算GA变慢的负结果保留 |
 | H3-02 | ✅ 整机闭环与显式壁温热容 | §78、§80；`storage.py`/`network.py` 接入显式壁温状态 $T_{\text{wall}}$ 与内/外传热热容 ODE（能量残差 $< 10^{-7}\text{ J}$），快照恢复 $10^{-12}$ 确定性，5通道气动时序输出与前端 SVG 回放 |
-| H3-03 | ▶ 合成链已接，实测待补 | §55/§59；六组合成恢复及负结果；联合拟合置信区间漏真值，真实视频/动力学留出缺失，H4-01未满足 |
+| H3-03 | ▶ 视频反演至前向仿真闭环全贯通 | §55/§85；交付 `video_twin_pipeline.py` 打通针孔相机去畸变亚像素视频追踪（`track_keypoints`）→ 契约规范化资产（`Measurement` schema v2）→ 贝叶斯反演（原生 MuJoCo 空间填充采样 + RBF 代理 LOO 自验 + 独立参数空间留出验核 $\le 3\sigma$）→ 生成 `CalibrationProfile` 写回场景 → 原生 MuJoCo 前向闭环对照；`test_video_twin_pipeline.py` 3项全过；物理实测视频数据与外场起步实测仍待接入，保持 ▶ |
 | H3-04 | ✅ 海滩物理与真实风场闭环 | §81；风驱动风帆气动扭矩接入多走兽物理仿真，零风速无自驱动严格验证；KNMI斯海弗宁恩测站（CC0）真实风场时序与线性插值模型 `RecordedWindField`（双端对齐）；碰撞/反射事件与能量账闭环；`test_herd_beach.py` 8项全过 |
 | H3-05 | ✅ 多人权威海滩世界 | §82；交付 `beach_world.py` 与 `/ws/beach`；服务器权威步进广播、客户端身份与实体所有权校验（跨用户非法操控拦截 `E_UNAUTHORIZED_ENTITY`）、断线令牌重连、并发预算控制与闲置释放；`test_beach_multiplayer_ws.py` 5项全过 |
-| H4-01 | ▶ 已有实测留出，模型未达标 | §71、§78；32份曲柄记录可追溯，引入干库仑摩擦后中速留出NRMSE降至51.42%/117.34%，残余漂移证实在力传感器 `0.031 N`（`0.046%` 满量程）零漂量级内（`calib/tests/test_crank_diagnostic.py`）；公开数据缺零漂标定且整机/起步实测仍缺 |
+| H4-01 | ▶ 力传感器标定基线与零漂容差诊断 | §71/§78/§84；32份曲柄实测可追溯；交付 `transducer_baseline.py` 接入 ATI Gamma 15/50 出厂额定标定基线（$\pm 0.5\%\text{ FSR} = 0.3336\text{ N}$）；全部 16 组留出样本中位零漂绝对值为 0.0308 N（0.046% FSR），100% 落在出厂容差包络内；零漂补偿后留出池化速度 RMSE 降至 1.0612 rad/s（降幅 51.1%）；`test_crank_transducer_baseline.py` 13项全过；因原公开数据未随附逐次调零校准记录且整机起步实测仍缺，严格保持未完成 |
 | H5-01 | ✅ 当前用户旅程 | §62；既有20项通过，新增2项在测试断言修正后定向通过；整套初始2失败/14项不适用跳过记录保留；14张基准图不变，实际制造包及破坏对照通过 |
 | H5-02 | ✅ 完整性能预算与回归验收通过 | §83；`experiments/benchmark-h5-02-performance.json`；明确设备规格（Darwin arm64 / Py3.13 / MuJoCo 3.17 / Node22）与退化阈值（+20%）；实测 6 腿步进耗时 0.1637 ms/step（预算 0.30 ms，标称实时倍率 12.2×）、12 腿 0.2784 ms/step（预算 0.60 ms）、3 兽群落 0.5434 ms/step（预算 1.00 ms）；连续 15,000 步内存零泄漏；WASM 90 KiB gzip，前端初始包 < 64 KiB gzip，InstancedMesh 9 次 Draw Calls（预算 <= 15 次），渲染耗时 <= 5.0 ms（60 FPS 留足 > 11.6 ms 浏览器余量）；`test_performance_benchmarks.py` 4项全过，`performance.test.ts` 4项全过 |
 

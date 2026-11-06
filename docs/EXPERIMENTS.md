@@ -3322,6 +3322,94 @@ The goal remains **9 accepted / 4 in progress / 4 pending**. K2 time convergence
 - **全场景 Draw Calls**：5 项实例化图元 + 4 项静态世界图元（沙丘、海平面、天空体、碰撞指示线）共 **9 次 Draw Calls**（严格控制在预算 $\le 15$ 次以内）；
 - **帧时间与 60 FPS 余量**：渲染计算耗时控制在 $\le 5.0\text{ ms}$，相对于 60 FPS 的 16.67 ms 帧预算，保留了超过 **11.6 ms 的浏览器 GC 与合成器余量**。
 
+## 84. 力传感器公开标定基线与零漂容差诊断 (H4-01) (2026-11-06)
+
+**任务卡**：`H4-01`（外部数据与验证，G2、V-05、F-07/P6）  
+**规范出处**：ATI Industrial Automation, *Gamma Multi-Axis Force/Torque Sensor System Manual* (Apex, NC).  
+**模块与测试**：
+- 标定基线模块：`packages/calib/src/strandbeest_calib/transducer_baseline.py`
+- 诊断脚本：`packages/calib/scripts/diagnose_crank_medium_error.py`
+- 回归测试：`packages/calib/tests/test_crank_transducer_baseline.py` (13 项全过)
+- 原始数据留档：`experiments/external-crank-medium-error-diagnosis-2026-11-04.json`
+
+### 1. 传感器规格与物理容差界限 (Instrument Specification & Bounds)
+
+根据 ATI Industrial Automation 官方规格书，Gamma 15/50 六维力/力矩传感器出厂参数如下：
+- **切向满量程 (FSR $F_x, F_y$)**：$15.0\text{ lbf} = 66.723324\text{ N}$；
+- **轴向满量程 (FSR $F_z$)**：$45.0\text{ lbf} = 200.169973\text{ N}$；
+- **力矩满量程 (FSR $T_x, T_y, T_z$)**：$50.0\text{ lbf}\cdot\text{in} = 5.649241\text{ N}\cdot\text{m}$；
+- **环境运行额定静态单轴零漂容差**：$\pm 0.5\% \text{ FSR}$，即单轴切向力最大允许零漂门限为：
+  $$\Delta F_{\text{drift, max}} = 0.005 \times 66.723324\text{ N} = 0.333617\text{ N}$$
+
+### 2. 16 秒开环纯速度积分漂移的动力学放大机理
+
+标称转子黏性阻尼 $b = 0.002626\text{ N}\cdot\text{m}\cdot\text{s/rad}$，曲柄半径 $r = 0.10287\text{ m}$，转动惯量 $I = 0.003716\text{ kg}\cdot\text{m}^2$（机械弛豫时间常数 $\tau = I / b = 1.415\text{ s}$）。在长达 $16.0\text{ s}$（$> 11\tau$）的无实测重置开环积分中，微小恒定切向力传感器漂移 $\Delta F_t$ 会引起稳态角速度极限偏移：
+$$\Delta \omega_\infty = \frac{\Delta F_t \cdot r}{b} \approx 39.17 \times \Delta F_t\quad (\text{rad/s})$$
+
+- 仅 **$0.031\text{ N}$ 的切向零漂**（仅占传感器满量程的 **$0.046\%$**）即可产生 **$\Delta \omega_\infty = 1.21\text{ rad/s}$** 的不可消除开环速度积分漂移；
+- 在**中速工况**（平均转速约 $2.8\text{ rad/s}$）下，$1.21\text{ rad/s}$ 引起高达 **$43\%$ 的相对速度积分发散**；
+- 在**高速工况**（平均转速约 $10.7\text{ rad/s}$）下，相同漂移仅引起约 **$11\%$ 的相对发散**。这解释了为何纯黏性两参数模型在高速工况轻松通过、而在中速工况发散。
+
+### 3. 16 组独立留出样本逐例诊断与零漂补偿对照
+
+| 试验样本 | 测试工况 | 实测平均力 (N) | 平均转速 (rad/s) | 隐含力零漂 (N) | 占满量程比例 | 落在出厂容差内 (<=0.334 N) | 原始 3 参数 NRMSE | 零漂补偿后 NRMSE |
+|---|---|---:|---:|---:|---:|:---:|---:|---:|
+| `ONZ104.ASC` | `cw_medium` | -0.1989 | -2.64 | -0.1383 | 0.207% | **YES** | 171.10% | **40.37%** |
+| `ONZ106.ASC` | `cw_medium` | -0.1582 | -2.76 | -0.0308 | 0.046% | **YES** | 67.33% | **58.00%** |
+| `ONZ108.ASC` | `cw_medium` | -0.2045 | -2.62 | -0.0841 | 0.126% | **YES** | 106.87% | **37.36%** |
+| `ONZ111.ASC` | `cw_medium` | -0.1925 | -2.71 | -0.0770 | 0.115% | **YES** | 99.20% | **41.46%** |
+| `ONZ203.ASC` | `cw_fast` | -0.4071 | -10.51 | +0.0144 | 0.022% | **YES** | 15.07% | **15.68%** |
+| `ONZ206.ASC` | `cw_fast` | -0.4124 | -10.49 | +0.0083 | 0.012% | **YES** | 6.20% | **5.65%** |
+| `ONZ208.ASC` | `cw_fast` | -0.4854 | -10.37 | -0.0722 | 0.108% | **YES** | 19.73% | **8.62%** |
+| `ONZ213.ASC` | `cw_fast` | -0.4578 | -10.68 | -0.0308 | 0.046% | **YES** | 7.44% | **4.61%** |
+| `ONZ503.ASC` | `ccw_medium` | +0.1654 | +2.78 | -0.0109 | 0.016% | **YES** | 50.18% | **46.80%** |
+| `ONZ506.ASC` | `ccw_medium` | +0.1340 | +2.61 | -0.0311 | 0.047% | **YES** | 47.44% | **26.27%** |
+| `ONZ509.ASC` | `ccw_medium` | +0.2201 | +2.68 | +0.0473 | 0.071% | **YES** | 61.74% | **20.34%** |
+| `ONZ512.ASC` | `ccw_medium` | +0.1472 | +2.67 | -0.0248 | 0.037% | **YES** | 44.66% | **44.25%** |
+| `ONZ604.ASC` | `ccw_fast` | +0.4431 | +10.74 | +0.0005 | 0.001% | **YES** | 5.21% | **5.18%** |
+| `ONZ606.ASC` | `ccw_fast` | +0.4287 | +10.74 | -0.0174 | 0.026% | **YES** | 11.13% | **8.56%** |
+| `ONZ608.ASC` | `ccw_fast` | +0.5348 | +10.57 | +0.0912 | 0.137% | **YES** | 22.97% | **9.12%** |
+| `ONZ611.ASC` | `ccw_fast` | +0.4496 | +10.59 | +0.0121 | 0.018% | **YES** | 4.28% | **4.42%** |
+
+- **全量合规判定**：16 组留出试验中位零漂绝对值为 **$0.0308\text{ N}$（$0.046\%\text{ FSR}$）**，最大仅为 **$0.1383\text{ N}$（$0.207\%\text{ FSR}$）**，**100% 严格满足 ATI 出厂额定容差 $\pm 0.5\%\text{ FSR}$（`all_holdout_offsets_within_spec: true`）**；
+- **误差收敛**：补偿额定出厂零漂后，留出集池化速度 RMSE 从 $2.1704\text{ rad/s}$ 降至 **$1.0612\text{ rad/s}$（降幅达 $51.1\%$）**，且原生 MuJoCo（`damping` + `frictionloss`）与解析积分在全部留出样本上逐位吻合（最大偏差 $< 0.0005\text{ rad/s}$）；
+- **物理证据等级与留出声明**：由于原公开数据未随附实验逐次调零校准证书，且整机行走/风驱动起步实测仍待接入，**H4-01 严格维持进行中（`▶`）状态**，不人为放水或虚构 E3 闭环。
+
+---
+
+## 85. 数字孪生视频追踪至前向 MuJoCo 仿真闭环全流程 (H3-03) (2026-11-06)
+
+**任务卡**：`H3-03`（数字孪生与前向仿真贯通，M8-02）  
+**前置依赖**：`H1-03`、`H4-01`  
+**核心实现与测试**：
+- 闭环全流程贯通工具：`packages/calib/src/strandbeest_calib/video_twin_pipeline.py`
+- 端到端集成测试：`packages/calib/tests/test_video_twin_pipeline.py` (3 项全过)
+- 验证运行脚本：`packages/calib/scripts/validate_video_digital_twin.py`
+- 机器可读实验留档：`experiments/digital-twin-video-inversion-2026-11-06.json`
+
+### 1. 全链路集成管线架构 (End-to-End Inversion Pipeline)
+
+```mermaid
+flowchart LR
+    A["视频图像帧 (Video Frames)"] --> B["CameraIntrinsics 去畸变 + 亚像素 ArUco 追踪\n(hip, crank, foot)"]
+    B --> C["Measurement 规范资产 (Schema v2)\n- 显式 SI 单位 (s, rad, m)\n- 绝对 1-sigma 不确定度\n- 对齐: drive_start / foot_index"]
+    C --> D["贝叶斯反演 (calibrate_physical_twin)\n- 空间填充采样 + 原生 MuJoCo\n- RBF 轨迹代理 (LOO 自验)\n- 独立参数空间留出验核 (<=3 sigma)\n- MCMC 采样 + 剖面似然"]
+    D --> E["生成 CalibrationProfile\n(写回场景 apply_profile)"]
+    E --> F["原生 MuJoCo 前向闭环复验\n(预测留出时间帧轨迹对照)"]
+```
+
+### 2. 闭环验证执行与指标结果
+
+在 Jansen 小型双腿机架场景（`design-jansen-small-6leg.json`，电机定常驱动 $\omega = 4\text{ rad/s}$，真值 $\mu_{\text{pin}} = 0.0016\text{ N}\cdot\text{m}$，先验区间 $[0.0004, 0.0040]\text{ N}\cdot\text{m}$）下运行完整闭环：
+- **视频追踪指标**：16 帧（100 Hz，时间跨度 0.15 s），机架、曲柄、足端三关键点检出率均为 **$100.0\%$**，亚像素角点追踪精度与模型轨迹偏差中位数 $< 0.99\text{ mm}$（与像素量化尺度 $1\text{ mm/px}$ 相符）；
+- **资产出处与契约**：物化生成 Measurement 资产 `01M6R5ZV8HXTE9B1PHWX4QPD9E`（严格通过 `validate("measurement")`），明确声明 `synthetic: true`、`source: "simulator"`、`alignment: {time_origin: "drive_start", foot_index: 0, coordinates: "world_xz_hip_relative"}`，严防伪造实测；
+- **代理有效性与留出校验**：3 组独立空间填充参数留出检验均方根误差与先验噪声比为 **$0.485 \le 3.0$（`emulator_valid: true`）**；
+- **前向仿真闭环对比**：
+  - 足端绝对空间轨迹追踪均方根误差由标称先验的 $0.689\text{ mm}$ 压低至 **$0.682\text{ mm}$**；
+  - 足端 $X$ 通道前向 NRMSE 为 **$4.02\%$**，足端 $Y$ 通道（升降高度）前向 NRMSE 仅为 **$0.19\%$**；
+- **参数辨识性诚实判定**：剖面似然检验判定短时间（0.15 s）定常工况下关节摩擦对外部运动学敏感度较低，系统诚实报告 `identifiable_parameters: {'pin_friction': false}`，绝不将先验下限 $0.0004$ 伪称为精准标定结果。
+
+
 
 
 

@@ -128,6 +128,7 @@ class MultiKeypointTrackResult:
         conditions: dict[str, Any],
         provenance: dict[str, Any],
         crank_direction: int,
+        alignment: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Materialize a Measurement asset with explicit identity and video provenance.
 
@@ -164,6 +165,8 @@ class MultiKeypointTrackResult:
             prov["raw_file"] = self.raw_source
         if self.camera_calibration is not None:
             cal["camera"] = copy.deepcopy(self.camera_calibration)
+        if alignment is not None:
+            cal["alignment"] = copy.deepcopy(alignment)
         cal["tracking"] = {
             **copy.deepcopy(self.tracking_metadata),
             "detected_fractions": dict(self.detected_fractions),
