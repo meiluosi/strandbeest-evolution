@@ -32,6 +32,20 @@ from .video_twin_pipeline import (
     VideoDigitalTwinPipelineResult,
     run_video_digital_twin_pipeline,
 )
+from .nansai_literature import (
+    CRANK_LENGTH_L2_M,
+    JOINT_DAMPING_NMS_RAD,
+    LINK_MASS_KG,
+    NANSAI_UNIT_M,
+    CycleTrajectoryMetrics,
+    NansaiReplicationResult,
+    build_nansai_scenario,
+    extract_foot_trajectory_cycles,
+    generate_nansai_validation_document,
+    run_nansai_replication,
+    run_nansai_simulation,
+    save_nansai_validation_asset,
+)
 
 __all__ = [
     "ATI_GAMMA_15_50_SPEC",
@@ -60,5 +74,17 @@ __all__ = [
     "make_synthetic_measurement",
     "run_video_digital_twin_pipeline",
     "simulate_digital_twin_trajectories",
+    "CRANK_LENGTH_L2_M",
+    "CycleTrajectoryMetrics",
+    "JOINT_DAMPING_NMS_RAD",
+    "LINK_MASS_KG",
+    "NANSAI_UNIT_M",
+    "NansaiReplicationResult",
+    "build_nansai_scenario",
+    "extract_foot_trajectory_cycles",
+    "generate_nansai_validation_document",
+    "run_nansai_replication",
+    "run_nansai_simulation",
+    "save_nansai_validation_asset",
     "validate_submission",
 ]

@@ -4,6 +4,7 @@ import { call, runJob } from "./api";
 import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
 import { store, view } from "./store.svelte";
+import VideoTwinPanel from "./VideoTwinPanel.svelte";
 
 type Meas = {
 	id: string;
@@ -40,6 +41,7 @@ type Profile = {
 let busy = $state("");
 let error = $state("");
 let info = $state("");
+let labMode = $state<"twin" | "rig">("twin");
 let measurements = $state<Meas[]>([]);
 let runs = $state<{ id: string; design_id: string; design_name: string }[]>([]);
 let mId = $state("");
@@ -313,13 +315,27 @@ const chart = $derived.by(() => {
 	<div class="card">
 		<h2>{t("lab.title")}</h2>
 		<p class="muted">{t("lab.intro")}</p>
-		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>{t("lab.refresh")}</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
+		<div class="row center">
+			<div class="btn-group">
+				<button class="btn" class:active={labMode === "twin"} onclick={() => (labMode = "twin")}>
+					{t("videoTwin.tabTwin")}
+				</button>
+				<button class="btn" class:active={labMode === "rig"} onclick={() => (labMode = "rig")}>
+					{t("videoTwin.tabRig")}
+				</button>
+			</div>
+			<button class="btn" disabled={!!busy} onclick={refresh}>{t("lab.refresh")}</button>
+			{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
+		</div>
 		{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
 		{#if info}<p class="notice info">{info}</p>{/if}
 	</div>
 
-	<div class="card">
-		<h3>{t("lab.raw.title")}</h3>
+	{#if labMode === "twin"}
+		<VideoTwinPanel />
+	{:else}
+		<div class="card">
+			<h3>{t("lab.raw.title")}</h3>
 		<p class="muted">{t("lab.raw.intro.before")}<code>t_ms,enc,current_mA,…</code>{t("lab.raw.intro.middle")} <code>hardware/README.md</code>{t("common.period")}</p>
 		<div class="row">
 			<label class="btn inline" style="cursor:pointer">{t("lab.raw.csv")} <input type="file" accept=".csv,.txt" onchange={pickRaw} hidden /></label>
@@ -444,10 +460,30 @@ const chart = $derived.by(() => {
 		{/if}
 		<p class="notice info">{t("lab.calib.caveat")}</p>
 	</div>
+	{/if}
 </div>
 
 
 <style>
+	.btn-group {
+		display: flex;
+		border-radius: 6px;
+		overflow: hidden;
+		border: 1px solid var(--line);
+	}
+	.btn-group .btn {
+		border-radius: 0;
+		border: none;
+		border-right: 1px solid var(--line);
+		background: var(--bg);
+	}
+	.btn-group .btn:last-child {
+		border-right: none;
+	}
+	.btn-group .btn.active {
+		background: var(--line);
+		font-weight: 600;
+	}
 	.badge { font-size: 11px; padding: 0 8px; border-radius: 8px; margin-left: 6px; }
 	.badge.ok { background: #2e8b5733; color: #2e8b57; }
 	.badge.bad { background: #d6282822; color: #d62828; font-weight: 600; }
