@@ -32,6 +32,14 @@ from strandbeest_sim import virtual_dynamometer
 from .jobs import JobContext, JobStore, Workers
 from .pipeline import cache_matches, compute_run_key, evaluate, simulate, simulate_ensemble
 from .sweeps import expand, run_sweep
+from .beach_world import (
+    BeachWorldError,
+    InvalidInputError,
+    InvalidTokenError,
+    RoomFullError,
+    UnauthorizedEntityError,
+    beach_manager,
+)
 
 def create_app(data_dir: str | Path | None = None, workers: int | None = None) -> FastAPI:
     root = Path(data_dir or os.environ.get("STRANDBEEST_DATA", "data"))
@@ -935,6 +943,124 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
             forks.clear()
             session = None
             saved_snapshot = None
+
+    @app.websocket("/ws/beach")
+    async def websocket_beach(websocket: WebSocket, world_id: str = "scheveningen"):
+        await websocket.accept()
+        room = beach_manager.get_or_create_room(world_id)
+        current_session = None
+
+        try:
+            while True:
+                msg = await websocket.receive_json()
+                cmd = msg.get("cmd")
+
+                if cmd == "join":
+                    client_id = msg.get("client_id")
+                    target_wid = msg.get("world_id", world_id)
+                    if target_wid != room.world_id:
+                        room = beach_manager.get_or_create_room(target_wid)
+                    try:
+                        session, snapshot = room.join(client_id=client_id, websocket=websocket)
+                        current_session = session
+                        await websocket.send_json({
+                            "event": "joined",
+                            "client_id": session.client_id,
+                            "token": session.token,
+                            "world_id": room.world_id,
+                            "snapshot": snapshot,
+                        })
+                    except RoomFullError as e:
+                        await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+                    except Exception as exc:
+                        await websocket.send_json({"event": "error", "code": "E_JOIN_FAILED", "message": str(exc)})
+
+                elif cmd == "reconnect":
+                    token = msg.get("token")
+                    try:
+                        session, snapshot = room.reconnect(token, websocket=websocket)
+                        current_session = session
+                        await websocket.send_json({
+                            "event": "reconnected",
+                            "client_id": session.client_id,
+                            "token": session.token,
+                            "snapshot": snapshot,
+                        })
+                    except InvalidTokenError as e:
+                        await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+
+                elif cmd == "spawn":
+                    if not current_session:
+                        await websocket.send_json({"event": "error", "code": "E_NOT_JOINED", "message": "Must join first"})
+                        continue
+                    token = msg.get("token", current_session.token)
+                    try:
+                        ent = room.spawn(
+                            token=token,
+                            design=msg.get("design", {}),
+                            name=msg.get("name"),
+                            x=msg.get("x", 0.0),
+                            y=msg.get("y", 0.0),
+                            heading=msg.get("heading", 0.0),
+                            direction=msg.get("direction", 1),
+                        )
+                        spawn_event = {"event": "spawned", "entity": ent.to_dict()}
+                        # Broadcast to all connected clients in the room
+                        for c in list(room.clients.values()):
+                            if c.websocket:
+                                try:
+                                    await c.websocket.send_json(spawn_event)
+                                except Exception:
+                                    pass
+                    except BeachWorldError as e:
+                        await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+                    except Exception as exc:
+                        await websocket.send_json({"event": "error", "code": "E_SPAWN_FAILED", "message": str(exc)})
+
+                elif cmd == "command":
+                    if not current_session:
+                        await websocket.send_json({"event": "error", "code": "E_NOT_JOINED", "message": "Must join first"})
+                        continue
+                    token = msg.get("token", current_session.token)
+                    entity_id = msg.get("entity_id")
+                    action = msg.get("action")
+                    params = msg.get("params", {})
+                    try:
+                        ack = room.command(token=token, entity_id=entity_id, action=action, params=params)
+                        await websocket.send_json(ack)
+                    except BeachWorldError as e:
+                        await websocket.send_json({"event": "error", "code": e.code, "message": str(e)})
+                    except Exception as exc:
+                        await websocket.send_json({"event": "error", "code": "E_COMMAND_FAILED", "message": str(exc)})
+
+                elif cmd == "step":
+                    count = int(msg.get("count", 1))
+                    snapshot = room.step(count)
+                    tick_msg = {"event": "tick", "snapshot": snapshot}
+                    # Broadcast authoritative world state to all connected clients
+                    for c in list(room.clients.values()):
+                        if c.websocket:
+                            try:
+                                await c.websocket.send_json(tick_msg)
+                            except Exception:
+                                pass
+
+                elif cmd == "snapshot":
+                    await websocket.send_json({"event": "snapshot", "snapshot": room.get_snapshot()})
+
+                elif cmd == "leave":
+                    if current_session:
+                        room.disconnect(current_session.client_id)
+                        current_session = None
+                    await websocket.send_json({"event": "left"})
+                    break
+                else:
+                    await websocket.send_json({"event": "error", "code": "E_UNKNOWN_CMD", "message": f"unknown cmd {cmd}"})
+        except WebSocketDisconnect:
+            pass
+        finally:
+            if current_session:
+                room.disconnect(current_session.client_id)
 
     return app
 

@@ -94,6 +94,34 @@ describe("winds", () => {
 		expect(vHigh).toBeGreaterThan(vGround);
 	});
 
+	it("spatiotemporal: traveling wave wind field", () => {
+		const f = wind({
+			kind: "spatiotemporal",
+			speed: 6.0,
+			params: { amplitude: 2.0, omega: 1.0, kx: 0.5 },
+		});
+		expect(f(0.0)).toBeCloseTo(6.0, 5);
+		expect(f(Math.PI / 2.0)).toBeCloseTo(8.0, 5);
+	});
+
+	it("recorded: linear interpolation from dataset", () => {
+		const f = wind({
+			kind: "recorded",
+			speed: 6.0,
+			params: {
+				timestamps: [0.0, 1.0, 2.0],
+				speeds: [4.0, 6.0, 8.0],
+				directions_deg: [0.0, 0.0, 0.0],
+				speed_scale: 1.0,
+			},
+		});
+		expect(f(0.0)).toBeCloseTo(4.0, 5);
+		expect(f(0.5)).toBeCloseTo(5.0, 5);
+		expect(f(1.0)).toBeCloseTo(6.0, 5);
+		expect(f(1.5)).toBeCloseTo(7.0, 5);
+		expect(f(2.0)).toBeCloseTo(8.0, 5);
+	});
+
 	it("refuses an unknown wind", () => {
 		expect(() => wind({ kind: "hurricane" })).toThrow(/unknown wind/);
 	});

@@ -13,8 +13,9 @@ from __future__ import annotations
 
 import math
 import random
-from dataclasses import dataclass
-from typing import Callable, Optional
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Callable, Optional
 
 from .config import Wind
 from .registry import winds
@@ -237,3 +238,124 @@ def spatiotemporal(w: Wind) -> WindFn:
         v0=w.speed, amplitude=amp, omega=omega, kx=kx, yaw_deg=yaw_deg
     )
     return field
+
+
+@dataclass
+class RecordedWindField:
+    """Wind field driven by recorded historical / field anemometer timeseries data.
+
+    Supports:
+      - Full provenance metadata (source station, license, measurement date, units).
+      - Linear interpolation across irregular or regular timestamps.
+      - Optional speed scaling and spatial traveling wave or shear modulation.
+    """
+
+    timestamps: list[float]
+    speeds: list[float]
+    directions_deg: list[float]
+    provenance: dict[str, Any] = field(default_factory=dict)
+    speed_scale: float = 1.0
+    yaw_offset_deg: float = 0.0
+
+    @classmethod
+    def load(
+        cls,
+        path_or_dict: str | Path | dict[str, Any],
+        speed_scale: float = 1.0,
+        yaw_offset_deg: float = 0.0,
+    ) -> RecordedWindField:
+        import json
+
+        if isinstance(path_or_dict, (str, Path)):
+            p = Path(path_or_dict)
+            if not p.is_absolute():
+                # Search project root data
+                repo_root = Path(__file__).resolve().parents[4]
+                cand = repo_root / p
+                if cand.exists():
+                    p = cand
+            data = json.loads(p.read_text(encoding="utf-8"))
+        else:
+            data = path_or_dict
+
+        prov = data.get("provenance", {})
+        ts = [float(x) for x in data.get("timestamps", [])]
+        sp = [float(x) for x in data.get("speeds", [])]
+        dr = [float(x) for x in data.get("directions_deg", [0.0] * len(ts))]
+        return cls(
+            timestamps=ts,
+            speeds=sp,
+            directions_deg=dr,
+            provenance=prov,
+            speed_scale=speed_scale,
+            yaw_offset_deg=yaw_offset_deg,
+        )
+
+    def _interp(self, t: float) -> tuple[float, float]:
+        if not self.timestamps:
+            return 0.0, 0.0
+        if t <= self.timestamps[0]:
+            return self.speeds[0] * self.speed_scale, self.directions_deg[0] + self.yaw_offset_deg
+        if t >= self.timestamps[-1]:
+            return self.speeds[-1] * self.speed_scale, self.directions_deg[-1] + self.yaw_offset_deg
+
+        # Binary search / linear scan for interval
+        import bisect
+
+        idx = bisect.bisect_right(self.timestamps, t) - 1
+        t0, t1 = self.timestamps[idx], self.timestamps[idx + 1]
+        dt = t1 - t0
+        alpha = (t - t0) / dt if dt > 1e-9 else 0.0
+
+        v0, v1 = self.speeds[idx], self.speeds[idx + 1]
+        v = (1.0 - alpha) * v0 + alpha * v1
+
+        d0, d1 = self.directions_deg[idx], self.directions_deg[idx + 1]
+        deg = (1.0 - alpha) * d0 + alpha * d1 + self.yaw_offset_deg
+        return max(0.0, v * self.speed_scale), deg
+
+    def velocity(
+        self, t: float, x: float = 0.0, y: float = 0.0, z: float | None = None
+    ) -> float:
+        v, deg = self._interp(t)
+        cos_yaw = max(0.0, math.cos(math.radians(deg)))
+        return v * cos_yaw
+
+    def vector(self, t: float, x: float = 0.0, y: float = 0.0) -> tuple[float, float]:
+        v, deg = self._interp(t)
+        rad = math.radians(deg)
+        return (v * math.cos(rad), v * math.sin(rad))
+
+    def __call__(
+        self, t: float, z: float | None = None, x: float = 0.0, y: float = 0.0
+    ) -> float:
+        return self.velocity(t, x=x, y=y, z=z)
+
+
+@winds.register("recorded")
+def recorded(w: Wind) -> WindFn:
+    """Wind model driven by recorded dataset with provenance."""
+    import json
+    from pathlib import Path
+
+    speed_scale = float(w.params.get("speed_scale", 1.0))
+    if w.speed > 0:
+        speed_scale = w.speed / 6.0  # normalize nominal 6.0 m/s
+    yaw_offset = float(w.params.get("yaw_deg", 0.0))
+
+    if "dataset" in w.params:
+        return RecordedWindField.load(
+            w.params["dataset"], speed_scale=speed_scale, yaw_offset_deg=yaw_offset
+        )
+    elif "path" in w.params:
+        return RecordedWindField.load(
+            w.params["path"], speed_scale=speed_scale, yaw_offset_deg=yaw_offset
+        )
+    else:
+        # Default to Scheveningen coastal dataset
+        repo_root = Path(__file__).resolve().parents[4]
+        default_path = repo_root / "data" / "winds" / "scheveningen_beach_gusts.json"
+        return RecordedWindField.load(
+            default_path, speed_scale=speed_scale, yaw_offset_deg=yaw_offset
+        )
+

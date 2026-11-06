@@ -8,7 +8,7 @@ from .from_design import scenario_from_design
 from .interactive import InteractiveSession
 from .runner import HerdResult, Result, WalkerTrajectory, run, run_herd
 from .startwind import find_start_wind, work_energy_start_wind_proxy
-from .winds import SpatiotemporalWindField
+from .winds import RecordedWindField, SpatiotemporalWindField
 from . import fluids
 
 __all__ = [
@@ -29,6 +29,7 @@ __all__ = [
     "build_herd",
     "DynamicTideField",
     "SpatiotemporalWindField",
+    "RecordedWindField",
     "HerdResult",
     "WalkerTrajectory",
     "run_herd",

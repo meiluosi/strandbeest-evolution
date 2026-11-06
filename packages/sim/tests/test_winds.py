@@ -154,3 +154,26 @@ def test_profile_turbulent():
 
     # Average trend: wind increases with height
     assert v_high > v_ground
+
+
+def test_recorded_wind_with_provenance():
+    from pathlib import Path
+    from strandbeest_sim.winds import RecordedWindField, recorded
+
+    dataset_path = Path(__file__).resolve().parents[3] / "data" / "winds" / "scheveningen_beach_gusts.json"
+    w = Wind(kind="recorded", speed=6.0, params={"path": str(dataset_path)})
+    f = recorded(w)
+
+    # Check evaluation
+    v0 = f(0.0)
+    v0_5 = f(0.5)
+    v1 = f(1.0)
+    assert 4.0 <= v0 <= 8.0
+    assert 4.0 <= v0_5 <= 8.0
+    assert 4.0 <= v1 <= 8.0
+
+    # Vector
+    field = RecordedWindField.load(dataset_path)
+    vx, vy = field.vector(0.0)
+    assert vx > 0.0
+

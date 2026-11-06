@@ -70,6 +70,11 @@ class EntityBuilt:
     body_length: float = 0.25
     body_width: float = 0.1
     direction: int = -1
+    drive_kind: str = "motor"
+    sail_area: float = 0.04
+    sail_radius: float = 0.04
+    sail_drag_coeff: float = 1.2
+    sail_gear: float = 1.0
 
 
 @dataclass
@@ -220,6 +225,11 @@ def _build_walker_tree(
         body_length=float(getattr(w, "body_length", 0.25)),
         body_width=float(half_y * 2),
         direction=int(getattr(w, "direction", -1)),
+        drive_kind=str(getattr(drive, "kind", "motor")),
+        sail_area=float(getattr(drive, "sail_area", 0.04)),
+        sail_radius=float(getattr(drive, "sail_radius", 0.04)),
+        sail_drag_coeff=float(getattr(drive, "sail_drag_coeff", 1.2)),
+        sail_gear=float(getattr(drive, "sail_gear", 1.0)),
     )
     return torso_xml, eq, actuator_xml, ent_built
 

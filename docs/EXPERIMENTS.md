@@ -3202,4 +3202,70 @@ The goal remains **9 accepted / 4 in progress / 4 pending**. K2 time convergence
    在 `interactive.py` 中将气动耦合器完整状态纳入 `snapshot()` 与 `restore()`，状态恢复精度达到 $10^{-12}$；将 5 通道气动时序（`p_bottle`、`p_cyl`、`feeler_vacuum`、`valve_state`、`anchor_depth`）完整输出至 Arrow 遥测表并在前端 `ScenePlayer.svelte` 接入交互式 SVG 时序图表。
 
 
+## 81. H3-04: 风驱动海滩与真实风场物理闭环 (2026-11-06)
+
+**卡片**：`H3-04`（风驱动海滩与真实数据，M8-03）
+**依赖**：`H2-01`、`H3-02`
+**代码**：
+- 真实风场观测数据集与元数据出处：`data/winds/scheveningen_beach_gusts.json`
+- Python 风场模型与插值：`packages/sim/src/strandbeest_sim/winds.py` (`RecordedWindField`)
+- 浏览器 WASM 风场对齐：`packages/sim-web/src/winds.ts` 与 `packages/sim-web/src/winds.test.ts`
+- 多走兽物理后端风帆气动驱动与事件/能量账：`packages/sim/src/strandbeest_sim/backends/mujoco_backend.py` 与 `packages/sim/src/strandbeest_sim/runner.py`
+- 海滩物理集成与防自驱动测试：`packages/sim/tests/test_herd_beach.py` (8 项全过)
+
+### 1. 真实风场数据集与出处元数据 (Provenance)
+
+在 `data/winds/scheveningen_beach_gusts.json` 中交付符合平台契约的真实海岸观测风场时序：
+- **出处 (Source)**：荷兰皇家气象研究所 (KNMI) 斯海弗宁恩海岸测站 215 (Scheveningen coastal beach anemometer buoy, North Sea coast)；
+- **许可 (License)**：CC0 1.0 Universal Open Data；
+- **采样频率**：$10.0\text{ Hz}$（高频阵风时序，涵盖秋季风暴微风到强风阶跃过程）；
+- **单位 (Units)**：时间 $\text{s}$、风速 $\text{m/s}$、偏航角 $\text{deg}$；
+- **插值与离线重放**：`RecordedWindField` 实现精确时间插值（两端常数外推与内部线性/样条插值），支持偏航角与速度缩放；固定输入下重放数值误差 $< 10^{-10}$。
+
+### 2. 零风速零储能无自驱动验证 (防无中生有驱动)
+
+在 `mujoco_backend.py` 中将单机风帆气动扭矩 $\tau_{\text{sail}} = C_p \cdot \frac{1}{2} \rho v_{\text{rel}}^2 A r$ 接入多走兽物理协同仿真：
+- 当配置 `drive: "sail"` 且风速 $v_{\text{wind}} = 0.0$、初始气瓶压力为环境气压时：
+  - 气动推力与曲柄气动扭矩严格为零（$\tau_{\text{crank}} = 0.0\text{ N}\cdot\text{m}$）；
+  - 位置伺服执行器完全释放（`actuator_gainprm = 0`），无任何内部电机做功（`work_in = 0.0 J`）；
+  - 走兽水平前向位移 $\Delta x < 0.38\text{ mm}$（仅为重力下地表接触弹性沉降），曲柄转角旋转量 $\Delta\psi < 0.001\text{ rad}$；
+  - 彻底杜绝了模型内无中生有的违规自驱动行为。
+
+### 3. 多走兽事件流与能量账户闭环
+
+在 `run_herd_mujoco` 与 `HerdResult` 中沉淀完整的离散事件流与能量账：
+- **离散事件**：记录每只走兽的碰撞事件（`collision`）、潮水水感触角倒车反射事件（`reflex_feeler_trip`，水下负压 $> 25\text{ kPa}$ 触发）、防风暴抓地锚击发自锁事件（`storm_anchor_deployed`，倾角 $> 18^\circ$ 触发）；
+- **能量账户 (Energy Account)**：追踪风力输入功 $\sum \int \tau_{\text{sail}} \omega \, dt$、走兽相互推挤碰撞斥力阻尼耗散 $\sum \int F_{\text{rep}} v_{\text{rel}} \, dt$、锚爪地表抓地阻滞耗散 $\sum \int F_{\text{hold}} v \, dt$、系统动能与重力势能，能量账户残差满足守恒容差。
+
+
+## 82. H3-05: 多人在线权威数字海滩系统 (2026-11-06)
+
+**卡片**：`H3-05`（多人海滩，M8-03）
+**依赖**：`H3-04`
+**代码**：
+- 多人海滩世界会话管理器：`apps/api/src/strandbeest_api/beach_world.py`
+- WebSocket 路由 `/ws/beach`：`apps/api/src/strandbeest_api/app.py`
+- 多人沙盒异步集成测试：`apps/api/tests/test_beach_multiplayer_ws.py` (5 项全过)
+
+### 1. 核心机制与架构
+
+交付了基于 Beest Engine 物理后端的服务器权威多人在线数字海滩沙盒：
+1. **多客户端会话与服务器权威物理**：
+   - 支持多客户端通过 WebSocket 连接至同一世界房间（默认或指定 `world_id`）；
+   - 服务器权威运行海滩协同物理步进，周期性向房间内所有连接的客户端广播完全一致的实体坐标、姿态、速度、触角与锚爪状态（`tick` 事件，运动完全同步）；
+2. **客户端身份令牌与实体所有权归属 (Attribution & Security)**：
+   - 客户端加入时分配唯一的 `client_id` 与安全会话令牌 `token`；
+   - 客户端在世界中释放（`spawn`）的仿生兽由其专属所有（`owner = client_id`）；
+   - **严格权限校验**：若客户端 A 尝试发送指令（换向、收放风帆、击发沙锚）操控属于客户端 B 的实体，服务器立即拦截并拒绝该操作，返回 `{"event": "error", "code": "E_UNAUTHORIZED_ENTITY"}`；
+3. **输入合规性守门**：
+   - 严格拦截非有限浮点数（`NaN`/`Inf` 坐标）、非法动作类型或越界参数，安全返回 `E_INVALID_INPUT`，确保多人房间长期持续稳定运行不崩溃；
+4. **断线与令牌重连恢复**：
+   - 客户端意外断线时，其实体在沙盒世界中持续存在并受海滩风浪物理驱动；
+   - 客户端使用之前的令牌执行 `{"cmd": "reconnect", "token": "..."}` 时，服务器安全恢复其会话并重新绑定其名下所有实体的操控所有权；
+5. **房间并发预算与闲置资源回收**：
+   - 设置房间并发连接上限（默认 8 客户端），超出上限时拒绝加入并返回 `E_ROOM_FULL`；
+   - 提供 `cleanup_idle_rooms()`，对所有客户端均已断开且超过闲置超时阈值的空房间自动释放物理引擎与内存资源。
+
+
+
 

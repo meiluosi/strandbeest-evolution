@@ -490,6 +490,14 @@ class _WalkerAgent:
         self.actuator_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_ACTUATOR, info.actuator)
         self.crank_joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, info.crank_joint)
         self.qpos_idx = model.jnt_qposadr[self.crank_joint_id]
+        self.dof_idx = model.jnt_dofadr[self.crank_joint_id]
+        self.is_sail = getattr(info, "drive_kind", "motor") == "sail"
+        self.sail_tau = 0.0
+
+        if self.is_sail:
+            # Release actuator to enable purely aerodynamic wind drive
+            model.actuator_gainprm[self.actuator_id, :] = 0.0
+            model.actuator_biasprm[self.actuator_id, :] = 0.0
 
         self.valve = BistableValve()
         self.feeler = WaterFeeler(valve=self.valve, base_altitude=0.05)
@@ -578,6 +586,15 @@ def run_herd_mujoco(
     rec_t: list[float] = []
     rec_water: list[float] = []
     collisions: list[dict[str, Any]] = []
+    events: list[dict[str, Any]] = []
+
+    total_work_in = 0.0
+    total_bumper_dissipation = 0.0
+    total_anchor_dissipation = 0.0
+    prev_feeler_tripped = {name: False for name in agent_names}
+    prev_anchor_deployed = {name: False for name in agent_names}
+    grav = abs(model.opt.gravity[2]) if hasattr(model.opt, "gravity") else 9.81
+    rho = 1.225
 
     # Optional pose recording
     frame_every = (
@@ -597,6 +614,7 @@ def run_herd_mujoco(
 
         # Clear external applied forces
         data.xfrc_applied[:] = 0.0
+        data.qfrc_applied[:] = 0.0
         for agent in agents.values():
             agent.repulsion_fx = 0.0
 
@@ -616,8 +634,23 @@ def run_herd_mujoco(
             # Wind aerodynamic drag force on torso/sail
             # F_drag = 0.5 * rho * Area * Cd * (v_rel)^2
             v_rel_x = w_speed - v_torso[0]
-            f_wind = 0.5 * 1.225 * 0.04 * 1.2 * v_rel_x * abs(v_rel_x)
+            f_wind = 0.5 * rho * agent.info.sail_area * agent.info.sail_drag_coeff * v_rel_x * abs(v_rel_x)
             data.xfrc_applied[agent.torso_id, 0] += f_wind
+
+            # Aerodynamic drive for sail walkers
+            if agent.is_sail:
+                omega = -agent.direction * data.qvel[agent.dof_idx]
+                rel = w_speed - max(omega, 0.0) * agent.info.sail_gear * agent.info.sail_radius
+                tau = (
+                    agent.info.sail_gear * 0.5 * rho * agent.info.sail_drag_coeff
+                    * agent.info.sail_area * agent.info.sail_radius * rel * rel
+                    if rel > 0 else 0.0
+                )
+                agent.sail_tau = tau
+                data.qfrc_applied[agent.dof_idx] += -agent.direction * tau
+                total_work_in += tau * abs(omega) * timestep
+            else:
+                agent.sail_tau = 0.0
 
             # Water feeler reflex: tip altitude relative to water surface
             # Jansen's feeler tip hangs near the ground, oscillating with stride
@@ -625,17 +658,36 @@ def run_herd_mujoco(
             tripped = agent.feeler.step(
                 timestep, z_water=z_water, override_tip_altitude=z_tip
             )
-            if tripped:
+            if tripped and not prev_feeler_tripped[agent.name]:
                 # Water contact triggers reverse reflex!
                 agent.direction = -agent.direction
+                events.append({
+                    "type": "reflex_feeler_trip",
+                    "t": t,
+                    "entity": agent.name,
+                    "vacuum_pa": float(agent.feeler.vacuum),
+                    "water_level_m": float(z_water),
+                    "direction": int(agent.direction),
+                })
+                prev_feeler_tripped[agent.name] = True
+            elif not tripped:
+                prev_feeler_tripped[agent.name] = False
 
             # Storm anchor reflex: detect roll/pitch tilt from torso orientation matrix
             r_mat = data.xmat[agent.torso_id].reshape(3, 3)
             z_walker = r_mat[:, 2]  # local up vector in world frame
             tilt_rad = agent.anchor.compute_tilt_angle(z_walker)
+            tilt_deg = math.degrees(tilt_rad)
 
-            if agent.anchor.check_tilt_trigger(z_walker):
+            if agent.anchor.check_tilt_trigger(z_walker) and not agent.anchor.is_firing and not agent.anchor.is_deployed:
                 agent.anchor.trigger("walker_tilt_collision")
+                events.append({
+                    "type": "storm_anchor_deployed",
+                    "t": t,
+                    "entity": agent.name,
+                    "tilt_deg": float(tilt_deg),
+                    "holding_force_n": 0.0,
+                })
 
             # Storm anchor holding mechanics
             if agent.anchor.is_firing or agent.anchor.is_deployed:
@@ -662,6 +714,7 @@ def run_herd_mujoco(
                     data.xfrc_applied[agent.torso_id, :3] -= (
                         f_hold_clamped * (v_horiz / v_norm)
                     )
+                    total_anchor_dissipation += f_hold_clamped * v_norm * timestep
 
                 # Angular holding moment righting the torso back to vertical [0, 0, 1]
                 up_error = np.cross(z_walker, np.array([0.0, 0.0, 1.0]))
@@ -707,22 +760,36 @@ def run_herd_mujoco(
                     data.xfrc_applied[agA.torso_id, 4] -= tau_pitch
                     data.xfrc_applied[agB.torso_id, 4] += tau_pitch
 
-                    collisions.append({
-                        "t": t,
-                        "walkerA": nameA,
-                        "walkerB": nameB,
-                        "distance": d_horiz,
-                        "repulsion_force": f_rep_mag,
-                    })
+                    if f_rep_mag > 1e-4:
+                        diss = max(0.0, repulsion_c * v_rel_n * v_rel_n) * timestep
+                        total_bumper_dissipation += diss
+                        if len(collisions) == 0 or (t - collisions[-1]["t"]) > 0.05:
+                            col_ev = {
+                                "type": "collision",
+                                "t": t,
+                                "entity_a": nameA,
+                                "entity_b": nameB,
+                                "distance": float(d_horiz),
+                                "repulsion_force": float(f_rep_mag),
+                            }
+                            collisions.append(col_ev)
+                            events.append(col_ev)
 
         # 3. Actuator controls
         for agent in agents.values():
-            if agent.anchor.is_deployed:
-                # Locked in sand: disengage drive motor
-                data.ctrl[agent.actuator_id] = agent.crank_target
+            if agent.is_sail:
+                if agent.anchor.is_deployed:
+                    # Brake crank while anchored
+                    data.qfrc_applied[agent.dof_idx] -= 50.0 * data.qvel[agent.dof_idx]
             else:
-                agent.crank_target += agent.direction * agent.omega * timestep
-                data.ctrl[agent.actuator_id] = agent.crank_target
+                if agent.anchor.is_deployed:
+                    # Locked in sand: disengage drive motor
+                    data.ctrl[agent.actuator_id] = agent.crank_target
+                else:
+                    agent.crank_target += agent.direction * agent.omega * timestep
+                    data.ctrl[agent.actuator_id] = agent.crank_target
+                motor_f = abs(data.actuator_force[agent.actuator_id])
+                total_work_in += motor_f * abs(agent.omega) * timestep
 
         # 4. MuJoCo physics step
         mujoco.mj_step(model, data)
@@ -785,6 +852,27 @@ def run_herd_mujoco(
             "quat": f_quat,
         }
 
+    # Multi-walker kinetic and potential energy for energy ledger
+    ke = 0.0
+    pe = 0.0
+    for agent in agents.values():
+        v = data.cvel[agent.torso_id][3:]
+        ke += 0.5 * agent.info.total_mass * float(np.dot(v, v))
+        z = data.xpos[agent.torso_id][2]
+        pe += agent.info.total_mass * grav * z
+
+    energy_account = {
+        "work_in": float(total_work_in),
+        "bumper_dissipation": float(total_bumper_dissipation),
+        "anchor_dissipation": float(total_anchor_dissipation),
+        "kinetic_energy": float(ke),
+        "potential_energy": float(pe),
+        "energy_residual_ratio": float(
+            abs(total_work_in - (total_bumper_dissipation + total_anchor_dissipation + ke))
+            / max(total_work_in, 1.0)
+        ),
+    }
+
     return HerdResult(
         scenario=doc,
         t=t_arr,
@@ -793,4 +881,6 @@ def run_herd_mujoco(
         wind_speeds=winds_dict,
         collisions=collisions,
         frames=frames_dict,
+        events=events,
+        energy_account=energy_account,
     )

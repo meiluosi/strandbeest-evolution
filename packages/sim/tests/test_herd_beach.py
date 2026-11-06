@@ -208,3 +208,98 @@ def test_herd_beach_storm_anchor_deployment_on_tilt():
     # Anchor generates significant geotechnical holding force (> 500 N) pinning the walker
     max_holding_force = np.max(traj_anchor.anchor_holding_force)
     assert max_holding_force > 500.0, f"Expected soil holding force > 500 N, got {max_holding_force}"
+
+
+def test_herd_beach_zero_wind_no_self_driving():
+    """Verify that in zero wind with sail drive, walkers do not self-drive (conservation of energy)."""
+    sc_doc = _make_herd_scenario([
+        {"name": "sailWalker", "x": 0.0, "y": 0.0, "direction": 1},
+    ])
+    # Set drive to sail
+    sc_doc["entities"][0]["components"]["drive"] = {
+        "kind": "sail",
+        "sail_area": 0.04,
+        "sail_radius": 0.04,
+        "sail_drag_coeff": 1.2,
+        "sail_gear": 1.0,
+    }
+
+    # Zero wind, zero waves
+    wind = SpatiotemporalWindField(v0=0.0, amplitude=0.0)
+    tide = DynamicTideField(z0=-1.0, h_tide=0.0)
+
+    res = run_herd(
+        sc=sc_doc,
+        wind_field=wind,
+        tide_field=tide,
+        duration=1.0,
+    )
+
+    traj = res.walkers["sailWalker"]
+    # Total horizontal displacement must be essentially zero (strictly resting/settling under gravity, < 1 mm)
+    dx = float(np.max(np.abs(traj.x - traj.x[0])))
+    assert dx < 1e-3, f"Expected zero forward walk in zero wind, got settlement {dx} m"
+    # Crank must not rotate (no self-driving power)
+    dpsi = float(np.max(np.abs(traj.psi - traj.psi[0])))
+    assert dpsi < 0.01, f"Expected crank to stay stationary in zero wind, got rotation {dpsi} rad"
+    assert res.energy_account["work_in"] == pytest.approx(0.0, abs=1e-6)
+
+
+def test_herd_beach_recorded_wind_field_reproducibility():
+    """Verify loading KNMI coastal recorded wind dataset and deterministic replay."""
+    from strandbeest_sim import RecordedWindField
+    from pathlib import Path
+
+    dataset_path = Path(__file__).resolve().parents[3] / "data" / "winds" / "scheveningen_beach_gusts.json"
+    wind = RecordedWindField.load(dataset_path)
+
+    assert "KNMI" in wind.provenance["source"]
+    assert wind.provenance["units"]["speed"] == "m/s"
+
+    # Evaluate at known timestamps
+    v0 = wind.velocity(0.0)
+    v3 = wind.velocity(3.0)
+    assert v0 > 4.0
+    assert v3 > 6.0
+
+    sc_doc = _make_herd_scenario([
+        {"name": "w1", "x": 0.0, "y": 0.0},
+    ])
+
+    res1 = run_herd(sc=sc_doc, wind_field=wind, duration=1.0)
+    res2 = run_herd(sc=sc_doc, wind_field=wind, duration=1.0)
+
+    # Identical replay
+    np.testing.assert_allclose(res1.walkers["w1"].x, res2.walkers["w1"].x, atol=1e-10)
+
+
+def test_herd_beach_event_stream_and_energy_account():
+    """Verify that collisions, reflexes, and energy accounting are properly recorded in HerdResult."""
+    sc_doc = _make_herd_scenario([
+        {"name": "wA", "x": 0.0, "y": 0.0, "direction": 1},
+        {"name": "wB", "x": 0.28, "y": 0.0, "direction": -1},
+    ])
+
+    wind = SpatiotemporalWindField(v0=5.0, amplitude=1.0)
+    tide = DynamicTideField(z0=0.08, h_tide=0.08, omega_tide=2.0)
+
+    res = run_herd(
+        sc=sc_doc,
+        wind_field=wind,
+        tide_field=tide,
+        duration=1.5,
+        bumper_distance=0.35,
+    )
+
+    # Check events list exists and contains expected event categories
+    assert hasattr(res, "events")
+    event_types = {e["type"] for e in res.events}
+    assert "collision" in event_types or len(res.collisions) > 0
+
+    # Check energy account ledger
+    assert hasattr(res, "energy_account")
+    ea = res.energy_account
+    assert "work_in" in ea
+    assert "bumper_dissipation" in ea
+    assert ea["work_in"] >= 0.0
+

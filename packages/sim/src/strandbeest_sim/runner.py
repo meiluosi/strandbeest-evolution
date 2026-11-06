@@ -267,6 +267,8 @@ class HerdResult:
     wind_speeds: dict[str, np.ndarray]
     collisions: list[dict[str, Any]] = field(default_factory=list)
     frames: dict[str, Any] | None = None
+    events: list[dict[str, Any]] = field(default_factory=list)
+    energy_account: dict[str, Any] = field(default_factory=dict)
 
 
 def run_herd(

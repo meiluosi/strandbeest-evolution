@@ -154,6 +154,40 @@ export function makeWind(w: SimConfig["wind"]): WindFn {
 				return baseV * cosYaw;
 			};
 		}
+		case "spatiotemporal": {
+			const amp = Number(p.amplitude ?? 2.0);
+			const omega = Number(p.omega ?? 1.0);
+			const kx = Number(p.kx ?? 0.5);
+			return (t, _z) => {
+				const wave = amp * Math.sin(omega * t);
+				return Math.max(0.0, (w.speed + wave) * cosYaw);
+			};
+		}
+		case "recorded": {
+			const ts = (p.timestamps as number[]) ?? [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
+			const sp = (p.speeds as number[]) ?? [5.0, 6.0, 7.0, 6.5, 5.5, 5.0];
+			const speedScale = Number(
+				p.speed_scale ?? (w.speed > 0 ? w.speed / 6.0 : 1.0),
+			);
+			return (t, _z) => {
+				const firstT = ts[0];
+				const lastT = ts[ts.length - 1];
+				if (firstT === undefined || lastT === undefined) return 0.0;
+				if (t <= firstT) return (sp[0] ?? 0.0) * speedScale * cosYaw;
+				if (t >= lastT) return (sp[sp.length - 1] ?? 0.0) * speedScale * cosYaw;
+				// Linear search / interpolation
+				let idx = 0;
+				while (idx < ts.length - 1 && (ts[idx + 1] ?? 0) <= t) {
+					idx++;
+				}
+				const t0 = ts[idx] ?? 0;
+				const t1 = ts[idx + 1] ?? t0 + 1;
+				const alpha = t1 > t0 ? (t - t0) / (t1 - t0) : 0.0;
+				const v =
+					(1.0 - alpha) * (sp[idx] ?? 0.0) + alpha * (sp[idx + 1] ?? 0.0);
+				return Math.max(0.0, v * speedScale * cosYaw);
+			};
+		}
 		default:
 			throw new Error(`unknown wind '${w.kind}'`);
 	}
