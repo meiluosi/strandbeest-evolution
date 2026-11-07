@@ -1,0 +1,48 @@
+{
+	"schema_version": 1,
+	"id": "0000000000AYT7C4378YMV1E66",
+	"experiment_id": "000000000021YESJXG2BMZJNWP",
+	"revision": 1,
+	"question": "Does the baseline reproduce the source stride?",
+	"inputs": {
+		"design": {
+			"kind": "design",
+			"id": "0000000000YNGRWX0MDFYPZHXT",
+			"digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+		},
+		"source_runs": []
+	},
+	"conditions": [
+		{
+			"id": "000000000066QFKTWME86F44NG",
+			"key": "baseline",
+			"label": "Baseline",
+			"role": "baseline",
+			"parameters": {}
+		}
+	],
+	"trials": [
+		{
+			"id": "0000000000KX1ZGYJ0BSG2QCH0",
+			"condition_id": "000000000066QFKTWME86F44NG",
+			"key": "trial-1",
+			"seed": 1,
+			"purpose": "initial"
+		}
+	],
+	"evaluation_suite": {
+		"key": "stride",
+		"revision": 1,
+		"metrics": ["stride_per_rev"]
+	},
+	"budget": {
+		"max_trials": 1,
+		"max_compute_seconds": 60
+	},
+	"permission_policy": {
+		"mode": "manual_only",
+		"requires_execution_authorization": true
+	},
+	"created": "2026-11-06T00:00:00+00:00",
+	"digest": "sha256:cf159c70cfdcd2f10132bf3e8a7054c394c3eb9f06a566aa901067bf265e01a7"
+}

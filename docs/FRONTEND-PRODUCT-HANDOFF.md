@@ -497,4 +497,5 @@ HF-01 完成不代表 HF-00 的盘点已验收，也不代表 HF-02–HF-08 或 
 - `pnpm check` 通过：Biome、全部类型／Svelte 检查及 454 项 JS 测试（core 195、sim-web 198、web 61），Svelte 0 错误、0 警告；Web 生产构建、硬编码中文检查和 `git diff --check` 通过。
 - 新增定向矩阵共 16 项，10 项通过、6 项按 live/static 模式预期跳过。完整矩阵首轮发现实验室选项宽度随真实历史内容变化及既有静态回放基线差异；固定下拉框布局、审查实际 `0.00 s` 回放／指标／能量画面并更新基线后，定向复验 4 项通过、4 项跳过。未放宽任何像素或溢出阈值。
 - 固定 Linux Chromium 完整矩阵最终共 124 项，94 项通过、30 项按 live/static 模式预期跳过；20 张新基线与 6 张既有静态回放／指标／能量基线已审查。两份真实制造下载各验证 18 个封闭网格及尺寸、数量和文档，3 个负向对照均被拒绝；这不是实体制造验证。
-- HF-03 未修改物理、GA、Design／Scenario／Run 契约、Replay 算法、Three.js 内核或 API，也未接入 Harness 执行、训练或评测。数字海滩仍不是 PhysicsBackend；浏览器证据不包括 Firefox／WebKit。HF-00 的独立盘点与验收仍待完成，后续按 HF-04 及其 HN01／HN02 依赖推进。
+- HF-03 未修改物理、GA、Design／Scenario／Run 契约、Replay 算法或 Three.js 内核。数字海滩仍不是 PhysicsBackend；浏览器证据不包括 Firefox／WebKit。
+- HF-00 基线与差异验收已完成，见 [HARNESS-BASELINE.md](HARNESS-BASELINE.md)。HN01／HN02 最小后端现提供 `/api/harness/v1` 的真实 Experiment／ExperimentRevision、Condition／Trial、真实 NPZ DatasetSnapshot／Split 及独立 `harness_` 血缘；重启恢复、引用和篡改检查已覆盖。下一步是 HF-04 前端接入；HN03 执行、HN04 训练、Parquet／拟合变换和完整 HN02 仍未实现。

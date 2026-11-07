@@ -1,0 +1,162 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/experiment-revision.schema.json",
+	"title": "ExperimentRevision",
+	"description": "An immutable experiment protocol revision. Display metadata and execution state live outside this document.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schema_version",
+		"id",
+		"experiment_id",
+		"revision",
+		"question",
+		"inputs",
+		"conditions",
+		"trials",
+		"evaluation_suite",
+		"budget",
+		"permission_policy",
+		"created",
+		"digest"
+	],
+	"properties": {
+		"schema_version": { "const": 1 },
+		"id": { "$ref": "#/$defs/Ulid" },
+		"experiment_id": { "$ref": "#/$defs/Ulid" },
+		"revision": { "type": "integer", "minimum": 1, "x-unit": "1" },
+		"base_id": { "$ref": "#/$defs/Ulid" },
+		"question": { "type": "string", "minLength": 1 },
+		"inputs": { "$ref": "#/$defs/Inputs" },
+		"conditions": {
+			"type": "array",
+			"minItems": 1,
+			"items": { "$ref": "#/$defs/Condition" }
+		},
+		"trials": {
+			"type": "array",
+			"minItems": 1,
+			"items": { "$ref": "#/$defs/Trial" }
+		},
+		"evaluation_suite": { "$ref": "#/$defs/EvaluationSuiteRef" },
+		"budget": { "$ref": "#/$defs/Budget" },
+		"permission_policy": { "$ref": "#/$defs/PermissionPolicy" },
+		"created": { "type": "string", "minLength": 1 },
+		"digest": { "$ref": "#/$defs/Digest" }
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+		},
+		"Digest": {
+			"type": "string",
+			"pattern": "^sha256:[0-9a-f]{64}$"
+		},
+		"AssetRef": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["kind", "id", "digest"],
+			"properties": {
+				"kind": {
+					"enum": [
+						"design",
+						"run",
+						"measurement",
+						"profile",
+						"dataset_snapshot"
+					]
+				},
+				"id": { "$ref": "#/$defs/Ulid" },
+				"digest": { "$ref": "#/$defs/Digest" }
+			}
+		},
+		"ScenarioSnapshot": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["document", "digest"],
+			"properties": {
+				"document": { "type": "object" },
+				"digest": { "$ref": "#/$defs/Digest" }
+			}
+		},
+		"Inputs": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["design", "source_runs"],
+			"properties": {
+				"design": { "$ref": "#/$defs/AssetRef" },
+				"scenario": { "$ref": "#/$defs/ScenarioSnapshot" },
+				"source_runs": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/AssetRef" }
+				},
+				"dataset_snapshot": { "$ref": "#/$defs/AssetRef" }
+			}
+		},
+		"Condition": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id", "key", "label", "role", "parameters"],
+			"properties": {
+				"id": { "$ref": "#/$defs/Ulid" },
+				"key": { "type": "string", "minLength": 1 },
+				"label": { "type": "string", "minLength": 1 },
+				"role": { "enum": ["baseline", "learned", "control"] },
+				"design": { "$ref": "#/$defs/AssetRef" },
+				"parameters": {
+					"type": "object",
+					"description": "Frozen condition-specific values; execution interpretation is defined by a later JobSpec."
+				}
+			}
+		},
+		"Trial": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id", "condition_id", "key", "seed", "purpose"],
+			"properties": {
+				"id": { "$ref": "#/$defs/Ulid" },
+				"condition_id": { "$ref": "#/$defs/Ulid" },
+				"key": { "type": "string", "minLength": 1 },
+				"seed": { "type": "integer", "x-unit": "1" },
+				"purpose": { "enum": ["initial", "independent_replication"] }
+			}
+		},
+		"EvaluationSuiteRef": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["key", "revision", "metrics"],
+			"properties": {
+				"key": { "type": "string", "minLength": 1 },
+				"revision": { "type": "integer", "minimum": 1, "x-unit": "1" },
+				"metrics": {
+					"type": "array",
+					"minItems": 1,
+					"items": { "type": "string", "minLength": 1 }
+				}
+			}
+		},
+		"Budget": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["max_trials", "max_compute_seconds"],
+			"properties": {
+				"max_trials": { "type": "integer", "minimum": 1, "x-unit": "1" },
+				"max_compute_seconds": {
+					"type": "number",
+					"exclusiveMinimum": 0,
+					"x-unit": "s"
+				}
+			}
+		},
+		"PermissionPolicy": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["mode", "requires_execution_authorization"],
+			"properties": {
+				"mode": { "const": "manual_only" },
+				"requires_execution_authorization": { "const": true }
+			}
+		}
+	}
+}

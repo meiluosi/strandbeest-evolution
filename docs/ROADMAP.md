@@ -4,15 +4,16 @@
 
 在既有 Strandbeest Studio 和全部物理／资产能力上，增量建立模型实验 Harness。已接受 [ADR-0013](adr/0013-harness-research-workbench.md)：保留 Svelte 与领域工作台，以实验设计、运行／回放、比较／证据组织研究旅程；目标契约见 [HARNESS-FRONTEND.md](HARNESS-FRONTEND.md)，执行卡见 [ACTIONS.md](ACTIONS.md) 的 HF 节。
 
-- [ ] M0／HF-00：核对当前基线、组件与 Harness 接口差异，保护旧资产和已有前端流程。
+- [x] M0／HF-00：核对当前基线、组件与 Harness 接口差异，保护旧资产和已有前端流程。
 - [x] HF-01：重构研究 Shell、分组导航、设计系统及真实研究空态，保留旧导航与领域状态。
 - [x] HF-02：统一设计与演化工作台的信息层级和共享组件，保留 Operation、GA Worker 与 MAP-Elites 事实源。
 - [x] HF-03：统一仿真／回放及次级工作台，不为视觉建立平行科学数据层。
+- [x] HN01／HN02 最小后端切片：真实 ExperimentRevision、Condition／Trial、NPZ DatasetSnapshot／Split 与独立权威血缘；不含执行、训练或完整 HN02。
 - [ ] M1／HF-04–HF-06：随 HN01–HN05 接入真实实验协议、数据、训练、评测、预测回放和证据。
 - [ ] M1／HF-08：以真实轨迹、实际权重和真实评测完成浏览器端到端验收；无提升或未验证也是有效结果。
 - [ ] M3／HF-07：在 HN07 后接入受控研究提案和人工审批，不提前开放无人值守研究。
 
-该主线不替换下方尚未完成的物理加固和外部证据目标，也不以界面完成替代 H2–H5。新 `/api/harness/v1`、训练、评测和研究对象在实现前均属于规划。
+该主线不替换下方尚未完成的物理加固和外部证据目标，也不以界面完成替代 H2–H5。`/api/harness/v1` 当前仅覆盖 HN01／HN02 最小协议和快照切片；执行、训练、评测及其余研究对象仍属于规划。
 
 ## 并行里程碑：全层面加固（2026-11-03）
 

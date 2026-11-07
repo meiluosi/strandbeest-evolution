@@ -9,7 +9,7 @@ from strandbeest_common.schemas import schema_dir, validator
 EX = schema_dir() / "examples"
 
 
-@pytest.mark.parametrize("name", ["design", "measurement", "profile", "run"])
+@pytest.mark.parametrize("name", ["design", "measurement", "profile", "run", "experiment-revision", "dataset-snapshot"])
 def test_examples_validate(name):
     for f in EX.glob(f"{name}-*.json"):
         validate(name, json.loads(f.read_text()))

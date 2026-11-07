@@ -20,14 +20,18 @@ const validators = Object.fromEntries(
 		"measurement",
 		"profile",
 		"run",
+		"experiment-revision",
+		"dataset-snapshot",
 	].map((n) => [n, ajv.compile(load(`${n}.schema.json`))]),
 );
 
 describe("shared JSON schemas", () => {
 	for (const f of readdirSync(join(dir, "examples"))) {
 		it(`example ${f} validates`, () => {
-			const name = f.split("-")[0] as string;
-			const validate = validators[name];
+			const name = Object.keys(validators).find((name) =>
+				f.startsWith(`${name}-`),
+			);
+			const validate = name ? validators[name] : undefined;
 			expect(
 				validate?.(load(`examples/${f}`)),
 				JSON.stringify(validate?.errors),

@@ -9,7 +9,7 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-NAMES = ("design", "measurement", "profile", "run", "atlas")
+NAMES = ("design", "measurement", "profile", "run", "atlas", "experiment-revision", "dataset-snapshot")
 
 
 def schema_dir() -> Path:

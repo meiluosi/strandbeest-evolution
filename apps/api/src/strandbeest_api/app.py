@@ -29,6 +29,7 @@ from strandbeest_fab import printable_problems
 from strandbeest_rig import Calibration, convert_raw
 from strandbeest_sim import virtual_dynamometer
 
+from .harness import HarnessStore, register_harness_routes
 from .jobs import JobContext, JobStore, Workers
 from .pipeline import cache_matches, compute_run_key, evaluate, simulate, simulate_ensemble
 from .sweeps import expand, run_sweep
@@ -41,6 +42,7 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     origins = os.environ.get("STRANDBEEST_CORS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080").split(",")
 
     store = JobStore(root / "strandbeest.db")
+    harness_store = HarnessStore(root)
     interrupted = store.recover()
     _reindex(store, root)
 
@@ -209,8 +211,9 @@ def create_app(data_dir: str | Path | None = None, workers: int | None = None) -
     pool.start()
 
     app = FastAPI(title="Strandbeest platform API", version="0.2.0")
-    app.state.store, app.state.workers = store, pool
+    app.state.store, app.state.workers, app.state.harness = store, pool, harness_store
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
+    register_harness_routes(app, harness_store)
 
     @app.get("/health")
     def health():

@@ -1,0 +1,120 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://github.com/meiluosi/strandbeest-evolution/schemas/dataset-snapshot.schema.json",
+	"title": "DatasetSnapshot",
+	"description": "An immutable manifest of real run episodes, exact source bytes and a group-disjoint split.",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schema_version",
+		"id",
+		"sources",
+		"observation",
+		"split",
+		"transforms",
+		"total_samples",
+		"created",
+		"digest"
+	],
+	"properties": {
+		"schema_version": { "const": 1 },
+		"id": { "$ref": "#/$defs/Ulid" },
+		"sources": {
+			"type": "array",
+			"minItems": 1,
+			"items": { "$ref": "#/$defs/SourceRun" }
+		},
+		"observation": { "$ref": "#/$defs/ObservationContract" },
+		"split": { "$ref": "#/$defs/SplitManifest" },
+		"transforms": {
+			"type": "array",
+			"maxItems": 0,
+			"description": "No fitted transform is supported by the minimal snapshot API; an empty list is explicit.",
+			"items": { "type": "object" }
+		},
+		"total_samples": { "type": "integer", "minimum": 1, "x-unit": "1" },
+		"created": { "type": "string", "minLength": 1 },
+		"digest": { "$ref": "#/$defs/Digest" }
+	},
+	"$defs": {
+		"Ulid": {
+			"type": "string",
+			"pattern": "^[0-7][0-9A-HJKMNP-TV-Z]{25}$"
+		},
+		"Digest": {
+			"type": "string",
+			"pattern": "^sha256:[0-9a-f]{64}$"
+		},
+		"RunRef": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["kind", "id", "digest"],
+			"properties": {
+				"kind": { "const": "run" },
+				"id": { "$ref": "#/$defs/Ulid" },
+				"digest": { "$ref": "#/$defs/Digest" }
+			}
+		},
+		"SourceRun": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"run",
+				"episode_id",
+				"group_id",
+				"arrays_file",
+				"arrays_sha256",
+				"sample_count",
+				"channels"
+			],
+			"properties": {
+				"run": { "$ref": "#/$defs/RunRef" },
+				"episode_id": { "$ref": "#/$defs/Ulid" },
+				"group_id": { "$ref": "#/$defs/Ulid" },
+				"arrays_file": { "type": "string", "minLength": 1 },
+				"arrays_sha256": { "$ref": "#/$defs/Digest" },
+				"sample_count": { "type": "integer", "minimum": 1, "x-unit": "1" },
+				"channels": {
+					"type": "array",
+					"minItems": 1,
+					"items": { "type": "string", "minLength": 1 }
+				}
+			}
+		},
+		"ObservationContract": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["time_unit", "channels"],
+			"properties": {
+				"time_unit": { "const": "s" },
+				"channels": {
+					"type": "array",
+					"minItems": 1,
+					"items": { "type": "string", "minLength": 1 }
+				}
+			}
+		},
+		"SplitManifest": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["group_by", "assignments"],
+			"properties": {
+				"group_by": { "const": "design_id" },
+				"assignments": {
+					"type": "array",
+					"minItems": 2,
+					"items": { "$ref": "#/$defs/SplitAssignment" }
+				}
+			}
+		},
+		"SplitAssignment": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["group_id", "split"],
+			"properties": {
+				"group_id": { "$ref": "#/$defs/Ulid" },
+				"split": { "enum": ["train", "development", "test"] }
+			}
+		}
+	}
+}

@@ -1,0 +1,53 @@
+{
+	"schema_version": 1,
+	"id": "00000000003HYC1DD1HWK2A6EC",
+	"sources": [
+		{
+			"run": {
+				"kind": "run",
+				"id": "0000000000K51JQDQ9VY8Y3AN6",
+				"digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+			},
+			"episode_id": "0000000000K51JQDQ9VY8Y3AN6",
+			"group_id": "0000000000M726D36WJDRT489R",
+			"arrays_file": "arrays.npz",
+			"arrays_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+			"sample_count": 10,
+			"channels": ["t", "psi"]
+		},
+		{
+			"run": {
+				"kind": "run",
+				"id": "00000000004WZDXQRTRD81HBXR",
+				"digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+			},
+			"episode_id": "00000000004WZDXQRTRD81HBXR",
+			"group_id": "0000000000H7P2SF2CAN868KT5",
+			"arrays_file": "arrays.npz",
+			"arrays_sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+			"sample_count": 12,
+			"channels": ["t", "psi"]
+		}
+	],
+	"observation": {
+		"time_unit": "s",
+		"channels": ["t", "psi"]
+	},
+	"split": {
+		"group_by": "design_id",
+		"assignments": [
+			{
+				"group_id": "0000000000M726D36WJDRT489R",
+				"split": "train"
+			},
+			{
+				"group_id": "0000000000H7P2SF2CAN868KT5",
+				"split": "test"
+			}
+		]
+	},
+	"transforms": [],
+	"total_samples": 22,
+	"created": "2026-11-06T00:00:00+00:00",
+	"digest": "sha256:f5edd8887255c1ba2dfd31d7839fc24c15c8a7a7916b3a1e265cadfec575fbfc"
+}
