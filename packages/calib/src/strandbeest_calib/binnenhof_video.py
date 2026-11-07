@@ -75,16 +75,18 @@ def run_video_tracking(frames: list[np.ndarray], fps: float, scale_mpp: float = 
     dt = float(t[-1] - t[0])
     v_mean = dx / dt if dt > 0 else 0.0
 
-    # Fundamental crank cadence: In Theo Jansen's 12-leg walker, leg step frequency is ~0.27 Hz (6 pairs)
-    # corresponding to fundamental crank rotation frequency f_crank = 0.27 / 6 = 0.045 Hz
-    # Over 10.0 s, this corresponds to ~0.45 full crank revolution (Delta psi = 2.82 rad).
+    # Crank cadence note: In Shot 3, the crank axle and linkage junctions are occluded.
+    # The optical flow tracks chassis forward displacement x(t).
+    # Crank rotational cadence is an assumed nominal parameter (f_crank = 0.045 Hz, omega = 0.2827 rad/s)
+    # matching the observed steady towing speed across 10 s, NOT an independent direct visual marker measurement.
+    # Consequently, this measurement asset is classified under Evidence Level E0 (unverified cadence assumption).
     f_crank = 0.045
     crank_period_s = 1.0 / f_crank
     omega_mean = float(2.0 * math.pi * f_crank)  # ~ 0.2827 rad/s
     revolutions_in_window = (dt * omega_mean) / (2.0 * math.pi)
     stride_per_rev_m = dx / revolutions_in_window if revolutions_in_window > 0 else 0.0
 
-    # Unwrapped crank angle psi(t)
+    # Unwrapped crank angle psi(t) based on assumed steady cadence
     psi = (omega_mean * t).tolist()
 
     return {
@@ -167,7 +169,9 @@ def build_measurement_asset(track_data: dict[str, Any], design_id: str = "01KKNV
             "notes": (
                 "Video source: https://commons.wikimedia.org/wiki/File:Het_Strandbeest_van_kunstenaar_Theo_Jansen_loopt_over_het_Binnenhof.webm. "
                 "SHA-256: 9944c693e7326d19c839b208790230fea1b03532eed189cedcd72cc76772e478. "
-                "Optical flow tracking on Shot 3 frames 650-950 (10.0 s). "
+                "Optical flow tracking on Shot 3 frames 650-950 (10.0 s) for chassis displacement x(t). "
+                "Crank angle psi(t) is an assumed nominal trajectory (cadence=0.045 Hz, unverified) because linkage pins are occluded. "
+                "Evidence Level: E0 (Kinematic Assumption / Unverified). "
                 "Torque is unmeasured and wind speed is zero."
             ),
         },
@@ -177,7 +181,7 @@ def build_measurement_asset(track_data: dict[str, Any], design_id: str = "01KKNV
             "revolutions": round(psi[-1] / (2.0 * math.pi), 3),
             "speed_mean_rad_s": round(omega, 4),
             "speed_cv": 0.05,
-            "dropouts": 0,
+            "dropouts": int(round((1.0 - float(track_data.get("detected_fraction", 1.0))) * len(t))),
             "time_offset_s": None,
             "warnings": list(track_data.get("warnings", [])),
         },

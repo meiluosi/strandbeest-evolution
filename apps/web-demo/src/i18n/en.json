@@ -672,7 +672,7 @@
 	"lab.error.parametersInvalid": "Select distinct calibration parameters that can act together. The current model does not support bar-flexibility calibration.",
 	"videoTwin.title": "Field Video Digital Twin Tri-Comparison",
 	"videoTwin.subtitle": "Tri-comparison of theoretical kinematics, full-scale MuJoCo simulation, and empirical Binnenhof field video tracking",
-	"videoTwin.badge": "Kinematic Empirical Evidence",
+	"videoTwin.badge": "Assumption-Driven Baseline [unverified]",
 	"videoTwin.loadBenchmark": "Load Binnenhof Benchmark",
 	"videoTwin.uploadCustom": "Upload Custom Measurement (.json / .csv)",
 	"videoTwin.customLoaded": "Custom measurement loaded: {name}",
@@ -682,7 +682,7 @@
 	"videoTwin.viewMode": "View Mode",
 	"videoTwin.legendTheoretical": "Theoretical Kinematics (Ideal)",
 	"videoTwin.legendSimulation": "Full-Scale MuJoCo Forward Sim",
-	"videoTwin.legendMeasured": "Binnenhof Empirical Optical Flow",
+	"videoTwin.legendMeasured": "Binnenhof Optical Flow + Assumed Cadence",
 	"videoTwin.legendCi95": "95% Confidence Interval (±1.96σ)",
 	"videoTwin.legendSigma": "1σ Uncertainty Band (±5.4%)",
 	"videoTwin.tableTitle": "Tri-Comparison Stride & Deviation Table",
@@ -695,7 +695,7 @@
 	"videoTwin.outsideEnvelope": "Outside Envelope",
 	"videoTwin.baseline": "Empirical Baseline",
 	"videoTwin.literatureTitle": "Literature Baseline: Nansai et al. 2015 Compliance Shrinkage",
-	"videoTwin.literatureText": "In Nansai et al. 2015 physical prototype tests, PVC link flexibility and pin clearance caused a 16.07% stride reduction relative to rigid simulation (measured 33.42 cm vs simulated 39.82 cm). Our full-scale Binnenhof walker exhibits only 4.11% deviation vs MuJoCo and 2.57% vs kinematics, strictly inside the ±5.4% optical scale uncertainty envelope.",
+	"videoTwin.literatureText": "In Nansai et al. 2015 prototype tests, PVC flexibility caused a 16.07% stride reduction (33.42 cm vs 39.82 cm). In our Binnenhof benchmark, crank cadence is assumed at 0.045 Hz based on theoretical stride, yielding 2.8008 m within ±5.4% scale uncertainty; crank and feet were untracked in video, downgraded to E0 assumption baseline.",
 	"videoTwin.provenanceTitle": "Video Provenance & Digital Fingerprint",
 	"videoTwin.provenanceSource": "Source Video",
 	"videoTwin.provenanceLicense": "License",
@@ -703,7 +703,7 @@
 	"videoTwin.provenanceScale": "Calibration Reference",
 	"videoTwin.provenanceScaleDesc": "Dual anchor: Theo Jansen 1.85 m & Animaris 2.36 m (0.003895 ± 0.00021 m/px)",
 	"videoTwin.statMeanVelocity": "Measured Mean Velocity",
-	"videoTwin.statCrankCadence": "Crank Cadence / Period",
+	"videoTwin.statCrankCadence": "Assumed Crank Cadence / Period (Untracked)",
 	"videoTwin.statRevolutions": "Revolutions / Duration",
 	"videoTwin.errParse": "Failed to parse measurement file: {error}",
 	"videoTwin.axisX": "Horizontal Position X (m)",
@@ -714,5 +714,5 @@
 	"videoTwin.tabRig": "Motor Rig Calibration",
 	"videoTwin.modelTheoretical": "Theoretical Kinematics (Ideal)",
 	"videoTwin.modelSimulation": "Full-Scale MuJoCo Dynamic Sim",
-	"videoTwin.modelMeasured": "Binnenhof Empirical Optical Flow"
+	"videoTwin.modelMeasured": "Binnenhof Video Displacement + Assumed Cadence"
 }

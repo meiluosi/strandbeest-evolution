@@ -255,8 +255,10 @@ function onSvgMouseLeave() {
 				<h3>{t("videoTwin.title")}</h3>
 				<EvidenceBadge
 					evidence={{
-						level: "E2",
-						basis: ["Binnenhof CC BY 3.0", "Optical Flow v2"],
+						level: "E0",
+						basis: ["Binnenhof CC BY 3.0 (Chassis x(t))", "Cadence assumed (0.045 Hz)"],
+						downgraded: true,
+						downgrade_reason: "Crank cadence is an unverified assumption; optical flow only tracked chassis position without tracked crank/feet",
 					}}
 				/>
 				<span class="badge evidence-tag">{t("videoTwin.badge")}</span>
@@ -568,7 +570,7 @@ function onSvgMouseLeave() {
 						<small class="muted"> [2.505, 3.097]</small>
 					</td>
 					<td>
-						<span class="evidence-chip e2">E2 Kinematics</span>
+						<span class="evidence-chip e0">E0 Assumption</span>
 					</td>
 				</tr>
 
@@ -862,10 +864,10 @@ function onSvgMouseLeave() {
 		font-weight: 600;
 	}
 
-	.evidence-chip.e2 {
-		background: #2e8b5722;
-		color: #2e8b57;
-		border: 1px solid #2e8b5755;
+	.evidence-chip.e0 {
+		background: #f59e0b22;
+		color: #d97706;
+		border: 1px solid #f59e0b55;
 	}
 
 	.evidence-chip.e1 {

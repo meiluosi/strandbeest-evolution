@@ -246,14 +246,15 @@ def test_herd_beach_zero_wind_no_self_driving():
 
 
 def test_herd_beach_recorded_wind_field_reproducibility():
-    """Verify loading KNMI coastal recorded wind dataset and deterministic replay."""
+    """Verify loading coastal recorded wind dataset and deterministic replay."""
     from strandbeest_sim import RecordedWindField
     from pathlib import Path
 
     dataset_path = Path(__file__).resolve().parents[3] / "data" / "winds" / "scheveningen_beach_gusts.json"
     wind = RecordedWindField.load(dataset_path)
 
-    assert "KNMI" in wind.provenance["source"]
+    assert wind.provenance.get("synthetic") is True
+    assert "Scheveningen" in wind.provenance["source"]
     assert wind.provenance["units"]["speed"] == "m/s"
 
     # Evaluate at known timestamps

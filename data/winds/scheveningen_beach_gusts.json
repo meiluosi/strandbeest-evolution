@@ -1,10 +1,10 @@
 {
   "provenance": {
-    "source": "KNMI Coastal Weather Station 215 (Scheveningen beach buoy, North Sea coast, Netherlands)",
+    "synthetic": true,
+    "model": "Harmonic coastal gust benchmark with directional shear",
+    "source": "Synthetic benchmark inspired by Dutch North Sea coastal gale conditions (Scheveningen tidal beach environment)",
     "license": "CC0 1.0 Universal Open Data",
-    "station_id": "KNMI-215-SCHEV",
-    "measurement_date": "2024-09-15T14:00:00Z",
-    "description": "High-frequency coastal anemometer gust timeseries recorded during autumn gale on sandy tidal beach",
+    "description": "Synthetic parameterized 10 Hz coastal anemometer gust timeseries for simulation stress testing under autumn gale conditions",
     "sampling_rate_hz": 10.0,
     "units": {
       "time": "s",

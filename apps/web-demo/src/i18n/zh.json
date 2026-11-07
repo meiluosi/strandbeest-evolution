@@ -672,7 +672,7 @@
 	"lab.error.parametersInvalid": "请选择互不重复且可同时生效的校准参数。当前模型不支持杆件柔性校准。",
 	"videoTwin.title": "外场视频数字孪生三方对比",
 	"videoTwin.subtitle": "理论运动学、全尺寸 MuJoCo 仿真与海牙国会大厦实测视频追踪对照",
-	"videoTwin.badge": "运动学实测证据",
+	"videoTwin.badge": "假设驱动模型基线 [unverified]",
 	"videoTwin.loadBenchmark": "载入国会大厦走兽实测基准",
 	"videoTwin.uploadCustom": "上传自定义实测 (.json / .csv)",
 	"videoTwin.customLoaded": "已成功载入实测数据：{name}",
@@ -682,7 +682,7 @@
 	"videoTwin.viewMode": "视图模式",
 	"videoTwin.legendTheoretical": "理论运动学刚体闭式解",
 	"videoTwin.legendSimulation": "全尺寸 MuJoCo 前向仿真",
-	"videoTwin.legendMeasured": "海牙外场视频光流实测",
+	"videoTwin.legendMeasured": "海牙外场视频机身光流 + 假定步频",
 	"videoTwin.legendCi95": "95% 置信区间 (±1.96σ)",
 	"videoTwin.legendSigma": "1σ 不确定度区间 (±5.4%)",
 	"videoTwin.tableTitle": "三方步幅与偏差对照表",
@@ -695,7 +695,7 @@
 	"videoTwin.outsideEnvelope": "超出包络",
 	"videoTwin.baseline": "实测基准",
 	"videoTwin.literatureTitle": "文献对比：Nansai et al. 2015 原型机柔性缩水基线",
-	"videoTwin.literatureText": "在 Nansai et al. 2015 原型机实测中，PVC 连杆弯曲与铰链间隙导致实测步态较刚体仿真缩水 16.07%（实测 33.42 cm vs 仿真 39.82 cm）。本项目全尺寸实机仅缩水 4.11%（对比仿真）与 2.57%（对比运动学），严格处于 ±5.4% 光学尺度不确定度包络之内。",
+	"videoTwin.literatureText": "在 Nansai et al. 2015 原型机实测中，PVC 连杆弯曲与铰链间隙导致实测步态较刚体仿真缩水 16.07%（实测 33.42 cm vs 仿真 39.82 cm）。在当前 Binnenhof 视频基准中，曲柄转频依据理论步态假定为 0.045 Hz，单圈步幅 2.8008 m 与理论相差 2.57%，处于 ±5.4% 光学尺度不确定度内；曲柄与足端未直接追踪，降级为 E0 假设基线。",
 	"videoTwin.provenanceTitle": "视频溯源与数字指纹",
 	"videoTwin.provenanceSource": "来源影像",
 	"videoTwin.provenanceLicense": "授权协议",
@@ -703,7 +703,7 @@
 	"videoTwin.provenanceScale": "标定基准",
 	"videoTwin.provenanceScaleDesc": "Theo Jansen 身高 1.85 m 与 Animaris 桅高 2.36 m 双重标定 (0.003895 ± 0.00021 m/px)",
 	"videoTwin.statMeanVelocity": "实测平均速度",
-	"videoTwin.statCrankCadence": "实测步频/曲柄周期",
+	"videoTwin.statCrankCadence": "假定步频/曲柄周期 (未追踪曲柄)",
 	"videoTwin.statRevolutions": "观测转数/时长",
 	"videoTwin.errParse": "解析测量文件失败：{error}",
 	"videoTwin.axisX": "水平位置 X (m)",
@@ -714,5 +714,5 @@
 	"videoTwin.tabRig": "电机试验台测量与校准",
 	"videoTwin.modelTheoretical": "理论运动学闭式解",
 	"videoTwin.modelSimulation": "MuJoCo 全尺寸动力学仿真",
-	"videoTwin.modelMeasured": "Binnenhof 实测视频光流追踪"
+	"videoTwin.modelMeasured": "Binnenhof 视频机身位移 + 假定转频"
 }

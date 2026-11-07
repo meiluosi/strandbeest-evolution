@@ -1,4 +1,4 @@
-"""V-03 / V1b Literature Dynamics Replication: Nansai et al. 2015.
+"""V-03 / V1b Literature Mechanical Parameters Dynamic Modeling: Nansai et al. 2015.
 
 Academic references:
 1. Primary: Nansai et al., 2015, "Dynamic Modeling and Nonlinear Position Control of
@@ -8,10 +8,12 @@ Academic references:
    patterns for reconfigurable walking platforms", Advances in Mechanical Engineering
    2015, Vol 7(3), DOI: 10.1177/1687814015573824.
 
-This module replicates the physical parameters and dynamic modeling conditions
-from Nansai 2015, extracts steady-state foot trajectories and contact dynamics over
-10 steady-state cycles, and evaluates comparison metrics against published values.
-Assigns Evidence Level E1 (Literature Model Replication / 文献模型复现).
+This module models a quadruped Strandbeest using Nansai 2015 mechanical parameters
+(mass m=0.1 kg/link, joint damping C=0.01 N*m*s/rad, crank length L2=0.05417 m) applied to
+canonical Jansen linkages. Note that Nansai 2015 studied an elongated reconfigurable
+plantigrade leg (simulated stroke 39.82 cm, prototype 33.42 cm, with 16.07% flexibility
+shrinkage), whereas canonical Jansen holy numbers with crank L2=0.05417 m yield a 24.52 cm stroke.
+Assigns Evidence Level E0 (Literature Parameters on Canonical Geometry / 文献参数前向仿真) [unverified].
 """
 from __future__ import annotations
 
@@ -462,7 +464,7 @@ def generate_nansai_validation_document(result: NansaiReplicationResult) -> dict
     return {
         "date": "2026-11-06",
         "task": "V-03 (V1b Literature Model Replication / Nansai et al. 2015 Replication)",
-        "evidence_level": "E1 (Literature Model Replication / 文献模型复现)",
+        "evidence_level": "E0 (Forward Simulation with Literature Mechanical Parameters) [unverified]",
         "literature_references": {
             "primary": {
                 "title": NANSAI_2015_PRIMARY_TITLE,
@@ -547,7 +549,7 @@ def generate_nansai_validation_document(result: NansaiReplicationResult) -> dict
                 "2. Dynamic Equilibrium: Ground contact normal forces integrate to exactly 99.8% of static robot gravitational weight (vertical_equilibrium_ratio = 0.998), verifying strict Newtonian conservation.",
                 "3. Stance Flatness: The foot contact path exhibits a stable, nearly horizontal stance stroke with vertical ripple < 1.6 cm across steady steps.",
                 "4. Geometry Differentiation: Standard Jansen holy numbers with crank L2 = 0.05417 m naturally yield a 24.52 cm foot stroke. Nansai 2015 AME Table 2 reports an elongated 39.82 cm plantigrade stroke obtained via modified lower triangle dimensions in their reconfigurable leg platform.",
-                "5. Physical Shrinkage Concordance: Nansai's physical PVC prototype exhibited 16.07% stroke shrinkage (33.42 cm vs 39.82 cm) and 19.17% lift shrinkage due to link compliance and joint bearing tolerances. This directly explains and supports the small shrinkage observed in real hardware (e.g. 2.57% - 4.11% in Binnenhof full-scale video validation).",
+                "5. Physical Shrinkage Context: Nansai's physical PVC prototype exhibited 16.07% stroke shrinkage (33.42 cm vs 39.82 cm) and 19.17% lift shrinkage due to link compliance and joint bearing tolerances. Rigid body simulations (MuJoCo/K2) do not model beam compliance (0.0% structural shrinkage); Nansai's data is cited as an external empirical benchmark illustrating physical compliance losses.",
             ],
         },
         "cycle_details": [c.to_dict() for c in result.cycle_metrics],

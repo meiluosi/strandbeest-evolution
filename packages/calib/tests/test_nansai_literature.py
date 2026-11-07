@@ -153,7 +153,7 @@ def test_validation_document_schema_and_evidence():
     )
     doc = generate_nansai_validation_document(result)
 
-    assert "E1" in doc["evidence_level"]
+    assert "E0" in doc["evidence_level"]
     assert "V-03" in doc["task"]
     assert "literature_references" in doc
     assert "primary" in doc["literature_references"]
@@ -184,7 +184,7 @@ def test_persisted_experiment_json_asset():
     assert asset_path.exists(), f"Expected validation asset at {asset_path}"
 
     data = json.loads(asset_path.read_text(encoding="utf-8"))
-    assert "E1" in data["evidence_level"]
+    assert "E0" in data["evidence_level"]
     assert "V-03" in data["task"]
     assert data["simulation_execution"]["steady_cycles_analyzed"] == 10
     assert len(data["cycle_details"]) == 10

@@ -141,6 +141,7 @@ export function computeFootTrajectoryKinematic(samples = 100): Point2D[] {
 }
 
 export function computeFootTrajectorySimulated(samples = 100): Point2D[] {
+	// Illustrative model overlay: kinematic closed-form trajectory with nominal compliance sag offset
 	const kin = computeFootTrajectoryKinematic(samples);
 	const minZ = Math.min(...kin.map((p) => p.z));
 
@@ -148,7 +149,7 @@ export function computeFootTrajectorySimulated(samples = 100): Point2D[] {
 		const isStance = p.z <= minZ + 0.05;
 		const complianceZ = isStance ? -0.012 : 0.002;
 		const progress = i / samples;
-		const dynamicStretchX = 1.016; // 2.921 / 2.8747 = 1.016 (+1.6%)
+		const dynamicStretchX = 1.016; // 2.921 / 2.8747 = 1.016 (+1.6% nominal)
 		const slipOffset = isStance
 			? Math.sin((progress * Math.PI * 2) % Math.PI) * 0.008
 			: 0.0;
@@ -164,6 +165,7 @@ export function computeFootTrajectoryMeasured(samples = 100): {
 	ci95_upper: Point2D[];
 	ci95_lower: Point2D[];
 } {
+	// Video tracking measured chassis x(t); foot points are an illustrative overlay based on kinematic geometry scaled by measured stride
 	const kin = computeFootTrajectoryKinematic(samples);
 	const minZ = Math.min(...kin.map((p) => p.z));
 
@@ -177,19 +179,15 @@ export function computeFootTrajectoryMeasured(samples = 100): {
 	for (let i = 0; i < kin.length; i++) {
 		const p = kin[i] as Point2D;
 		const isStance = p.z <= minZ + 0.05;
-		// Pseudo-random deterministic optical flow jitter
-		const jitterX = Math.sin(i * 1.7) * 0.006;
-		const jitterZ = Math.cos(i * 2.3) * (isStance ? 0.007 : 0.004);
-
-		const mx = p.x * shrinkFactor + jitterX;
-		const mz = p.z + (isStance ? 0.006 : 0.0) + jitterZ;
+		const mx = p.x * shrinkFactor;
+		const mz = p.z + (isStance ? 0.006 : 0.0);
 
 		measured.push({
 			x: Number(mx.toFixed(4)),
 			z: Number(mz.toFixed(4)),
 		});
 
-		// 95% Confidence uncertainty envelope boundaries
+		// 95% Confidence uncertainty envelope boundaries from scale calibration
 		ci95_upper.push({
 			x: Number((mx * (1 + scaleErr)).toFixed(4)),
 			z: Number((mz + 0.025).toFixed(4)),
@@ -304,7 +302,7 @@ export function getBinnenhofBenchmark(): VideoTwinBenchmark {
 			date: "2016-04-13",
 			sha256:
 				"9944c693e7326d19c839b208790230fea1b03532eed189cedcd72cc76772e478",
-			evidence_level: "E2",
+			evidence_level: "E0",
 			calibrated_mpp: CALIBRATED_MPP,
 			scale_uncertainty_mpp: SCALE_UNCERTAINTY_MPP,
 		},

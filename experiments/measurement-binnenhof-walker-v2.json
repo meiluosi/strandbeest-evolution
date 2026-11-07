@@ -5,7 +5,7 @@
   "design_id": "01KKNVH3SR58XMRQBEFY0938AA",
   "design_name": "jansen-fullscale-animaris",
   "synthetic": false,
-  "build_note": "Physical video measurement of Theo Jansen full-scale Strandbeest (Animaris) walking on cobblestones at Binnenhof, The Hague on 2016-04-13. Filmed by Tweede Kamer der Staten-Generaal (CC BY 3.0). Towed/hauled across square due to calm wind. Scale calibrated against Theo Jansen height (1.85 m) and Animaris mast height (2.36 m).",
+  "build_note": "Physical video measurement of Theo Jansen full-scale Strandbeest (Animaris) walking on cobblestones at Binnenhof, The Hague on 2016-04-13. Filmed by Tweede Kamer der Staten-Generaal (CC BY 3.0). Towed/hauled across square due to calm wind. Scale calibrated against Theo Jansen height (1.85 m) and Animaris mast height (2.36 m). Optical flow tracking measures chassis forward motion x(t); crank rotation psi(t) is derived from an unverified cadence assumption (0.045 Hz / 0.2827 rad/s) as crank linkages were occluded in Shot 3 [Evidence Level E0].",
   "conditions": {
     "kind": "motor_no_wind",
     "omega_rad_s": 0.2827,
@@ -947,7 +947,7 @@
         "uncertainty_m_per_pixel": 0.00021
       }
     },
-    "notes": "Video source: https://commons.wikimedia.org/wiki/File:Het_Strandbeest_van_kunstenaar_Theo_Jansen_loopt_over_het_Binnenhof.webm. SHA-256: 9944c693e7326d19c839b208790230fea1b03532eed189cedcd72cc76772e478. Optical flow tracking on Shot 3 frames 650-950 (10.0 s). Torque is unmeasured and wind speed is zero."
+    "notes": "Video source: https://commons.wikimedia.org/wiki/File:Het_Strandbeest_van_kunstenaar_Theo_Jansen_loopt_over_het_Binnenhof.webm. SHA-256: 9944c693e7326d19c839b208790230fea1b03532eed189cedcd72cc76772e478. Optical flow tracking on Shot 3 frames 650-950 (10.0 s) for chassis x(t). Crank angle psi(t) is derived from assumed nominal cadence (0.045 Hz, unverified) due to crank occlusion. Classified as Evidence Level E0 (Kinematic Assumption). Torque is unmeasured and wind speed is zero."
   },
   "quality": {
     "sample_rate_hz": 30.0,
@@ -955,7 +955,7 @@
     "revolutions": 0.449,
     "speed_mean_rad_s": 0.2827,
     "speed_cv": 0.05,
-    "dropouts": 0,
+    "dropouts": 77,
     "time_offset_s": null,
     "warnings": [
       "keypoint 'chassis' tracked in only 74 % of frames; gaps interpolated"

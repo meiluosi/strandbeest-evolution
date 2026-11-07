@@ -265,8 +265,8 @@ def test_cli_json_output_format(temp_visual_dir):
     assert item["rmse_norm"] == 0.0
 
 
-def test_real_doc_screenshots_self_comparison():
-    """Verify that existing documentation screenshots in docs/assets/screens pass self-check."""
+def test_directory_comparator_identity_on_doc_screenshots():
+    """Verify directory comparator identity property: comparing docs/assets/screens against itself produces zero mismatches."""
     screens_dir = ROOT / "docs" / "assets" / "screens"
     if not screens_dir.exists():
         pytest.skip("docs/assets/screens directory not found")

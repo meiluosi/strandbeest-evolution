@@ -8,6 +8,9 @@
    rollout against native MuJoCo (`damping` + `frictionloss`) rollout on the 16 holdout trials.
 3. Quantifies the sensitivity of 16-second open-loop velocity integration to sub-0.1% full-scale
    force-transducer zero drift (ATI Gamma 15/50 full scale = 15 lbf = 66.723 N).
+   NOTE: The "zero_drift_compensated" evaluation uses trial-specific mean torque residuals as an
+   oracle post-hoc diagnostic upper bound to isolate sensor drift sensitivity, NOT as an
+   out-of-sample predictive model.
 """
 from __future__ import annotations
 
@@ -338,7 +341,7 @@ def main() -> None:
                 "native_mujoco_holdout": summarize_split("holdout", "native_coulomb_3param"),
             },
             "coulomb_3param_zero_drift_compensated": {
-                "description": "Fitted 3-param Coulomb model with per-trial force zero drift bounded within ATI Gamma 15/50 rating (+/-0.5% FSR)",
+                "description": "Post-hoc oracle diagnostic upper bound: fitted 3-param Coulomb model with per-trial force zero drift subtracted (trial residual bounded within ATI Gamma 15/50 rating +/-0.5% FSR) to quantify sensor drift sensitivity; not an out-of-sample predictor",
                 "train": summarize_split("train", "coulomb_3param_zero_drift_compensated"),
                 "holdout": summarize_split("holdout", "coulomb_3param_zero_drift_compensated"),
                 "native_mujoco_holdout": summarize_split("holdout", "native_coulomb_3param_zero_drift_compensated"),

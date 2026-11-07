@@ -62,7 +62,7 @@ describe("video-twin metrics and benchmark", () => {
 		// Video provenance
 		expect(bench.provenance.license).toBe("CC BY 3.0");
 		expect(bench.provenance.author).toBe("Tweede Kamer der Staten-Generaal");
-		expect(bench.provenance.evidence_level).toBe("E2");
+		expect(bench.provenance.evidence_level).toBe("E0");
 		expect(bench.provenance.sha256).toBe(
 			"9944c693e7326d19c839b208790230fea1b03532eed189cedcd72cc76772e478",
 		);

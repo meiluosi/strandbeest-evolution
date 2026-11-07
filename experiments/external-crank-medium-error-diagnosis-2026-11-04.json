@@ -59,7 +59,7 @@
       }
     },
     "coulomb_3param_zero_drift_compensated": {
-      "description": "Fitted 3-param Coulomb model with per-trial force zero drift bounded within ATI Gamma 15/50 rating (+/-0.5% FSR)",
+      "description": "Post-hoc oracle diagnostic upper bound: fitted 3-param Coulomb model with per-trial force zero drift subtracted (trial residual bounded within ATI Gamma 15/50 rating +/-0.5% FSR) to quantify sensor drift sensitivity; not an out-of-sample predictor",
       "train": {
         "pooled_velocity_rmse_rad_s": 1.0528073823987412,
         "condition_velocity_nrmse": {
