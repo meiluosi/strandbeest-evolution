@@ -8,7 +8,9 @@ import {
 	PHENOTYPES,
 } from "./digital-beach-sim";
 import { t } from "./i18n/index.svelte";
+import StateBadge from "./StateBadge.svelte";
 import { theme } from "./theme.svelte";
+import WorkspaceHeader from "./WorkspaceHeader.svelte";
 
 let host: HTMLDivElement;
 const sim = new DigitalBeachSim();
@@ -449,25 +451,18 @@ $effect(() => {
 </script>
 
 <div class="beach-root">
-	<div class="top-bar">
-		<div>
-			<h2>{t("beach.title")}</h2>
-			<small>{t("beach.subtitle")}</small>
-		</div>
-		<div class="status-summary">
-			<span class="badge">
-				<strong>{t("beach.status.walkers")}:</strong> {walkerCount}
-			</span>
-			<span class="badge">
-				<strong>{t("beach.status.wind")}:</strong> {currentWindV.toFixed(1)} m/s
-			</span>
-			<span class="badge">
-				<strong>{t("beach.status.waterLevel")}:</strong> {currentTideZ.toFixed(2)} m
-			</span>
-			<button class="btn btn-primary" onclick={togglePlay}>
+	<WorkspaceHeader eyebrow={t("beach.workspaceEyebrow")} title={t("beach.title")} description={t("beach.subtitle")}>
+		{#snippet actions()}
+			<StateBadge label={t("beach.modelBadge")} tone="info" />
+			<button class="btn primary" onclick={togglePlay}>
 				{isPlaying ? t("beach.controls.pause") : t("beach.controls.play")}
 			</button>
-		</div>
+		{/snippet}
+	</WorkspaceHeader>
+	<div class="status-summary" aria-label={t("beach.statusSummary")}>
+		<span class="badge"><strong>{t("beach.status.walkers")}</strong> {walkerCount}</span>
+		<span class="badge"><strong>{t("beach.status.wind")}</strong> {currentWindV.toFixed(1)} m/s</span>
+		<span class="badge"><strong>{t("beach.status.waterLevel")}</strong> {currentTideZ.toFixed(2)} m</span>
 	</div>
 
 	<div class="main-layout">
@@ -568,7 +563,7 @@ $effect(() => {
 								style="background-color: #{w.phenotype.color.toString(16).padStart(6, '0')}"
 							></span>
 							<strong>{t(w.phenotype.nameKey)}</strong>
-							<button class="delete-btn" onclick={() => onRemoveWalker(w.id)} title={t("beach.card.remove")}>×</button>
+							<button class="delete-btn" aria-label={t("beach.card.remove")} onclick={() => onRemoveWalker(w.id)} title={t("beach.card.remove")}>×</button>
 						</div>
 
 						<div class="reflex-tags">
@@ -606,22 +601,6 @@ $effect(() => {
 		gap: 12px;
 		width: 100%;
 	}
-	.top-bar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		flex-wrap: wrap;
-		gap: 12px;
-		border-bottom: 1px solid var(--line);
-		padding-bottom: 10px;
-	}
-	.top-bar h2 {
-		margin: 0;
-		font-size: 20px;
-	}
-	.top-bar small {
-		color: var(--muted);
-	}
 	.status-summary {
 		display: flex;
 		gap: 8px;
@@ -629,22 +608,29 @@ $effect(() => {
 		flex-wrap: wrap;
 	}
 	.badge {
-		background: var(--card);
+		display: inline-flex;
+		gap: 6px;
+		background: var(--surface-inset);
 		border: 1px solid var(--line);
-		padding: 4px 10px;
-		border-radius: 6px;
-		font-size: 13px;
+		padding: 6px 10px;
+		border-radius: var(--radius-sm);
+		color: var(--text-soft);
+		font-size: 12px;
 	}
+	.badge strong { color: var(--text-muted); font-weight: 500; }
 	.main-layout {
 		display: grid;
-		grid-template-columns: 1fr 340px;
+		grid-template-columns: minmax(0, 1fr) 340px;
 		gap: 16px;
 		min-height: 600px;
 	}
 	@media (max-width: 860px) {
-		.main-layout {
-			grid-template-columns: 1fr;
-		}
+		.main-layout { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+		.canvas-wrap { min-height: 460px; }
+		.sidebar { max-height: none; overflow-y: visible; padding-right: 0; }
+	}
+	@media (max-width: 480px) {
+		.canvas-wrap { min-height: 380px; }
 	}
 	.canvas-wrap {
 		position: relative;
@@ -748,18 +734,13 @@ $effect(() => {
 	.btn:hover {
 		background: var(--line);
 	}
-	.btn-primary {
+	.btn.primary, .btn-accent {
 		background: var(--accent);
-		color: #ffffff;
+		color: var(--accent-contrast);
 		border-color: var(--accent);
 	}
-	.btn-accent {
-		background: #2a9d8f;
-		color: #ffffff;
-		border-color: #2a9d8f;
-	}
 	.btn-danger {
-		color: #d62828;
+		color: var(--danger);
 	}
 	.btn-sm {
 		padding: 4px 8px;

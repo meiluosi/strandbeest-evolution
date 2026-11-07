@@ -6,9 +6,11 @@ import { currentDesign } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
 import ScenePlayer from "./ScenePlayer.svelte";
 import SchemaForm from "./SchemaForm.svelte";
+import StateBadge from "./StateBadge.svelte";
 import { type SchemaField, setByPath } from "./schema-form";
 import { STATIC } from "./static";
 import { store, view } from "./store.svelte";
+import WorkspaceHeader from "./WorkspaceHeader.svelte";
 
 type Metrics = Record<string, number | null>;
 type Variant = {
@@ -230,14 +232,15 @@ const sweepPlot = $derived.by(() => {
 </script>
 
 <div class="simulation-workspace">
-	<header class="workspace-header">
-		<div>
-			<span class="eyebrow">{t("sim.workspaceEyebrow")}</span>
-			<h2>{t("sim.workspaceTitle")}</h2>
-			<p>{t("sim.workspaceDescription")}</p>
-		</div>
-		<span class="workspace-mode">{STATIC ? t("scenes.source.baked") : t("scenes.source.backend")}</span>
-	</header>
+	<WorkspaceHeader
+		eyebrow={t("sim.workspaceEyebrow")}
+		title={t("sim.workspaceTitle")}
+		description={t("sim.workspaceDescription")}
+	>
+		{#snippet actions()}
+			<StateBadge label={STATIC ? t("scenes.source.baked") : t("scenes.source.backend")} tone={STATIC ? "neutral" : "info"} />
+		{/snippet}
+	</WorkspaceHeader>
 	<ScenePlayer />
 	{#if !STATIC}
 	<section class="advanced-tools" aria-label={t("sim.advancedTitle")}>
@@ -385,11 +388,6 @@ const sweepPlot = $derived.by(() => {
 
 <style>
 	.simulation-workspace { max-width: 1480px; margin: 0 auto; }
-	.workspace-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
-	.eyebrow { display: block; color: var(--accent-strong); font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.13em; }
-	.workspace-header h2 { margin-top: 4px; font-size: clamp(24px, 2.3vw, 32px); letter-spacing: -0.04em; }
-	.workspace-header p { margin-top: 5px; color: var(--text-soft); }
-	.workspace-mode { padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--text-muted); font-size: 11px; white-space: nowrap; }
 	.advanced-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
 	.advanced-heading { grid-column: 1 / -1; padding-top: 4px; }
 	.advanced-heading h2 { margin: 4px 0 0; font-size: 20px; }
@@ -398,5 +396,4 @@ const sweepPlot = $derived.by(() => {
 	.advanced-tools > .card:last-child { grid-column: 1 / -1; }
 	.chart { width: 100%; max-width: 560px; height: 130px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); margin-top: 6px; display: block; }
 	@media (max-width: 1100px) { .advanced-tools { grid-template-columns: minmax(0, 1fr); } .advanced-tools > .card:last-child { grid-column: auto; } }
-	@media (max-width: 600px) { .workspace-header { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 16px; } }
 </style>

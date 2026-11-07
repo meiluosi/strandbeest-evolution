@@ -1,9 +1,12 @@
 <script lang="ts">
 import { newUlid } from "strandbeest-core";
 import { call, runJob } from "./api";
-import { currentDesign } from "./editor.svelte";
+import DesignContextBar from "./DesignContextBar.svelte";
+import { currentDesign, editor } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
+import StateBadge from "./StateBadge.svelte";
 import { store, view } from "./store.svelte";
+import WorkspaceHeader from "./WorkspaceHeader.svelte";
 
 type Meas = {
 	id: string;
@@ -309,14 +312,16 @@ const chart = $derived.by(() => {
 });
 </script>
 
-<div class="stack">
-	<div class="card">
-		<h2>{t("lab.title")}</h2>
-		<p class="muted">{t("lab.intro")}</p>
-		<div class="row center"><button class="btn" disabled={!!busy} onclick={refresh}>{t("lab.refresh")}</button>{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}</div>
-		{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
-		{#if info}<p class="notice info">{info}</p>{/if}
-	</div>
+<div class="lab-workspace">
+	<WorkspaceHeader eyebrow={t("lab.workspaceEyebrow")} title={t("lab.title")} description={t("lab.intro")}>
+		{#snippet actions()}
+			{#if busy}<StateBadge label={`${busy}…`} tone="accent" live />{/if}
+			<button class="btn" disabled={!!busy} onclick={refresh}>{t("lab.refresh")}</button>
+		{/snippet}
+	</WorkspaceHeader>
+	<DesignContextBar name={view.name} designId={view.designId} legs={view.legs} editSteps={editor.steps.length} />
+	{#if error}<p class="notice error">{t("common.error", { error: error })}</p>{/if}
+	{#if info}<p class="notice info">{info}</p>{/if}
 
 	<div class="card">
 		<h3>{t("lab.raw.title")}</h3>
@@ -381,7 +386,7 @@ const chart = $derived.by(() => {
 	</div>
 
 	<div class="card">
-		<h3>{t("lab.compare.title")}</h3>
+		<h3 class="compare-title">{t("lab.compare.title")}</h3>
 		<div class="row center">
 			<label>{t("lab.compare.measurement")}
 				<select bind:value={mId} onchange={() => { profile = null; cmp = null; }}>
@@ -448,8 +453,15 @@ const chart = $derived.by(() => {
 
 
 <style>
+	.lab-workspace { display: grid; gap: 16px; max-width: 1480px; margin: 0 auto; }
+	.lab-workspace > :global(.workspace-header), .lab-workspace > :global(.design-context-bar) { margin-bottom: 0; }
+	.lab-workspace > .card { min-width: 0; margin: 0; overflow-x: auto; }
+	.lab-workspace > .card > h3 { margin-bottom: 12px; font-size: 17px; }
+	.compare-title + .row { align-items: end; }
+	.compare-title + .row label { display: grid; gap: 6px; min-width: 0; }
+	.compare-title + .row select { width: 220px; max-width: 100%; }
 	.badge { font-size: 11px; padding: 0 8px; border-radius: 8px; margin-left: 6px; }
-	.badge.ok { background: #2e8b5733; color: #2e8b57; }
-	.badge.bad { background: #d6282822; color: #d62828; font-weight: 600; }
+	.badge.ok { background: var(--success-soft); color: var(--success); }
+	.badge.bad { background: var(--danger-soft); color: var(--danger); font-weight: 600; }
 	.chart { width: 100%; max-width: 560px; height: 130px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
 </style>

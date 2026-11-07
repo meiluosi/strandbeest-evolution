@@ -2,7 +2,7 @@
 
 > 状态：目标架构与实施契约，2026-11-06。决策依据为 [ADR-0013](adr/0013-harness-research-workbench.md)，任务卡见 [ACTIONS.md](ACTIONS.md) 的 HF 节。
 >
-> 当前代码仍由 `apps/web-demo` 承载。HF-01 已落地 Beest Harness Shell、研究空态和语义 Token；HF-02 已统一设计／演化工作台的页面头、真实设计上下文、状态徽标和指标条，保留 Operation、预览、分支、GA Worker 与 MAP-Elites 原事实源。实验对象、执行、训练、评测及 Harness API 尚未实现，HF-03 及后续对象仍以本文为目标架构；现状以 [ARCHITECTURE.md](ARCHITECTURE.md) 和代码为准。
+> 当前代码仍由 `apps/web-demo` 承载。HF-01 已落地 Beest Harness Shell、研究空态和语义 Token；HF-02 已统一设计／演化工作台的页面头、真实设计上下文、状态徽标和指标条，保留 Operation、预览、分支、GA Worker 与 MAP-Elites 原事实源。HF-03 已将同一页面头、设计上下文和状态组件扩展到仿真／回放、制造、数字海滩与实验室，保留既有运行、扫描、历史、证据、导出、校准及独立规则沙盒路径。实验对象、执行、训练、评测及 Harness API 尚未实现，HF-04 及后续对象仍以本文为目标架构；现状以 [ARCHITECTURE.md](ARCHITECTURE.md) 和代码为准。
 
 ## 1. 产品目标与边界
 

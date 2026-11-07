@@ -72,7 +72,7 @@ test("baked replay exposes provenance, available layers and one shared clock", a
 	await open(page, language);
 	const player = page.locator(".scene-player");
 	await pauseAtStart(player, language);
-	await expect(player.locator(".source-badge")).toHaveText(
+	await expect(player.locator(".run-provenance .state-badge")).toHaveText(
 		label(language, "scenes.source.baked"),
 	);
 	await expect(player.locator(".evidence-badge")).toBeVisible();
@@ -145,7 +145,7 @@ test("scene loading clears old results and supports cancellation and failure rec
 	);
 	await expect(player.locator(".views")).toHaveCount(0);
 	await expect(player.locator(".summary")).toHaveCount(0);
-	await expect(player.locator(".source-badge")).toHaveCount(0);
+	await expect(player.locator(".run-provenance .state-badge")).toHaveCount(0);
 	await player
 		.getByRole("button", {
 			name: label(language, "common.cancel"),

@@ -1,9 +1,12 @@
 <script lang="ts">
 import { call } from "./api";
-import { currentDesign, setProperty } from "./editor.svelte";
+import DesignContextBar from "./DesignContextBar.svelte";
+import { currentDesign, editor, setProperty } from "./editor.svelte";
 import { t } from "./i18n/index.svelte";
+import StateBadge from "./StateBadge.svelte";
 import { store, view } from "./store.svelte";
 import Viewer3D from "./Viewer3D.svelte";
+import WorkspaceHeader from "./WorkspaceHeader.svelte";
 
 type Check = {
 	name: string;
@@ -88,25 +91,35 @@ const counts = $derived({
 });
 </script>
 
-<div class="stack">
-	<div class="card">
-		<h2>{t("nav.fab")}</h2>
-		<p class="muted">{t("design.current")}<b>{view.name}</b>{t("fab.designSummary", { legs: view.legs, unitMm: view.unitMm })}</p>
+<div class="fab-workspace">
+	<WorkspaceHeader
+		eyebrow={t("fab.workspaceEyebrow")}
+		title={t("fab.workspaceTitle")}
+		description={t("fab.workspaceDescription")}
+	>
+		{#snippet actions()}
+			<StateBadge label={busy ? `${busy}…` : t("scenes.source.backend")} tone={busy ? "accent" : "info"} live={!!busy} />
+			<button class="btn primary" disabled={!!busy} onclick={exportPack}>{t("fab.checkExport")}</button>
+		{/snippet}
+	</WorkspaceHeader>
+	<DesignContextBar name={view.name} designId={view.designId} legs={view.legs} editSteps={editor.steps.length} />
+	<section class="card fabrication-config" aria-labelledby="fabrication-config-title">
+		<span class="section-eyebrow">{t("fab.configEyebrow")}</span>
+		<h2 id="fabrication-config-title">{t("fab.configTitle")}</h2>
+		<p class="muted">{t("fab.configHint")}</p>
 		<div class="row center">
 			<label>{t("fab.clearance")} <input type="number" min="0" max="1" step="0.05" value={view.clearance} onchange={(e) => { const r = setProperty("/manufacturing/clearance_mm", Number.parseFloat((e.target as HTMLInputElement).value)); if (!r.ok) error = r.message ?? ""; }} /></label>
 			<button class="btn" disabled={!!busy} onclick={evaluate}>{t("fab.evalGait")}</button>
-			<button class="btn primary" disabled={!!busy} onclick={exportPack}>{t("fab.checkExport")}</button>
-			{#if busy}<span class="muted"><span class="spin"></span>{busy}…</span>{/if}
 		</div>
 		{#if error}<p class="notice error">{t("fab.error.before", { error: error })}<code>strandbeest-api</code>{t("common.closeParen")}</p>{/if}
 		{#if gait}
-			<div class="row">
+			<div class="row gait-results">
 				<div class="chip"><b>{(gait.duty * 100).toFixed(0)}%</b><span>{t("metric.dutyFactor")}</span></div>
 				<div class="chip"><b>{gait.lift.toFixed(1)}</b><span>{t("fab.lift")}</span></div>
 				<div class="chip"><b>{gait.stroke_length.toFixed(1)}</b><span>{t("metric.flatLength")}</span></div>
 			</div>
 		{/if}
-	</div>
+	</section>
 
 	{#if pack && manifest}
 		<div class="card">
@@ -160,6 +173,13 @@ const counts = $derived({
 
 
 <style>
+	.fab-workspace { display: grid; gap: 16px; max-width: 1480px; margin: 0 auto; }
+	.fab-workspace > :global(.workspace-header), .fab-workspace > :global(.design-context-bar) { margin-bottom: 0; }
+	.fabrication-config { min-width: 0; }
+	.section-eyebrow { color: var(--text-faint); font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; }
+	.fabrication-config h2 { margin: 4px 0 0; font-size: 18px; }
+	.fabrication-config > p { margin: 5px 0 16px; }
+	.gait-results { margin-top: 16px; }
 	figure { margin: 0; text-align: center; font-size: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
 	svg { width: 100%; height: 70px; }
 </style>

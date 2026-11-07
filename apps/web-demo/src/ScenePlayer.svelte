@@ -9,9 +9,11 @@ import EventTimeline from "./EventTimeline.svelte";
 import EvidenceBadge from "./EvidenceBadge.svelte";
 import { currentDesign } from "./editor.svelte";
 import Footfall from "./Footfall.svelte";
+import Icon from "./Icon.svelte";
 import { t } from "./i18n/index.svelte";
 import ReplayViewport from "./ReplayViewport.svelte";
 import { largestDifference, type Overlays, type Replay } from "./replay-types";
+import StateBadge from "./StateBadge.svelte";
 import { recordCanvas, saveBlob, videoType } from "./share-export";
 import { STATIC } from "./static";
 import { store, view } from "./store.svelte";
@@ -477,7 +479,7 @@ const rows = $derived(
 			<p class="muted">{t("scenes.intro")}</p>
 		</div>
 		<div class="run-provenance">
-			{#if source}<span class="source-badge">{sourceLabel}</span>{/if}
+			{#if source}<StateBadge label={sourceLabel} tone={source === "baked" ? "neutral" : "info"} />{/if}
 			{#if replay}<EvidenceBadge evidence={(replay as any).evidence} />{/if}
 		</div>
 	</div>
@@ -504,8 +506,7 @@ const rows = $derived(
 
 		<div class="replay-stage">
 			<div class="stage-status" role="status">
-				<span class="status-dot {status}"></span>
-				<strong>{statusLabel}</strong>
+				<StateBadge label={statusLabel} tone={status === "error" ? "danger" : status === "ready" ? "success" : running ? "accent" : "neutral"} state={status} live={running} />
 				{#if browserRun}<span>{progress?.phase === "load" ? t("scenes.browserLoading") : t("scenes.browserRunning", { pct: Math.round((progress?.fraction ?? 0) * 100) })}</span>{:else if busy}<span>{busy}…{#if backendJob?.progress.total} {backendJob.progress.done}/{backendJob.progress.total}{/if}</span>{/if}
 			</div>
 			{#if tabHiddenDuringSim && browserRun}<p class="notice warning">{t("scenes.browserBackgroundWarning")}</p>{/if}
@@ -520,6 +521,7 @@ const rows = $derived(
 				</div>
 			{:else}
 				<div class="empty-replay">
+					<span class="empty-symbol"><Icon name="sim" /></span>
 					<strong>{running ? busy || t("scenes.loading") : t("scenes.noReplayTitle")}</strong>
 					<p>{running ? t("scenes.loadingCurrent") : t("scenes.noReplay")}</p>
 				</div>
@@ -614,7 +616,6 @@ const rows = $derived(
 	.player-heading p { max-width: 760px; margin: 6px 0 0; }
 	.eyebrow, .section-label { color: var(--accent-strong); font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.11em; }
 	.run-provenance { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 7px; }
-	.source-badge { padding: 4px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-muted); color: var(--text-soft); font-size: 11px; white-space: nowrap; }
 	.player-layout { display: grid; grid-template-columns: 238px minmax(0, 1fr); gap: 20px; margin-top: 20px; }
 	.scene-config { min-width: 0; padding-right: 20px; border-right: 1px solid var(--line); }
 	.chips { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 0; }
@@ -628,14 +629,11 @@ const rows = $derived(
 	.compare-toggle { align-items: flex-start; margin-top: 12px; line-height: 1.45; }
 	.replay-stage { min-width: 0; }
 	.stage-status { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 26px; margin-bottom: 8px; color: var(--text-muted); font-size: 12px; }
-	.stage-status strong { color: var(--text-soft); font-weight: 600; }
-	.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
-	.status-dot.loading, .status-dot.running { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-	.status-dot.ready { background: var(--success); }
-	.status-dot.error { background: var(--bad); }
 	.views { display: grid; gap: 10px; }
 	.views.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-	.empty-replay { min-height: 280px; display: grid; place-content: center; padding: 28px; border: 1px dashed var(--line); border-radius: 10px; background: var(--surface-muted); text-align: center; }
+	.empty-replay { min-height: 280px; display: grid; place-content: center; justify-items: center; padding: 28px; border: 1px dashed var(--line); border-radius: 10px; background: var(--surface-muted); text-align: center; }
+	.empty-symbol { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: 50%; color: var(--accent); }
+	.empty-symbol :global(svg) { width: 20px; height: 20px; }
 	.empty-replay strong { font-size: 14px; }
 	.empty-replay p { margin: 6px 0 0; color: var(--text-muted); font-size: 12px; }
 	.playback-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-muted); }

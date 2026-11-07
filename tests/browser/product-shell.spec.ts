@@ -92,7 +92,7 @@ test("shell deep links, primary workflows and command keyboard access", async ({
 		await navigate(page, language, "nav.fab");
 		await expect(
 			page.getByRole("heading", {
-				name: label(language, "nav.fab"),
+				name: label(language, "fab.workspaceTitle"),
 				exact: true,
 			}),
 		).toBeVisible();
