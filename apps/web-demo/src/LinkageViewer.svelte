@@ -487,6 +487,7 @@ $effect(() => {
 });
 
 $effect(() => {
+	if (!playing && gustBoost <= 0) return;
 	let raf = 0;
 	let last = performance.now();
 	const tick = (now: number) => {
@@ -517,7 +518,9 @@ $effect(() => {
 				scrollX -= dt * 2 * speed * 28;
 			}
 		}
-		raf = requestAnimationFrame(tick);
+		if (playing || gustBoost > 0) {
+			raf = requestAnimationFrame(tick);
+		}
 	};
 	raf = requestAnimationFrame(tick);
 	return () => cancelAnimationFrame(raf);

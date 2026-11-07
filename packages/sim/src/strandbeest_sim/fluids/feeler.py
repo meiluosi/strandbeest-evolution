@@ -232,6 +232,3 @@ class WaterFeeler:
             p_A = self._p_tube
             p_B = self.config.p_atm
             self.valve.step(dt=0.01, p_A=p_A, p_B=p_B)
-            # Ensure valve flips to reverse (-1)
-            if self.valve.state != -1:
-                self.valve.switch_to(-1)

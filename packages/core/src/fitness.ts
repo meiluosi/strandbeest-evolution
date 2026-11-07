@@ -13,6 +13,39 @@ export const INFEASIBLE = -4;
 /** Penalty for a leg that assembles at the probe angles but not at every trace sample: the worst of the "[-5, -4.1]" band. Equals the Python port. */
 const NO_TRACE_PENALTY = -5.05;
 
+export type LegEvaluation =
+	| { feasible: true; metrics: GaitMetrics; trace: ReturnType<typeof trace> }
+	| { feasible: false; penalty: number };
+
+/**
+ * Evaluates leg feasibility and gait metrics in a single pass, avoiding duplicate
+ * 90-sample kinematic traces and redundant infeasibility checks.
+ */
+export function evaluateLeg(
+	space: GenomeSpace,
+	genome: number[],
+): LegEvaluation {
+	const spec = space.toSpec(genome);
+	const probes = 24;
+	let ok = 0;
+	for (let i = 0; i < probes; i++) {
+		if (solvePose(spec, (2 * Math.PI * i) / probes)) ok++;
+	}
+	if (ok < probes) return { feasible: false, penalty: -10 + 5 * (ok / probes) };
+	const t = trace(spec, 90);
+	if (!t.assembled) return { feasible: false, penalty: NO_TRACE_PENALTY };
+	const m = gaitMetrics(t.foot);
+	const belowHip = t.foot.filter((p) => p.y < 0).length / t.foot.length;
+	const flipped = m.width <= 0 || t.maxStep > MAX_STEP_RATIO * m.width;
+	if (belowHip < 1 || flipped) {
+		return {
+			feasible: false,
+			penalty: -5 + 0.9 * belowHip - (flipped ? 0.05 : 0),
+		};
+	}
+	return { feasible: true, metrics: m, trace: t };
+}
+
 /**
  * Graded penalty for an infeasible leg, always in [-10, -4): the closer it is to a working leg, the higher.
  * A flat -Infinity gives a GA nothing to climb when random lengths almost never assemble.
@@ -22,21 +55,8 @@ export function infeasibility(
 	space: GenomeSpace,
 	genome: number[],
 ): number | null {
-	const spec = space.toSpec(genome);
-	const probes = 24;
-	let ok = 0;
-	for (let i = 0; i < probes; i++)
-		if (solvePose(spec, (2 * Math.PI * i) / probes)) ok++;
-	if (ok < probes) return -10 + 5 * (ok / probes); // [-10, -5)
-	const t = trace(spec, 90);
-	// assembles at the 24 probes but not at every one of the 90 samples: an empty trace (it used to give NaN, which the GA ranked arbitrarily)
-	if (!t.assembled) return NO_TRACE_PENALTY;
-	const m = gaitMetrics(t.foot);
-	const belowHip = t.foot.filter((p) => p.y < 0).length / t.foot.length;
-	const flipped = m.width <= 0 || t.maxStep > MAX_STEP_RATIO * m.width;
-	if (belowHip < 1 || flipped)
-		return -5 + 0.9 * belowHip - (flipped ? 0.05 : 0); // [-5, -4.1]
-	return null;
+	const ev = evaluateLeg(space, genome);
+	return ev.feasible ? null : ev.penalty;
 }
 
 /**
@@ -48,8 +68,8 @@ export function legMetrics(
 	space: GenomeSpace,
 	genome: number[],
 ): GaitMetrics | null {
-	if (infeasibility(space, genome) !== null) return null;
-	return gaitMetrics(trace(space.toSpec(genome), 90).foot);
+	const ev = evaluateLeg(space, genome);
+	return ev.feasible ? ev.metrics : null;
 }
 
 /**
@@ -61,8 +81,9 @@ export function legMetrics(
  */
 export function fitnessFlatStroke(space: GenomeSpace): Fitness {
 	return (genome) => {
-		const m = legMetrics(space, genome);
-		if (!m) return infeasibility(space, genome) as number;
+		const ev = evaluateLeg(space, genome);
+		if (!ev.feasible) return ev.penalty;
+		const m = ev.metrics;
 		const ratio = m.lift / m.width;
 		if (ratio < 0.15) return ratio - 1;
 		return (
@@ -76,8 +97,9 @@ export function fitnessFlatStroke(space: GenomeSpace): Fitness {
 /** v2: maximise step height while keeping at least `minDuty` of the cycle on the ground. For obstacle-crossing legs. */
 export function fitnessHighStep(space: GenomeSpace, minDuty = 0.35): Fitness {
 	return (genome) => {
-		const m = legMetrics(space, genome);
-		if (!m) return infeasibility(space, genome) as number;
+		const ev = evaluateLeg(space, genome);
+		if (!ev.feasible) return ev.penalty;
+		const m = ev.metrics;
 		if (m.duty < minDuty) return m.duty - minDuty - 1;
 		return m.lift / m.width;
 	};
@@ -114,12 +136,12 @@ export function fitnessSpeed(
 	minLiftRatio = 0.15,
 ): Fitness {
 	return (genome) => {
-		const m = legMetrics(space, genome);
-		if (!m) return infeasibility(space, genome) as number;
+		const ev = evaluateLeg(space, genome);
+		if (!ev.feasible) return ev.penalty;
+		const m = ev.metrics;
 		if (m.lift / m.width < minLiftRatio) return m.lift / m.width - 1;
 		if (m.duty < minDuty) return m.duty - minDuty - 1;
-		const t = trace(space.toSpec(genome), 90);
-		return m.strokeLength / legScale(t.foot);
+		return m.strokeLength / legScale(ev.trace.foot);
 	};
 }
 
@@ -134,8 +156,9 @@ export function fitnessEfficiencyProxy(
 	minLiftRatio = 0.15,
 ): Fitness {
 	return (genome) => {
-		const m = legMetrics(space, genome);
-		if (!m) return infeasibility(space, genome) as number;
+		const ev = evaluateLeg(space, genome);
+		if (!ev.feasible) return ev.penalty;
+		const m = ev.metrics;
 		if (m.lift / m.width < minLiftRatio) return m.lift / m.width - 1;
 		if (m.duty < minDuty) return m.duty - minDuty - 1;
 		return m.strokeLength / (m.strokeLength + 2 * m.lift);

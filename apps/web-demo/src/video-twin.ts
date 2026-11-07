@@ -141,23 +141,13 @@ export function computeFootTrajectoryKinematic(samples = 100): Point2D[] {
 }
 
 export function computeFootTrajectorySimulated(samples = 100): Point2D[] {
-	// Illustrative model overlay: kinematic closed-form trajectory with nominal compliance sag offset
+	// Kinematic closed-form trajectory scaled by simulated stride ratio
 	const kin = computeFootTrajectoryKinematic(samples);
-	const minZ = Math.min(...kin.map((p) => p.z));
-
-	return kin.map((p, i) => {
-		const isStance = p.z <= minZ + 0.05;
-		const complianceZ = isStance ? -0.012 : 0.002;
-		const progress = i / samples;
-		const dynamicStretchX = 1.016; // 2.921 / 2.8747 = 1.016 (+1.6% nominal)
-		const slipOffset = isStance
-			? Math.sin((progress * Math.PI * 2) % Math.PI) * 0.008
-			: 0.0;
-		return {
-			x: Number((p.x * dynamicStretchX + slipOffset).toFixed(4)),
-			z: Number((p.z + complianceZ).toFixed(4)),
-		};
-	});
+	const dynamicStretchX = SIMULATED_STRIDE_M / THEORETICAL_STRIDE_M;
+	return kin.map((p) => ({
+		x: Number((p.x * dynamicStretchX).toFixed(4)),
+		z: Number(p.z.toFixed(4)),
+	}));
 }
 
 export function computeFootTrajectoryMeasured(samples = 100): {
@@ -216,12 +206,9 @@ export function computePhaseCurves(steps = 60): {
 	for (let i = 0; i <= steps; i++) {
 		const frac = i / steps;
 		const theta = Number((frac * 2.0 * Math.PI).toFixed(4));
-		// 12-leg stride ripple: 6 cycles per crank revolution
-		const ripple = Math.sin(frac * 12.0 * Math.PI) * 0.012;
-
-		const dxKin = THEORETICAL_STRIDE_M * frac + ripple;
-		const dxSim = SIMULATED_STRIDE_M * frac + ripple * 1.1;
-		const dxMeas = MEASURED_STRIDE_M * frac + ripple * 0.95;
+		const dxKin = THEORETICAL_STRIDE_M * frac;
+		const dxSim = SIMULATED_STRIDE_M * frac;
+		const dxMeas = MEASURED_STRIDE_M * frac;
 
 		const sigmaSpan = dxMeas * sigmaRate;
 		const ci95Span = dxMeas * ci95Rate;
@@ -256,11 +243,9 @@ export function computeVelocitySeries(points = 50): VelocityPoint[] {
 	const out: VelocityPoint[] = [];
 	for (let i = 0; i < points; i++) {
 		const t = Number(((i / (points - 1)) * totalT).toFixed(3));
-		// Ripple oscillation frequency ~0.27 Hz (6 pairs)
-		const osc = Math.sin(2 * Math.PI * 0.27 * t);
-		const v_meas = Number((vMeanMeas + osc * 0.014).toFixed(4));
-		const v_sim = Number((vMeanSim + osc * 0.016).toFixed(4));
-		const v_kin = Number((vMeanKin + osc * 0.012).toFixed(4));
+		const v_meas = Number(vMeanMeas.toFixed(4));
+		const v_sim = Number(vMeanSim.toFixed(4));
+		const v_kin = Number(vMeanKin.toFixed(4));
 		out.push({ t, v_meas, v_sim, v_kin });
 	}
 	return out;

@@ -366,10 +366,11 @@ class K2Backend:
             ext_crank_torque = -d*self._applied_joint_torque
 
             # Add internal joint friction and damping on crank (with load-dependent bearing force model)
+            # The crank pin transmits drive forces rather than the chassis vertical deadweight
             bearing_force = (
-                sum(l.normal for l in self._last_foot_loads)
+                sum(abs(l.tangent) for l in self._last_foot_loads)
                 if self._last_foot_loads
-                else self._m_total * abs(self._gravity[2])
+                else 0.0
             )
             load_pin_fric = self._joint_friction_coeff * self._joint_pin_radius * bearing_force
             # Each declared hinge dissipates at its relative angular speed.

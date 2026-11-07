@@ -691,16 +691,7 @@ def run_herd_mujoco(
 
             # Storm anchor holding mechanics
             if agent.anchor.is_firing or agent.anchor.is_deployed:
-                # Accelerate anchor spike into beach sand
-                agent.anchor._velocity = max(agent.anchor._velocity, 4.0)
-                agent.anchor._penetration_depth = min(
-                    agent.anchor.config.stroke,
-                    agent.anchor._penetration_depth
-                    + agent.anchor._velocity * timestep,
-                )
-                if agent.anchor._penetration_depth >= agent.anchor.config.stroke:
-                    agent.anchor._deployed = True
-                    agent.anchor._firing = False
+                agent.anchor.step(timestep)
 
                 f_holding = agent.anchor.compute_holding_force(
                     agent.anchor.penetration_depth
@@ -715,10 +706,6 @@ def run_herd_mujoco(
                         f_hold_clamped * (v_horiz / v_norm)
                     )
                     total_anchor_dissipation += f_hold_clamped * v_norm * timestep
-
-                # Angular holding moment righting the torso back to vertical [0, 0, 1]
-                up_error = np.cross(z_walker, np.array([0.0, 0.0, 1.0]))
-                data.xfrc_applied[agent.torso_id, 3:6] += 400.0 * up_error
 
         # 2. Multi-walker bumper collision & repulsion forces
         n_agents = len(agent_names)

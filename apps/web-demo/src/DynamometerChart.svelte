@@ -1,5 +1,6 @@
 <script lang="ts">
 import {
+	type CycleSummary,
 	DEFAULT_SAIL,
 	DEFAULT_WALKER,
 	type LinkageSpec,
@@ -15,6 +16,7 @@ let {
 	slopeDeg = 0,
 	rolling = 5,
 	theta = 0,
+	summary = null,
 	onseektheta,
 }: {
 	spec: LinkageSpec;
@@ -24,6 +26,7 @@ let {
 	slopeDeg?: number;
 	rolling?: number;
 	theta?: number;
+	summary?: CycleSummary | null;
 	onseektheta?: (th: number) => void;
 } = $props();
 
@@ -48,11 +51,19 @@ const data = $derived.by(() => {
 	const thetas: number[] = [];
 	const loadTorques: number[] = [];
 
-	for (let i = 0; i < N_SAMPLES; i++) {
-		const th = (2 * Math.PI * i) / N_SAMPLES;
-		const s = quasiStaticSample(spec, walker, terrain, th);
-		thetas.push(th);
-		loadTorques.push(s ? s.torque : 0);
+	if (summary && summary.samples && summary.samples.length > 0) {
+		const n = summary.samples.length;
+		for (let i = 0; i < n; i++) {
+			thetas.push((2 * Math.PI * i) / n);
+			loadTorques.push(summary.samples[i]?.torque ?? 0);
+		}
+	} else {
+		for (let i = 0; i < N_SAMPLES; i++) {
+			const th = (2 * Math.PI * i) / N_SAMPLES;
+			const s = quasiStaticSample(spec, walker, terrain, th);
+			thetas.push(th);
+			loadTorques.push(s ? s.torque : 0);
+		}
 	}
 
 	const peakLoad = Math.max(...loadTorques);

@@ -94,7 +94,7 @@ def iso6358_mass_flow(
         m_dot = conductance * rho0 * p_up * temp_corr
     else:
         # Subsonic flow with elliptical transition
-        term = (r - b) / (1.0 - b)
+        term = (r - b) / max(1e-6, 1.0 - b)
         term_sq = min(term * term, 1.0)
         psi = math.sqrt(max(0.0, 1.0 - term_sq))
         m_dot = conductance * rho0 * p_up * temp_corr * psi
@@ -141,14 +141,14 @@ def iso6358_mass_flow_derivative_ratio(
         return 0.0
     if abs(r - b) < 1e-14:
         return 0.0
-    if r >= 1.0:
-        return -float("inf")
 
-    term = (r - b) / (1.0 - b)
+    one_minus_b = max(1e-6, 1.0 - b)
+    r_clamped = min(r, 1.0 - 1e-7)
+    term = (r_clamped - b) / one_minus_b
     term_sq = min(term * term, 1.0)
-    denom_sqrt = math.sqrt(max(1e-15, 1.0 - term_sq))
+    denom_sqrt = math.sqrt(max(1e-12, 1.0 - term_sq))
     scale = conductance * rho0 * p1 * math.sqrt(T0 / max(T1, 1.0))
-    return -scale * (r - b) / ((1.0 - b) ** 2 * denom_sqrt)
+    return -scale * (r_clamped - b) / (one_minus_b ** 2 * denom_sqrt)
 
 
 def iso6358_mass_flow_derivative_p2(

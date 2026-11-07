@@ -105,6 +105,7 @@ $effect(() => {
 			{slopeDeg}
 			{rolling}
 			{theta}
+			{summary}
 			onseektheta={(th) => (theta = th)}
 		/>
 		<small>{t("wind.caveat")}</small>

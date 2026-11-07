@@ -18,6 +18,16 @@ describe("multi-leg", () => {
 		expect(feet[1]?.[0]).toEqual(feet[0]?.[30]);
 	});
 
+	it("handles negative phases without undefined array indexing", () => {
+		const feet = multiLegFeet(
+			spec,
+			[{ phase: -Math.PI / 2 }],
+			120,
+		) as NonNullable<ReturnType<typeof multiLegFeet>>;
+		expect(feet[0]?.[0]).toBeDefined();
+		expect(typeof feet[0]?.[0]?.x).toBe("number");
+	});
+
 	it("keeps at least one foot on the ground with 6 legs per side at all times", () => {
 		const feet = multiLegFeet(spec, evenPhases(6), 120) as NonNullable<
 			ReturnType<typeof multiLegFeet>

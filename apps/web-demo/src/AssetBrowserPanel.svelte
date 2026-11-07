@@ -17,6 +17,7 @@ import {
 import { t } from "./i18n/index.svelte";
 import { opLabel } from "./opdocs";
 import { STATIC } from "./static";
+import { store } from "./store.svelte";
 
 let {
 	onmessage,
@@ -225,10 +226,9 @@ async function duplicateDesign(d: Design) {
 async function deleteDesign(d: Design) {
 	if (!STATIC) {
 		try {
-			await fetch(
-				`${(await import("./store.svelte")).store.api}/designs/${encodeURIComponent(d.id)}`,
-				{ method: "DELETE" },
-			);
+			await fetch(`${store.api}/designs/${encodeURIComponent(d.id)}`, {
+				method: "DELETE",
+			});
 		} catch {
 			/* ignore network error */
 		}

@@ -29,37 +29,6 @@ export interface Phenotype {
 	bodyWidth: number;
 }
 
-/** Descriptors and keys for MAP-Elites quality-diversity species atlas integration */
-export const MAP_ELITES_KEYS = [
-	"map_elites.title",
-	"map_elites.subtitle",
-	"map_elites.qdScore",
-	"map_elites.coverage",
-	"map_elites.bestFitness",
-	"map_elites.evaluations",
-	"map_elites.paretoFront",
-	"map_elites.axisLift",
-	"map_elites.axisCost",
-	"map_elites.cellCoord",
-	"map_elites.fitness",
-	"map_elites.liftRatio",
-	"map_elites.costOfTransport",
-	"map_elites.legs",
-	"map_elites.born",
-	"map_elites.paretoBadge",
-	"map_elites.loadViewer",
-	"map_elites.selectHint",
-	"map_elites.emptyCell",
-	"map_elites.noAtlas",
-	"map_elites.runQd",
-	"map_elites.running",
-	"map_elites.exportAtlas",
-	"map_elites.importAtlas",
-	"map_elites.selectedElite",
-	"map_elites.stride",
-	"map_elites.mass",
-] as const;
-
 const defaultParams = jansenSpec().params;
 
 /** MAP-Elites atlas phenotypes representing distinct evolved walker niches */
@@ -252,6 +221,19 @@ export class DigitalBeachSim {
 	contactMarks: ContactMark[] = [];
 	maxMarks = 250;
 
+	private _walkerCounter = 0;
+	private _spawnSeed = 42;
+
+	private _seededRandom(): number {
+		this._spawnSeed = (this._spawnSeed + 0x6d2b79f5) | 0;
+		let t = Math.imul(
+			this._spawnSeed ^ (this._spawnSeed >>> 15),
+			1 | this._spawnSeed,
+		);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return (t >>> 0) / 4294967296;
+	}
+
 	spawnWalker(
 		phenotypeId: string,
 		x?: number,
@@ -260,9 +242,10 @@ export class DigitalBeachSim {
 	): BeachWalkerState {
 		const defaultPheno = PHENOTYPES.classic_jansen as Phenotype;
 		const pheno = PHENOTYPES[phenotypeId] ?? defaultPheno;
-		const id = `walker_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-		const posX = x ?? Math.random() * 6.0 - 1.0;
-		const posY = y ?? Math.random() * 8.0 - 4.0;
+		this._walkerCounter++;
+		const id = `walker_${Date.now()}_${this._walkerCounter}`;
+		const posX = x ?? this._seededRandom() * 6.0 - 1.0;
+		const posY = y ?? this._seededRandom() * 8.0 - 4.0;
 		const groundZ = beachDuneHeight(posX, posY);
 
 		const walker: BeachWalkerState = {
@@ -275,7 +258,7 @@ export class DigitalBeachSim {
 			vx: 0.0,
 			vy: 0.0,
 			heading,
-			crankAngle: Math.random() * Math.PI * 2,
+			crankAngle: this._seededRandom() * Math.PI * 2,
 			crankOmega: 2.0,
 			direction: 1,
 			feelerTipZ: groundZ + 0.05,

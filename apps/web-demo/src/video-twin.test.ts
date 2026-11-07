@@ -91,9 +91,15 @@ describe("video-twin metrics and benchmark", () => {
 		expect(minKinZ).toBeLessThan(-1.5);
 		expect(maxKinZ).toBeGreaterThan(-1.4);
 
-		// Simulated foot shows compliance sag during stance
+		// Simulated foot reflects stride scaling in x and matches kinematic vertical envelope
+		const spanKinX =
+			Math.max(...kin.map((p) => p.x)) - Math.min(...kin.map((p) => p.x));
+		const spanSimX =
+			Math.max(...sim.map((p) => p.x)) - Math.min(...sim.map((p) => p.x));
+		expect(spanSimX).toBeGreaterThan(spanKinX);
+
 		const minSimZ = Math.min(...sim.map((p) => p.z));
-		expect(minSimZ).toBeLessThan(minKinZ);
+		expect(minSimZ).toBeCloseTo(minKinZ, 3);
 	});
 
 	it("computes crank phase displacement and velocity curves", () => {

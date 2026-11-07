@@ -126,7 +126,10 @@ def build_measurement_asset(track_data: dict[str, Any], design_id: str = "01KKNV
             "walking on cobblestones at Binnenhof, The Hague on 2016-04-13. "
             "Filmed by Tweede Kamer der Staten-Generaal (CC BY 3.0). "
             "Towed/hauled across square due to calm wind. "
-            "Scale calibrated against Theo Jansen height (1.85 m) and Animaris mast height (2.36 m)."
+            "Scale calibrated against Theo Jansen height (1.85 m) and Animaris mast height (2.36 m). "
+            "Optical flow tracking measures chassis forward motion x(t); crank rotation psi(t) is "
+            "derived from an unverified cadence assumption (0.045 Hz / 0.2827 rad/s) as crank linkages "
+            "were occluded in Shot 3 [Evidence Level E0]."
         ),
         "conditions": {
             "kind": "motor_no_wind",

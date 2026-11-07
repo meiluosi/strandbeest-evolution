@@ -135,7 +135,12 @@ def main():
     }
 
     OUT_PATH.write_text(json.dumps(res_dict, indent=2, allow_nan=False) + "\n")
-    print(f"H3-03 Video Digital Twin Inversion successful!")
+    identifiable_all = all(pipeline_result.identifiable_parameters.values())
+    if identifiable_all:
+        print("H3-03 Video Digital Twin Inversion successful (all parameters identifiable)!")
+    else:
+        unidentifiable = [k for k, v in pipeline_result.identifiable_parameters.items() if not v]
+        print(f"H3-03 Video Digital Twin Inversion completed with unidentifiable parameters: {unidentifiable}")
     print(f"Measurement ID: {res_dict['measurement_id']}")
     print(f"Ground truth pin friction: {true_pin_friction}")
     print(f"Recovered MAP pin friction: {pipeline_result.parameter_estimates['pin_friction']:.6f}")

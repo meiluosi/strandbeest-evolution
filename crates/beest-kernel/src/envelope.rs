@@ -90,6 +90,15 @@ pub fn check_transmission_angle_safety(
     r1: f64,
     min_angle_deg: f64,
 ) -> bool {
+    if !d_min.is_finite()
+        || !d_max.is_finite()
+        || !r0.is_finite()
+        || !r1.is_finite()
+        || r0 <= 0.0
+        || r1 <= 0.0
+    {
+        return false;
+    }
     let min_rad = min_angle_deg.to_radians();
     for &d in &[d_min, d_max] {
         let cos_gamma = (r0 * r0 + r1 * r1 - d * d) / (2.0 * r0 * r1);

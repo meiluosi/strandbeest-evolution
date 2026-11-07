@@ -5,7 +5,7 @@
 > 日期：2026-11-05  
 > 工作分支：`refactor/product-frontend`  
 > 正式改造目标：`apps/web-demo`（Svelte 5）  
-> 视觉与交互参照：`apps/web-demo/product-demo`（独立概念 Demo）
+> 视觉与交互参照：`prototypes/concept-demo`（独立概念原型）
 
 本文是本轮产品讨论和后续开发交接的唯一入口。后续如有新决策，更新本文末尾的“决策记录”，不要只留在聊天中。
 

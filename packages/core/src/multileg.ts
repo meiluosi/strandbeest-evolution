@@ -26,7 +26,10 @@ export function multiLegFeet(
 	if (!base.assembled) return null;
 	return legs.map((leg) => {
 		const shift = Math.round((leg.phase / (2 * Math.PI)) * samples);
-		return base.foot.map((_, k) => base.foot[(k + shift) % samples] as Point);
+		return base.foot.map(
+			(_, k) =>
+				base.foot[(((k + shift) % samples) + samples) % samples] as Point,
+		);
 	});
 }
 

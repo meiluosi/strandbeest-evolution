@@ -191,7 +191,13 @@ pub fn circle_intersection(
     let dx = p1.0 - p0.0;
     let dy = p1.1 - p0.1;
     let d = dx.hypot(dy);
-    if d == 0.0 || d > r0 + r1 || d < (r0 - r1).abs() {
+    if !d.is_finite()
+        || !r0.is_finite()
+        || !r1.is_finite()
+        || d == 0.0
+        || d > r0 + r1
+        || d < (r0 - r1).abs()
+    {
         return None;
     }
     let a = (r0 * r0 - r1 * r1 + d * d) / (2.0 * d);
