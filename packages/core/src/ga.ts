@@ -75,7 +75,11 @@ export function* evolve(
 	let bestFitness = Number.NEGATIVE_INFINITY;
 
 	for (let gen = 0; gen <= gens; gen++) {
-		const scores = pop.map(fitness);
+		const rawScores = pop.map(fitness);
+		// Sanitize non-finite / NaN scores to -Infinity to guarantee strict total order and prevent tournament poison pills
+		const scores = rawScores.map((s) =>
+			Number.isFinite(s) ? s : Number.NEGATIVE_INFINITY,
+		);
 		const order = scores
 			.map((_, i) => i)
 			.sort((a, b) => (scores[b] as number) - (scores[a] as number));

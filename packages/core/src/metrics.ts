@@ -18,11 +18,20 @@ export function gaitMetrics(foot: Point[], tol = 0.015): GaitMetrics {
 
 /** Normalise a loop: centre on its bounding box and scale so its width is 1. */
 function normalise(path: Point[]): Point[] {
-	const xs = path.map((p) => p.x);
-	const ys = path.map((p) => p.y);
-	const w = Math.max(...xs) - Math.min(...xs) || 1;
-	const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
-	const cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+	if (path.length === 0) return [];
+	let minX = Number.POSITIVE_INFINITY;
+	let maxX = Number.NEGATIVE_INFINITY;
+	let minY = Number.POSITIVE_INFINITY;
+	let maxY = Number.NEGATIVE_INFINITY;
+	for (const p of path) {
+		if (p.x < minX) minX = p.x;
+		if (p.x > maxX) maxX = p.x;
+		if (p.y < minY) minY = p.y;
+		if (p.y > maxY) maxY = p.y;
+	}
+	const w = maxX - minX || 1;
+	const cx = (maxX + minX) / 2;
+	const cy = (maxY + minY) / 2;
 	return path.map((p) => ({ x: (p.x - cx) / w, y: (p.y - cy) / w }));
 }
 

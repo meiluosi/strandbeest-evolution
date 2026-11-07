@@ -32,5 +32,10 @@ export function circleIntersection(
 	const h = Math.sqrt(Math.max(0, r0 * r0 - a * a));
 	const mx = p0.x + (a * dx) / d;
 	const my = p0.y + (a * dy) / d;
-	return { x: mx - (side * h * dy) / d, y: my + (side * h * dx) / d };
+	const px = mx - (side * h * dy) / d;
+	const py = my + (side * h * dx) / d;
+	if (!Number.isFinite(px) || !Number.isFinite(py)) {
+		return null;
+	}
+	return { x: px, y: py };
 }

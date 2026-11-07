@@ -160,13 +160,21 @@ export function cycleSummary(
 	}
 	const dpsi = (2 * Math.PI) / samples;
 	const taus = out.map((s) => s.torque);
+	let peakTorque = Number.NEGATIVE_INFINITY;
+	let minTorque = Number.POSITIVE_INFINITY;
+	let maxSlipSpread = Number.NEGATIVE_INFINITY;
+	for (const s of out) {
+		if (s.torque > peakTorque) peakTorque = s.torque;
+		if (s.torque < minTorque) minTorque = s.torque;
+		if (s.slipSpread > maxSlipSpread) maxSlipSpread = s.slipSpread;
+	}
 	return {
 		stride: out.reduce((s, v) => s + v.dXdPsi * dpsi, 0),
 		meanTorque: taus.reduce((s, v) => s + v, 0) / samples,
-		peakTorque: Math.max(...taus),
-		minTorque: Math.min(...taus),
+		peakTorque,
+		minTorque,
 		stableFraction: out.filter((s) => s.stable).length / samples,
-		maxSlipSpread: Math.max(...out.map((s) => s.slipSpread)),
+		maxSlipSpread,
 		samples: out,
 	};
 }

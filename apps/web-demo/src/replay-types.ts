@@ -101,6 +101,7 @@ export function frameAt(r: Replay, t: number): number {
 	if (n < 2) return 0;
 	const t0 = r.t[0] as number;
 	const dt = ((r.t[n - 1] as number) - t0) / (n - 1);
+	if (dt <= 0 || !Number.isFinite(dt)) return 0;
 	return Math.max(0, Math.min(n - 1, Math.round((t - t0) / dt)));
 }
 

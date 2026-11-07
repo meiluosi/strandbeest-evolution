@@ -42,7 +42,9 @@ export function structureErrors(spec: LinkageSpec): StructureError[] {
 	const seen = new Set<string>();
 	(spec.joints ?? []).forEach((j, i) => {
 		const base = `joints[${i}]`;
-		if (RESERVED.has(j.id))
+		if (!j.id || j.id.trim() === "")
+			err("empty_id", `${base}.id`, `${base}.id: joint id cannot be empty`);
+		else if (RESERVED.has(j.id))
 			err(
 				"reserved_id",
 				`${base}.id`,

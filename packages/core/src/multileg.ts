@@ -39,15 +39,25 @@ export function multiLegFeet(
  * (counted across both sides of the body, i.e. pass legs from both sides).
  */
 export function groundContactCounts(feet: Point[][], tol = 0.015): number[] {
-	const all = feet.flat();
-	const ys = all.map((p) => p.y);
-	const xs = all.map((p) => p.x);
-	const lo = Math.min(...ys);
-	const width = Math.max(...xs) - Math.min(...xs);
-	const samples = (feet[0] as Point[]).length;
+	if (feet.length === 0 || !feet[0] || feet[0].length === 0) return [];
+	let minX = Number.POSITIVE_INFINITY;
+	let maxX = Number.NEGATIVE_INFINITY;
+	let minY = Number.POSITIVE_INFINITY;
+	let maxY = Number.NEGATIVE_INFINITY;
+	for (const leg of feet) {
+		for (const p of leg) {
+			if (p.x < minX) minX = p.x;
+			if (p.x > maxX) maxX = p.x;
+			if (p.y < minY) minY = p.y;
+			if (p.y > maxY) maxY = p.y;
+		}
+	}
+	const lo = minY;
+	const width = maxX - minX;
+	const samples = feet[0].length;
 	return Array.from({ length: samples }, (_, k) =>
 		feet.reduce(
-			(c, leg) => c + ((leg[k] as Point).y <= lo + tol * width ? 1 : 0),
+			(c, leg) => c + ((leg[k] as Point)?.y <= lo + tol * width ? 1 : 0),
 			0,
 		),
 	);

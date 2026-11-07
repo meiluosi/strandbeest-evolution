@@ -113,11 +113,20 @@ export function referenceGaitMetrics(foot: Point[], tol = 0.015): GaitMetrics {
 		);
 	const n = foot.length;
 	if (n === 0) return { width: 0, lift: 0, strokeLength: 0, duty: 0 };
-	const ys = foot.map((p) => p.y);
-	const xs = foot.map((p) => p.x);
-	const lo = Math.min(...ys);
-	const lift = Math.max(...ys) - lo;
-	const width = Math.max(...xs) - Math.min(...xs);
+	let boundMinX = Number.POSITIVE_INFINITY;
+	let boundMaxX = Number.NEGATIVE_INFINITY;
+	let minY = Number.POSITIVE_INFINITY;
+	let maxY = Number.NEGATIVE_INFINITY;
+	for (let i = 0; i < n; i++) {
+		const p = foot[i] as Point;
+		if (p.x < boundMinX) boundMinX = p.x;
+		if (p.x > boundMaxX) boundMaxX = p.x;
+		if (p.y < minY) minY = p.y;
+		if (p.y > maxY) maxY = p.y;
+	}
+	const lo = minY;
+	const lift = maxY - lo;
+	const width = boundMaxX - boundMinX;
 	const limit = lo + tol * width;
 	const onGround = foot.map((p) => p.y <= limit);
 	if (onGround.every(Boolean))

@@ -61,7 +61,7 @@ class Elite:
 
 
 def _bin(v: float, edges: np.ndarray) -> int | None:
-    if v < edges[0] or v >= edges[-1]:
+    if not math.isfinite(v) or v < edges[0] or v >= edges[-1]:
         return None
     return int(np.searchsorted(edges, v, side="right") - 1)
 

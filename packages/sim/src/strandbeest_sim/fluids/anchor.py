@@ -262,10 +262,10 @@ class StormAnchor:
             f_res = self.sand_penetration_resistance(self._penetration_depth)
             f_damp = self.config.damping * self._velocity
 
-            f_net = max(0.0, f_drive - f_res - f_damp)
+            f_net = f_drive - f_res - f_damp
             accel = f_net / self.config.spike_mass
 
-            self._velocity += accel * dt
+            self._velocity = max(0.0, self._velocity + accel * dt)
             self._penetration_depth += self._velocity * dt
 
             # Check full stroke

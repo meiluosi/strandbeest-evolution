@@ -69,8 +69,9 @@ const data = $derived.by(() => {
 	const peakLoad = Math.max(...loadTorques);
 	const minLoad = Math.min(...loadTorques);
 	const stallIdx = loadTorques.indexOf(peakLoad);
+	const sampleCount = thetas.length || N_SAMPLES;
 	const stallAngleDeg =
-		stallIdx >= 0 ? Math.round((stallIdx / N_SAMPLES) * 360) : 0;
+		stallIdx >= 0 ? Math.round((stallIdx / sampleCount) * 360) : 0;
 
 	// Sail available torque at zero crank speed (starting torque)
 	const rho = 1.225;

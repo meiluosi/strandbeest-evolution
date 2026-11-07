@@ -204,10 +204,12 @@ pub fn circle_intersection(
     let h = (r0 * r0 - a * a).max(0.0).sqrt();
     let mx = p0.0 + a * dx / d;
     let my = p0.1 + a * dy / d;
-    Some((
-        mx - (side as f64) * h * dy / d,
-        my + (side as f64) * h * dx / d,
-    ))
+    let res_x = mx - (side as f64) * h * dy / d;
+    let res_y = my + (side as f64) * h * dx / d;
+    if !res_x.is_finite() || !res_y.is_finite() {
+        return None;
+    }
+    Some((res_x, res_y))
 }
 
 /// Solves all joint positions for crank angle `theta` (radians). Returns None if assembly fails.
