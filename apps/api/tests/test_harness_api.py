@@ -84,6 +84,9 @@ def test_experiment_revision_roundtrip_restart_and_independent_trial(client, tmp
     created = create_experiment(client, design)
     experiment = created["experiment"]
     revision = created["revision"]
+    assert experiment["current_revision_id"] == revision["id"]
+    assert client.get(f"/api/harness/v1/experiments/{experiment['id']}").json()["current_revision_id"] == revision["id"]
+    assert client.get("/api/harness/v1/experiments").json()[0]["current_revision_id"] == revision["id"]
     assert revision["digest"].startswith("sha256:")
     assert client.get(f"/api/harness/v1/experiment-revisions/{revision['id']}").json() == revision
     validation = client.post(f"/api/harness/v1/experiment-revisions/{revision['id']}/validate").json()
@@ -102,11 +105,25 @@ def test_experiment_revision_roundtrip_restart_and_independent_trial(client, tmp
         f"/api/harness/v1/experiments/{experiment['id']}/revisions",
         json={"base_id": revision["id"], **next_protocol},
     ).status_code == 409
+    current = client.get(f"/api/harness/v1/experiments/{experiment['id']}").json()
+    assert current["current_revision"] == 2 and current["current_revision_id"] == second["id"]
     client.app.state.workers.stop()
     restarted = create_app(tmp_path)
     client.app = restarted
-    assert restarted.state.harness.get_experiment(experiment["id"])["current_revision"] == 2
+    restored = restarted.state.harness.get_experiment(experiment["id"])
+    assert restored["current_revision"] == 2 and restored["current_revision_id"] == second["id"]
     assert restarted.state.harness.get_revision(second["id"]) == second
+
+
+def test_asset_references_use_authoritative_design_and_run_documents(client, tmp_path):
+    design_ids, run_ids = seed_assets(tmp_path)
+    design = client.get(f"/api/harness/v1/assets/design/{design_ids[0]}/reference")
+    assert design.status_code == 200 and design.json() == design_ref(saved_design(tmp_path, design_ids[0]))
+    run = client.get(f"/api/harness/v1/assets/run/{run_ids[0]}/reference").json()
+    saved_run = json.loads((tmp_path / "runs" / run_ids[0] / "run.json").read_text())
+    assert run == {"kind": "run", "id": run_ids[0], "digest": content_hash(saved_run)}
+    assert client.get(f"/api/harness/v1/assets/unknown/{run_ids[0]}/reference").status_code == 422
+    assert client.get(f"/api/harness/v1/assets/run/{design_ids[0]}/reference").status_code == 422
 
 
 def test_experiment_rejects_missing_and_mismatched_references(client, tmp_path):

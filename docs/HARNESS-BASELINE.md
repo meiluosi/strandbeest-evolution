@@ -42,7 +42,7 @@
 
 ## 5. HN01／HN02 最小接口现状（2026-11-06）
 
-`apps/api/src/strandbeest_api/harness.py` 提供 `/api/harness/v1` 的实验列表／详情、实验创建、当前修订派生、修订读取／校验、NPZ 快照创建／读取／校验和直接血缘查询。新文档位于 `experiments/` 与 `dataset-snapshots/`，索引和权威边使用 `harness.db` 的 `harness_` 表；既有 `_reindex()` 不清理这些关系。
+`apps/api/src/strandbeest_api/harness.py` 提供 `/api/harness/v1` 的实验列表／详情、实验创建、当前修订派生、修订读取／校验、NPZ 快照创建／读取／校验和直接血缘查询。Experiment 列表与详情包含 `current_revision_id`，可直接恢复当前不可变修订；`GET /assets/{kind}/{id}/reference` 返回服务端按真实资产文档计算的精确引用，前端无需复制摘要算法。新文档位于 `experiments/` 与 `dataset-snapshots/`，索引和权威边使用 `harness.db` 的 `harness_` 表；既有 `_reindex()` 不清理这些关系。
 
 - `ExperimentRevision` 和 `DatasetSnapshot` Schema 位于 `schemas/`，摘要由 common 的规范化 JSON／SHA-256 计算。
 - 修订派生必须引用当前 `base_id`；Condition／Trial 由服务端生成新 ULID，显式新 Trial 不被内容缓存去重。

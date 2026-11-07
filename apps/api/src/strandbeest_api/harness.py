@@ -102,14 +102,28 @@ class HarnessStore:
 
     def list_experiments(self) -> list[dict[str, Any]]:
         with self._lock:
-            rows = self._db.execute("SELECT path,current_revision FROM harness_experiments ORDER BY created DESC, id DESC").fetchall()
-        return [{**_load(self.root / row["path"]), "current_revision": row["current_revision"]} for row in rows]
+            rows = self._db.execute(
+                """SELECT e.path,e.current_revision,r.id AS current_revision_id
+                   FROM harness_experiments e
+                   JOIN harness_revisions r ON r.experiment_id=e.id AND r.revision=e.current_revision
+                   ORDER BY e.created DESC,e.id DESC"""
+            ).fetchall()
+        return [
+            {**_load(self.root / row["path"]), "current_revision": row["current_revision"], "current_revision_id": row["current_revision_id"]}
+            for row in rows
+        ]
 
     def get_experiment(self, experiment_id: str) -> dict[str, Any]:
         doc = self._doc("experiments", experiment_id, "no such experiment")
         with self._lock:
-            current = self._db.execute("SELECT current_revision FROM harness_experiments WHERE id=?", (experiment_id,)).fetchone()
-        return {**doc, "current_revision": current["current_revision"]}
+            current = self._db.execute(
+                """SELECT e.current_revision,r.id AS current_revision_id
+                   FROM harness_experiments e
+                   JOIN harness_revisions r ON r.experiment_id=e.id AND r.revision=e.current_revision
+                   WHERE e.id=?""",
+                (experiment_id,),
+            ).fetchone()
+        return {**doc, "current_revision": current["current_revision"], "current_revision_id": current["current_revision_id"]}
 
     def get_revision(self, revision_id: str) -> dict[str, Any]:
         return self._doc("revisions", revision_id, "no such experiment revision")
@@ -198,6 +212,7 @@ class HarnessStore:
             "created": now,
         }
         revision = self._new_revision(experiment_id, 1, payload, now)
+        experiment["current_revision_id"] = revision["id"]
         self._validate_refs(revision)
         relative = Path("experiments") / experiment_id
         with self._lock:
@@ -444,6 +459,13 @@ def register_harness_routes(app: FastAPI, store: HarnessStore) -> None:
     @app.post("/api/harness/v1/dataset-snapshots/{snapshot_id}/validate")
     def validate_snapshot(snapshot_id: str) -> dict[str, Any]:
         return store.validate_snapshot(snapshot_id)
+
+    @app.get("/api/harness/v1/assets/{kind}/{asset_id}/reference")
+    def get_asset_reference(kind: str, asset_id: str) -> dict[str, Any]:
+        if kind not in {"design", "run", "measurement", "profile", "dataset_snapshot"}:
+            raise _invalid(f"unsupported asset kind: {kind}")
+        resolved_id, digest = store.asset_identity(asset_id, kind)
+        return {"kind": kind, "id": resolved_id, "digest": digest}
 
     @app.get("/api/harness/v1/assets/{asset_id}/lineage")
     def get_lineage(asset_id: str) -> dict[str, Any]:
