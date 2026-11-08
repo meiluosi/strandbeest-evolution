@@ -2,7 +2,7 @@
 
 > 状态：目标架构与实施契约，2026-11-06。决策依据为 [ADR-0013](adr/0013-harness-research-workbench.md)，任务卡见 [ACTIONS.md](ACTIONS.md) 的 HF 节，已核对基线与接口差异见 [HARNESS-BASELINE.md](HARNESS-BASELINE.md)。
 >
-> 当前代码仍由 `apps/web-demo` 承载。HF-01 已落地 Beest Harness Shell、研究空态和语义 Token；HF-02 已统一设计／演化工作台的页面头、真实设计上下文、状态徽标和指标条，保留 Operation、预览、分支、GA Worker 与 MAP-Elites 原事实源。HF-03 已将同一页面头、设计上下文和状态组件扩展到仿真／回放、制造、数字海滩与实验室，保留既有运行、扫描、历史、证据、导出、校准及独立规则沙盒路径。HN01／HN02 最小后端已提供真实实验修订、NPZ 数据快照、分组切分和来源关系；执行、训练与评测尚未实现，HF-04 及后续前端仍以本文为目标架构。现状以 [ARCHITECTURE.md](ARCHITECTURE.md) 和代码为准。
+> 当前代码仍由 `apps/web-demo` 承载。HF-01 已落地 Beest Harness Shell、研究空态和语义 Token；HF-02 已统一设计／演化工作台的页面头、真实设计上下文、状态徽标和指标条，保留 Operation、预览、分支、GA Worker 与 MAP-Elites 原事实源。HF-03 已将同一页面头、设计上下文和状态组件扩展到仿真／回放、制造、数字海滩与实验室，保留既有运行、扫描、历史、证据、导出、校准及独立规则沙盒路径。HF-04 已将实验设计页接入 HN01／HN02 最小后端：可创建和恢复真实 Experiment／不可变 ExperimentRevision，查看冻结输入、Condition／Trial、预算权限、base 差异与直接血缘，并从真实 Run NPZ 创建和复验 DatasetSnapshot／Split。`experiment`／`revision` 深链恢复精确对象；static 保持只读且尚无烘焙实验。HF-05／HF-06 未开始，Harness 执行、训练与评测仍未实现。现状以 [ARCHITECTURE.md](ARCHITECTURE.md) 和代码为准。
 
 ## 1. 产品目标与边界
 

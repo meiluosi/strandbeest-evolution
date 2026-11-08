@@ -49,3 +49,14 @@
 - 快照核对 Run 文档摘要、NPZ 字节摘要、通道和样本长度，Split 必须完整覆盖且 train／test 至少各有一组。
 - 校验接口只确认当前契约与来源一致，返回 `execution_authorized: false`；不会启动任务、产生授权或宣称科学结论。
 - 定向 common／API 测试 25 项通过，common／API 回归 363 项通过（Windows、Python UTF-8 模式）。未进行浏览器矩阵，因为本切片没有前端变更。
+
+## 6. HF-04 前端接入现状（2026-11-06）
+
+- `apps/web-demo/src/harness-api.ts` 集中 `/api/harness/v1` 类型和请求；`harness.ts` 仅负责展示差异、Design 分组、默认 Split 与提交前提示，不成为科学对象的第二事实源。
+- `ResearchProtocol.svelte` 展示真实不可变修订、冻结输入、Condition／Trial、预算／权限、相对 base 的科学内容差异及直接来源边；派生操作显式创建新 Trial，可标记 `independent_replication`。
+- `SnapshotPanel.svelte` 从真实 Run 列表选择 episode，按 `design_id` 分组并分配 train／development／test；创建后显示服务端返回的快照摘要、来源 NPZ 摘要、通道、样本数，并支持来源重验。
+- `ResearchTab.svelte` 支持真实实验创建、列表选择、修订派生、协议／快照校验和快照附加。URL 使用显式 `experiment`／`revision`；后端地址参与加载键，切换在线服务不会沿用旧 404。创建／派生完成后回到协议顶部。
+- static 不提供创建、派生或快照写入表单，不伪造烘焙 Experiment；运行／回放和比较／证据仍保留真实空态。当前仅直接血缘与 NPZ，不是完整 HN02，也不包含 Harness 执行、训练、评测或科学通过结论。
+- 最终前端检查：`pnpm check` 461 项 JS 测试通过（core 197、sim-web 198、web 66）；固定 Linux Chromium 132 项矩阵 98 通过、34 按模式跳过。8 张研究空态基线与中英协议页四档截图已人工审查，像素阈值保持零容差；真实制造下载复验通过。
+- 仓库级 Python 检查未全绿：`packages/sim` 531 通过、11 失败、13 排除；其中 10 项 golden 在 `max_loop_residual_m`／`max_penetration_m` 上出现浮点末位精确相等差异，另 1 项 `inf` 求解精度未拒绝。HF-04 未修改 `packages/sim`，不在本任务中改写物理基线。fab 21、calib 95、rig 37、agent 17、opt 203、API 78 项通过（另有模式排除／跳过）。common 284 项通过、1 项因下列历史文档引用失败。
+- `EXPERIMENTS.md:2491–2495` 仍引用 5 个不存在的历史测试产物路径；本机也无 `make`，固件标准宿主测试命令无法启动。这些缺口与 HF-04 前端实现分开记录，不伪造历史证据或宣称完整 DoD。

@@ -8,6 +8,8 @@ let {
 		| "protocol"
 		| "runs"
 		| "evidence"
+		| "branch"
+		| "dataset"
 		| "design"
 		| "evolve"
 		| "sim"
@@ -34,6 +36,10 @@ let {
 		<circle cx="12" cy="12" r="9" /><path d="m10 8 6 4-6 4Z" /><path d="M12 3v2M21 12h-2M12 21v-2M3 12h2" />
 	{:else if name === "evidence"}
 		<path d="M4 19V5m0 14h16" /><path d="m7 15 4-4 3 2 5-7" /><circle cx="7" cy="15" r="1" /><circle cx="11" cy="11" r="1" /><circle cx="14" cy="13" r="1" /><circle cx="19" cy="6" r="1" />
+	{:else if name === "branch"}
+		<circle cx="6" cy="5" r="2" /><circle cx="18" cy="6" r="2" /><circle cx="6" cy="19" r="2" /><path d="M6 7v10M8 12h6a4 4 0 0 0 4-4" />
+	{:else if name === "dataset"}
+		<ellipse cx="12" cy="5" rx="8" ry="3" /><path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7" />
 	{:else if name === "design"}
 		<path d="m14 6 4 4L8 20l-5 1 1-5Z" /><path d="m13 7 4 4M4 16l4 4" /><circle cx="17" cy="5" r="2" />
 	{:else if name === "evolve"}

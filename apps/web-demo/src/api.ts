@@ -6,6 +6,11 @@ const errorKeys: Record<string, string> = {
 	calibration_measurement_invalid: "lab.error.measurementInvalid",
 	calibration_profile_invalid: "lab.error.profileInvalid",
 	calibration_parameters_invalid: "lab.error.parametersInvalid",
+	invalid_harness_document: "harness.error.invalid",
+	unknown_asset_reference: "harness.error.unknownAsset",
+	asset_reference_mismatch: "harness.error.assetMismatch",
+	revision_base_conflict: "harness.error.revisionConflict",
+	snapshot_source_changed: "harness.error.sourceChanged",
 };
 
 export async function call<T = any>(path: string, body?: unknown): Promise<T> {
@@ -18,7 +23,8 @@ export async function call<T = any>(path: string, body?: unknown): Promise<T> {
 		const raw = await r.text();
 		let code = "";
 		try {
-			code = JSON.parse(raw).detail?.code ?? "";
+			const error = JSON.parse(raw);
+			code = error.detail?.code ?? error.code ?? "";
 		} catch {}
 		const key = errorKeys[code];
 		throw new Error(key ? t(key) : `${r.status} ${raw}`);

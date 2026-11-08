@@ -61,8 +61,17 @@ function initialResearchView(): ResearchView {
 	return "protocol";
 }
 
+function initialResearchIdentity(key: "experiment" | "revision"): string {
+	return typeof window === "undefined"
+		? ""
+		: (new URLSearchParams(window.location.search).get(key) ?? "");
+}
+
 let tab = $state<Tab>(initialTab());
 let researchView = $state<ResearchView>(initialResearchView());
+let researchExperiment = $state(initialResearchIdentity("experiment"));
+let researchRevision = $state(initialResearchIdentity("revision"));
+let researchTitle = $state("");
 let online = $state<"unknown" | "up" | "down">("unknown");
 let paletteOpen = $state(false);
 let editMessage = $state("");
@@ -70,11 +79,22 @@ let editMessage = $state("");
 $effect(() => {
 	const current = tab;
 	const currentResearchView = researchView;
+	const experiment = researchExperiment;
+	const revision = researchRevision;
 	const url = new URL(window.location.href);
 	if (url.searchParams.get("tab") !== current)
 		url.searchParams.set("tab", current);
-	if (current === "research") url.searchParams.set("view", currentResearchView);
-	else url.searchParams.delete("view");
+	if (current === "research") {
+		url.searchParams.set("view", currentResearchView);
+		if (experiment) url.searchParams.set("experiment", experiment);
+		else url.searchParams.delete("experiment");
+		if (revision) url.searchParams.set("revision", revision);
+		else url.searchParams.delete("revision");
+	} else {
+		url.searchParams.delete("view");
+		url.searchParams.delete("experiment");
+		url.searchParams.delete("revision");
+	}
 	history.replaceState(null, "", url);
 });
 
@@ -133,6 +153,12 @@ function navigate(next: Tab) {
 function navigateResearch(next: ResearchView) {
 	researchView = next;
 	tab = "research";
+}
+
+function selectResearch(experiment: string, revision: string, title: string) {
+	researchExperiment = experiment;
+	researchRevision = revision;
+	researchTitle = title;
 }
 
 function exportCurrent() {
@@ -195,8 +221,8 @@ $effect(() => {
 			<span class="context-symbol"><Icon name={tab === "research" ? "research" : "design"} /></span>
 			<div class="context-copy">
 				<span class="project-kicker">{tab === "research" ? t("research.context") : t("design.current")}</span>
-				<strong title={tab === "research" ? t("research.noExperimentShort") : view.designId}>
-					{tab === "research" ? t("research.noExperimentShort") : view.name}
+				<strong title={tab === "research" ? (researchTitle || t("research.noExperimentShort")) : view.designId}>
+					{tab === "research" ? (researchTitle || t("research.noExperimentShort")) : view.name}
 				</strong>
 			</div>
 			{#if tab === "research"}
@@ -275,7 +301,7 @@ $effect(() => {
 			<p class="notice error environment-notice">{t("app.backend.unreachable.before", { api: store.api })} <code>strandbeest-api</code>{t("app.backend.unreachable.or")} <code>docker compose up</code>{t("app.backend.unreachable.after")}</p>
 		{/if}
 		{#if editMessage}<p class="notice error environment-notice">{editMessage}</p>{/if}
-		{#if tab === "research"}<ResearchTab view={researchView} designName={view.name} designId={view.designId} editSteps={editor.steps.length} staticMode={STATIC} {online} onview={navigateResearch} ondesign={() => navigate("design")} onsim={() => navigate("sim")} />{:else if tab === "design"}<DesignTab onevolve={() => navigate("evolve")} onsim={() => navigate("sim")} />{:else if tab === "evolve"}<EvolveTab spec={view.linkage} onapply={applyEvolved} ondesign={() => navigate("design")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else if tab === "beach"}<DigitalBeach />{:else}<LabTab />{/if}
+		{#if tab === "research"}<ResearchTab view={researchView} designName={view.name} designId={view.designId} editSteps={editor.steps.length} staticMode={STATIC} {online} experimentId={researchExperiment} revisionId={researchRevision} onview={navigateResearch} onselect={selectResearch} ondesign={() => navigate("design")} onsim={() => navigate("sim")} />{:else if tab === "design"}<DesignTab onevolve={() => navigate("evolve")} onsim={() => navigate("sim")} />{:else if tab === "evolve"}<EvolveTab spec={view.linkage} onapply={applyEvolved} ondesign={() => navigate("design")} />{:else if tab === "fab"}<FabTab />{:else if tab === "sim"}<SimTab />{:else if tab === "beach"}<DigitalBeach />{:else}<LabTab />{/if}
 	</main>
 </div>
 <CommandPalette bind:open={paletteOpen} onmessage={(m) => (editMessage = m)} />

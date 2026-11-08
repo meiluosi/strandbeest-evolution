@@ -2,7 +2,7 @@
 
 > 核对日期：2026-11-06。本文描述当前工作区实际执行路径，包含尚未完成验收的 M8 原型。目标架构见 [PLATFORM.md](PLATFORM.md)、[ENGINE.md](ENGINE.md)，加固验收见 [ACTIONS.md](ACTIONS.md) H 节。功能存在不等于物理验证通过。
 >
-> 当前前端已包含 Strandbeest Studio P0–P2、可关闭的潮汐环境美术层、HF-01 Beest Harness Shell／研究空态、HF-02 设计／演化工作台统一及 HF-03 仿真与次级工作台统一。各工作台共享页面头、真实设计上下文、状态徽标和适用的指标组件，底层 Operation、Worker、图鉴、预览、Replay、制造／校准 API 与数字海滩规则模型的状态主权未变。其余 Harness 研究工作台仍是目标架构，见 [HARNESS-FRONTEND.md](HARNESS-FRONTEND.md) 和 [ADR-0013](adr/0013-harness-research-workbench.md)；实施与 HN06 的依赖由 ACTIONS 的 HF 卡跟踪；固定前端检查点和 HN01–HN06 接口差异见 [HARNESS-BASELINE.md](HARNESS-BASELINE.md)。
+> 当前前端已包含 Strandbeest Studio P0–P2、可关闭的潮汐环境美术层、HF-01 Beest Harness Shell／研究空态、HF-02 设计／演化工作台统一、HF-03 仿真与次级工作台统一及 HF-04 实验协议／数据血缘视图。各工作台共享页面头、真实设计上下文、状态徽标和适用的指标组件，底层 Operation、Worker、图鉴、预览、Replay、制造／校准 API 与数字海滩规则模型的状态主权未变。HF-04 通过 `/api/harness/v1` 适配层读取和创建真实 ExperimentRevision、DatasetSnapshot／Split，显式新 Trial 表达独立复验；运行／回放与比较／证据仍是目标架构，见 [HARNESS-FRONTEND.md](HARNESS-FRONTEND.md) 和 [ADR-0013](adr/0013-harness-research-workbench.md)。实施与 HN06 的依赖由 ACTIONS 的 HF 卡跟踪；固定前端检查点和 HN01–HN06 接口差异见 [HARNESS-BASELINE.md](HARNESS-BASELINE.md)。
 
 ## 执行路径
 
@@ -40,7 +40,7 @@ beest-kernel (Rust) ─┬─► PyO3 ─► common 的运动学/步态
 | `packages/calib` | 测量对照、共享物理参数映射、工况驱动的曲线拟合；显式 Design/Scenario 的 MuJoCo 轨迹反演；Profile 应用后重新仿真 | 原独立孪生公式已替换；记录实现身份、原生仿真、代理误差、时间留出及可识别性。当前映射限 MuJoCo，杆柔度未支持；真实视频/动力学留出验证未完成（EXPERIMENTS §55） |
 | `packages/agent` | 工具注册、MCP、预算/审计、基准、证据解释 | 工具可用不保证物理模型正确；优化结论仍受证据门槛约束 |
 | `apps/api` | 资产、评估、持久化作业/取消/扫描、仿真回放、Arrow、校准、演化及交互 WebSocket；`/api/harness/v1` 最小实验修订、真实 NPZ 数据快照／分组切分及独立权威血缘 | 缓存已核对Beest实现、后端和输入；旧记录/未知实现不复用。Harness 尚无执行授权、Job／Attempt、训练／评测、Parquet 或拟合变换；本地实验室服务，无完整多人身份/房间/共享世界 |
-| `apps/web-demo` | Beest Harness Shell、研究协议／运行／证据真实空态、共享页面头／设计上下文／状态／指标组件、统一后的设计／演化／仿真／回放工作台、制造、数字海滩、实验室、资产浏览、中英目录、静态画廊、浏览器仿真和独立潮汐环境美术层 | 研究空态尚未绑定 ExperimentRevision，亦无 Harness 执行、训练或评测能力；数字海滩使用独立规则模型，不是现有 PhysicsBackend；制造导出不等于实体制造验证；多人和真实风场待实现 |
+| `apps/web-demo` | Beest Harness Shell、真实实验协议／不可变修订差异、NPZ Snapshot／Split／直接血缘视图、运行／证据真实空态、共享页面头／设计上下文／状态／指标组件、统一后的设计／演化／仿真／回放工作台、制造、数字海滩、实验室、资产浏览、中英目录、静态画廊、浏览器仿真和独立潮汐环境美术层 | static 尚无烘焙实验；运行／证据未绑定真实 Harness 对象，亦无执行、训练或评测能力；数字海滩使用独立规则模型，不是现有 PhysicsBackend；制造导出不等于实体制造验证；多人和真实风场待实现 |
 | `crates/beest-kernel` | Rust 运动学/步态与 Python/WASM 双端业务接入，跨端边界语料 | Python有速度收益，Web固定预算GA仍慢于TS reference；H3-01及当前浏览器旅程验收已通过；H5-02性能预算仍未完成 |
 | `hardware` | 固件逻辑、台架方案、实验协议 | 宿主测试不等于 Arduino 编译或硬件实测 |
 

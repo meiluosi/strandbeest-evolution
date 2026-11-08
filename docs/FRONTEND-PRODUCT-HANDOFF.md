@@ -498,4 +498,15 @@ HF-01 完成不代表 HF-00 的盘点已验收，也不代表 HF-02–HF-08 或 
 - 新增定向矩阵共 16 项，10 项通过、6 项按 live/static 模式预期跳过。完整矩阵首轮发现实验室选项宽度随真实历史内容变化及既有静态回放基线差异；固定下拉框布局、审查实际 `0.00 s` 回放／指标／能量画面并更新基线后，定向复验 4 项通过、4 项跳过。未放宽任何像素或溢出阈值。
 - 固定 Linux Chromium 完整矩阵最终共 124 项，94 项通过、30 项按 live/static 模式预期跳过；20 张新基线与 6 张既有静态回放／指标／能量基线已审查。两份真实制造下载各验证 18 个封闭网格及尺寸、数量和文档，3 个负向对照均被拒绝；这不是实体制造验证。
 - HF-03 未修改物理、GA、Design／Scenario／Run 契约、Replay 算法或 Three.js 内核。数字海滩仍不是 PhysicsBackend；浏览器证据不包括 Firefox／WebKit。
-- HF-00 基线与差异验收已完成，见 [HARNESS-BASELINE.md](HARNESS-BASELINE.md)。HN01／HN02 最小后端现提供 `/api/harness/v1` 的真实 Experiment／ExperimentRevision、Condition／Trial、真实 NPZ DatasetSnapshot／Split 及独立 `harness_` 血缘；重启恢复、引用和篡改检查已覆盖。下一步是 HF-04 前端接入；HN03 执行、HN04 训练、Parquet／拟合变换和完整 HN02 仍未实现。
+- HF-00 基线与差异验收已完成，见 [HARNESS-BASELINE.md](HARNESS-BASELINE.md)。HN01／HN02 最小后端为 15.4 的 HF-04 提供 `/api/harness/v1` 真实对象与来源；HN03 执行、HN04 训练、Parquet／拟合变换和完整 HN02 仍未实现。
+
+### 15.4 HF-04 实验协议、数据与血缘实施记录
+
+- `harness-api.ts` 集中 Harness 类型和真实 API；`ResearchTab.svelte` 接入实验创建、读取、选择、修订派生、协议校验及深链。Shell 只在选中真实实验后显示标题，`experiment`／`revision` 可在刷新后恢复同一不可变修订。
+- `ResearchProtocol.svelte` 展示冻结 Design／Scenario／Run／Snapshot 引用、Condition／Trial、评测标识、预算和手动权限。相对 base 的差异覆盖问题、设计、场景、来源、条件、Trial、评测和预算；独立复验创建显式新 Trial，不把内容缓存当作统计重复。
+- `SnapshotPanel.svelte` 使用真实 Run 与 NPZ 通道，按 Design 分组分配 train／development／test，展示服务端快照 ID／摘要、Split、episode、样本数和 NPZ 字节摘要，并可重验来源。`harness.ts` 的纯视图函数有不变量测试。
+- 表单使用原生 `form`／`fieldset`／`legend`、显式标签和约束；提交期间禁用以防重复。协议与来源表保留 caption、行／列头和可键盘滚动区域；协议表按实际容器宽度重排，不按整个页面宽度误判。
+- live 下覆盖真实创建、R1→R2 独立复验、真实双 Design Run 快照、R3 附加快照、直接血缘、深链刷新和校验；static 明确禁止 Harness 写入且尚无烘焙实验。加载键包含后端地址，切换服务不保留旧 404；创建／派生后回到协议顶部。
+- 新增 8 张研究空态视觉基线并审查协议页 375／768／1024／1440 像素截图。`pnpm check` 通过：461 项 JS 测试（core 197、sim-web 198、web 66），Svelte 0 错误、0 警告；live/static 构建、硬编码中文、Schema／生成物检查与 `git diff --check` 通过。
+- 最终 live/static 构建的固定 Linux Chromium 完整矩阵共 132 项，98 通过、34 按模式跳过；截图比较继续保持 `maxDiffPixels: 0` 和 `threshold: 0`。两份真实制造下载各验证 18 个封闭网格及尺寸、数量和文档，3 个负向对照均被拒绝；这不是实体制造验证。
+- HF-05／HF-06 未开始；没有 Harness 执行、Job／Attempt、训练、真实权重、评测或科学结论，浏览器验收也不包括 Firefox／WebKit。通用 DoD 未全绿：`packages/sim` 有 11 项与本次前端改动无关的失败（10 项 golden 浮点末位精确相等差异、1 项 `inf` 精度未拒绝），`EXPERIMENTS.md` 另有 5 个既有历史产物路径缺失，本机无 `make`。因此 ACTIONS 保留进行中，不将代码验收描述为全仓全绿。
